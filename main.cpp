@@ -1,6 +1,10 @@
 #include <sc2api/sc2_api.h>
 
 #include <iostream>
+#include <fstream>
+#include <map>
+#include <sstream>
+#include <string>
 
 using namespace sc2;
 
@@ -8,41 +12,48 @@ class Bot : public Agent {
 public:
     virtual void OnGameStart() final 
 	{
-		std::printf("Kokekoko! Please check my initial observation of the game!");
-			std::printf("\tPlayer ID: %d\n", Observation()->GetPlayerID());
-			std::printf("\tGame Loop: %d\n", Observation()->GetGameLoop());
-			//std::printf("\tOur Units: %d\n", &(Observation()->GetUnits(Unit::Self).size));
-			//std::printf("\tNeutral Units: %d\n", &(Observation()->GetUnits(Unit::Neutral).size));
-			//std::printf("\tEnemy Visible Units: %d\n", &(Observation()->GetUnits(Unit::Enemy).size));
-			
-			std::cout << "\tPower Sources: " << std::endl;
-			for (const PowerSource & powersource : Observation()->GetPowerSources())
-			{
-				std::cout << "\t" << powersource.tag << "\tPosition(" << powersource.position.x << ", " << powersource.position.y << ")\n";
-			}
-			//std::printf("\tCamera Position: (%d, %d)\n", Observation()->GetCameraPos().x, Observation()->GetCameraPos().y);
+		std::string replayfilepath = "", replayfileline = "";
 
-		std::cout << "My attributes are: " << std::endl;
-			std::cout << "Minerals: " << Observation()->GetMinerals() << std::endl;
-			std::cout << "Vespene: " << Observation()->GetVespene() << std::endl;
-			std::cout << "Food Cap: " << Observation()->GetFoodCap() << std::endl;
-			std::cout << "Food Used: " << Observation()->GetFoodUsed() << std::endl;
+		std::cout << "Gathering Data for the Model...";
+		while (replayfilepath.empty())
+		{
+			std::cout << "\n\tEnter File Path: ";
+			std::cin >> replayfilepath;
+		}
+
+		try
+		{
+			std::ifstream replayfile(replayfilepath);
+			if (replayfile.is_open())
+			{
+				std::cout << "\n\n\t\tSuccessfully opened the file '" << replayfilepath << "'!" << std::endl;
+				while (std::getline(replayfile, replayfileline))
+				{
+					std::cout << "\t\t\tCurrent Line: " << replayfileline << std::endl;
+					
+					std::stringstream byline(replayfileline);
+					std::string bycomma = "";
+					while (std::getline(byline, bycomma, ','))
+					{
+						std::cout << "\t\t\t\tCurrent Column: " << bycomma << std::endl;
+						
+						
+					}
+				}
+
+				std::cout << "\n\n\t\tClosing the file '" << replayfilepath << "'..." << std::endl;
+				replayfile.close();
+			}
+		}
+		catch (...)
+		{
+
+		}
     }
 
     virtual void OnStep() final 
 	{
-		/*std::cout << "Is Game Loop already 30 seconds? " << (Observation()->GetGameLoop() % 30 == 0) << std::endl;
-		if (Observation()->GetGameLoop() % 30 == 0)
-		{
-			CreateMonteCarloTree();
-		}
-		else
-		{
-			std::cout << "Monte Carlo Tree is ignored" << std::endl;
-		}*/
 
-		TryBuildSupplyDepot();
-		TryBuildBarracks();
     }
 
 	virtual void OnUnitIdle(const Unit* unit) final
@@ -52,128 +63,12 @@ public:
 		
 		switch (unit->unit_type.ToType())
 		{
-			case UNIT_TYPEID::TERRAN_COMMANDCENTER:
-			{
-				std::cout << "\t\t\tAction: " << AbilityTypeToName(ABILITY_ID::TRAIN_SCV) << std::endl;
 
-				Actions()->UnitCommand(unit, ABILITY_ID::TRAIN_SCV);
-				break;
-			}
-			case UNIT_TYPEID::TERRAN_SCV:
-			{
-				std::cout << "\t\t\tAction: " << AbilityTypeToName(ABILITY_ID::SMART) << std::endl;
-
-				const Unit* target_mineral = FindNearestMineralPatch(unit->pos);
-				if (!target_mineral)
-					break;
-				Actions()->UnitCommand(unit, ABILITY_ID::SMART, target_mineral);
-				break;
-			}
-			case UNIT_TYPEID::TERRAN_BARRACKS: 
-			{
-				Actions()->UnitCommand(unit, ABILITY_ID::TRAIN_MARINE);
-				break;
-			}
-			case UNIT_TYPEID::TERRAN_MARINE: 
-			{
-				const GameInfo& game_info = Observation()->GetGameInfo();
-				Actions()->UnitCommand(unit, ABILITY_ID::ATTACK_ATTACK, game_info.enemy_start_locations.front());
-				break;
-			}
-			default:
-			{
-				std::cout << "\t\t\t-default-" << std::endl;
-
-				break;
-			}
 		}
 	}
 
 private:
-	void CreateMonteCarloTree()
-	{
-		std::cout << "Creating Monte Carlo Tree" << std::endl;
-
-		int randomness = GetRandomInteger(1, 5);
-		switch (randomness)
-		{
-		case 1:
-		{
-			std::cout << "We build barrack with idle worker" << std::endl;
-			std::cout << "Idle Workers: " << Observation()->GetIdleWorkerCount() << std::endl;
-			if (Observation()->GetIdleWorkerCount() > 0)
-			{
-				std::cout << "We have idle worker!" << std::endl;
-				Units workers = Observation()->GetUnits(Unit::Alliance::Self, IsUnit(UNIT_TYPEID::TERRAN_SCV));
-
-
-				if (workers.empty())
-				{
-					std::cout << "What! No workers!" << std::endl;
-				}
-				else
-				{
-					for (const auto& worker : workers)
-					{
-						for (const auto& order : worker->orders)
-						{
-							if (order.ability_id == ABILITY_ID::BUILD_BARRACKS)
-								return;
-						}
-					}
-
-					const Unit* unit = GetRandomEntry(workers);
-					auto pos = Point2D(Observation()->GetStartLocation().x + GetRandomInteger(10, 100), Observation()->GetStartLocation().y + GetRandomInteger(10, 100));
-					while (!Query()->Placement(ABILITY_ID::BUILD_BARRACKS, pos))
-					{
-						std::cout << "Fuck no pos, how to get pos" << std::endl;
-					}
-
-					Actions()->UnitCommand(unit, ABILITY_ID::BUILD_BARRACKS, pos);
-				}
-			}
-		}
-		case 4:
-		{
-			std::cout << "Train SCV" << std::endl;
-
-			Units cmdcntr = Observation()->GetUnits(Unit::Alliance::Self, IsUnit(UNIT_TYPEID::TERRAN_COMMANDCENTER));
-
-			if (cmdcntr.empty())
-				return;
-
-			Actions()->UnitCommand(cmdcntr.front(), ABILITY_ID::TRAIN_SCV);
-
-			break;
-		}
-		case 2:
-		{
-			std::cout << "We train army" << std::endl;
-			Units barracks = Observation()->GetUnits(Unit::Alliance::Self, IsUnit(UNIT_TYPEID::TERRAN_BARRACKS));
-
-			if (barracks.empty())
-				return;
-
-			const Unit* unit = GetRandomEntry(barracks);
-			Actions()->UnitCommand(unit, ABILITY_ID::TRAIN_MARINE);
-
-			break;
-		}
-		case 3:
-		{
-			std::cout << "We attack" << std::endl;
-
-			Units army = Observation()->GetUnits(Unit::Alliance::Self, IsUnit(UNIT_TYPEID::TERRAN_MARINE));
-
-			if (army.empty())
-				return;
-
-			Actions()->UnitCommand(army, ABILITY_ID::ATTACK_ATTACK, Observation()->GetGameInfo().enemy_start_locations.front());
-
-			break;
-		}
-		}
-	}
+	std::map<std::string, std::vector<std::string>> markovchain;
 
 	bool TryBuildStructure(ABILITY_ID ability)
 	{

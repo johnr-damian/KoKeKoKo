@@ -47,6 +47,12 @@ public:
 			std::cin >> replayfilepath;
 		}
 
+		testcommand.insert(testcommand.begin(), "Train SCV");
+		testcommand.insert(testcommand.begin(), "Train Marine");
+		testcommand.insert(testcommand.begin(), "Build Supply Depot");
+		testcommand.insert(testcommand.begin(), "Build Barracks");
+		testcommand.insert(testcommand.begin(), "Attack");
+
 		try
 		{
 			std::ifstream replayfile(replayfilepath);
@@ -101,8 +107,20 @@ public:
 						//If current column is the command value
 						if ((column == 4) && getnextcolumn)
 						{
-							std::cout << "\t\t\t\t\tInserting the command value..." << std::endl;
-							markovchainMacro[currentscope].insert(markovchainMacro[currentscope].begin(), bycomma);
+							//std::cout << "\t\t\t\t\tInserting the command value..." << std::endl;
+							//markovchainMacro[currentscope].insert(markovchainMacro[currentscope].begin(), bycomma);
+
+							std::cout << "Doing an impromptu preprocessing..." << std::endl;
+							if (bycomma.find("Train"))
+								markovchainMacro[currentscope].insert(markovchainMacro[currentscope].begin(), bycomma);
+							else if(bycomma.find("Build Supply Depot"))
+								markovchainMacro[currentscope].insert(markovchainMacro[currentscope].begin(), "Build Supply Depot");
+							else if(bycomma.find("Build Barracks"))
+								markovchainMacro[currentscope].insert(markovchainMacro[currentscope].begin(), "Build Barracks");
+							else if(bycomma.find("Attack"))
+								markovchainMacro[currentscope].insert(markovchainMacro[currentscope].begin(), "Attack");
+							else
+								markovchainMacro[currentscope].insert(markovchainMacro[currentscope].begin(), *RandomAction(testcommand.begin(), testcommand.end(), testcommand.size()));
 						}
 					}
 				}
@@ -183,6 +201,7 @@ public:
 
 		//Pick a random element
 		std::string action = *RandomAction(markovchainMacro[gamescope].begin(), markovchainMacro[gamescope].end(), markovchainMacro[gamescope].size());
+		std::cout << "Picked Action: " << action << std::endl;
 		TryToDo(action);
     }
 
@@ -216,6 +235,7 @@ private:
 		...
 		nnnn -> [xxxx, xxxx, xxxx, ..., xxxx]
 	*/
+	std::vector<std::string> testcommand; //For random commands
 	const int SECONDSINTERVAL = 20;		//The agreed frame/seconds to observe the game environment
 	int gamescope = 0, nextgamescope = 20;
 
@@ -350,7 +370,7 @@ int main(int argc, char* argv[]) {
     while (coordinator.Update()) 
 	{
 		std::cout << std::endl << "\t\t\t~" << std::endl;
-		std::cout << "\t\t\t\tlocation: main->ln 150" << std::endl;
+		std::cout << "\t\t\tlocation: main->coordinator.Update()" << std::endl;
 		std::cout << std::endl << "\t\t\t~" << std::endl;
     }
 

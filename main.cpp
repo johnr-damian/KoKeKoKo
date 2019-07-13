@@ -67,12 +67,13 @@ public:
 							std::cout << "\t\t\t\t\tConverted Timestamp: " << time << std::endl;
 
 							//Check if the current seconds is not before the next interval
-							if (!(time < nextscope))
+							if (time > nextscope)
 							{
 								std::cout << "\t\t\t\t\tUpdating the current scope..." << std::endl;
 								std::cout << "\t\t\t\t\t\tFrom Scope: " << currentscope << " -> To Scope: " << nextscope << std::endl;
 								currentscope = nextscope;
 								nextscope += 20;
+								std::cout << "\t\t\t\t\t\tScope: " << currentscope << " -> Next Scope: " << nextscope << std::endl;
 							}
 
 							//Check if the current scope have a markov chain
@@ -84,7 +85,8 @@ public:
 						}
 						
 						//If current column is a command, get the next column
-						getnextcolumn = ((column == 3) && (bycomma == "Cmd")) ? true : false;
+						if (column == 3)
+							getnextcolumn = (bycomma == "Cmd") ? true : false;
 
 						//If current column is the command value
 						if ((column == 4) && getnextcolumn)
@@ -127,6 +129,8 @@ public:
 				{
 					//markovchainfile << element.first << " -> [";
 					std::cout << element.first << std::endl;
+					std::cout << "\t\t\tMarkov Chain Scope: " << element.first << std::endl;
+					std::cout << "\t\t\tNumber of States: " << element.second.size() << std::endl;
 
 					//markovchainfile << element.second[0] << "(" << (std::count(element.second.begin(), element.second.end(), element.second[0]) / element.second.size())*100 << "%)";
 					//for (auto value = std::next(element.second.begin()); value != element.second.end(); value++)

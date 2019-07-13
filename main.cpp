@@ -63,12 +63,12 @@ public:
 							struct tm timestamp = { 0 };
 							const char* timecolumn = bycomma.c_str();
 							int hours = 0, minutes = 0, seconds = 0;
-							sscanf(timecolumn, "%d:%d:$d", &hours, &minutes, &seconds);
+							sscanf_s(timecolumn, "%d:%d:$d", &hours, &minutes, &seconds);
 							timestamp.tm_hour = hours;
 							timestamp.tm_min = minutes;
 							timestamp.tm_sec = seconds;
-							std::time_t seconds = mktime(&timestamp);
-							std::cout << "\t\t\t\t\tConverted Timestamp: " << seconds << std::endl;
+							std::time_t timeseconds = mktime(&timestamp);
+							std::cout << "\t\t\t\t\tConverted Timestamp: " << timeseconds << std::endl;
 
 							//Check if the current seconds is new
 							if (markovchainMacro.find(seconds) == markovchainMacro.end())

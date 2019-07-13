@@ -104,30 +104,37 @@ public:
 		}
 
 		std::cout << "\n\nCreating a simple Markov Chain...";
-		while (markovchainfilepath.empty())
+		/*while (markovchainfilepath.empty())
 		{
 			std::cout << "\n\tEnter Output File Path: ";
 			std::cin >> markovchainfilepath;
-		}
+		}*/
+
+		std::cout << "Markov Chain Size: " << markovchainMacro.size() << std::endl;
+		if (markovchainMacro.size() <= 0)
+			return;
 
 		try
 		{
-			std::ofstream markovchainfile(markovchainfilepath);
-			if (markovchainfile.is_open())
-			{
+			//std::ofstream markovchainfile(markovchainfilepath);
+			//if (markovchainfile.is_open())
+			//{
 				std::cout << "\n\n\t\tGenerating the Markov Chain..." << std::endl;
 				for (auto const& element : markovchainMacro)
 				{
-					markovchainfile << element.first << " -> [";
+					//markovchainfile << element.first << " -> [";
+					std::cout << element.first << std::endl;
 
-					markovchainfile << element.second[0] << "(" << (std::count(element.second.begin(), element.second.end(), element.second[0]) / element.second.size())*100 << "%)";
+					//markovchainfile << element.second[0] << "(" << (std::count(element.second.begin(), element.second.end(), element.second[0]) / element.second.size())*100 << "%)";
+					std::cout << "\t" << element.second[0] << "(" << (std::count(element.second.begin(), element.second.end(), element.second[0]) / element.second.size()) * 100 << "%)";
 					for (auto value = std::next(element.second.begin()); value != element.second.end(); value++)
-						markovchainfile << ", " << *value << "(" << (std::count(element.second.begin(), element.second.end(), *value) / element.second.size())*100 << "%)";
+						//markovchainfile << ", " << *value << "(" << (std::count(element.second.begin(), element.second.end(), *value) / element.second.size())*100 << "%)";
+						std::cout << "\n\t" << *value << "(" << (std::count(element.second.begin(), element.second.end(), *value) / element.second.size()) * 100 << "%)";
 
-					markovchainfile << "," << std::endl;
+					//markovchainfile << "," << std::endl;
 				}
 				std::cout << "\n\n\t\tFinished generating the Markov Chain!" << std::endl;
-			}
+			//}
 		}
 		catch (...)
 		{

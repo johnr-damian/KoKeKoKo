@@ -49,9 +49,9 @@ public:
 					std::cout << "\t\t\tCurrent Line: " << replayfileline << std::endl;
 					
 					bool getnextcolumn = false;
+					int currentseconds = 0;
 					std::stringstream byline(replayfileline);
 					std::string bycomma = "";
-					std::time_t currentseconds = 0;
 					for (int column = 1; std::getline(byline, bycomma, ','); column++)
 					{
 						std::cout << "\t\t\t\tCurrent Column: " << bycomma << std::endl;
@@ -59,22 +59,18 @@ public:
 						//Current column is a timestamp
 						if (column == 1)
 						{
-							//Convert the string timestamp to seconds
-							struct tm timestamp = { 0 };
+							//Convert the string to seconds
 							const char* timecolumn = bycomma.c_str();
-							int hours = 0, minutes = 0, seconds = 0;
-							sscanf_s(timecolumn, "%d:%d:$d", &hours, &minutes, &seconds);
-							timestamp.tm_hour = hours;
-							timestamp.tm_min = minutes;
-							timestamp.tm_sec = seconds;
-							std::time_t timeseconds = mktime(&timestamp);
-							std::cout << "\t\t\t\t\tConverted Timestamp: " << timeseconds << std::endl;
+							int time = 0, minutes = 0, seconds = 0;
+							sscanf_s(timecolumn, "%d:%d", &minutes, &seconds);
+							time = (minutes * 60) + seconds;
+							std::cout << "\t\t\t\t\tConverted Timestamp: " << time << std::endl;
 
 							//Check if the current seconds is new
-							if (markovchainMacro.find(seconds) == markovchainMacro.end())
+							if (markovchainMacro.find(time) == markovchainMacro.end())
 							{
 								//Check if the current seconds is a multiple of 20 seconds
-								if ((seconds % SECONDSINTERVAL) == 0)
+								if ((time % SECONDSINTERVAL) == 0)
 								{
 									std::cout << "\t\t\t\t\tCurrent seconds is a multiple of 20 seconds...True!" << std::endl;
 									markovchainMacro.insert(std::make_pair(seconds, std::vector<std::string>()));
@@ -187,12 +183,12 @@ public:
 
 private:
 			//Seconds				Command
-	std::map<std::time_t, std::vector<std::string>> markovchainMacro; 
+	std::map<int, std::vector<std::string>> markovchainMacro; 
 	/*
-		0:00 -> [Train SCV, Build Siege Tank, ..., Attack],
-		0:20 -> [Build Auto Turret, Train SCV, ..., Train Marine],
+		00 -> [Train SCV, Build Siege Tank, ..., Attack],
+		20 -> [Build Auto Turret, Train SCV, ..., Train Marine],
 		...
-		n:nn -> [xxxx, xxxx, xxxx, ..., xxxx]
+		nnnn -> [xxxx, xxxx, xxxx, ..., xxxx]
 	*/
 	const int SECONDSINTERVAL = 20;		//The agreed frame/seconds to observe the game environment
 	time_t currentsecondschain = 0;		//The specific chain we are looking at during the game

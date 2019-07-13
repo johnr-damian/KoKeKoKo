@@ -191,16 +191,18 @@ public:
 		{
 			std::cout << "Updating markov chain..." << std::endl;
 			gamescope = nextgamescope;
-			nextgamescope += 20;
+			nextgamescope += 448;
+			markovscope = nextmarkovscope;
+			nextmarkovscope += 20;
 		}
 
-		if (markovchainMacro.find(gamescope) == markovchainMacro.end())
+		if (markovchainMacro.find(markovscope) == markovchainMacro.end())
 			return;
 
-		std::cout << "Number of States in current Markov Chain: " << markovchainMacro[gamescope].size();
+		std::cout << "Number of States in current Markov Chain: " << markovchainMacro[markovscope].size();
 
 		//Pick a random element
-		std::string action = *RandomAction(markovchainMacro[gamescope].begin(), markovchainMacro[gamescope].end(), markovchainMacro[gamescope].size());
+		std::string action = *RandomAction(markovchainMacro[markovscope].begin(), markovchainMacro[markovscope].end(), markovchainMacro[markovscope].size());
 		std::cout << "Picked Action: " << action << std::endl;
 		TryToDo(action);
     }
@@ -237,7 +239,7 @@ private:
 	*/
 	std::vector<std::string> testcommand; //For random commands
 	const int SECONDSINTERVAL = 20;		//The agreed frame/seconds to observe the game environment
-	int gamescope = 0, nextgamescope = 20;
+	double gamescope = 0, nextgamescope = 448, markovscope = 0, nextmarkovscope = 20;
 
 
 	bool TryBuildStructure(ABILITY_ID ability)

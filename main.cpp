@@ -52,7 +52,7 @@ public:
 					std::stringstream byline(replayfileline);
 					std::string bycomma = "";
 					std::time_t currentseconds = 0;
-					for (int column = 1; std::getline(byline, bycomma); column++)
+					for (int column = 1; std::getline(byline, bycomma, ','); column++)
 					{
 						std::cout << "\t\t\t\tCurrent Column: " << bycomma << std::endl;
 
@@ -90,8 +90,6 @@ public:
 							markovchainMacro[currentseconds].insert(markovchainMacro[currentseconds].end(), bycomma);
 						}
 					}
-
-					std::cout << "\t\t\tFinished reading all lines of the file!" << std::endl;
 				}
 
 				std::cout << "\n\n\t\tClosing the file '" << replayfilepath << "'..." << std::endl;

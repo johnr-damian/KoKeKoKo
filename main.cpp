@@ -49,10 +49,10 @@ public:
 					std::cout << "\t\t\tCurrent Line: " << replayfileline << std::endl;
 					
 					bool getnextcolumn = false;
-					int currentseconds = 0;
+					int currentscope = 0, nextscope = 20;
 					std::stringstream byline(replayfileline);
 					std::string bycomma = "";
-					for (int column = 1; std::getline(byline, bycomma, ','); column++)
+					for (int column = 0; std::getline(byline, bycomma, ','); column++)
 					{
 						std::cout << "\t\t\t\tCurrent Column: " << bycomma << std::endl;
 
@@ -66,17 +66,20 @@ public:
 							time = (minutes * 60) + seconds;
 							std::cout << "\t\t\t\t\tConverted Timestamp: " << time << std::endl;
 
-							//Check if the current seconds is new
-							if (markovchainMacro.find(time) == markovchainMacro.end())
+							//Check if the current seconds is not before the next interval
+							if (!(time < nextscope))
 							{
-								//Check if the current seconds is a multiple of 20 seconds
-								if ((time % SECONDSINTERVAL) == 0)
-								{
-									std::cout << "\t\t\t\t\tCurrent seconds is a multiple of 20 seconds...True!" << std::endl;
-									markovchainMacro.insert(std::make_pair(seconds, std::vector<std::string>()));
-									currentseconds = seconds;
-									std::cout << "\t\t\t\t\tSuccessfully added the current seconds to markov chain!" << std::endl;
-								}
+								std::cout << "\t\t\t\t\tUpdating the current scope..." << std::endl;
+								std::cout << "\t\t\t\t\t\tFrom Scope: " << currentscope << " -> To Scope: " << nextscope << std::endl;
+								currentscope = nextscope;
+								nextscope += 20;
+							}
+
+							//Check if the current scope have a markov chain
+							if (markovchainMacro.find(currentscope) == markovchainMacro.end())
+							{
+								std::cout << "\t\t\t\t\tSuccessfully added the current scope to the Markov Chain!" << std::endl;
+								markovchainMacro.insert(std::make_pair(currentscope, std::vector<std::string>()));
 							}
 						}
 						
@@ -87,7 +90,7 @@ public:
 						if ((column == 4) && getnextcolumn)
 						{
 							std::cout << "\t\t\t\t\tInserting the command value..." << std::endl;
-							markovchainMacro[currentseconds].insert(markovchainMacro[currentseconds].end(), bycomma);
+							markovchainMacro[currentscope].insert(markovchainMacro[currentscope].begin(), bycomma);
 						}
 					}
 				}
@@ -126,10 +129,11 @@ public:
 					std::cout << element.first << std::endl;
 
 					//markovchainfile << element.second[0] << "(" << (std::count(element.second.begin(), element.second.end(), element.second[0]) / element.second.size())*100 << "%)";
-					std::cout << "\t" << element.second[0] << "(" << (std::count(element.second.begin(), element.second.end(), element.second[0]) / element.second.size()) * 100 << "%)";
-					for (auto value = std::next(element.second.begin()); value != element.second.end(); value++)
+					//for (auto value = std::next(element.second.begin()); value != element.second.end(); value++)
 						//markovchainfile << ", " << *value << "(" << (std::count(element.second.begin(), element.second.end(), *value) / element.second.size())*100 << "%)";
-						std::cout << "\n\t" << *value << "(" << (std::count(element.second.begin(), element.second.end(), *value) / element.second.size()) * 100 << "%)";
+
+					for (auto const& value : element.second)
+						std::cout << "\t" << value << "(" << (std::count(element.second.begin(), element.second.end(), value) / element.second.size()) * 100 << "%)" << std::endl;
 
 					//markovchainfile << "," << std::endl;
 				}

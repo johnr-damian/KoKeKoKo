@@ -111,8 +111,10 @@ public:
 							//markovchainMacro[currentscope].insert(markovchainMacro[currentscope].begin(), bycomma);
 
 							std::cout << "Doing an impromptu preprocessing..." << std::endl;
-							if (bycomma.find("Train"))
-								markovchainMacro[currentscope].insert(markovchainMacro[currentscope].begin(), bycomma);
+							if (bycomma.find("Train SCV"))
+								markovchainMacro[currentscope].insert(markovchainMacro[currentscope].begin(), "Train SCV");
+							else if(bycomma.find("Train Marine"))
+								markovchainMacro[currentscope].insert(markovchainMacro[currentscope].begin(), "Train Marine");
 							else if(bycomma.find("Build Supply Depot"))
 								markovchainMacro[currentscope].insert(markovchainMacro[currentscope].begin(), "Build Supply Depot");
 							else if(bycomma.find("Build Barracks"))

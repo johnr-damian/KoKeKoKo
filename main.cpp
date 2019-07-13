@@ -60,9 +60,13 @@ public:
 						if (column == 1)
 						{
 							//Convert the string timestamp to seconds
-							struct tm timestamp;
-							std::istringstream timecolumn(bycomma);
-							timecolumn >> std::get_time(&timestamp, "%H:%M:%S");
+							struct tm timestamp = { 0 };
+							const char* timecolumn = bycomma.c_str();
+							int hours = 0, minutes = 0, seconds = 0;
+							sscanf(timecolumn, "%d:%d:$d", &hours, &minutes, &seconds);
+							timestamp.tm_hour = hours;
+							timestamp.tm_min = minutes;
+							timestamp.tm_sec = seconds;
 							std::time_t seconds = mktime(&timestamp);
 							std::cout << "\t\t\t\t\tConverted Timestamp: " << seconds << std::endl;
 

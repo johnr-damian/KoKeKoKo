@@ -1,23 +1,40 @@
 #include <sc2api/sc2_api.h>
 
-#include <iostream>
-#include <fstream>
-#include <map>
-#include <sstream>
-#include <string>
+#include <iomanip>	//for time
+#include <iostream>	//for cin and cout
+#include <fstream>	//for file stream
+#include <map>		//for dictionary
+#include <sstream>	//for string stream
 
 using namespace sc2;
+
+
+template <typename randomizer>
+randomizer RandomAction(randomizer begin, randomizer end)
+{
+	const unsigned long n = std::distance(begin, end);
+	const unsigned long divisor = (RAND_MAX + 1) / n;
+
+	unsigned long k;
+	do
+	{
+		k = std::rand() / divisor;
+	} while (k >= n);
+
+	std::advance(begin, k);
+	return begin;
+}
 
 class Bot : public Agent {
 public:
     virtual void OnGameStart() final 
 	{
-		std::string replayfilepath = "", replayfileline = "";
+		std::string replayfilepath = "", replayfileline = "", markovchainfilepath = "";
 
 		std::cout << "Gathering Data for the Model...";
 		while (replayfilepath.empty())
 		{
-			std::cout << "\n\tEnter File Path: ";
+			std::cout << "\n\tEnter Input File Path: ";
 			std::cin >> replayfilepath;
 		}
 
@@ -31,29 +48,118 @@ public:
 				{
 					std::cout << "\t\t\tCurrent Line: " << replayfileline << std::endl;
 					
+					bool getnextcolumn = false;
 					std::stringstream byline(replayfileline);
 					std::string bycomma = "";
-					while (std::getline(byline, bycomma, ','))
+					std::time_t currentseconds = 0;
+					for (int column = 1; std::getline(byline, bycomma); column++)
 					{
 						std::cout << "\t\t\t\tCurrent Column: " << bycomma << std::endl;
+
+						//Current column is a timestamp
+						if (column == 1)
+						{
+							//Convert the string timestamp to seconds
+							struct tm timestamp;
+							std::istringstream timecolumn(bycomma);
+							timecolumn >> std::get_time(&timestamp, "%H:%M:%S");
+							std::time_t seconds = mktime(&timestamp);
+							std::cout << "\t\t\t\t\tConverted Timestamp: " << seconds << std::endl;
+
+							//Check if the current seconds is new
+							if (markovchainMacro.find(seconds) == markovchainMacro.end())
+							{
+								//Check if the current seconds is a multiple of 20 seconds
+								if ((seconds % SECONDSINTERVAL) == 0)
+								{
+									std::cout << "\t\t\t\t\tCurrent seconds is a multiple of 20 seconds...True!" << std::endl;
+									markovchainMacro.insert(std::make_pair(seconds, std::vector<std::string>()));
+									currentseconds = seconds;
+									std::cout << "\t\t\t\t\tSuccessfully added the current seconds to markov chain!" << std::endl;
+								}
+							}
+						}
 						
-						
+						//If current column is a command, get the next column
+						getnextcolumn = ((column == 3) && (bycomma == "Cmd")) ? true : false;
+
+						//If current column is the command value
+						if ((column == 4) && getnextcolumn)
+						{
+							std::cout << "\t\t\t\t\tInserting the command value..." << std::endl;
+							markovchainMacro[currentseconds].insert(markovchainMacro[currentseconds].end(), bycomma);
+						}
 					}
+
+					std::cout << "\t\t\tFinished reading all lines of the file!" << std::endl;
 				}
 
 				std::cout << "\n\n\t\tClosing the file '" << replayfilepath << "'..." << std::endl;
 				replayfile.close();
+			}			
+		}
+		catch (...)
+		{
+			std::cout << "An error occured in reading the data!" << std::endl;
+			std::cin >> replayfilepath;
+			exit(-1);
+		}
+
+		std::cout << "\n\nCreating a simple Markov Chain...";
+		while (markovchainfilepath.empty())
+		{
+			std::cout << "\n\tEnter Output File Path: ";
+			std::cin >> markovchainfilepath;
+		}
+
+		try
+		{
+			std::ofstream markovchainfile(markovchainfilepath);
+			if (markovchainfile.is_open())
+			{
+				std::cout << "\n\n\t\tGenerating the Markov Chain..." << std::endl;
+				for (auto const& element : markovchainMacro)
+				{
+					markovchainfile << element.first << " -> [";
+
+					markovchainfile << element.second[0] << "(" << (std::count(element.second.begin(), element.second.end(), element.second[0]) / element.second.size())*100 << "%)";
+					for (auto value = std::next(element.second.begin()); value != element.second.end(); value++)
+						markovchainfile << ", " << *value << "(" << (std::count(element.second.begin(), element.second.end(), *value) / element.second.size())*100 << "%)";
+
+					markovchainfile << "," << std::endl;
+				}
+				std::cout << "\n\n\t\tFinished generating the Markov Chain!" << std::endl;
 			}
 		}
 		catch (...)
 		{
-
+			std::cout << "An error occured in creating the markov chain!" << std::endl;
+			std::cin >> markovchainfilepath;
+			exit(-1);
 		}
+
+		//Initialize the current chain
+		currentsecondschain = markovchainMacro.begin()->first;
+		std::cout << "\n\n\n\nSuccessfully finished initializing the current chain!" << std::endl;
+		std::cout << "\tCurrent Chain: " << currentsecondschain << std::endl;
     }
 
     virtual void OnStep() final 
 	{
+		time_t gameloop = Observation()->GetGameLoop();
+		if (gameloop % 20 == 0)
+		{
+			std::cout << "Game Loop: " << gameloop << std::endl;
+			for (auto const& element : markovchainMacro)
+			{
+				if (element.first == gameloop)
+					break;
+			}
+		}
 
+		//Pick a random element
+		std::string action = *RandomAction(markovchainMacro[gameloop].begin(), markovchainMacro[gameloop].end());
+		TryToDo(action);
     }
 
 	virtual void OnUnitIdle(const Unit* unit) final
@@ -63,12 +169,32 @@ public:
 		
 		switch (unit->unit_type.ToType())
 		{
+			//TODO
+			//Improve Terran SCV abilities
+			case UNIT_TYPEID::TERRAN_SCV:
+			{
+				const Unit* target_mineral = FindNearestMineralPatch(unit->pos);
+				if (!target_mineral)
+					break;
 
+				Actions()->UnitCommand(unit, ABILITY_ID::TRAIN_SCV, target_mineral);
+				break;
+			}
 		}
 	}
 
 private:
-	std::map<std::string, std::vector<std::string>> markovchain;
+			//Seconds				Command
+	std::map<std::time_t, std::vector<std::string>> markovchainMacro; 
+	/*
+		0:00 -> [Train SCV, Build Siege Tank, ..., Attack],
+		0:20 -> [Build Auto Turret, Train SCV, ..., Train Marine],
+		...
+		n:nn -> [xxxx, xxxx, xxxx, ..., xxxx]
+	*/
+	const int SECONDSINTERVAL = 20;		//The agreed frame/seconds to observe the game environment
+	time_t currentsecondschain = 0;		//The specific chain we are looking at during the game
+
 
 	bool TryBuildStructure(ABILITY_ID ability)
 	{
@@ -145,6 +271,42 @@ private:
 	size_t CountUnitType(UNIT_TYPEID unit)
 	{
 		return Observation()->GetUnits(Unit::Alliance::Self, IsUnit(unit)).size();
+	}
+
+	void TryToDo(std::string action)
+	{
+		if (action == "Train SCV")
+		{
+			Units units = Observation()->GetUnits(Unit::Alliance::Self, IsUnit(UNIT_TYPEID::TERRAN_COMMANDCENTER));
+			if (units.empty())
+				return;
+
+			Actions()->UnitCommand(units.front(), ABILITY_ID::TRAIN_SCV);
+		}
+		else if (action.find("Build Barracks") != std::string::npos)
+		{
+			TryBuildBarracks();
+		}
+		else if (action.find("Build Supply Depot") != std::string::npos)
+		{
+			TryBuildSupplyDepot();
+		}
+		else if (action == "Train Marine")
+		{
+			Units units = Observation()->GetUnits(Unit::Alliance::Self, IsUnit(UNIT_TYPEID::TERRAN_BARRACKS));
+			if (units.empty())
+				return;
+
+			Actions()->UnitCommand(units.front(), ABILITY_ID::TRAIN_MARINE);
+		}
+		else if (action.find("Attack") != std::string::npos)
+		{
+			Units units = Observation()->GetUnits(Unit::Alliance::Self, IsUnit(UNIT_TYPEID::TERRAN_MARINE));
+			if (units.empty())
+				return;
+
+			Actions()->UnitCommand(units, ABILITY_ID::ATTACK_ATTACK, Observation()->GetGameInfo().enemy_start_locations.front());
+		}
 	}
 };
 

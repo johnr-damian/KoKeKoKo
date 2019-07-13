@@ -10,10 +10,19 @@ using namespace sc2;
 
 
 template <typename randomizer>
-randomizer RandomAction(randomizer begin, randomizer end)
+randomizer RandomAction(randomizer begin, randomizer end, int size)
 {
 	const unsigned long n = std::distance(begin, end);
-	const unsigned long divisor = (RAND_MAX + 1) / n;
+	std::cout << "Distance in the vector: " << n << std::endl;
+	unsigned long divisor = 0;
+	try
+	{
+		divisor = (RAND_MAX + 1) / n;
+	}
+	catch (const std::exception&)
+	{
+		divisor = (RAND_MAX + 1) / size;
+	}
 
 	unsigned long k;
 	do
@@ -44,12 +53,13 @@ public:
 			if (replayfile.is_open())
 			{
 				std::cout << "\n\n\t\tSuccessfully opened the file '" << replayfilepath << "'!" << std::endl;
+
+				int currentscope = 0, nextscope = 20;
+				bool getnextcolumn = false;
 				while (std::getline(replayfile, replayfileline))
 				{
-					std::cout << "\t\t\tCurrent Line: " << replayfileline << std::endl;
-					
-					bool getnextcolumn = false;
-					int currentscope = 0, nextscope = 20;
+					std::cout << "\t\t\tCurrent Line: " << replayfileline << std::endl;					
+										
 					std::stringstream byline(replayfileline);
 					std::string bycomma = "";
 					for (int column = 0; std::getline(byline, bycomma, ','); column++)
@@ -151,27 +161,28 @@ public:
 			exit(-1);
 		}
 
-		//Initialize the current chain
-		currentsecondschain = markovchainMacro.begin()->first;
-		std::cout << "\n\n\n\nSuccessfully finished initializing the current chain!" << std::endl;
-		std::cout << "\tCurrent Chain: " << currentsecondschain << std::endl;
+		std::cout << "\n\n\n\nProceeding to the Game!" << std::endl;
     }
 
     virtual void OnStep() final 
 	{
-		time_t gameloop = Observation()->GetGameLoop();
-		if (gameloop % 20 == 0)
+		int gameloop = Observation()->GetGameLoop();
+
+		std::cout << "Game Loop: " << gameloop << std::endl;
+		if (gameloop > gamescope)
 		{
-			std::cout << "Game Loop: " << gameloop << std::endl;
-			for (auto const& element : markovchainMacro)
-			{
-				if (element.first == gameloop)
-					break;
-			}
+			std::cout << "Updating markov chain..." << std::endl;
+			gamescope = nextgamescope;
+			nextgamescope += 20;
 		}
 
+		if (markovchainMacro.find(gamescope) == markovchainMacro.end())
+			return;
+
+		std::cout << "Number of States in current Markov Chain: " << markovchainMacro[gamescope].size();
+
 		//Pick a random element
-		std::string action = *RandomAction(markovchainMacro[gameloop].begin(), markovchainMacro[gameloop].end());
+		std::string action = *RandomAction(markovchainMacro[gamescope].begin(), markovchainMacro[gamescope].end(), markovchainMacro[gamescope].size());
 		TryToDo(action);
     }
 
@@ -206,7 +217,7 @@ private:
 		nnnn -> [xxxx, xxxx, xxxx, ..., xxxx]
 	*/
 	const int SECONDSINTERVAL = 20;		//The agreed frame/seconds to observe the game environment
-	time_t currentsecondschain = 0;		//The specific chain we are looking at during the game
+	int gamescope = 0, nextgamescope = 20;
 
 
 	bool TryBuildStructure(ABILITY_ID ability)

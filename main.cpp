@@ -1,3 +1,4 @@
+#define NOMINMAX
 #include <sc2api/sc2_api.h>
 
 #include <iomanip>	//for time
@@ -5,6 +6,7 @@
 #include <fstream>	//for file stream
 #include <map>		//for dictionary
 #include <sstream>	//for string stream
+#include <Windows.h> //for exes
 
 using namespace sc2;
 
@@ -55,6 +57,28 @@ public:
 
 		try
 		{
+			
+			STARTUPINFO startupinfo;
+			PROCESS_INFORMATION processinfo;
+			DWORD lpdword;
+
+			ZeroMemory(&startupinfo, sizeof(startupinfo));
+			startupinfo.cb = sizeof(startupinfo);
+			ZeroMemory(&processinfo, sizeof(processinfo));
+
+			if (!CreateProcess(NULL, "Hello World", NULL, NULL, FALSE, 0, NULL, NULL, &startupinfo, &processinfo))
+				std::cout << "Failed to launch the exe!" << std::endl;
+
+			WaitForSingleObject(processinfo.hProcess, 10000);
+			CloseHandle(processinfo.hProcess);
+			CloseHandle(processinfo.hThread);
+			
+			int result = GetExitCodeProcess(processinfo.hProcess, &lpdword);
+
+			std::cout << std::endl << std::endl << "Result from CMD: " << std::endl << std::endl;
+
+
+
 			std::ifstream replayfile(replayfilepath);
 			if (replayfile.is_open())
 			{

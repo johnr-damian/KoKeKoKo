@@ -16,6 +16,7 @@ namespace FileService
                 return -1;
 
             Console.WriteLine(arguments[0]);
+            Console.WriteLine(arguments[1]);
             Console.ReadLine();
 
             return 0;

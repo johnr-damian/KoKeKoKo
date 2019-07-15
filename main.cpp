@@ -60,22 +60,23 @@ public:
 			
 			STARTUPINFO startupinfo;
 			PROCESS_INFORMATION processinfo;
-			DWORD lpdword;
+			DWORD lpdword, dwexit;
 
 			ZeroMemory(&startupinfo, sizeof(startupinfo));
 			startupinfo.cb = sizeof(startupinfo);
 			ZeroMemory(&processinfo, sizeof(processinfo));
+			int result = 0;
+			if (CreateProcess(NULL, "Hello World", NULL, NULL, FALSE, 0, NULL, NULL, &startupinfo, &processinfo))
+			{
 
-			if (!CreateProcess(NULL, "Hello World", NULL, NULL, FALSE, 0, NULL, NULL, &startupinfo, &processinfo))
+				dwexit = WaitForSingleObject(processinfo.hProcess, INFINITE);
+				result = GetExitCodeProcess(processinfo.hProcess, &lpdword);
+				CloseHandle(processinfo.hProcess);
+				CloseHandle(processinfo.hThread);	
+				std::cout << std::endl << std::endl << "Result from CMD: " << std::endl << std::endl;
+			}
+			else
 				std::cout << "Failed to launch the exe!" << std::endl;
-
-			WaitForSingleObject(processinfo.hProcess, 10000);
-			CloseHandle(processinfo.hProcess);
-			CloseHandle(processinfo.hThread);
-			
-			int result = GetExitCodeProcess(processinfo.hProcess, &lpdword);
-
-			std::cout << std::endl << std::endl << "Result from CMD: " << std::endl << std::endl;
 
 
 

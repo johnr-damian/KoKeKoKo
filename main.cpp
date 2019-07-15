@@ -66,9 +66,9 @@ public:
 			startupinfo.cb = sizeof(startupinfo);
 			ZeroMemory(&processinfo, sizeof(processinfo));
 			int result = 0;
-			LPSTR loc;
+			LPSTR loc = "C:\\Users\\Gelo\\Desktop\\FileService.exe Hello World";
 			std::cout << "Enter exe path of C# with arguments: ";
-			std::cin >> loc;
+			//std::cin >> loc;
 			if (CreateProcessA(NULL, loc, NULL, NULL, FALSE, 0, NULL, NULL, &startupinfo, &processinfo))
 			{
 				

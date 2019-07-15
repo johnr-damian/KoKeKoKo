@@ -61,14 +61,17 @@ public:
 			STARTUPINFO startupinfo;
 			PROCESS_INFORMATION processinfo;
 			DWORD lpdword, dwexit;
-
+			std::cout << "\n\n\n\n\n\nLOOK AT ME PLS\n";
 			ZeroMemory(&startupinfo, sizeof(startupinfo));
 			startupinfo.cb = sizeof(startupinfo);
 			ZeroMemory(&processinfo, sizeof(processinfo));
 			int result = 0;
-			if (CreateProcess(NULL, "Hello World", NULL, NULL, FALSE, 0, NULL, NULL, &startupinfo, &processinfo))
+			LPSTR loc;
+			std::cout << "Enter exe path of C# with arguments: ";
+			std::cin >> loc;
+			if (CreateProcessA(NULL, loc, NULL, NULL, FALSE, 0, NULL, NULL, &startupinfo, &processinfo))
 			{
-
+				
 				dwexit = WaitForSingleObject(processinfo.hProcess, INFINITE);
 				result = GetExitCodeProcess(processinfo.hProcess, &lpdword);
 				CloseHandle(processinfo.hProcess);
@@ -78,7 +81,9 @@ public:
 			else
 				std::cout << "Failed to launch the exe!" << std::endl;
 
+			std::cout << loc << std::endl;
 
+			std::cout << "END LOOOKKK" << std::endl;
 
 			std::ifstream replayfile(replayfilepath);
 			if (replayfile.is_open())

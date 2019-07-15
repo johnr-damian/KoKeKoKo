@@ -12,27 +12,35 @@ namespace FileService
 
         static int Main(params string[] arguments)
         {
-            if (arguments.Length != 2)
+            if (arguments.Length != 3)
                 return -1;
 
-            var firstargument = File.GetAttributes(arguments[0]);
-            var secondargument = File.GetAttributes(arguments[0]);
-
-            switch(firstargument)
+            try
             {
-                //A large number of files will be read as input
-                //Typically, csv files will be read for training data
-                //Used to create training data
-                case FileAttributes.Directory:
-                    var csv = Directory.GetFiles(arguments[0], "*.csv", SearchOption.AllDirectories);
+                var firstargument = File.GetAttributes(arguments[1]);
+                var secondargument = File.GetAttributes(arguments[2]);
 
-                    break;
-                case FileAttributes.Normal:
+                switch (firstargument)
+                {
+                    //A large number of files will be read as input
+                    //Typically, csv files will be read for training data
+                    //Used to create training data
+                    case FileAttributes.Directory:
+                        var csv = Directory.GetFiles(arguments[1], "*.csv", SearchOption.AllDirectories);
 
-                    break;
-                default:
+                        break;
+                    case FileAttributes.Normal:
 
-                    break;
+                        break;
+                    default:
+
+                        break;
+                }
+            }
+            catch (Exception)
+            {
+                foreach (string s in arguments)
+                    Console.WriteLine(s);
             }
 
             return 0;

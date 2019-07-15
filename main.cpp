@@ -66,10 +66,10 @@ public:
 			startupinfo.cb = sizeof(startupinfo);
 			ZeroMemory(&processinfo, sizeof(processinfo));
 			int result = 0;
-			LPSTR loc;
+			LPSTR loc = "asdasdasda";
 			std::cout << "Enter exe path of C# with arguments: ";
-			std::cin >> loc;
-			if (CreateProcessA(NULL, loc, NULL, NULL, FALSE, 0, NULL, NULL, &startupinfo, &processinfo))
+			/*std::cin >> loc;*/
+			if (CreateProcessA("asdads", " a", NULL, NULL, FALSE, 0, NULL, NULL, &startupinfo, &processinfo))
 			{
 				
 				dwexit = WaitForSingleObject(processinfo.hProcess, INFINITE);

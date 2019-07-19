@@ -389,7 +389,7 @@ private:
 };
 
 int main(int argc, char* argv[]) {
-    Coordinator coordinator;
+    /*Coordinator coordinator;
     coordinator.LoadSettings(argc, argv);
 
     Bot bot;
@@ -408,5 +408,26 @@ int main(int argc, char* argv[]) {
 		std::cout << std::endl << "\t\t\t~" << std::endl;
     }
 
-    return 0;
+    return 0;*/
+
+	LPSTR repositorylocation = new char[MAX_PATH];
+	char s;
+
+	//Get the references from the repository
+	try
+	{
+		//First, check if the repository is already created
+		if (GetModuleFileName(NULL, repositorylocation, MAX_PATH) != 0)
+		{
+			std::cout << repositorylocation << std::endl;
+			std::cin >> repositorylocation;
+		}
+	}
+	catch (...)
+	{
+		std::cout << "An error occured in connecting to the repository(" << repositorylocation << ")!" << std::endl;
+		std::cout << "Starting the game with no knowledge...";
+	}
+	std::cin >> s;
+	return 0;
 }

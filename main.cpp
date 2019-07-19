@@ -57,34 +57,6 @@ public:
 
 		try
 		{
-			
-			STARTUPINFO startupinfo;
-			PROCESS_INFORMATION processinfo;
-			DWORD lpdword, dwexit;
-			std::cout << "\n\n\n\n\n\nLOOK AT ME PLS\n";
-			ZeroMemory(&startupinfo, sizeof(startupinfo));
-			startupinfo.cb = sizeof(startupinfo);
-			ZeroMemory(&processinfo, sizeof(processinfo));
-			int result = 0;
-			LPSTR loc = "C:\\Users\\Gelo\\Desktop\\FileService.exe Hello World";
-			std::cout << "Enter exe path of C# with arguments: ";
-			//std::cin >> loc;
-			if (CreateProcessA(NULL, loc, NULL, NULL, FALSE, 0, NULL, NULL, &startupinfo, &processinfo))
-			{
-				
-				dwexit = WaitForSingleObject(processinfo.hProcess, INFINITE);
-				result = GetExitCodeProcess(processinfo.hProcess, &lpdword);
-				CloseHandle(processinfo.hProcess);
-				CloseHandle(processinfo.hThread);	
-				std::cout << std::endl << std::endl << "Result from CMD: " << std::endl << std::endl;
-			}
-			else
-				std::cout << "Failed to launch the exe!" << std::endl;
-
-			std::cout << loc << std::endl;
-
-			std::cout << "END LOOOKKK" << std::endl;
-
 			std::ifstream replayfile(replayfilepath);
 			if (replayfile.is_open())
 			{
@@ -409,25 +381,80 @@ int main(int argc, char* argv[]) {
     }
 
     return 0;*/
+	STARTUPINFO startupinfo;
+	PROCESS_INFORMATION processinformation;
+	DWORD dword;
+	LPSTR currentdirectory = new char[MAX_PATH];
+	Coordinator coordinator;
+	Bot bot;
+	std::string repositoryservice, rpstryCommands, rpstryResources;
+	int processresult = 1;
 
-	LPSTR repositorylocation = new char[MAX_PATH];
+	ZeroMemory(&startupinfo, sizeof(startupinfo));
+	startupinfo.cb = sizeof(startupinfo);
+	ZeroMemory(&processinformation, sizeof(processinformation));
+
 	char s;
 
-	//Get the references from the repository
+	//First, connect to the repository
 	try
 	{
-		//First, check if the repository is already created
-		if (GetModuleFileName(NULL, repositorylocation, MAX_PATH) != 0)
+		//Get the current directory
+		if (GetCurrentDirectory(MAX_PATH, currentdirectory) != 0)
 		{
-			std::cout << repositorylocation << std::endl;
-			std::cin >> repositorylocation;
+			//Initialize the path variables
+			repositoryservice = (std::string)currentdirectory + "\\RepositoryService.exe";
+			rpstryCommands = (std::string)currentdirectory + "\\RepositoryCommands.csv";
+			rpstryResources = (std::string)currentdirectory + "\\RepositoryResources.csv";
+			std::cout << "Successful Path Initialization! Repository and Service must be in:\n\t" << currentdirectory << std::endl;
+
+			//Check if the repository is created
+			std::ifstream CommandsRepositoryFile(rpstryCommands, std::ios_base::in), ResourcesRepositoryFile(rpstryResources, std::ios_base::in);
+			if (!(CommandsRepositoryFile.good() && ResourcesRepositoryFile.good()))
+			{
+				//The repository is not created
+				CommandsRepositoryFile.close();
+				ResourcesRepositoryFile.close();
+				std::cout << "The Repository is not found! Closing first... Calling the Repository Service..." << std::endl;
+
+				//Call the Repository Service
+				LPSTR ptrRepositoryService = const_cast<char *>(repositoryservice.c_str());
+				if (CreateProcessA(NULL, ptrRepositoryService, NULL, NULL, FALSE, 0, NULL, NULL, &startupinfo, &processinformation))
+				{
+					std::cout << "Successfully connected to Repository Service!" << std::endl;
+
+					WaitForSingleObject(processinformation.hProcess, INFINITE);
+					processresult = GetExitCodeProcess(processinformation.hProcess, &dword);
+					CloseHandle(processinformation.hProcess);
+					CloseHandle(processinformation.hThread);
+				}
+				else
+				{
+					processresult = -1;
+					std::cout << "Error Occurred! Failed to connect to the Repository Service... Proceeding anyway..." << std::endl;
+				}
+			}
+
+			//If the repository is created, process it to create a model
+			if (processresult == 1)
+			{
+				std::cout << "Hello World!" << std::endl;
+
+				std::cout << "Successfully processed the repository! Proceeding to the game..." << std::endl;
+			}
+			else
+				std::cout << "Error Occurred! Failed to process the repository... Proceeding anyway..." << std::endl;			
 		}
+		else
+			std::cout << "Error Occurred! Failed to get the current directory... Proceeding anyway..." << std::endl;
 	}
 	catch (...)
 	{
-		std::cout << "An error occured in connecting to the repository(" << repositorylocation << ")!" << std::endl;
+		std::cout << "Error Occurred! Failed to process the model... Check the directory if files are existing: \n\t" << currentdirectory << std::endl;
 		std::cout << "Starting the game with no knowledge...";
 	}
+
+
 	std::cin >> s;
 	return 0;
 }

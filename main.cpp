@@ -10,31 +10,121 @@
 
 using namespace sc2;
 
-
-template <typename randomizer>
-randomizer RandomAction(randomizer begin, randomizer end, int size)
+class ProgramUtilities
 {
-	const unsigned long n = std::distance(begin, end);
-	std::cout << "Distance in the vector: " << n << std::endl;
-	unsigned long divisor = 0;
-	try
-	{
-		divisor = (RAND_MAX + 1) / n;
-	}
-	catch (const std::exception&)
-	{
-		divisor = (RAND_MAX + 1) / size;
-	}
+	private:
+		static ProgramUtilities* _instance;
+		std::string _currentdirectory;
 
-	unsigned long k;
-	do
-	{
-		k = std::rand() / divisor;
-	} while (k >= n);
+		ProgramUtilities()
+		{
+			_currentdirectory = "";
+			std::cout << "Warning! Current Directory Field is empty!" << std::endl;
+		}
 
-	std::advance(begin, k);
-	return begin;
-}
+		ProgramUtilities(LPSTR current_directory)
+		{
+			_currentdirectory = current_directory;
+			std::cout << "Successful Update! Current Directory: " << _currentdirectory << std::endl;
+		}
+
+
+	public:
+		static const std::string MODELSERVICE_FILENAME;
+		static const std::string COMMANDSREPOSITORY_FILENAME;
+		static const std::string RESOURCESREPOSITORY_FILENAME;
+
+		static ProgramUtilities* GetProgramUtilitiesInstance()
+		{
+			if (_instance == nullptr)
+				_instance = new ProgramUtilities();
+
+			return _instance;
+		}
+
+		static ProgramUtilities* GetProgramUtilitiesInstance(LPSTR current_directory)
+		{
+			if (_instance == nullptr)
+				_instance = new ProgramUtilities(current_directory);
+
+			return _instance;
+		}
+
+		template <typename T> static T GetRandomElement(T begin, int size)
+		{
+			try
+			{
+				unsigned long offset = 0, divisor = 0;
+
+				divisor = (RAND_MAX + 1) / size;
+				do 
+				{
+					offset = std::rand() / divisor;
+				} while (offset >= divisor);
+				std::advance(begin, offset);
+			}
+			catch (...)
+			{
+				std::cout << "Error Occured! Failed to generate a random offset... Returning the first element instead..." << std::endl;
+				std::cerr << "Error Occured! ProgramUtilities -> GetRandomElement" << std::endl;
+			}
+
+			return begin;
+		}
+
+		double RunExecutableFile(std::string executable_file)
+		{
+			STARTUPINFO startupinfo;
+			PROCESS_INFORMATION processinformation;
+			DWORD dword;
+			LPSTR executablefilepath = new char[MAX_PATH];
+			double processresult = -1;
+			
+			try
+			{
+				ZeroMemory(&startupinfo, sizeof(startupinfo));
+				startupinfo.cb = sizeof(startupinfo);
+				ZeroMemory(&processinformation, sizeof(processinformation));
+				executablefilepath = const_cast<char *>(executable_file.c_str());
+
+				if (CreateProcessA(NULL, executablefilepath, NULL, NULL, FALSE, 0, NULL, NULL, &startupinfo, &processinformation))
+				{
+					std::cout << "Successful Execution! Running " << executablefilepath << std::endl;
+
+					WaitForSingleObject(processinformation.hProcess, INFINITE);
+					processresult = GetExitCodeProcess(processinformation.hProcess, &dword);
+					CloseHandle(processinformation.hProcess);
+					CloseHandle(processinformation.hThread);
+				}
+				else
+					throw processresult;
+			}
+			catch (...)
+			{
+				std::cout << "Error Occurred! Failed to execute the executable file..." << std::endl;
+				std::cerr << "Error Occurred! ProgramUtilities -> RunExecutableFile" << std::endl;
+			}
+
+			return processresult;
+		}
+
+		std::string GetProjectDirectory()
+		{
+			LPSTR projectdirectory = new char[MAX_PATH];
+
+			try
+			{
+				return (GetCurrentDirectory(MAX_PATH, projectdirectory) != 0) ? projectdirectory : "";
+			}
+			catch (...)
+			{
+				std::cout << "Error Occurred! Failed to retrieve the project directory..." << std::endl;
+				std::cerr << "Error Occurred! ProgramUtilities -> GetProjectDirectory" << std::endl;
+			}
+
+			return "";
+		}
+};
 
 class Bot : public Agent {
 public:
@@ -124,7 +214,7 @@ public:
 							else if(bycomma.find("Attack") != std::string::npos)
 								markovchainMacro[currentscope].insert(markovchainMacro[currentscope].begin(), "Attack");
 							else
-								markovchainMacro[currentscope].insert(markovchainMacro[currentscope].begin(), *RandomAction(testcommand.begin(), testcommand.end(), testcommand.size()));
+								markovchainMacro[currentscope].insert(markovchainMacro[currentscope].begin(), *ProgramUtilities::GetRandomElement(testcommand.begin(), testcommand.size()));
 						}
 					}
 				}
@@ -206,7 +296,7 @@ public:
 		std::cout << "Number of States in current Markov Chain: " << markovchainMacro[markovscope].size();
 
 		//Pick a random element
-		std::string action = *RandomAction(markovchainMacro[markovscope].begin(), markovchainMacro[markovscope].end(), markovchainMacro[markovscope].size());
+		std::string action = *ProgramUtilities::GetRandomElement(markovchainMacro[markovscope].begin(), markovchainMacro[markovscope].size());
 		std::cout << "Picked Action: " << action << std::endl;
 		TryToDo(action);
     }
@@ -360,6 +450,11 @@ private:
 	}
 };
 
+ProgramUtilities* ProgramUtilities::_instance = nullptr;
+const std::string ProgramUtilities::MODELSERVICE_FILENAME = "ModelService.exe";
+const std::string ProgramUtilities::COMMANDSREPOSITORY_FILENAME = "CommandsRepository.csv";
+const std::string ProgramUtilities::RESOURCESREPOSITORY_FILENAME = "ResourcesRepository.csv";
+
 int main(int argc, char* argv[]) {
     /*Coordinator coordinator;
     coordinator.LoadSettings(argc, argv);
@@ -399,9 +494,11 @@ int main(int argc, char* argv[]) {
 	//First, connect to the repository
 	try
 	{
+		
 		//Get the current directory
 		if (GetCurrentDirectory(MAX_PATH, currentdirectory) != 0)
 		{
+			auto test = ProgramUtilities::GetProgramUtilitiesInstance(currentdirectory);
 			//Initialize the path variables
 			repositoryservice = (std::string)currentdirectory + "\\RepositoryService.exe";
 			rpstryCommands = (std::string)currentdirectory + "\\RepositoryCommands.csv";

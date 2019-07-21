@@ -50,6 +50,23 @@ class ProgramUtilities
 			return _instance;
 		}
 
+		static std::string GetProjectDirectory()
+		{
+			LPSTR projectdirectory = new char[MAX_PATH];
+
+			try
+			{
+				return (GetCurrentDirectory(MAX_PATH, projectdirectory) != 0) ? projectdirectory : "";
+			}
+			catch (...)
+			{
+				std::cout << "Error Occurred! Failed to retrieve the project directory..." << std::endl;
+				std::cerr << "Error Occurred! ProgramUtilities -> GetProjectDirectory" << std::endl;
+			}
+
+			return "";
+		}
+
 		template <typename T> static T GetRandomElement(T begin, int size)
 		{
 			try
@@ -106,23 +123,58 @@ class ProgramUtilities
 			}
 
 			return processresult;
-		}
+		}		
 
-		std::string GetProjectDirectory()
+		std::string GetRelativeFilePath(std::string filename)
 		{
-			LPSTR projectdirectory = new char[MAX_PATH];
-
+			std::string path;
+			
 			try
 			{
-				return (GetCurrentDirectory(MAX_PATH, projectdirectory) != 0) ? projectdirectory : "";
+				path = (std::string)_currentdirectory + "\\" + filename;
 			}
-			catch (...)
+			catch (const std::exception&)
 			{
-				std::cout << "Error Occurred! Failed to retrieve the project directory..." << std::endl;
-				std::cerr << "Error Occurred! ProgramUtilities -> GetProjectDirectory" << std::endl;
+				path = "";
 			}
 
-			return "";
+			return path;
+		}
+};
+
+class RepositoryService
+{
+	private:
+		static RepositoryService* _instance;
+		std::string _commandsrepositoryfilepath;
+		std::string _resourcesrepositoryfilepath;
+		std::map<std::string, std::vector<std::string>> _originalCommandsRepository;
+		std::map<std::string, std::vector<std::string>> _originalResourcesRepository;
+
+		RepositoryService();
+
+		RepositoryService(std::string commands_repository, std::string resources_repository)
+		{
+			_commandsrepositoryfilepath = commands_repository;
+			_resourcesrepositoryfilepath = resources_repository;
+
+			std::ifstream CommandsRepositoryFile(_commandsrepositoryfilepath, std::ios_base::in);
+			std::ifstream ResourcesRepositoryFile(_resourcesrepositoryfilepath, std::ios_base::in);
+
+			ParseFile(CommandsRepositoryFile);
+		}
+	public:
+		static RepositoryService* GetRepositoryServiceInstance(std::string commands_repository, std::string resources_repository)
+		{
+			if (_instance == nullptr)
+				_instance = new RepositoryService(commands_repository, resources_repository);
+
+			return _instance;
+		}
+
+		bool ParseFile(std::ifstream& reader)
+		{
+
 		}
 };
 
@@ -476,82 +528,40 @@ int main(int argc, char* argv[]) {
     }
 
     return 0;*/
-	STARTUPINFO startupinfo;
-	PROCESS_INFORMATION processinformation;
-	DWORD dword;
-	LPSTR currentdirectory = new char[MAX_PATH];
-	Coordinator coordinator;
-	Bot bot;
-	std::string repositoryservice, rpstryCommands, rpstryResources;
-	int processresult = 1;
-
-	ZeroMemory(&startupinfo, sizeof(startupinfo));
-	startupinfo.cb = sizeof(startupinfo);
-	ZeroMemory(&processinformation, sizeof(processinformation));
 
 	char s;
 
-	//First, connect to the repository
+	Bot* bot = new Bot();
+	Coordinator* coordinator = new Coordinator();
+	ProgramUtilities* utilities = nullptr;
+	RepositoryService* repository = nullptr;
+	std::string currentdirectory = "";
+
+	//Get the current directory
+	currentdirectory = ProgramUtilities::GetProjectDirectory();
+	//Initalize the utilities
+	if (currentdirectory == "")
+		utilities = ProgramUtilities::GetProgramUtilitiesInstance(); //Change me into hardcoded project directory
+	else
+		utilities = ProgramUtilities::GetProgramUtilitiesInstance(const_cast<char *>(currentdirectory.c_str()));
+
+	//Connect to the repository
 	try
 	{
-		
-		//Get the current directory
-		if (GetCurrentDirectory(MAX_PATH, currentdirectory) != 0)
-		{
-			auto test = ProgramUtilities::GetProgramUtilitiesInstance(currentdirectory);
-			//Initialize the path variables
-			repositoryservice = (std::string)currentdirectory + "\\RepositoryService.exe";
-			rpstryCommands = (std::string)currentdirectory + "\\RepositoryCommands.csv";
-			rpstryResources = (std::string)currentdirectory + "\\RepositoryResources.csv";
-			std::cout << "Successful Path Initialization! Repository and Service must be in:\n\t" << currentdirectory << std::endl;
-
-			//Check if the repository is created
-			std::ifstream CommandsRepositoryFile(rpstryCommands, std::ios_base::in), ResourcesRepositoryFile(rpstryResources, std::ios_base::in);
-			if (!(CommandsRepositoryFile.good() && ResourcesRepositoryFile.good()))
-			{
-				//The repository is not created
-				CommandsRepositoryFile.close();
-				ResourcesRepositoryFile.close();
-				std::cout << "The Repository is not found! Closing first... Calling the Repository Service..." << std::endl;
-
-				//Call the Repository Service
-				LPSTR ptrRepositoryService = const_cast<char *>(repositoryservice.c_str());
-				if (CreateProcessA(NULL, ptrRepositoryService, NULL, NULL, FALSE, 0, NULL, NULL, &startupinfo, &processinformation))
-				{
-					std::cout << "Successfully connected to Repository Service!" << std::endl;
-
-					WaitForSingleObject(processinformation.hProcess, INFINITE);
-					processresult = GetExitCodeProcess(processinformation.hProcess, &dword);
-					CloseHandle(processinformation.hProcess);
-					CloseHandle(processinformation.hThread);
-				}
-				else
-				{
-					processresult = -1;
-					std::cout << "Error Occurred! Failed to connect to the Repository Service... Proceeding anyway..." << std::endl;
-				}
-			}
-
-			//If the repository is created, process it to create a model
-			if (processresult == 1)
-			{
-				std::cout << "Hello World!" << std::endl;
-
-				std::cout << "Successfully processed the repository! Proceeding to the game..." << std::endl;
-			}
-			else
-				std::cout << "Error Occurred! Failed to process the repository... Proceeding anyway..." << std::endl;			
-		}
-		else
-			std::cout << "Error Occurred! Failed to get the current directory... Proceeding anyway..." << std::endl;
+		repository = RepositoryService::GetRepositoryServiceInstance(utilities->GetRelativeFilePath(ProgramUtilities::COMMANDSREPOSITORY_FILENAME), utilities->GetRelativeFilePath(ProgramUtilities::RESOURCESREPOSITORY_FILENAME));
 	}
 	catch (...)
 	{
-		std::cout << "Error Occurred! Failed to process the model... Check the directory if files are existing: \n\t" << currentdirectory << std::endl;
-		std::cout << "Starting the game with no knowledge...";
+		std::cout << "Error Occurred! Failed to connect to the repository... Exiting..." << std::endl;
+		std::cerr << "Error Occurred! ->main" << std::endl;
+		exit(-1);
 	}
 
+	//Start the game
+	//coordinator->LoadSettings(argc, argv);
+	//coordinator->SetParticipants({ CreateParticipant(Race::Terran, bot), CreateComputer(Race::Terran, Difficulty::VeryEasy) });
 
 	std::cin >> s;
+
 	return 0;
 }

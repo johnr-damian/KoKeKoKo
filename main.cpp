@@ -4,11 +4,15 @@
 #include <iomanip>	//for time
 #include <iostream>	//for cin and cout
 #include <fstream>	//for file stream
+#include <future>	//for async operations
+#include <thread>	//for thread
 #include <map>		//for dictionary
 #include <sstream>	//for string stream
 #include <Windows.h> //for exes
 
 using namespace sc2;
+
+
 
 class ProgramUtilities
 {
@@ -148,8 +152,12 @@ class RepositoryService
 		static RepositoryService* _instance;
 		std::string _commandsrepositoryfilepath;
 		std::string _resourcesrepositoryfilepath;
-		std::map<std::string, std::vector<std::string>> _originalCommandsRepository;
-		std::map<std::string, std::vector<std::string>> _originalResourcesRepository;
+		//	Y axis					//X axis
+		std::map<std::string, std::vector<std::string>> _originalCommandsRepository = std::map<std::string, std::vector<std::string>>();
+		std::map<std::string, std::vector<std::string>> _originalResourcesRepository = std::map<std::string, std::vector<std::string>>();
+
+		std::map<std::string, int> _listofcommands = std::map<std::string, int>();
+		
 
 		RepositoryService();
 
@@ -157,13 +165,12 @@ class RepositoryService
 		{
 			_commandsrepositoryfilepath = commands_repository;
 			_resourcesrepositoryfilepath = resources_repository;
-
-			std::ifstream CommandsRepositoryFile(_commandsrepositoryfilepath, std::ios_base::in);
-			std::ifstream ResourcesRepositoryFile(_resourcesrepositoryfilepath, std::ios_base::in);
-
-			ParseFile(CommandsRepositoryFile);
 		}
+
 	public:
+		FILE *s;
+		int command_size = 0;
+
 		static RepositoryService* GetRepositoryServiceInstance(std::string commands_repository, std::string resources_repository)
 		{
 			if (_instance == nullptr)
@@ -172,9 +179,66 @@ class RepositoryService
 			return _instance;
 		}
 
-		bool ParseFile(std::ifstream& reader)
+		bool ParseCommandRepository()
 		{
+			try
+			{
+				
+				freopen_s(&s, "Test.txt", "w", stdout);
+				std::ifstream CommandsRepository(_commandsrepositoryfilepath);
+				if (CommandsRepository.is_open())
+				{
+					std::cout << "Opened file" << std::endl;
+					std::cout << "Scoping has been removed due to insufficient number of data" << std::endl;
+					std::string replayfileline = "", previousowner = "";
+					bool backtostart = false;
+					
+					while (std::getline(CommandsRepository, replayfileline))
+					{
+						std::stringstream byline(replayfileline);
+						std::string bycomma = "";
+						for (int column = 0; std::getline(byline, bycomma, ','); column++)
+						{
+							//std::cout << bycomma << " ";
+							if (column == 2) //Commands
+							{
+								//Check if that command is existing
+								if (_originalCommandsRepository.find(bycomma) == _originalCommandsRepository.end())
+									_originalCommandsRepository.insert(std::make_pair(bycomma, std::vector<std::string>()));
+								//Initialize the previous history of commands
+								if (previousowner == "") //Initialization
+									previousowner = bycomma;
+								
+								//_originalCommandsRepository[bycomma].insert(_originalCommandsRepository[bycomma].begin(), bycomma);		
+								_originalCommandsRepository[previousowner].push_back(bycomma);
+								if (_listofcommands.find(bycomma) == _listofcommands.end())
+									_listofcommands.insert(std::make_pair(bycomma, 0));
+								previousowner = bycomma;
+								++command_size;
+							}
+						}
+						std::cout << std::endl;
+					}
+				}
 
+				return true;
+			}
+			catch (...)
+			{
+
+			}
+
+			return false;
+		}
+
+		std::map<std::string, std::vector<std::string>> GetChain()
+		{
+			return _originalCommandsRepository;
+		}
+
+		std::map<std::string, int> GetList()
+		{
+			return _listofcommands;
 		}
 };
 
@@ -506,6 +570,7 @@ ProgramUtilities* ProgramUtilities::_instance = nullptr;
 const std::string ProgramUtilities::MODELSERVICE_FILENAME = "ModelService.exe";
 const std::string ProgramUtilities::COMMANDSREPOSITORY_FILENAME = "CommandsRepository.csv";
 const std::string ProgramUtilities::RESOURCESREPOSITORY_FILENAME = "ResourcesRepository.csv";
+RepositoryService* RepositoryService::_instance = nullptr;
 
 int main(int argc, char* argv[]) {
     /*Coordinator coordinator;
@@ -541,7 +606,7 @@ int main(int argc, char* argv[]) {
 	currentdirectory = ProgramUtilities::GetProjectDirectory();
 	//Initalize the utilities
 	if (currentdirectory == "")
-		utilities = ProgramUtilities::GetProgramUtilitiesInstance(); //Change me into hardcoded project directory
+		utilities = ProgramUtilities::GetProgramUtilitiesInstance(); //Use hardcoded, if GetProjectDirectory() fails
 	else
 		utilities = ProgramUtilities::GetProgramUtilitiesInstance(const_cast<char *>(currentdirectory.c_str()));
 
@@ -549,6 +614,77 @@ int main(int argc, char* argv[]) {
 	try
 	{
 		repository = RepositoryService::GetRepositoryServiceInstance(utilities->GetRelativeFilePath(ProgramUtilities::COMMANDSREPOSITORY_FILENAME), utilities->GetRelativeFilePath(ProgramUtilities::RESOURCESREPOSITORY_FILENAME));
+		repository->ParseCommandRepository(); //fuck threading
+
+		std::cout << "Number of commands: " << repository->GetList().size() << std::endl;
+		std::cout << "Commands are: ";
+		for (auto list : repository->GetList())
+		{
+			std::cout << "\n\t" << list.first << std::endl;
+		}
+		std::cout << "\n\nMatrix: \n\t\t\t\t\t\t";
+		int count = 0;
+		for (auto list : repository->GetChain())
+		{
+			std::cout << ++count << ". " << list.first << "\t|\t";
+		}
+		std::cout << std::endl;
+		for (auto yaxis : repository->GetChain())
+		{
+			std::cout << yaxis.first << " \t";
+			for (auto list : repository->GetList())
+			{
+				std::cout << std::count(yaxis.second.begin(), yaxis.second.end(), list.first) << " \t";
+			}
+			std::cout << std::endl;
+
+		}
+		std::cout << "\n\nMatrix (Percentage): \n\t\t\t\t\t\t";
+		count = 0;
+		for (auto list : repository->GetChain())
+		{
+			std::cout << ++count << ". " << list.first << "\t|\t";
+		}
+		std::cout << std::endl;
+		for (auto yaxis : repository->GetChain())
+		{
+			std::cout << yaxis.first << " \t";
+			for (auto list : repository->GetList())
+			{
+				std::cout << (((double)std::count(yaxis.second.begin(), yaxis.second.end(), list.first))/repository->GetList().size())*100 << " \t";
+			}
+			std::cout << std::endl;
+
+		}
+		fclose(repository->s);
+		freopen_s(&repository->s, "ForR.csv", "w", stdout);
+		for (auto list : repository->GetList())
+			std::cout << "\"" << list.first << "\"" << ",";
+		std::cout << "\b\n";
+		double row_sum = 0, total = 0;
+		for (auto yaxis : repository->GetChain())
+		{
+			for (auto list : repository->GetList())
+			{
+				//row_sum += (((double)std::count(yaxis.second.begin(), yaxis.second.end(), list.first)) / ((double)repository->command_size));
+
+				row_sum += std::count(yaxis.second.begin(), yaxis.second.end(), list.first);
+				//std::cout << (((double)std::count(yaxis.second.begin(), yaxis.second.end(), list.first)) / ((double)repository->command_size)) * 100 << ",";
+				//std::cout << std::count(yaxis.second.begin(), yaxis.second.end(), list.first) << ", ";
+			}
+			//std::cout << std::endl << row_sum << std::endl;
+			for (auto list : repository->GetList())
+			{
+				//std::cout << (((double)std::count(yaxis.second.begin(), yaxis.second.end(), list.first)) / ((double)row_sum)) * 100 << ",";
+				total += (std::count(yaxis.second.begin(), yaxis.second.end(), list.first) / row_sum);
+				std::cout << std::count(yaxis.second.begin(), yaxis.second.end(), list.first) << ",";
+			}
+
+			//std::cout << "\t\t" << row_sum << "\t\t" << total << std::endl;
+
+			row_sum = 0;
+			total = 0;
+		}
 	}
 	catch (...)
 	{

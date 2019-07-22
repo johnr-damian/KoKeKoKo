@@ -1,0 +1,159 @@
+Opened file
+Scoping has been removed due to insufficient number of data
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Number of commands: 16
+Commands are: 
+	Build Armory
+
+	Build Barracks
+
+	Build Bunker
+
+	Build Command Center
+
+	Build Engineering Bay
+
+	Build Factory
+
+	Build Liberator
+
+	Build Reactor
+
+	Build Refinery
+
+	Build Siege Tank
+
+	Build Starport
+
+	Build Supply Depot
+
+	Build Tech Lab
+
+	Build Widow Mine
+
+	Train Marine
+
+	Train SCV
+
+
+Matrix: 
+						1. Build Armory	|	2. Build Barracks	|	3. Build Bunker	|	4. Build Command Center	|	5. Build Engineering Bay	|	6. Build Factory	|	7. Build Liberator	|	8. Build Reactor	|	9. Build Refinery	|	10. Build Siege Tank	|	11. Build Starport	|	12. Build Supply Depot	|	13. Build Tech Lab	|	14. Build Widow Mine	|	15. Train Marine	|	16. Train SCV	|	
+Build Armory 	0 	0 	0 	0 	0 	0 	0 	0 	1 	0 	0 	0 	0 	0 	0 	0 	
+Build Barracks 	0 	0 	0 	0 	0 	0 	0 	0 	0 	0 	0 	0 	0 	0 	1 	3 	
+Build Bunker 	0 	0 	0 	0 	0 	0 	0 	1 	0 	0 	0 	0 	0 	0 	0 	0 	
+Build Command Center 	0 	0 	0 	0 	0 	0 	0 	0 	0 	0 	0 	0 	0 	0 	1 	0 	
+Build Engineering Bay 	0 	0 	0 	0 	0 	0 	0 	0 	0 	0 	0 	0 	0 	0 	0 	1 	
+Build Factory 	0 	0 	0 	0 	0 	0 	0 	1 	0 	0 	0 	0 	0 	0 	3 	0 	
+Build Liberator 	0 	0 	0 	0 	0 	0 	0 	0 	0 	0 	0 	0 	0 	0 	1 	1 	
+Build Reactor 	1 	0 	0 	1 	0 	0 	1 	0 	0 	1 	0 	0 	0 	0 	0 	0 	
+Build Refinery 	0 	1 	0 	0 	0 	0 	0 	1 	0 	0 	0 	0 	0 	0 	0 	3 	
+Build Siege Tank 	0 	0 	0 	0 	0 	0 	0 	0 	0 	1 	0 	1 	2 	0 	1 	0 	
+Build Starport 	0 	0 	0 	0 	0 	0 	0 	1 	0 	0 	0 	0 	0 	0 	0 	2 	
+Build Supply Depot 	0 	1 	0 	0 	0 	2 	1 	0 	0 	0 	0 	1 	0 	0 	2 	4 	
+Build Tech Lab 	0 	0 	0 	0 	0 	0 	0 	0 	0 	0 	1 	1 	0 	0 	1 	0 	
+Build Widow Mine 	0 	0 	0 	0 	0 	0 	0 	0 	0 	0 	1 	0 	0 	0 	0 	0 	
+Train Marine 	0 	0 	0 	0 	0 	2 	1 	0 	0 	3 	0 	1 	1 	0 	4 	3 	
+Train SCV 	0 	2 	1 	0 	1 	0 	0 	0 	4 	0 	1 	6 	0 	1 	1 	5 	
+
+
+Matrix (Percentage): 
+						1. Build Armory	|	2. Build Barracks	|	3. Build Bunker	|	4. Build Command Center	|	5. Build Engineering Bay	|	6. Build Factory	|	7. Build Liberator	|	8. Build Reactor	|	9. Build Refinery	|	10. Build Siege Tank	|	11. Build Starport	|	12. Build Supply Depot	|	13. Build Tech Lab	|	14. Build Widow Mine	|	15. Train Marine	|	16. Train SCV	|	
+Build Armory 	0 	0 	0 	0 	0 	0 	0 	0 	6.25 	0 	0 	0 	0 	0 	0 	0 	
+Build Barracks 	0 	0 	0 	0 	0 	0 	0 	0 	0 	0 	0 	0 	0 	0 	6.25 	18.75 	
+Build Bunker 	0 	0 	0 	0 	0 	0 	0 	6.25 	0 	0 	0 	0 	0 	0 	0 	0 	
+Build Command Center 	0 	0 	0 	0 	0 	0 	0 	0 	0 	0 	0 	0 	0 	0 	6.25 	0 	
+Build Engineering Bay 	0 	0 	0 	0 	0 	0 	0 	0 	0 	0 	0 	0 	0 	0 	0 	6.25 	
+Build Factory 	0 	0 	0 	0 	0 	0 	0 	6.25 	0 	0 	0 	0 	0 	0 	18.75 	0 	
+Build Liberator 	0 	0 	0 	0 	0 	0 	0 	0 	0 	0 	0 	0 	0 	0 	6.25 	6.25 	
+Build Reactor 	6.25 	0 	0 	6.25 	0 	0 	6.25 	0 	0 	6.25 	0 	0 	0 	0 	0 	0 	
+Build Refinery 	0 	6.25 	0 	0 	0 	0 	0 	6.25 	0 	0 	0 	0 	0 	0 	0 	18.75 	
+Build Siege Tank 	0 	0 	0 	0 	0 	0 	0 	0 	0 	6.25 	0 	6.25 	12.5 	0 	6.25 	0 	
+Build Starport 	0 	0 	0 	0 	0 	0 	0 	6.25 	0 	0 	0 	0 	0 	0 	0 	12.5 	
+Build Supply Depot 	0 	6.25 	0 	0 	0 	12.5 	6.25 	0 	0 	0 	0 	6.25 	0 	0 	12.5 	25 	
+Build Tech Lab 	0 	0 	0 	0 	0 	0 	0 	0 	0 	0 	6.25 	6.25 	0 	0 	6.25 	0 	
+Build Widow Mine 	0 	0 	0 	0 	0 	0 	0 	0 	0 	0 	6.25 	0 	0 	0 	0 	0 	
+Train Marine 	0 	0 	0 	0 	0 	12.5 	6.25 	0 	0 	18.75 	0 	6.25 	6.25 	0 	25 	18.75 	
+Train SCV 	0 	12.5 	6.25 	0 	6.25 	0 	0 	0 	25 	0 	6.25 	37.5 	0 	6.25 	6.25 	31.25 	

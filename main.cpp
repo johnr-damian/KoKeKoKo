@@ -10,7 +10,7 @@
 namespace KoKeKoKo
 {
 	using namespace std;
-	const string MODELSERVICE_FILENAME = "ModelService.exe";				//Contains the POMDP Model, MCTS Model, and both
+	const string MODELSERVICE_FILENAME = "ModelService\\bin\\Release\\ModelService.exe";				//Contains the POMDP Model, MCTS Model, and both
 	const string REPOSITORY_FILENAME = "Documents\\Data\\Repository.csv";					//The parsed and combination of CommandsRepository and ResourcesRepository
 	const string COMMANDSREPOSITORY_FILENAME = "Documents\\Data\\CommandsRepository.csv";	//The preprocessed training data from replay files
 	const string RESOURCESREPOSITORY_FILENAME = "Documents\\Data\\ResourcesRepository.csv";	//The preprocessed training data from replay files
@@ -240,7 +240,10 @@ int main(int argc, char* argv[])
 
 		std::cout << result << std::endl;
 	}
-	
+	//system("");
+	//modelrepositoryservice->RunExecutableFile("C:\\Users\\Kelsey\\source\\repos\\KoKeKoKo\\SC2API_Binary_vs2017\\RProject1\\Script.R");
+	//int test = system("C:\\Users\\Kelsey\\source\\repos\\KoKeKoKo\\SC2API_Binary_vs2017\\RProject1\\Script.R");
+	//std::cout << test << std::endl;
 	std::cin >> s;
 
 	return 0;

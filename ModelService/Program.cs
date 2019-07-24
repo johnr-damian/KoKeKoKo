@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using RDotNet;
 
 namespace ModelService
 {
@@ -31,6 +32,8 @@ namespace ModelService
 
             //return retvalue;
             //REngine.SetEnvironmentVariables(@"C:\Program Files\Microsoft\R Client\R_SERVER\bin");
+
+
             //using (var engine = REngine.GetInstance())
             //{
             //    engine.Initialize();
@@ -44,24 +47,34 @@ namespace ModelService
             //    Console.WriteLine("Press any key to exit the program");
             //    Console.ReadKey();
             //}
-            IRHostSession session = RHostSession.Create("Test");
-            var task = session.StartHostAsync(new RHostSessionCallback());
-            task.Wait();
+            //IRHostSession session = RHostSession.Create("Test");
+            //var task = session.StartHostAsync(new RHostSessionCallback());
+            //task.Wait();
 
-            Console.WriteLine("Arbitrary R code:");
-            var result = session.ExecuteAndOutputAsync("Sys.info()");
-            result.Wait();
-            Console.WriteLine(result.Result.Output);
-
+            //Console.WriteLine("Arbitrary R code:");
+            //var result = session.ExecuteAndOutputAsync("Sys.info()");
+            //result.Wait();
+            //Console.WriteLine(result.Result.Output);
+            //SetupPath();
+            //REngine.SetEnvironmentVariables(@"C:\Program Files\Microsoft\R Client\R_SERVER\bin\x64", @"C:/Program Files/Microsoft/R Client/R_SERVER/bin/x64");
+            //var engine = REngine.GetInstance(@"C:\Program Files\Microsoft\R Client\R_SERVER\bin\x64\R.dll", true);
+            REngine.SetEnvironmentVariables();
+            var engine = REngine.GetInstance();
+            engine.Initialize();
+            var s = engine.Evaluate("1 + 1");
+            Console.WriteLine(s.AsCharacter().ToArray()[0]);
+            Console.WriteLine("HEllo!");
+            Console.ReadLine();
             return 0;
         }
 
-        public static void SetupPath(string Rversion = "R-3.0.0")
+        public static void SetupPath(string Rversion = "R-3.3.2")
         {
             var oldPath = System.Environment.GetEnvironmentVariable("PATH");
-            var rPath = System.Environment.Is64BitProcess ?
-                                   string.Format(@"C:\Program Files\R\{0}\bin\x64", Rversion) :
-                                   string.Format(@"C:\Program Files\R\{0}\bin\i386", Rversion);
+            //var rPath = System.Environment.Is64BitProcess ?
+            //                     string.Format(@"C:\Program Files\R\{0}\bin\x64", Rversion) :
+            //                   string.Format(@"C:\Program Files\R\{0}\bin\i386", Rversion);
+            var rPath = @"C:\Program Files\Microsoft\R Client\R_SERVER\bin\x64";
 
             if (!Directory.Exists(rPath))
                 throw new DirectoryNotFoundException(
@@ -69,6 +82,8 @@ namespace ModelService
             var newPath = string.Format("{0}{1}{2}", rPath,
                                          System.IO.Path.PathSeparator, oldPath);
             System.Environment.SetEnvironmentVariable("PATH", newPath);
+            foreach (var s in Environment.GetEnvironmentVariables())
+                Console.WriteLine(s);
         }
     }
 }

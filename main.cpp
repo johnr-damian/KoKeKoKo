@@ -23,15 +23,21 @@ namespace KoKeKoKo
 		private:
 			//The instance of ModelRepositoryService
 			static ModelRepositoryService* _instance;
+			//A map of created threads. The string is the function passed to the thread parameter
+			map<string, thread*> _createdthreads = map<string, thread*>();
+			//The parsed commandsrepository
+				//Rank	//Owner Command	  //Subsequent Commands from Owner Command
+			map<string, map<string, vector<string>>> _parsedcommandsrepository = map<string, map<string, vector<string>>>();
 
 			ModelRepositoryService()
-			//Gets the current project directory. Afterwards, parses the COMMANDSREPOSITORY and RESOURCESREPOSITORY
+			//Gets the current project directory. Afterwards, parses the COMMANDSREPOSITORY and RESOURCESREPOSITORY. It is a
+			//successful instance if both repositories exists and can be open
 			{
 				try
 				{
 					if (GetCurrentDirectory(MAX_PATH, CurrentProjectDirectory) != 0)
 					{
-						IsSuccessfulInstance = true;
+						IsSuccessfulInstance = GenerateRepository();
 					}
 					else
 						throw new exception("Failed to get current directory...");
@@ -44,14 +50,74 @@ namespace KoKeKoKo
 				}
 			}
 
-			void ParseCommandsRepository()
+			void CreateRepositoryFile()
 			{
-
+				int count = 0;
+				while (_parsedcommandsrepository.size() == 0 && count <= 100)
+				{
+					cout << "Hi" << endl;
+					count++;
+				}
 			}
 
-			void ParseResourcesRepository()
+			void ParseCommandsRepository(bool* file_exists)
+			//Opens then reads CommandsRepository. Creates an internal storage of parsed commands
 			{
+				try
+				{
+					ifstream commandsrepository(GetRelativeFilepathOf(COMMANDSREPOSITORY_FILENAME));
+					string commandsrepositoryline = "", commandsrepositorycomma = "", previouscommand = "";
 
+					if (commandsrepository.is_open())
+					{
+						*file_exists = true;
+						cout << "Successful! Parsing CommandsRepository..." << endl;
+
+						while (getline(commandsrepository, commandsrepositoryline))
+						//Read the CommandsRepository per line
+						{
+							cout << "Hello" << endl;
+						}
+					}
+					else
+						throw new exception("Failed to open CommandsRepository...");
+				}
+				catch (...)
+				{
+					cout << "Error Occurred! Failed to parse CommandsRepository..." << endl;
+					cerr << "Error Occurred! ModelRepositoryService -> ParseCommandsRepository(" << *file_exists << ")" << endl;
+					*file_exists = false;
+				}
+			}
+
+			void ParseResourcesRepository(bool* file_exists)
+			//TODO
+			{
+				try
+				{
+					ifstream resourcesrepository(GetRelativeFilepathOf(RESOURCESREPOSITORY_FILENAME));
+					string resourcesrepositoryline = "", resourcesrepositorycomma = "";
+
+					if (resourcesrepository.is_open())
+					{
+						*file_exists = true;
+						cout << "Successful! Parsing ResourcesRepository..." << endl;
+
+						while (getline(resourcesrepository, resourcesrepositoryline))
+						//Read the ResourcesRepository per line
+						{
+
+						}
+					}
+					else
+						throw new exception("Failed to open ResourcesRepository...");
+				}
+				catch (...)
+				{
+					cout << "Error Occurred! Failed to parse ResourcesRepository..." << endl;
+					cerr << "Error Occurred! ModelRepositoryService -> ParseResourcesRepository(" << *file_exists << ")" << endl;
+					*file_exists = false;
+				}
 			}
 
 			int RunExecutableFile(string executable_filename)
@@ -112,8 +178,52 @@ namespace KoKeKoKo
 			}
 
 			bool GenerateRepository()
+			//Creates threads to parse the repositories and another thread to create the repository file
+			//Returns true if both repositories exists and openable
 			{
+				bool iscommandsrepositoryexists = false, isresourcesrepositoryexists = false;
 
+				try
+				{
+					auto parsecommandsrepository = new thread(&ModelRepositoryService::ParseCommandsRepository, this, &iscommandsrepositoryexists);
+					auto parseresourcesrepository = new thread(&ModelRepositoryService::ParseResourcesRepository, this, &isresourcesrepositoryexists);
+					auto createrepository = new thread(&ModelRepositoryService::CreateRepositoryFile, this);
+
+					if (_createdthreads.find("ParseCommandsRepository") == _createdthreads.end())
+						_createdthreads.insert(make_pair("ParseCommandsRepository", parsecommandsrepository));
+					else
+					{
+						if (parsecommandsrepository->joinable())
+							parsecommandsrepository->join();
+						throw new exception("Failed to map ParseCommandsRepository thread! An existing thread is in the map...");
+					}
+					if (_createdthreads.find("ParseResourcesRepository") == _createdthreads.end())
+						_createdthreads.insert(make_pair("ParseResourcesRepository", parseresourcesrepository));
+					else
+					{
+						if (parseresourcesrepository->joinable())
+							parseresourcesrepository->join();
+						throw new exception("Failed to map ParseResourcesRepository thread! An existing thread is in the map...");
+					}
+					if (_createdthreads.find("CreateRepositoryFile") == _createdthreads.end())
+						_createdthreads.insert(make_pair("CreateRepositoryFile", createrepository));
+					else
+					{
+						if (createrepository->joinable())
+							createrepository->join();
+						throw new exception("Failed to map CreateRepositoryFile thread! An existing thread is in the map...");
+					}
+
+					//TOBEREMOVED
+					isresourcesrepositoryexists = true;
+				}
+				catch (...)
+				{
+					cout << "Error Occurred! Failed to generate repository..." << endl;
+					cerr << "Error Occurred! ModelRepositoryService -> GenerateRepository()" << endl;
+				}
+
+				return iscommandsrepositoryexists && isresourcesrepositoryexists;
 			}
 
 			int ExecuteModelService()
@@ -184,12 +294,16 @@ int main(int argc, char* argv[])
 	if (!(modelrepositoryservice->IsSuccessfulInstance))
 	{
 		std::cout << "There is a problem in the ModelRepositoryService, please try to resolve the issue to start the game." << std::endl;
-		//std::cin >> s;
+		std::cin >> s;
 		return -1;
 	}
 	//std::cout << modelrepositoryservice->ExecuteModelService() << std::endl;
 	std::cout << "Preparing StarCraft II..." << std::endl;
-	//std::cin >> s;
+	std::cin >> s;
+	while (s != 'a')
+	{
+		std::cin >> s;
+	}
 	coordinator->LoadSettings(argc, argv);
 	coordinator->SetParticipants({ sc2::CreateParticipant(sc2::Race::Terran, kokekokobot), sc2::CreateComputer(sc2::Race::Terran, sc2::Difficulty::VeryEasy) });
 	coordinator->LaunchStarcraft();

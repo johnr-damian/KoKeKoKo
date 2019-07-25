@@ -120,7 +120,7 @@ namespace KoKeKoKo
 			//Calls the ModelService.exe and returns the AbilityType ID
 			{
 				int abilityid = RunExecutableFile(KoKeKoKo::MODELSERVICE_FILENAME);
-				
+				return abilityid;
 			}
 	};
 
@@ -153,6 +153,7 @@ namespace KoKeKoKo
 				/* For Guanga */
 				//Make the bot, train scv, build supply depot then build barracks then train marine
 				//After sufficient marine, attack the enemy. Follow this in summary -> https://github.com/Blizzard/s2client-api/blob/master/docs/tutorial1.md
+				
 			}
 
 			virtual void OnUnitIdle(const Unit* unit) final
@@ -183,12 +184,12 @@ int main(int argc, char* argv[])
 	if (!(modelrepositoryservice->IsSuccessfulInstance))
 	{
 		std::cout << "There is a problem in the ModelRepositoryService, please try to resolve the issue to start the game." << std::endl;
-		std::cin >> s;
+		//std::cin >> s;
 		return -1;
 	}
-
+	//std::cout << modelrepositoryservice->ExecuteModelService() << std::endl;
 	std::cout << "Preparing StarCraft II..." << std::endl;
-	std::cin >> s;
+	//std::cin >> s;
 	coordinator->LoadSettings(argc, argv);
 	coordinator->SetParticipants({ sc2::CreateParticipant(sc2::Race::Terran, kokekokobot), sc2::CreateComputer(sc2::Race::Terran, sc2::Difficulty::VeryEasy) });
 	coordinator->LaunchStarcraft();

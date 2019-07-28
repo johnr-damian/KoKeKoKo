@@ -73,7 +73,7 @@ namespace KoKeKoKo
 				try
 				{
 					ofstream repository(GetRelativeFilepathOf(REPOSITORYSERVICE_FILENAME));
-					int linenumber = 0;
+					int linenumber = 0, statescount = 0, transitionscount = 0, scount = 0, tcount = 0;
 
 					if (repository.is_open())
 					{
@@ -84,26 +84,22 @@ namespace KoKeKoKo
 							repository << rank.first << endl;
 							_repositoryfilehash.insert(make_pair((rank.first + "C"), ++linenumber));
 							//The States
-							int statescount = rank.second.size(), scount = 1;
+							statescount = rank.second.size();
+							transitionscount = pow(statescount, 2);
+							scount = 1;
+							tcount = 1;
 							for (auto states : rank.second)
-								repository << states.first << ((scount < statescount++) ? "," : "");
+								repository << states.first << ((scount++ < statescount) ? "," : "");
 							repository << endl;
-							_repositoryfilehash.insert(make_pair(("States" + rank.first[0]), ++linenumber));
+							_repositoryfilehash.insert(make_pair((rank.first + "States"), ++linenumber));
 							//The Transition Matrix
-							int transitionscount = statescount * 2, tcount = 1;
 							for (auto xstates : rank.second)
 							{
-								repository << xstates.first << " -> ";
-								for (auto ystates : xstates.second)
-								{
-									repository << ystates << " ";
-									//repository << count(ystates.second.begin(), ystates.second.end(), xstates.first) << ((tcount < transitionscount++) ? "," : "");
-									//repository << endl;
-								}
-								repository << endl;
+								for (auto ystates : rank.second)
+									repository << count(xstates.second.begin(), xstates.second.end(), ystates.first) << ((tcount++ < transitionscount) ? "," : "");
 							}
 							repository << endl;
-							_repositoryfilehash.insert(make_pair(("Transition" + rank.first[0]), ++linenumber));
+							_repositoryfilehash.insert(make_pair((rank.first + "Transition"), ++linenumber));
 						}
 
 						//Place the Resources Repository second
@@ -127,7 +123,7 @@ namespace KoKeKoKo
 				{
 					_finishedparsingcommands = false;
 					ifstream commandsrepository(GetRelativeFilepathOf(COMMANDSREPOSITORY_FILENAME));
-					string commandsrepositoryline = "", commandsrepositorycomma = "", currentrank = "", previouscommand = "", previousowner = "";
+					string commandsrepositoryline = "", commandsrepositorycomma = "", currentrank = "", currentowner = "", previouscommand = "";
 
 					if (commandsrepository.is_open())
 					{
@@ -139,37 +135,69 @@ namespace KoKeKoKo
 						{
 							stringstream byline(commandsrepositoryline);
 							for (int column = 0; getline(byline, commandsrepositorycomma, ','); column++) 
-							{								
-								if (find(RANKS.begin(), RANKS.end(), commandsrepositorycomma) != RANKS.end())
-								//Check if the current string is a rank
+							{
+								//If the current column is either a Rank or timestamp
+								if (column == 0)
 								{
-									//We set the current rank by the seen rank in file
-									currentrank = commandsrepositorycomma; 
-									//We add the current rank in the parsed commands repository
-									_parsedcommandsrepository.insert(make_pair(currentrank, map<string, vector<string>>()));
-									cout << "Parsing Current Rank: " << currentrank << endl;
+									if (currentrank == "")
+									{
+										//Get the current rank for the following line of commands
+										if (find(RANKS.begin(), RANKS.end(), commandsrepositorycomma) != RANKS.end())
+										{
+											currentrank = commandsrepositorycomma;
+											_parsedcommandsrepository.insert(make_pair(currentrank, map<string, vector<string>>()));
+										}
+									}
+									else
+									{
+										//Get the current rank for the following line of commands
+										if (find(RANKS.begin(), RANKS.end(), commandsrepositorycomma) != RANKS.end())
+										{
+											//Repeat last command
+											_parsedcommandsrepository[currentrank][previouscommand].push_back(previouscommand);
+											currentowner = "";
+											previouscommand = "";
+											currentrank = commandsrepositorycomma;
+											_parsedcommandsrepository.insert(make_pair(currentrank, map<string, vector<string>>()));
+										}
+									}
 									continue;
 								}
 
-								if (column == 2)
-								//This assumes that the data is grouped by the same player
-								//If the current column is the commands
+								//Get the owner of the commands
+								if (column == 1)
 								{
-									//Perform initialization of command tracking
+									if (currentowner == "")
+										currentowner = commandsrepositorycomma;
+									else
+									{
+										if (currentowner != commandsrepositorycomma)
+										{
+											currentowner = commandsrepositorycomma;
+											_parsedcommandsrepository[currentrank][previouscommand].push_back(previouscommand);
+											previouscommand = "";
+										}
+									}
+									continue;
+								}
+
+								//Get the sequential commands executed by the same owner
+								if (column == 2)
+								{
 									if (previouscommand == "")
 										previouscommand = commandsrepositorycomma;
 
-									//Check if the current command is existing in the list
+									//Check if the current command has been mapped
 									if (_parsedcommandsrepository[currentrank].find(commandsrepositorycomma) == _parsedcommandsrepository[currentrank].end())
+										//If not mapped, add the command to the map
 										_parsedcommandsrepository[currentrank].insert(make_pair(commandsrepositorycomma, vector<string>()));
 
-									//If existing
 									_parsedcommandsrepository[currentrank][previouscommand].push_back(commandsrepositorycomma);
-									//Update previous command
 									previouscommand = commandsrepositorycomma;
 								}
 							}
 						}
+						_parsedcommandsrepository[currentrank][previouscommand].push_back(previouscommand);
 
 						_finishedparsingcommands = true;
 						commandsrepository.close();

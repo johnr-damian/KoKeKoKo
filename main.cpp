@@ -18,6 +18,8 @@ namespace KoKeKoKo
 	const string COMMANDSREPOSITORY_FILENAME = "Documents\\Data\\CommandsRepository.csv";
 	//The extracted resources from the replay data
 	const string RESOURCESREPOSITORY_FILENAME = "Documents\\Data\\ResourcesRepository.csv";
+	const list<string> RANKS = { "Bronze", "Silver", "Gold", "Diamond", "Platinum", "Master", "Grandmaster" };
+
 	class ModelRepositoryService
 	{
 		private:
@@ -25,9 +27,13 @@ namespace KoKeKoKo
 			static ModelRepositoryService* _instance;
 			//A map of created threads. The string is the function passed to the thread parameter
 			map<string, thread*> _createdthreads = map<string, thread*>();
+			//A map of important line in the REPOSITORYSERVICE
+			map<string, int> _repositoryfilehash = map<string, int>();
 			//The parsed commandsrepository
 				//Rank	//Owner Command	  //Subsequent Commands from Owner Command
 			map<string, map<string, vector<string>>> _parsedcommandsrepository = map<string, map<string, vector<string>>>();
+			//If the corresponding function is finished parsing
+			bool _finishedparsingcommands = false, _finishedparsingresources = false;
 
 			ModelRepositoryService()
 			//Gets the current project directory. Afterwards, parses the COMMANDSREPOSITORY and RESOURCESREPOSITORY. It is a
@@ -52,11 +58,65 @@ namespace KoKeKoKo
 
 			void CreateRepositoryFile()
 			{
-				int count = 0;
-				while (_parsedcommandsrepository.size() == 0 && count <= 100)
+				int failed_connection = 0;
+				IsSuccessfulRepository = false;
+				while ((!(_finishedparsingcommands && _finishedparsingresources)) && (failed_connection <= 5))
 				{
-					cout << "Hi" << endl;
-					count++;
+					this_thread::sleep_for(chrono::milliseconds(1000));
+					failed_connection++;
+					cout << "Still not finish" << endl;
+					_finishedparsingresources = true;
+				}
+				if (failed_connection > 5)
+					return;
+
+				try
+				{
+					ofstream repository(GetRelativeFilepathOf(REPOSITORYSERVICE_FILENAME));
+					int linenumber = 0;
+
+					if (repository.is_open())
+					{
+						//Place the Commands Repository first
+						for (auto rank : _parsedcommandsrepository)
+						{
+							//Insert Rank
+							repository << rank.first << endl;
+							_repositoryfilehash.insert(make_pair((rank.first + "C"), ++linenumber));
+							//The States
+							int statescount = rank.second.size(), scount = 1;
+							for (auto states : rank.second)
+								repository << states.first << ((scount < statescount++) ? "," : "");
+							repository << endl;
+							_repositoryfilehash.insert(make_pair(("States" + rank.first[0]), ++linenumber));
+							//The Transition Matrix
+							int transitionscount = statescount * 2, tcount = 1;
+							for (auto xstates : rank.second)
+							{
+								repository << xstates.first << " -> ";
+								for (auto ystates : xstates.second)
+								{
+									repository << ystates << " ";
+									//repository << count(ystates.second.begin(), ystates.second.end(), xstates.first) << ((tcount < transitionscount++) ? "," : "");
+									//repository << endl;
+								}
+								repository << endl;
+							}
+							repository << endl;
+							_repositoryfilehash.insert(make_pair(("Transition" + rank.first[0]), ++linenumber));
+						}
+
+						//Place the Resources Repository second
+
+						IsSuccessfulRepository = true;
+						repository.close();
+					}
+				}
+				catch (...)
+				{
+					cout << "Error Occurred! Failed to create repository file..." << endl;
+					cerr << "Error Occurred! ModelRepositoryService -> CreateRepositoryFile()" << endl;
+					IsSuccessfulRepository = false;
 				}
 			}
 
@@ -65,8 +125,9 @@ namespace KoKeKoKo
 			{
 				try
 				{
+					_finishedparsingcommands = false;
 					ifstream commandsrepository(GetRelativeFilepathOf(COMMANDSREPOSITORY_FILENAME));
-					string commandsrepositoryline = "", commandsrepositorycomma = "", previouscommand = "";
+					string commandsrepositoryline = "", commandsrepositorycomma = "", currentrank = "", previouscommand = "", previousowner = "";
 
 					if (commandsrepository.is_open())
 					{
@@ -76,8 +137,42 @@ namespace KoKeKoKo
 						while (getline(commandsrepository, commandsrepositoryline))
 						//Read the CommandsRepository per line
 						{
-							cout << "Hello" << endl;
+							stringstream byline(commandsrepositoryline);
+							for (int column = 0; getline(byline, commandsrepositorycomma, ','); column++) 
+							{								
+								if (find(RANKS.begin(), RANKS.end(), commandsrepositorycomma) != RANKS.end())
+								//Check if the current string is a rank
+								{
+									//We set the current rank by the seen rank in file
+									currentrank = commandsrepositorycomma; 
+									//We add the current rank in the parsed commands repository
+									_parsedcommandsrepository.insert(make_pair(currentrank, map<string, vector<string>>()));
+									cout << "Parsing Current Rank: " << currentrank << endl;
+									continue;
+								}
+
+								if (column == 2)
+								//This assumes that the data is grouped by the same player
+								//If the current column is the commands
+								{
+									//Perform initialization of command tracking
+									if (previouscommand == "")
+										previouscommand = commandsrepositorycomma;
+
+									//Check if the current command is existing in the list
+									if (_parsedcommandsrepository[currentrank].find(commandsrepositorycomma) == _parsedcommandsrepository[currentrank].end())
+										_parsedcommandsrepository[currentrank].insert(make_pair(commandsrepositorycomma, vector<string>()));
+
+									//If existing
+									_parsedcommandsrepository[currentrank][previouscommand].push_back(commandsrepositorycomma);
+									//Update previous command
+									previouscommand = commandsrepositorycomma;
+								}
+							}
 						}
+
+						_finishedparsingcommands = true;
+						commandsrepository.close();
 					}
 					else
 						throw new exception("Failed to open CommandsRepository...");
@@ -87,6 +182,7 @@ namespace KoKeKoKo
 					cout << "Error Occurred! Failed to parse CommandsRepository..." << endl;
 					cerr << "Error Occurred! ModelRepositoryService -> ParseCommandsRepository(" << *file_exists << ")" << endl;
 					*file_exists = false;
+					_finishedparsingcommands = false;
 				}
 			}
 
@@ -95,6 +191,7 @@ namespace KoKeKoKo
 			{
 				try
 				{
+					_finishedparsingresources = false;
 					ifstream resourcesrepository(GetRelativeFilepathOf(RESOURCESREPOSITORY_FILENAME));
 					string resourcesrepositoryline = "", resourcesrepositorycomma = "";
 
@@ -108,6 +205,9 @@ namespace KoKeKoKo
 						{
 
 						}
+
+						_finishedparsingresources = true;
+						resourcesrepository.close();
 					}
 					else
 						throw new exception("Failed to open ResourcesRepository...");
@@ -117,6 +217,7 @@ namespace KoKeKoKo
 					cout << "Error Occurred! Failed to parse ResourcesRepository..." << endl;
 					cerr << "Error Occurred! ModelRepositoryService -> ParseResourcesRepository(" << *file_exists << ")" << endl;
 					*file_exists = false;
+					_finishedparsingresources = false;
 				}
 			}
 
@@ -165,6 +266,8 @@ namespace KoKeKoKo
 		public:
 			//If the instance of ModelRepositoryService is successful
 			bool IsSuccessfulInstance = false;
+			//If the Repository file has been created
+			bool IsSuccessfulRepository = false;
 			//A string that pertains to the current project directory
 			LPSTR CurrentProjectDirectory = new char[MAX_PATH];
 
@@ -175,6 +278,49 @@ namespace KoKeKoKo
 					_instance = new ModelRepositoryService();
 
 				return _instance;
+			}
+
+			void StopThread()
+			//Tries to join all joinable threads in the _createdthreads
+			{
+				try
+				{
+					for (auto thread : _createdthreads)
+					{
+						if (thread.second->joinable())
+						{
+							thread.second->join();
+							_createdthreads.erase(thread.first);
+						}
+					}
+				}
+				catch (...)
+				{
+					cout << "Error Occurred! Failed to join all created threads..." << endl;
+					cerr << "Error Occurred! ModelRepositoryService -> StopThread()" << endl;
+				}
+			}
+
+			void StopThread(string thread_name)
+			//Tries to join the given thread
+			{
+				try
+				{
+					auto iterator = _createdthreads.find(thread_name);
+					if (iterator != _createdthreads.end())
+					{
+						if (_createdthreads[thread_name]->joinable())
+						{
+							_createdthreads[thread_name]->join();
+							_createdthreads.erase(iterator);
+						}
+					}
+				}
+				catch (...)
+				{
+					cout << "Error Occurred! Failed to join " << thread_name << "..." << endl;
+					cerr << "Error Occurred! ModelRepositoryService(" << thread_name << ")" << endl;
+				}
 			}
 
 			bool GenerateRepository()
@@ -221,6 +367,9 @@ namespace KoKeKoKo
 				{
 					cout << "Error Occurred! Failed to generate repository..." << endl;
 					cerr << "Error Occurred! ModelRepositoryService -> GenerateRepository()" << endl;
+					StopThread("ParseCommandsRepository");
+					StopThread("ParseResourcesRepository");
+					StopThread("CreateRepositoryFile");
 				}
 
 				return iscommandsrepositoryexists && isresourcesrepositoryexists;
@@ -300,10 +449,6 @@ int main(int argc, char* argv[])
 	//std::cout << modelrepositoryservice->ExecuteModelService() << std::endl;
 	std::cout << "Preparing StarCraft II..." << std::endl;
 	std::cin >> s;
-	while (s != 'a')
-	{
-		std::cin >> s;
-	}
 	coordinator->LoadSettings(argc, argv);
 	coordinator->SetParticipants({ sc2::CreateParticipant(sc2::Race::Terran, kokekokobot), sc2::CreateComputer(sc2::Race::Terran, sc2::Difficulty::VeryEasy) });
 	coordinator->LaunchStarcraft();

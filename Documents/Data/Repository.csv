@@ -1,12 +1,19 @@
-Example of file line
-Example of file line
-Example of file line
-Example of file line
-Example of file line
-Example of file line
-Example of file line
-Example of file line
 
+Build Armory,Build Barracks,Build Bunker,Build Command Center,Build Engineering Bay,Build Factory,Build Liberator,Build Reactor,Build Refinery,Build Siege Tank,Build Starport,Build Supply Depot,Build Tech Lab,Build Widow Mine,Train Marine,Train SCV,
+Build Armory -> Build Refinery 
+Build Barracks -> Train SCV Train SCV Train Marine Train SCV 
+Build Bunker -> Build Reactor 
+Build Command Center -> Train Marine 
+Build Engineering Bay -> Train SCV 
+Build Factory -> Train Marine Train Marine Build Reactor Train Marine 
+Build Liberator -> Train SCV Train Marine 
+Build Reactor -> Build Siege Tank Build Command Center Build Armory Build Liberator 
+Build Refinery -> Train SCV Train SCV Build Barracks Train SCV Build Reactor 
+Build Siege Tank -> Build Tech Lab Train Marine Build Supply Depot Build Siege Tank Build Tech Lab 
+Build Starport -> Train SCV Train SCV Build Reactor 
+Build Supply Depot -> Build Supply Depot Train SCV Build Barracks Build Factory Train Marine Train Marine Build Factory Train SCV Train SCV Train SCV Build Liberator 
+Build Tech Lab -> Train Marine Build Supply Depot Build Starport 
+Build Widow Mine -> Build Starport 
+Train Marine -> Train SCV Train SCV Build Factory Train Marine Train Marine Build Tech Lab Build Siege Tank Build Supply Depot Build Siege Tank Build Siege Tank Build Factory Train Marine Train SCV Train Marine Build Liberator 
+Train SCV -> Build Supply Depot Build Refinery Train SCV Build Barracks Build Refinery Train Marine Train SCV Build Barracks Build Supply Depot Build Supply Depot Build Supply Depot Train SCV Build Refinery Build Refinery Train SCV Build Engineering Bay Build Bunker Build Starport Build Widow Mine Build Supply Depot Train SCV Build Supply Depot 
 
-Bronze
-Build Armory,Build Barracks,Build Bunker,Build Command Center,Build Engineering Bay,Build Factory,Build Liberator,Build Reactor,Build Refinery,Build Siege Tank,Build Starport,Build Supply Depot,Build Tech Lab,Build Widow Mine,Train Marine,Train SCV,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,

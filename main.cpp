@@ -2,6 +2,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <queue>
 #include <sc2api/sc2_api.h>
 #include <sstream>
 #include <thread>
@@ -11,7 +12,7 @@ namespace KoKeKoKo
 {
 	using namespace std;
 	//The POMDP Model Computation and MCTS Model Computation using R
-	const string MODELSERVICE_FILENAME = "ModelService\\bin\\Release\\ModelService.exe";
+	const string MODELSERVICE_FILENAME = "ModelService\\bin\\Debug\\ModelService.exe";
 	//The parsed and combination of COMMANDSREPOSITORY and RESOURCESREPOSITORY
 	const string REPOSITORYSERVICE_FILENAME = "Documents\\Data\\Repository.csv";
 	//The extracted commands from the replay data
@@ -262,6 +263,8 @@ namespace KoKeKoKo
 				{
 					ZeroMemory(&startupinfo, sizeof(startupinfo));
 					startupinfo.cb = sizeof(startupinfo);
+					startupinfo.dwFlags = STARTF_USESHOWWINDOW;
+					startupinfo.wShowWindow = SW_MINIMIZE;
 					ZeroMemory(&processinformation, sizeof(processinformation));
 					executablefilepath = const_cast<char *>(executable_filename.c_str());
 
@@ -403,25 +406,206 @@ namespace KoKeKoKo
 				return iscommandsrepositoryexists && isresourcesrepositoryexists;
 			}
 
-			int ExecuteModelService()
-			//Calls the ModelService.exe and returns the AbilityType ID
+			//int ExecuteModelService()
+			////Calls the ModelService.exe and returns the AbilityType ID
+			//{
+			//	int abilityid = RunExecutableFile(KoKeKoKo::MODELSERVICE_FILENAME);
+			//	return abilityid;
+			//}
+
+			void ExecuteModelService(int* process_return)
 			{
-				int abilityid = RunExecutableFile(KoKeKoKo::MODELSERVICE_FILENAME);
-				return abilityid;
+				*process_return = RunExecutableFile(KoKeKoKo::MODELSERVICE_FILENAME);
 			}
 	};
+	
 
 
 	using namespace sc2;
 	class KoKeKoKoBot : public Agent
 	{
 		private:
+			ModelRepositoryService* _modelrepositoryservice;
+			queue<string> _actions;
+			string _currentrank = "";
+			bool _generateactions = false, _generatingactions = false, _renewplan = false;
+
+			template <typename T> static T GetRandomElement(T begin, int size)
+			//Returns a random element from a container
+			{
+				try
+				{
+					unsigned long offset = 0, divisor = 0;
+
+					divisor = (RAND_MAX + 1) / size;
+					do
+					{
+						offset = rand() / size;
+					} while (offset >= divisor);
+					advance(begin, offset);
+				}
+				catch (...)
+				{
+					cout << "Error Occurred! Failed to get a random element..." << endl;
+					cerr << "Error Occurred! KoKeKoKoBot -> GetRandomElement(" << begin << ", " << size << ")" << endl;
+				}
+
+				return begin;
+			}
+
+			void GenerateActions()
+			{
+				//try
+				//{
+				//	SECURITY_ATTRIBUTES securityattributes;
+				//	ZeroMemory(&securityattributes, sizeof(securityattributes));
+				//	securityattributes.nLength = sizeof(SECURITY_ATTRIBUTES);
+				//	securityattributes.bInheritHandle = TRUE;
+				//	securityattributes.lpSecurityDescriptor = NULL;
+				//	HANDLE childstdin_in = NULL, childstdin_out = NULL, childstdout_in = NULL, childstdout_out = NULL;
+
+				//	bool testpipe = CreatePipe(&childstdout_in, &childstdout_out, &securityattributes, 0);
+				//	if (!testpipe)
+				//		throw new exception("Failed to create pipe...");
+				//	bool ensurepipe = SetHandleInformation(childstdout_in, HANDLE_FLAG_INHERIT, 0);
+				//	if (!ensurepipe)
+				//		throw new exception("Failed to ensure...");
+				//	bool testpipe2 = CreatePipe(&childstdin_in, &childstdin_out, &securityattributes, 0);
+				//	if (!testpipe2)
+				//		throw new exception("Failed to create pipe...");
+				//	bool ensurepipe2 = SetHandleInformation(childstdin_out, HANDLE_FLAG_INHERIT, 0);
+				//	if (!ensurepipe2)
+				//		throw new exception("Failed to ensure...");
+
+				//	STARTUPINFO startupinfo;
+				//	PROCESS_INFORMATION processinformation;
+				//	DWORD dword;
+				//	LPSTR executablefilepath = new char[MAX_PATH];
+				//	int processresult = -1;
+
+				//	ZeroMemory(&startupinfo, sizeof(startupinfo));
+				//	startupinfo.cb = sizeof(startupinfo);
+				//	startupinfo.hStdError = childstdout_out;
+				//	startupinfo.hStdInput = childstdout_out;
+				//	startupinfo.hStdOutput = childstdin_in;
+				//	startupinfo.dwFlags |= STARTF_USESTDHANDLES;
+				//	startupinfo.dwFlags |= CREATE_NO_WINDOW;
+				//	ZeroMemory(&processinformation, sizeof(processinformation));
+				//	executablefilepath = const_cast<char *>(MODELSERVICE_FILENAME.c_str());
+
+				//	//int testint = _modelrepositoryservice->ExecuteModelService();
+				//	//if (testint != 0)
+				//		//cout << testint << endl;
+				//	if (!(CreateProcessA(NULL, executablefilepath, NULL, NULL, TRUE, 0, NULL, NULL, &startupinfo, &processinformation)))
+				//		throw new exception("Failed to created process...");
+				//	else
+				//		cout << GetLastError() << endl;
+				//	WaitForSingleObject(processinformation.hProcess, INFINITE);
+				//	DWORD dwread, dwwrite;
+				//	char chbuf[4096];
+				//	bool testw = false, testr = false;
+				//	while (_generateactions)
+				//	{
+				//		_generatingactions = true;
+
+				//		if (_renewplan)
+				//		//If there is an urgency or need to update difficulty
+				//		{
+				//			_renewplan = true;
+				//		}
+				//		else
+				//		{
+				//			
+
+				//			testw = WriteFile(childstdin_out, "Test Writing to Child", dwread, &dwwrite, NULL);
+				//			CloseHandle(childstdin_out);
+				//			testr = ReadFile(childstdout_in, chbuf, 4096, &dwread, NULL);
+				//			CloseHandle(childstdout_in);
+				//			cout << chbuf << endl;
+				//		}
+				//	}
+
+				//	CloseHandle(processinformation.hProcess);
+				//	CloseHandle(processinformation.hThread);
+				//}
+				//catch (...)
+				//{
+				//	cout << "Error Occurred! Failed to generate actions..." << endl;
+				//	cerr << "Error Occurred! KoKeKoKoBot -> GenerateActions()" << endl;
+				//	_generatingactions = false;
+				//}
+
+				HANDLE hpipe = INVALID_HANDLE_VALUE;
+				BOOL fcon = FALSE;
+				char buffer[1024];
+				string reply = "", s = "";
+				DWORD dwread = 0, dwwrite = 0;
+				LPSTR pipename = TEXT("\\\\.\\pipe\\Kokekoko");
+				
+				hpipe = CreateNamedPipeA(pipename, PIPE_ACCESS_DUPLEX, PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_WAIT, PIPE_UNLIMITED_INSTANCES, 512, 512, 0, NULL);
+
+				int testresult = 0;
+				
+				if (hpipe != INVALID_HANDLE_VALUE)
+				{
+					auto testthread = thread(&ModelRepositoryService::ExecuteModelService, _modelrepositoryservice, &testresult);
+					
+					fcon = ConnectNamedPipe(hpipe, NULL) ? TRUE : (GetLastError() == ERROR_PIPE_CONNECTED);
+					if (fcon)
+					{
+						
+						
+						
+						while (ReadFile(hpipe, buffer, sizeof(buffer) - 1, &dwread, NULL))
+						{
+							buffer[dwread] = '\0';
+							cout << buffer << endl;
+							break;
+						}
+						cout << "Let's start replying: ";
+						cin >> reply;
+						while (reply != "exit")
+						{
+							cout << "Write to Child: ";
+							cin >> reply;
+							WriteFile(hpipe, reply.c_str(), sizeof(reply.c_str()), &dwwrite, NULL);
+						}
+					}
+
+					CloseHandle(hpipe);
+				}
+
+				/*hpipe = CreateFile(TEXT("\\\\.\\pipe\\Pipe"), GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
+				if (hpipe != INVALID_HANDLE_VALUE)
+				{
+					WriteFile(hpipe, "Hello Pipe!\n", sizeof(buffer), &dwwrite, NULL);
+					while (ReadFile(hpipe, buffer, sizeof(buffer) - 1, &dwread, NULL) != FALSE)
+					{
+						buffer[dwread] = '\0';
+						cout << buffer << endl;
+						if (buffer == "exit")
+							break;
+						WriteFile(hpipe, "I copy my child!", sizeof(buffer) - 1, &dwwrite, NULL);
+
+					}
+					CloseHandle(hpipe);
+				}*/
+			}
 
 		public:
+			void InitializeBotParameters(string enemy_difficulty)
+			//A temporary function? Sets the initial difficulty and starts the thread
+			{
+				_currentrank = enemy_difficulty;
+				_generateactions = true;
+				_generatingactions = false;
+				_renewplan = false;
+				GenerateActions();
+			}
+
 			virtual void OnGameStart() final
 			//On game start, we need to create the MCTS tree, start execution of POMDP and create the combination of the two
 			{
-				auto modelrepositoryservice = KoKeKoKo::ModelRepositoryService::GetModelRepositoryServiceInstance();
 				//Create the MCTS and start the expansion to get the sequence of actions
 				//Start the POMDP to get the sequence of actions
 				//Create the MCTS+POMDP and start the expansion
@@ -476,9 +660,10 @@ int main(int argc, char* argv[])
 	}
 	//std::cout << modelrepositoryservice->ExecuteModelService() << std::endl;
 	std::cout << "Preparing StarCraft II..." << std::endl;
+	kokekokobot->InitializeBotParameters("Bronze");
 	std::cin >> s;
-	coordinator->LoadSettings(argc, argv);
-	coordinator->SetParticipants({ sc2::CreateParticipant(sc2::Race::Terran, kokekokobot), sc2::CreateComputer(sc2::Race::Terran, sc2::Difficulty::VeryEasy) });
+	coordinator->LoadSettings(argc, argv);		
+	coordinator->SetParticipants({ sc2::CreateParticipant(sc2::Race::Terran, kokekokobot), sc2::CreateComputer(sc2::Race::Terran, sc2::Difficulty::VeryEasy) });	
 	coordinator->LaunchStarcraft();
 	coordinator->StartGame(sc2::kMapBelShirVestigeLE);
 	while (coordinator->Update());

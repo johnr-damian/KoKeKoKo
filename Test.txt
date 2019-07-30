@@ -1,89 +1,6 @@
 Opened file
 Scoping has been removed due to insufficient number of data
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 Number of commands: 16
 Commands are: 
 	Build Armory
@@ -157,3 +74,607 @@ Build Tech Lab 	0 	0 	0 	0 	0 	0 	0 	0 	0 	0 	6.25 	6.25 	0 	0 	6.25 	0
 Build Widow Mine 	0 	0 	0 	0 	0 	0 	0 	0 	0 	0 	6.25 	0 	0 	0 	0 	0 	
 Train Marine 	0 	0 	0 	0 	0 	12.5 	6.25 	0 	0 	18.75 	0 	6.25 	6.25 	0 	25 	18.75 	
 Train SCV 	0 	12.5 	6.25 	0 	6.25 	0 	0 	0 	25 	0 	6.25 	37.5 	0 	6.25 	6.25 	31.25 	
+
+
+
+Build Armory -> Build ArmoryCount: 0,
+Build Armory -> Build BarracksCount: 0,
+Build Armory -> Build BunkerCount: 0,
+Build Armory -> Build Command CenterCount: 0,
+Build Armory -> Build Engineering BayCount: 0,
+Build Armory -> Build FactoryCount: 0,
+Build Armory -> Build LiberatorCount: 0,
+Build Armory -> Build ReactorCount: 1,
+Build Armory -> Build RefineryCount: 0,
+Build Armory -> Build Siege TankCount: 0,
+Build Armory -> Build StarportCount: 0,
+Build Armory -> Build Supply DepotCount: 0,
+Build Armory -> Build Tech LabCount: 0,
+Build Armory -> Build Widow MineCount: 0,
+Build Armory -> Train MarineCount: 0,
+Build Armory -> Train SCVCount: 0,
+
+Build Barracks -> Build ArmoryCount: 0,
+Build Barracks -> Build BarracksCount: 0,
+Build Barracks -> Build BunkerCount: 0,
+Build Barracks -> Build Command CenterCount: 0,
+Build Barracks -> Build Engineering BayCount: 0,
+Build Barracks -> Build FactoryCount: 0,
+Build Barracks -> Build LiberatorCount: 0,
+Build Barracks -> Build ReactorCount: 0,
+Build Barracks -> Build RefineryCount: 1,
+Build Barracks -> Build Siege TankCount: 0,
+Build Barracks -> Build StarportCount: 0,
+Build Barracks -> Build Supply DepotCount: 1,
+Build Barracks -> Build Tech LabCount: 0,
+Build Barracks -> Build Widow MineCount: 0,
+Build Barracks -> Train MarineCount: 0,
+Build Barracks -> Train SCVCount: 2,
+
+Build Bunker -> Build ArmoryCount: 0,
+Build Bunker -> Build BarracksCount: 0,
+Build Bunker -> Build BunkerCount: 0,
+Build Bunker -> Build Command CenterCount: 0,
+Build Bunker -> Build Engineering BayCount: 0,
+Build Bunker -> Build FactoryCount: 0,
+Build Bunker -> Build LiberatorCount: 0,
+Build Bunker -> Build ReactorCount: 0,
+Build Bunker -> Build RefineryCount: 0,
+Build Bunker -> Build Siege TankCount: 0,
+Build Bunker -> Build StarportCount: 0,
+Build Bunker -> Build Supply DepotCount: 0,
+Build Bunker -> Build Tech LabCount: 0,
+Build Bunker -> Build Widow MineCount: 0,
+Build Bunker -> Train MarineCount: 0,
+Build Bunker -> Train SCVCount: 1,
+
+Build Command Center -> Build ArmoryCount: 0,
+Build Command Center -> Build BarracksCount: 0,
+Build Command Center -> Build BunkerCount: 0,
+Build Command Center -> Build Command CenterCount: 0,
+Build Command Center -> Build Engineering BayCount: 0,
+Build Command Center -> Build FactoryCount: 0,
+Build Command Center -> Build LiberatorCount: 0,
+Build Command Center -> Build ReactorCount: 1,
+Build Command Center -> Build RefineryCount: 0,
+Build Command Center -> Build Siege TankCount: 0,
+Build Command Center -> Build StarportCount: 0,
+Build Command Center -> Build Supply DepotCount: 0,
+Build Command Center -> Build Tech LabCount: 0,
+Build Command Center -> Build Widow MineCount: 0,
+Build Command Center -> Train MarineCount: 0,
+Build Command Center -> Train SCVCount: 0,
+
+Build Engineering Bay -> Build ArmoryCount: 0,
+Build Engineering Bay -> Build BarracksCount: 0,
+Build Engineering Bay -> Build BunkerCount: 0,
+Build Engineering Bay -> Build Command CenterCount: 0,
+Build Engineering Bay -> Build Engineering BayCount: 0,
+Build Engineering Bay -> Build FactoryCount: 0,
+Build Engineering Bay -> Build LiberatorCount: 0,
+Build Engineering Bay -> Build ReactorCount: 0,
+Build Engineering Bay -> Build RefineryCount: 0,
+Build Engineering Bay -> Build Siege TankCount: 0,
+Build Engineering Bay -> Build StarportCount: 0,
+Build Engineering Bay -> Build Supply DepotCount: 0,
+Build Engineering Bay -> Build Tech LabCount: 0,
+Build Engineering Bay -> Build Widow MineCount: 0,
+Build Engineering Bay -> Train MarineCount: 0,
+Build Engineering Bay -> Train SCVCount: 1,
+
+Build Factory -> Build ArmoryCount: 0,
+Build Factory -> Build BarracksCount: 0,
+Build Factory -> Build BunkerCount: 0,
+Build Factory -> Build Command CenterCount: 0,
+Build Factory -> Build Engineering BayCount: 0,
+Build Factory -> Build FactoryCount: 0,
+Build Factory -> Build LiberatorCount: 0,
+Build Factory -> Build ReactorCount: 0,
+Build Factory -> Build RefineryCount: 0,
+Build Factory -> Build Siege TankCount: 0,
+Build Factory -> Build StarportCount: 0,
+Build Factory -> Build Supply DepotCount: 2,
+Build Factory -> Build Tech LabCount: 0,
+Build Factory -> Build Widow MineCount: 0,
+Build Factory -> Train MarineCount: 2,
+Build Factory -> Train SCVCount: 0,
+
+Build Liberator -> Build ArmoryCount: 0,
+Build Liberator -> Build BarracksCount: 0,
+Build Liberator -> Build BunkerCount: 0,
+Build Liberator -> Build Command CenterCount: 0,
+Build Liberator -> Build Engineering BayCount: 0,
+Build Liberator -> Build FactoryCount: 0,
+Build Liberator -> Build LiberatorCount: 0,
+Build Liberator -> Build ReactorCount: 1,
+Build Liberator -> Build RefineryCount: 0,
+Build Liberator -> Build Siege TankCount: 0,
+Build Liberator -> Build StarportCount: 0,
+Build Liberator -> Build Supply DepotCount: 1,
+Build Liberator -> Build Tech LabCount: 0,
+Build Liberator -> Build Widow MineCount: 0,
+Build Liberator -> Train MarineCount: 1,
+Build Liberator -> Train SCVCount: 0,
+
+Build Reactor -> Build ArmoryCount: 0,
+Build Reactor -> Build BarracksCount: 0,
+Build Reactor -> Build BunkerCount: 1,
+Build Reactor -> Build Command CenterCount: 0,
+Build Reactor -> Build Engineering BayCount: 0,
+Build Reactor -> Build FactoryCount: 1,
+Build Reactor -> Build LiberatorCount: 0,
+Build Reactor -> Build ReactorCount: 0,
+Build Reactor -> Build RefineryCount: 1,
+Build Reactor -> Build Siege TankCount: 0,
+Build Reactor -> Build StarportCount: 1,
+Build Reactor -> Build Supply DepotCount: 0,
+Build Reactor -> Build Tech LabCount: 0,
+Build Reactor -> Build Widow MineCount: 0,
+Build Reactor -> Train MarineCount: 0,
+Build Reactor -> Train SCVCount: 0,
+Build Refinery -> Build ArmoryCount: 1,
+Build Refinery -> Build BarracksCount: 0,
+Build Refinery -> Build BunkerCount: 0,
+Build Refinery -> Build Command CenterCount: 0,
+Build Refinery -> Build Engineering BayCount: 0,
+Build Refinery -> Build FactoryCount: 0,
+Build Refinery -> Build LiberatorCount: 0,
+Build Refinery -> Build ReactorCount: 0,
+Build Refinery -> Build RefineryCount: 0,
+Build Refinery -> Build Siege TankCount: 0,
+Build Refinery -> Build StarportCount: 0,
+Build Refinery -> Build Supply DepotCount: 0,
+Build Refinery -> Build Tech LabCount: 0,
+Build Refinery -> Build Widow MineCount: 0,
+Build Refinery -> Train MarineCount: 0,
+Build Refinery -> Train SCVCount: 4,
+Build Siege Tank -> Build ArmoryCount: 0,
+Build Siege Tank -> Build BarracksCount: 0,
+Build Siege Tank -> Build BunkerCount: 0,
+Build Siege Tank -> Build Command CenterCount: 0,
+Build Siege Tank -> Build Engineering BayCount: 0,
+Build Siege Tank -> Build FactoryCount: 0,
+Build Siege Tank -> Build LiberatorCount: 0,
+Build Siege Tank -> Build ReactorCount: 1,
+Build Siege Tank -> Build RefineryCount: 0,
+Build Siege Tank -> Build Siege TankCount: 1,
+Build Siege Tank -> Build StarportCount: 0,
+Build Siege Tank -> Build Supply DepotCount: 0,
+Build Siege Tank -> Build Tech LabCount: 0,
+Build Siege Tank -> Build Widow MineCount: 0,
+Build Siege Tank -> Train MarineCount: 3,
+Build Siege Tank -> Train SCVCount: 0,
+Build Starport -> Build ArmoryCount: 0,
+Build Starport -> Build BarracksCount: 0,
+Build Starport -> Build BunkerCount: 0,
+Build Starport -> Build Command CenterCount: 0,
+Build Starport -> Build Engineering BayCount: 0,
+Build Starport -> Build FactoryCount: 0,
+Build Starport -> Build LiberatorCount: 0,
+Build Starport -> Build ReactorCount: 0,
+Build Starport -> Build RefineryCount: 0,
+Build Starport -> Build Siege TankCount: 0,
+Build Starport -> Build StarportCount: 0,
+Build Starport -> Build Supply DepotCount: 0,
+Build Starport -> Build Tech LabCount: 1,
+Build Starport -> Build Widow MineCount: 1,
+Build Starport -> Train MarineCount: 0,
+Build Starport -> Train SCVCount: 1,
+Build Supply Depot -> Build ArmoryCount: 0,
+Build Supply Depot -> Build BarracksCount: 0,
+Build Supply Depot -> Build BunkerCount: 0,
+Build Supply Depot -> Build Command CenterCount: 0,
+Build Supply Depot -> Build Engineering BayCount: 0,
+Build Supply Depot -> Build FactoryCount: 0,
+Build Supply Depot -> Build LiberatorCount: 0,
+Build Supply Depot -> Build ReactorCount: 0,
+Build Supply Depot -> Build RefineryCount: 0,
+Build Supply Depot -> Build Siege TankCount: 1,
+Build Supply Depot -> Build StarportCount: 0,
+Build Supply Depot -> Build Supply DepotCount: 1,
+Build Supply Depot -> Build Tech LabCount: 1,
+Build Supply Depot -> Build Widow MineCount: 0,
+Build Supply Depot -> Train MarineCount: 1,
+Build Supply Depot -> Train SCVCount: 6,
+Build Tech Lab -> Build ArmoryCount: 0,
+Build Tech Lab -> Build BarracksCount: 0,
+Build Tech Lab -> Build BunkerCount: 0,
+Build Tech Lab -> Build Command CenterCount: 0,
+Build Tech Lab -> Build Engineering BayCount: 0,
+Build Tech Lab -> Build FactoryCount: 0,
+Build Tech Lab -> Build LiberatorCount: 0,
+Build Tech Lab -> Build ReactorCount: 0,
+Build Tech Lab -> Build RefineryCount: 0,
+Build Tech Lab -> Build Siege TankCount: 2,
+Build Tech Lab -> Build StarportCount: 0,
+Build Tech Lab -> Build Supply DepotCount: 0,
+Build Tech Lab -> Build Tech LabCount: 0,
+Build Tech Lab -> Build Widow MineCount: 0,
+Build Tech Lab -> Train MarineCount: 1,
+Build Tech Lab -> Train SCVCount: 0,
+Build Widow Mine -> Build ArmoryCount: 0,
+Build Widow Mine -> Build BarracksCount: 0,
+Build Widow Mine -> Build BunkerCount: 0,
+Build Widow Mine -> Build Command CenterCount: 0,
+Build Widow Mine -> Build Engineering BayCount: 0,
+Build Widow Mine -> Build FactoryCount: 0,
+Build Widow Mine -> Build LiberatorCount: 0,
+Build Widow Mine -> Build ReactorCount: 0,
+Build Widow Mine -> Build RefineryCount: 0,
+Build Widow Mine -> Build Siege TankCount: 0,
+Build Widow Mine -> Build StarportCount: 0,
+Build Widow Mine -> Build Supply DepotCount: 0,
+Build Widow Mine -> Build Tech LabCount: 0,
+Build Widow Mine -> Build Widow MineCount: 0,
+Build Widow Mine -> Train MarineCount: 0,
+Build Widow Mine -> Train SCVCount: 1,
+Train Marine -> Build ArmoryCount: 0,
+Train Marine -> Build BarracksCount: 1,
+Train Marine -> Build BunkerCount: 0,
+Train Marine -> Build Command CenterCount: 1,
+Train Marine -> Build Engineering BayCount: 0,
+Train Marine -> Build FactoryCount: 3,
+Train Marine -> Build LiberatorCount: 1,
+Train Marine -> Build ReactorCount: 0,
+Train Marine -> Build RefineryCount: 0,
+Train Marine -> Build Siege TankCount: 1,
+Train Marine -> Build StarportCount: 0,
+Train Marine -> Build Supply DepotCount: 2,
+Train Marine -> Build Tech LabCount: 1,
+Train Marine -> Build Widow MineCount: 0,
+Train Marine -> Train MarineCount: 4,
+Train Marine -> Train SCVCount: 1,
+Train SCV -> Build ArmoryCount: 0,
+Train SCV -> Build BarracksCount: 3,
+Train SCV -> Build BunkerCount: 0,
+Train SCV -> Build Command CenterCount: 0,
+Train SCV -> Build Engineering BayCount: 1,
+Train SCV -> Build FactoryCount: 0,
+Train SCV -> Build LiberatorCount: 1,
+Train SCV -> Build ReactorCount: 0,
+Train SCV -> Build RefineryCount: 3,
+Train SCV -> Build Siege TankCount: 0,
+Train SCV -> Build StarportCount: 2,
+Train SCV -> Build Supply DepotCount: 4,
+Train SCV -> Build Tech LabCount: 0,
+Train SCV -> Build Widow MineCount: 0,
+Train SCV -> Train MarineCount: 3,
+Train SCV -> Train SCVCount: 5,
+
+
+
+
+
+
+
+
+
+Build Armory,Build Barracks,Build Bunker,Build Command Center,Build Engineering Bay,Build Factory,Build Liberator,Build Reactor,Build Refinery,Build Siege Tank,Build Starport,Build Supply Depot,Build Tech Lab,Build Widow Mine,Train Marine,Train SCV,
+Build Armory -> Build Refinery 
+Build Barracks -> Train SCV Train SCV Train Marine Train SCV 
+Build Bunker -> Build Reactor 
+Build Command Center -> Train Marine 
+Build Engineering Bay -> Train SCV 
+Build Factory -> Train Marine Train Marine Build Reactor Train Marine 
+Build Liberator -> Train SCV Train Marine 
+Build Reactor -> Build Siege Tank Build Command Center Build Armory Build Liberator 
+Build Refinery -> Train SCV Train SCV Build Barracks Train SCV Build Reactor 
+Build Siege Tank -> Build Tech Lab Train Marine Build Supply Depot Build Siege Tank Build Tech Lab 
+Build Starport -> Train SCV Train SCV Build Reactor 
+Build Supply Depot -> Build Supply Depot Train SCV Build Barracks Build Factory Train Marine Train Marine Build Factory Train SCV Train SCV Train SCV Build Liberator 
+Build Tech Lab -> Train Marine Build Supply Depot Build Starport 
+Build Widow Mine -> Build Starport 
+Train Marine -> Train SCV Train SCV Build Factory Train Marine Train Marine Build Tech Lab Build Siege Tank Build Supply Depot Build Siege Tank Build Siege Tank Build Factory Train Marine Train SCV Train Marine Build Liberator 
+Train SCV -> Build Supply Depot Build Refinery Train SCV Build Barracks Build Refinery Train Marine Train SCV Build Barracks Build Supply Depot Build Supply Depot Build Supply Depot Train SCV Build Refinery Build Refinery Train SCV Build Engineering Bay Build Bunker Build Starport Build Widow Mine Build Supply Depot Train SCV Build Supply Depot 
+
+
+Build Armory,Build Barracks,Build Bunker,Build Command Center,Build Engineering Bay,Build Factory,Build Liberator,Build Reactor,Build Refinery,Build Siege Tank,Build Starport,Build Supply Depot,Build Tech Lab,Build Widow Mine,Train Marine,Train SCV,
+Build Armory -> Build Refinery 
+Build Barracks -> Train SCV Train SCV Train Marine Train SCV 
+Build Bunker -> Build Reactor 
+Build Command Center -> Train Marine 
+Build Engineering Bay -> Train SCV 
+Build Factory -> Train Marine Train Marine Build Reactor Train Marine 
+Build Liberator -> Train SCV Train Marine Build Liberator 
+Build Reactor -> Build Siege Tank Build Command Center Build Armory Build Liberator 
+Build Refinery -> Train SCV Train SCV Build Barracks Train SCV Build Reactor 
+Build Siege Tank -> Build Tech Lab Train Marine Build Supply Depot Build Siege Tank Build Tech Lab 
+Build Starport -> Build Starport Train SCV Build Reactor 
+Build Supply Depot -> Build Supply Depot Train SCV Build Barracks Build Factory Train Marine Train Marine Build Factory Train SCV Train SCV Train SCV Build Liberator 
+Build Tech Lab -> Train Marine Build Supply Depot Build Starport 
+Build Widow Mine -> Build Starport 
+Train Marine -> Train SCV Train SCV Build Factory Train Marine Train Marine Build Tech Lab Build Siege Tank Build Supply Depot Build Siege Tank Build Siege Tank Build Factory Train Marine Train SCV Train Marine Build Liberator 
+Train SCV -> Build Supply Depot Build Refinery Train SCV Build Barracks Build Refinery Train Marine Train SCV Build Barracks Build Supply Depot Train SCV Build Supply Depot Build Supply Depot Train SCV Build Refinery Build Refinery Train SCV Build Engineering Bay Build Bunker Build Starport Build Widow Mine Build Supply Depot Train SCV Build Supply Depot 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Bronze
+Build Armory,Build Barracks,Build Bunker,Build Command Center,Build Engineering Bay,Build Factory,Build Liberator,Build Reactor,Build Refinery,Build Siege Tank,Build Starport,Build Supply Depot,Build Tech Lab,Build Widow Mine,Train Marine,Train SCV,
+Build Armory -> Build Armory: 0
+Build Armory -> Build Barracks: 0
+Build Armory -> Build Bunker: 0
+Build Armory -> Build Command Center: 0
+Build Armory -> Build Engineering Bay: 0
+Build Armory -> Build Factory: 0
+Build Armory -> Build Liberator: 0
+Build Armory -> Build Reactor: 0
+Build Armory -> Build Refinery: 1
+Build Armory -> Build Siege Tank: 0
+Build Armory -> Build Starport: 0
+Build Armory -> Build Supply Depot: 0
+Build Armory -> Build Tech Lab: 0
+Build Armory -> Build Widow Mine: 0
+Build Armory -> Train Marine: 0
+Build Armory -> Train SCV: 0
+
+Build Barracks -> Build Armory: 0
+Build Barracks -> Build Barracks: 0
+Build Barracks -> Build Bunker: 0
+Build Barracks -> Build Command Center: 0
+Build Barracks -> Build Engineering Bay: 0
+Build Barracks -> Build Factory: 0
+Build Barracks -> Build Liberator: 0
+Build Barracks -> Build Reactor: 0
+Build Barracks -> Build Refinery: 0
+Build Barracks -> Build Siege Tank: 0
+Build Barracks -> Build Starport: 0
+Build Barracks -> Build Supply Depot: 0
+Build Barracks -> Build Tech Lab: 0
+Build Barracks -> Build Widow Mine: 0
+Build Barracks -> Train Marine: 1
+Build Barracks -> Train SCV: 3
+
+Build Bunker -> Build Armory: 0
+Build Bunker -> Build Barracks: 0
+Build Bunker -> Build Bunker: 0
+Build Bunker -> Build Command Center: 0
+Build Bunker -> Build Engineering Bay: 0
+Build Bunker -> Build Factory: 0
+Build Bunker -> Build Liberator: 0
+Build Bunker -> Build Reactor: 1
+Build Bunker -> Build Refinery: 0
+Build Bunker -> Build Siege Tank: 0
+Build Bunker -> Build Starport: 0
+Build Bunker -> Build Supply Depot: 0
+Build Bunker -> Build Tech Lab: 0
+Build Bunker -> Build Widow Mine: 0
+Build Bunker -> Train Marine: 0
+Build Bunker -> Train SCV: 0
+
+Build Command Center -> Build Armory: 0
+Build Command Center -> Build Barracks: 0
+Build Command Center -> Build Bunker: 0
+Build Command Center -> Build Command Center: 0
+Build Command Center -> Build Engineering Bay: 0
+Build Command Center -> Build Factory: 0
+Build Command Center -> Build Liberator: 0
+Build Command Center -> Build Reactor: 0
+Build Command Center -> Build Refinery: 0
+Build Command Center -> Build Siege Tank: 0
+Build Command Center -> Build Starport: 0
+Build Command Center -> Build Supply Depot: 0
+Build Command Center -> Build Tech Lab: 0
+Build Command Center -> Build Widow Mine: 0
+Build Command Center -> Train Marine: 1
+Build Command Center -> Train SCV: 0
+
+Build Engineering Bay -> Build Armory: 0
+Build Engineering Bay -> Build Barracks: 0
+Build Engineering Bay -> Build Bunker: 0
+Build Engineering Bay -> Build Command Center: 0
+Build Engineering Bay -> Build Engineering Bay: 0
+Build Engineering Bay -> Build Factory: 0
+Build Engineering Bay -> Build Liberator: 0
+Build Engineering Bay -> Build Reactor: 0
+Build Engineering Bay -> Build Refinery: 0
+Build Engineering Bay -> Build Siege Tank: 0
+Build Engineering Bay -> Build Starport: 0
+Build Engineering Bay -> Build Supply Depot: 0
+Build Engineering Bay -> Build Tech Lab: 0
+Build Engineering Bay -> Build Widow Mine: 0
+Build Engineering Bay -> Train Marine: 0
+Build Engineering Bay -> Train SCV: 1
+
+Build Factory -> Build Armory: 0
+Build Factory -> Build Barracks: 0
+Build Factory -> Build Bunker: 0
+Build Factory -> Build Command Center: 0
+Build Factory -> Build Engineering Bay: 0
+Build Factory -> Build Factory: 0
+Build Factory -> Build Liberator: 0
+Build Factory -> Build Reactor: 1
+Build Factory -> Build Refinery: 0
+Build Factory -> Build Siege Tank: 0
+Build Factory -> Build Starport: 0
+Build Factory -> Build Supply Depot: 0
+Build Factory -> Build Tech Lab: 0
+Build Factory -> Build Widow Mine: 0
+Build Factory -> Train Marine: 3
+Build Factory -> Train SCV: 0
+
+Build Liberator -> Build Armory: 0
+Build Liberator -> Build Barracks: 0
+Build Liberator -> Build Bunker: 0
+Build Liberator -> Build Command Center: 0
+Build Liberator -> Build Engineering Bay: 0
+Build Liberator -> Build Factory: 0
+Build Liberator -> Build Liberator: 1
+Build Liberator -> Build Reactor: 0
+Build Liberator -> Build Refinery: 0
+Build Liberator -> Build Siege Tank: 0
+Build Liberator -> Build Starport: 0
+Build Liberator -> Build Supply Depot: 0
+Build Liberator -> Build Tech Lab: 0
+Build Liberator -> Build Widow Mine: 0
+Build Liberator -> Train Marine: 1
+Build Liberator -> Train SCV: 1
+
+Build Reactor -> Build Armory: 1
+Build Reactor -> Build Barracks: 0
+Build Reactor -> Build Bunker: 0
+Build Reactor -> Build Command Center: 1
+Build Reactor -> Build Engineering Bay: 0
+Build Reactor -> Build Factory: 0
+Build Reactor -> Build Liberator: 1
+Build Reactor -> Build Reactor: 0
+Build Reactor -> Build Refinery: 0
+Build Reactor -> Build Siege Tank: 1
+Build Reactor -> Build Starport: 0
+Build Reactor -> Build Supply Depot: 0
+Build Reactor -> Build Tech Lab: 0
+Build Reactor -> Build Widow Mine: 0
+Build Reactor -> Train Marine: 0
+Build Reactor -> Train SCV: 0
+
+Build Refinery -> Build Armory: 0
+Build Refinery -> Build Barracks: 1
+Build Refinery -> Build Bunker: 0
+Build Refinery -> Build Command Center: 0
+Build Refinery -> Build Engineering Bay: 0
+Build Refinery -> Build Factory: 0
+Build Refinery -> Build Liberator: 0
+Build Refinery -> Build Reactor: 1
+Build Refinery -> Build Refinery: 0
+Build Refinery -> Build Siege Tank: 0
+Build Refinery -> Build Starport: 0
+Build Refinery -> Build Supply Depot: 0
+Build Refinery -> Build Tech Lab: 0
+Build Refinery -> Build Widow Mine: 0
+Build Refinery -> Train Marine: 0
+Build Refinery -> Train SCV: 3
+
+Build Siege Tank -> Build Armory: 0
+Build Siege Tank -> Build Barracks: 0
+Build Siege Tank -> Build Bunker: 0
+Build Siege Tank -> Build Command Center: 0
+Build Siege Tank -> Build Engineering Bay: 0
+Build Siege Tank -> Build Factory: 0
+Build Siege Tank -> Build Liberator: 0
+Build Siege Tank -> Build Reactor: 0
+Build Siege Tank -> Build Refinery: 0
+Build Siege Tank -> Build Siege Tank: 1
+Build Siege Tank -> Build Starport: 0
+Build Siege Tank -> Build Supply Depot: 1
+Build Siege Tank -> Build Tech Lab: 2
+Build Siege Tank -> Build Widow Mine: 0
+Build Siege Tank -> Train Marine: 1
+Build Siege Tank -> Train SCV: 0
+
+Build Starport -> Build Armory: 0
+Build Starport -> Build Barracks: 0
+Build Starport -> Build Bunker: 0
+Build Starport -> Build Command Center: 0
+Build Starport -> Build Engineering Bay: 0
+Build Starport -> Build Factory: 0
+Build Starport -> Build Liberator: 0
+Build Starport -> Build Reactor: 1
+Build Starport -> Build Refinery: 0
+Build Starport -> Build Siege Tank: 0
+Build Starport -> Build Starport: 1
+Build Starport -> Build Supply Depot: 0
+Build Starport -> Build Tech Lab: 0
+Build Starport -> Build Widow Mine: 0
+Build Starport -> Train Marine: 0
+Build Starport -> Train SCV: 1
+
+Build Supply Depot -> Build Armory: 0
+Build Supply Depot -> Build Barracks: 1
+Build Supply Depot -> Build Bunker: 0
+Build Supply Depot -> Build Command Center: 0
+Build Supply Depot -> Build Engineering Bay: 0
+Build Supply Depot -> Build Factory: 2
+Build Supply Depot -> Build Liberator: 1
+Build Supply Depot -> Build Reactor: 0
+Build Supply Depot -> Build Refinery: 0
+Build Supply Depot -> Build Siege Tank: 0
+Build Supply Depot -> Build Starport: 0
+Build Supply Depot -> Build Supply Depot: 1
+Build Supply Depot -> Build Tech Lab: 0
+Build Supply Depot -> Build Widow Mine: 0
+Build Supply Depot -> Train Marine: 2
+Build Supply Depot -> Train SCV: 4
+
+Build Tech Lab -> Build Armory: 0
+Build Tech Lab -> Build Barracks: 0
+Build Tech Lab -> Build Bunker: 0
+Build Tech Lab -> Build Command Center: 0
+Build Tech Lab -> Build Engineering Bay: 0
+Build Tech Lab -> Build Factory: 0
+Build Tech Lab -> Build Liberator: 0
+Build Tech Lab -> Build Reactor: 0
+Build Tech Lab -> Build Refinery: 0
+Build Tech Lab -> Build Siege Tank: 0
+Build Tech Lab -> Build Starport: 1
+Build Tech Lab -> Build Supply Depot: 1
+Build Tech Lab -> Build Tech Lab: 0
+Build Tech Lab -> Build Widow Mine: 0
+Build Tech Lab -> Train Marine: 1
+Build Tech Lab -> Train SCV: 0
+
+Build Widow Mine -> Build Armory: 0
+Build Widow Mine -> Build Barracks: 0
+Build Widow Mine -> Build Bunker: 0
+Build Widow Mine -> Build Command Center: 0
+Build Widow Mine -> Build Engineering Bay: 0
+Build Widow Mine -> Build Factory: 0
+Build Widow Mine -> Build Liberator: 0
+Build Widow Mine -> Build Reactor: 0
+Build Widow Mine -> Build Refinery: 0
+Build Widow Mine -> Build Siege Tank: 0
+Build Widow Mine -> Build Starport: 1
+Build Widow Mine -> Build Supply Depot: 0
+Build Widow Mine -> Build Tech Lab: 0
+Build Widow Mine -> Build Widow Mine: 0
+Build Widow Mine -> Train Marine: 0
+Build Widow Mine -> Train SCV: 0
+
+Train Marine -> Build Armory: 0
+Train Marine -> Build Barracks: 0
+Train Marine -> Build Bunker: 0
+Train Marine -> Build Command Center: 0
+Train Marine -> Build Engineering Bay: 0
+Train Marine -> Build Factory: 2
+Train Marine -> Build Liberator: 1
+Train Marine -> Build Reactor: 0
+Train Marine -> Build Refinery: 0
+Train Marine -> Build Siege Tank: 3
+Train Marine -> Build Starport: 0
+Train Marine -> Build Supply Depot: 1
+Train Marine -> Build Tech Lab: 1
+Train Marine -> Build Widow Mine: 0
+Train Marine -> Train Marine: 4
+Train Marine -> Train SCV: 3
+
+Train SCV -> Build Armory: 0
+Train SCV -> Build Barracks: 2
+Train SCV -> Build Bunker: 1
+Train SCV -> Build Command Center: 0
+Train SCV -> Build Engineering Bay: 1
+Train SCV -> Build Factory: 0
+Train SCV -> Build Liberator: 0
+Train SCV -> Build Reactor: 0
+Train SCV -> Build Refinery: 4
+Train SCV -> Build Siege Tank: 0
+Train SCV -> Build Starport: 1
+Train SCV -> Build Supply Depot: 6
+Train SCV -> Build Tech Lab: 0
+Train SCV -> Build Widow Mine: 1
+Train SCV -> Train Marine: 1
+Train SCV -> Train SCV: 6

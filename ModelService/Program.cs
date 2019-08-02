@@ -1,75 +1,180 @@
-﻿using RDotNet;
-using System;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Pipes;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
+using RDotNet;
 
 namespace ModelService
 {
+    /// <summary>
+    /// Handles communication among Agent, Model, and Repository
+    /// </summary>
+    public class ModelRepositoryService
+    {
+        private NamedPipeClientStream _client = null;
+        private NamedPipeServerStream _server = null;
+        private Task _listenertoagent;
+
+        public Queue<string> Messages { get; set; } = null;
+
+        public bool KeepListeningToAgent { get; set; } = false;
+
+        /// <summary>
+        /// Returns true if successfully connected to agent. Else, false.
+        /// </summary>
+        /// <returns></returns>
+        public bool ConnectToAgent()
+        {
+            try
+            {
+                _client = new NamedPipeClientStream("AgentServer");
+                _client.Connect();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error Occurred! Failed to connect to agent...");
+                Trace.WriteLine($@"Error in Model! ModelRepositoryService -> ConnectToAgent(): \n\t{ex.Message}");
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Returns if successfully sent all messages to agent. Else, false.
+        /// </summary>
+        /// <param name="message"></param>
+        /// <returns></returns>
+        public bool SendMessageToAgent(params string[] message)
+        {
+            try
+            {
+                using (var sender = new StreamWriter(_client))
+                {
+                    foreach (var m in message)
+                        sender.Write(m);
+
+                    sender.Flush();
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error Occurred! Failed to send the message to agent...");
+                Trace.WriteLine($@"Error in Model! ModelRepositoryService -> SendMessageToAgent(): \n\t{ex.Message}");
+            }
+
+            return false;
+        }
+
+        public bool StartModelServiceServer()
+        {
+            try
+            {
+                KeepListeningToAgent = true;
+                _server = new NamedPipeServerStream("ModelServer");
+                _listenertoagent = new Task(ListenToAgent);
+                Messages = new Queue<string>();
+
+                _listenertoagent.Start();
+                _server.WaitForConnection();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error Occurred! Failed to start the model service server...");
+                Trace.WriteLine($@"Error in Model! ModelRepositoryService -> StartModelServiceServer(): \n\t{ex.Message}");
+            }
+
+            return false;
+        }
+
+        public void ListenToAgent()
+        {
+            try
+            {
+                using (var receiver = new StreamReader(_server))
+                {
+
+                }
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine("Error Occurred! Failed to keep listening to agent...");
+                Trace.WriteLine($@"Error in Model! ModelRepositoryService -> ListenToAgent(): \n\t{ex.Message}");
+            }
+        }
+
+    }
+
+    /// <summary>
+    /// The main thread of the model
+    /// </summary>
     class Program
     {
         static int Main(string[] args)
         {
-            //using (var server = new NamedPipeServerStream(@"\\\\.\\pipe\\Pipe", PipeDirection.InOut))
-            //{
-            //    server.WaitForConnection();
-
-            //    try
-            //    {
-            //        using (var sw = new StreamWriter(server))
-            //        {
-            //            sw.AutoFlush = true;
-            //            Console.WriteLine("Write: ");
-            //            sw.WriteLine(Console.ReadLine());
-            //        }
-            //    }
-            //    catch
-            //    {
-
-            //    }
-            //}
-            string i = "";
-            Console.WriteLine("Hello World!1");
-            Console.WriteLine("Hello World!2");
-            Console.WriteLine("Hello World!3");
-            Console.WriteLine("Hello World!4");
-            Console.WriteLine("Hello World!5");
-            Console.WriteLine("Hello World!6");
-            Console.WriteLine("Write: ");
-            i = Console.ReadLine();
-            Console.WriteLine(i);
-            using (var client = new NamedPipeClientStream(@"Kokekoko"))
+            var modelrepositoryservice = new ModelRepositoryService();
+            
+            try
             {
-                client.Connect();
-                var r = new StreamReader(client);
-                var w = new StreamWriter(client);
+                ////If successfully sent and receive a message from the agent
+                //if(modelrepositoryservice.ConnectToAgent())
+                //{
+                //    modelrepositoryservice.StopExecutingModel = false;
+                //    Task.Factory.StartNew(modelrepositoryservice.StartListening);
 
-                while(i != "exit")
+                //    while(!modelrepositoryservice.StopExecutingModel)
+                //    {
+                //        if (modelrepositoryservice.Receivedmessages.Count == 0)
+                //            continue;
+                //        else
+                //        {
+                //            var message = modelrepositoryservice.Receivedmessages.Dequeue();
+                //            if (message == "Exit")
+                //                modelrepositoryservice.StopExecutingModel = true;
+                //        }
+                //    }
+                //}
+
+                //Console.WriteLine("ModelService Reporting!");
+                //using (var client = new NamedPipeClientStream(@"AgentServer"))
+                //{
+                //    client.Connect();
+                //    using (var writer = new StreamWriter(client))
+                //    {
+                //        writer.WriteLine("Hello Parent!");
+                //        writer.WriteLine("Hello again!");
+                //        writer.Flush();
+                //    }
+                //}
+
+                Console.WriteLine("Starting ModelService...");
+                if(modelrepositoryservice.ConnectToAgent())
                 {
-                    Console.Write("Write to Parent: ");
-                    i = Console.ReadLine();
-                    w.WriteLine(i);
-                    //Console.Write($"Reply of Parent: {r.ReadLine()}");
+                    modelrepositoryservice.SendMessageToAgent("Success!");
+
+                    Console.WriteLine("Starting the Server...");
+                    if(modelrepositoryservice.StartModelServiceServer())
+                    {
+                        modelrepositoryservice.SendMessageToAgent("Ready Reply");
+                    }
                 }
-                w.Flush();
-                i = r.ReadLine();
-                Console.WriteLine(i);
-                while(i != "exit")
-                {
-                    i = r.ReadLine();
-                    Console.WriteLine(i);
-                }
-                w.Flush();
+            }
+            catch(Exception ex)
+            {
+                Debug.WriteLine($@"Error! Program -> Main: \n\t{ex.Message}...");
+                Trace.WriteLine("Error Occurred! Failed to keep the model running...");
+                Console.WriteLine("Error Occurred! ModelService -> Program -> Main");
             }
 
-                REngine.SetEnvironmentVariables();
-            using (var engine = REngine.GetInstance())
-            {
-                return engine.Evaluate("sample(1:5, 1)").AsInteger()[0];
-            }
+            return 0;
         }
     }
 }

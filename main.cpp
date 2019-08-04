@@ -15,8 +15,6 @@ namespace KoKeKoKo
 		using namespace std;
 		//The program that computes for POMDP Model and MCTS Model using R
 		const string MODELSERVICE_FILENAME = "ModelService\\bin\\Debug\\ModelService.exe";
-		//The summary of parsed COMMANDSREPOSITORY and RESOURCESREPOSITORY
-		const string REPOSITORYSERVICE_FILENAME = "Documents\\Data\\Repository.csv";
 		//The extracted commands from the replay training data
 		const string COMMANDSREPOSITORY_FILENAME = "Documents\\Data\\CommandsRepository.csv";
 		//The extracted resources from the replay training data
@@ -37,59 +35,73 @@ namespace KoKeKoKo
 				//If the agent should keep listening to the model service
 				atomic<bool> _keeplisteningtomodelservice = false;
 
-				void CreateRepositoryFile()
-				{
-
-				}
-
-				void ParseCommandsRepository()
-				{
-
-				}
-
-				void ParseResourcesRepository()
-				{
-
-				}
-
-				//Keeps listening to the model and pushes the sent messages to a queue
-				/*void ListenToModel()
+				void ParseCommandsRepository(bool& finished_parsing)
 				{
 					try
 					{
-						DWORD dwread = 0;
-						string message = "";
-						char buffer[2048];
-						bool addmessage = false;
+						ifstream commandsrepository(GetRelativeFilepathOf(COMMANDSREPOSITORY_FILENAME));
+						string repositoryline = "", repositorycomma = "", currentrank = "", currentowner = "", previouscommand = "";
 
-						ConnectNamedPipe(_server, NULL);
-						while (ReadFile(_server, buffer, sizeof(buffer) - 1, &dwread, NULL))
+						if (commandsrepository.is_open())
 						{
-							buffer[dwread] = '\0';
-							addmessage = true;
-						}
+							cout << "Parsing Commands Repository..." << endl;
+							while (getline(commandsrepository, repositoryline))
+							{
 
-						if (addmessage)
-						{
-							message = string(buffer);
-							Messages.push_back(message);
-						}
+							}
 
-						addmessage = false;
+							commandsrepository.close();
+							finished_parsing = true;
+						}
+						else
+							throw exception("Failed to open commands repository...");
+
+						finished_parsing = true;
 					}
 					catch (const exception& ex)
 					{
-						cout << "Error Occurred! Failed to keep listening to model service..." << endl;
-						cerr << "Error in Agent! ModelRepositoryService -> ListenToModel(): \n\t" << ex.what() << endl;
+						cout << "Error Occurred! Failed to parse commands repository..." << endl;
+						cerr << "Error in Agent! ModelRepositoryService -> ParseCommandsRepository(): \n\t" << ex.what() << endl;
+						finished_parsing = false;
 					}
-				}*/
+				}
 
+				void ParseResourcesRepository(bool& finished_parsing)
+				{
+					try
+					{
+						ifstream resourcesrepository(GetRelativeFilepathOf(RESOURCESREPOSITORY_FILENAME));
+						string repositoryline = "";
+
+						if (resourcesrepository.is_open())
+						{
+							cout << "Parsing Resources Repository..." << endl;
+							while (getline(resourcesrepository, repositoryline))
+							{
+
+							}
+
+							resourcesrepository.close();
+							finished_parsing = true;
+						}
+						else
+							throw exception("Failed to open commands repository...");
+					}
+					catch (const exception& ex)
+					{
+						cout << "Error Occurred! Failed to parse resources repository..." << endl;
+						cerr << "Error in Agent! ModelRepositoryService -> ParseResourcesRepository(): \n\t" << ex.what() << endl;
+						finished_parsing = false;
+					}
+				}
+
+				//Keeps waiting for the model to connect and saves the sent message to a queue
 				void ListenToModelService()
 				{
-					DWORD dwread = 0, dwwrite = 0;
+					DWORD dwread = 0;
 					HANDLE server = INVALID_HANDLE_VALUE;
 					LPSTR servername = TEXT("\\\\.\\pipe\\AgentServer");
-					string message = "", reply = "Recieved!";
+					string message = "";
 					char buffer[2048] = { 0 };
 
 					try
@@ -98,7 +110,6 @@ namespace KoKeKoKo
 						{
 							//Re-initialize variables
 							dwread = 0;
-							dwwrite = 0;
 							server = INVALID_HANDLE_VALUE;
 							message = "";
 							ZeroMemory(buffer, sizeof(buffer));
@@ -112,23 +123,11 @@ namespace KoKeKoKo
 								{
 									//Read the message from the model
 									while (ReadFile(server, buffer, sizeof(buffer), &dwread, NULL))
-									{
-										cout << "Reading a message from the model..." << endl;
 										buffer[dwread] = '\0';
-									}
-
-									//Send a reply to the model
-									if (WriteFile(server, TEXT("Recieved!"), 1024, &dwwrite, NULL))
-									{
-										FlushFileBuffers(server);
-									}
-									else
-										cout << "Failed to send a reply to the model! Error: " << GetLastError() << endl;
 
 									//Store the message to the queue
 									_messagelock.lock();
 									message = string(buffer);
-									cout << message << endl;
 									Messages.push_back(message);
 									_messagelock.unlock();
 
@@ -151,6 +150,7 @@ namespace KoKeKoKo
 				}
 
 			public:
+				//The sent messages by the model service
 				deque<string> Messages = deque<string>();
 
 				//Returns the created instance of ModelRepositoryService
@@ -162,11 +162,21 @@ namespace KoKeKoKo
 					return _instance;
 				}
 
+				//Returns true if finished successfully parsing commands repository and resources repository
 				bool GenerateRepository()
 				{
 					try
 					{
-						return true;
+						bool finishedparsingcommands = false, finishedparsingresources = false;
+						auto parsecommandsrepository = new thread(&Model::ModelRepositoryService::ParseCommandsRepository, this, ref(finishedparsingcommands));
+						auto parseresourcesrepository = new thread(&Model::ModelRepositoryService::ParseResourcesRepository, this, ref(finishedparsingresources));
+
+						if (parsecommandsrepository->joinable())
+							parsecommandsrepository->join();
+						if (parseresourcesrepository->joinable())
+							parseresourcesrepository->join();
+
+						return (finishedparsingcommands && finishedparsingresources);
 					}
 					catch (const exception& ex)
 					{
@@ -213,6 +223,10 @@ namespace KoKeKoKo
 					try
 					{
 						DWORD dwprocessresult = 0;
+
+						//Send to stop the model
+						while (!SendMessageToModelService("Exit", 5))
+							cout << "Failed to send an exit to model service... trying again...";
 
 						//Wait for the process to finish its procedures
 						WaitForSingleObject(processinformation.hProcess, INFINITE);
@@ -281,6 +295,65 @@ namespace KoKeKoKo
 					}
 				}
 
+				//Returns true if successfully sent a message to model
+				bool SendMessageToModelService(string message, int retries)
+				{
+					try
+					{
+						DWORD dwwrite = 0;
+						HANDLE client = INVALID_HANDLE_VALUE;
+						LPSTR clientname = TEXT("\\\\.\\pipe\\ModelServer");
+						bool success = false;
+						char buffer[2048] = { 0 };
+
+						for (int tries = 0; ((!success) && (tries < retries)); tries++)
+						{
+							dwwrite = 0;
+							client = INVALID_HANDLE_VALUE;
+							success = false;
+							ZeroMemory(&buffer, sizeof(buffer));
+
+							strcpy_s(buffer, message.c_str());
+							client = CreateFileA(clientname, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
+							if (client != INVALID_HANDLE_VALUE)
+							{
+								if (WriteFile(client, buffer, (message.size() + 1), &dwwrite, NULL))
+								{
+									FlushFileBuffers(client);
+									success = true;
+								}
+								else
+									cout << "Failed to send a message on try " << tries << endl;
+
+								CloseHandle(client);
+							}
+							else if (GetLastError() == ERROR_PIPE_BUSY)
+							{
+								if (WaitNamedPipeA(clientname, 20000))
+								{
+									cout << "Failed to connect to server on try" << tries << endl;
+									continue;
+								}
+								else
+									throw exception("Failed to wait the server at model service...");
+							}
+							else
+								throw exception(("Failed to create client pipe with error code " + to_string(GetLastError())).c_str());
+
+							this_thread::sleep_for(chrono::milliseconds(5000));
+						}
+
+						return success;
+					}
+					catch (const exception& ex)
+					{
+						cout << "Error Occurred! Failed to send a message to model service..." << endl;
+						cerr << "Error in Agent! ModelRepositoryService -> SendMessageToModelService(): \n\t" << ex.what() << endl;
+					}
+
+					return false;
+				}
+
 				//Returns the filename concatenated with the current project directory. If failed, returns nullptr
 				string GetRelativeFilepathOf(string filename)
 				{
@@ -299,32 +372,6 @@ namespace KoKeKoKo
 
 					return relativefilepath;
 				}
-
-				/*bool SendAMessageToModel(string message)
-				{
-					try
-					{
-						DWORD dwwrite = 0;
-						char buffer[2048];
-
-						strcpy_s(buffer, message.c_str());
-
-						if (_client != INVALID_HANDLE_VALUE)
-						{
-							WriteFile(_client, buffer, sizeof(buffer), &dwwrite, NULL);
-							FlushFileBuffers(_client);
-
-							return true;
-						}
-					}
-					catch (const exception& ex)
-					{
-						cout << "Error Occurred! Failed to send a message to model..." << endl;
-						cerr << "Error in Agent! ModelRepositoryService -> SendAMessageToModel(): \n\t" << ex.what() << endl;
-					}
-
-					return false;
-				}*/
 		};
 	}
 
@@ -347,10 +394,14 @@ namespace KoKeKoKo
 		class KoKeKoKoBot : public Agent
 		{
 			private:
+				Model::ModelRepositoryService* _instance = nullptr;
 
 			public:
 				virtual void OnGameStart() final
 				{
+					//Get the instance of the service
+					_instance = Model::ModelRepositoryService::GetModelRepositoryServiceInstance();
+
 
 				}
 
@@ -396,6 +447,7 @@ int main(int argc, char* argv[])
 	auto kokekokobot = new Agent::KoKeKoKoBot();
 	auto modelrepositoryservice = Model::ModelRepositoryService::GetModelRepositoryServiceInstance();
 	char s;
+
 	try
 	{
 		//Start the model
@@ -404,22 +456,40 @@ int main(int argc, char* argv[])
 			//Start to listen to the model
 			if (modelrepositoryservice->StartModelService())
 			{
-				std::cout << "success listening" << std::endl;
-				for (auto m : modelrepositoryservice->Messages)
-					std::cout << m << std::endl;
-				
-				std::cout << "Ready to stop" << std::endl;
-				std::cin >> s;
-				
+				//Start generating a cached repository
+				if (modelrepositoryservice->GenerateRepository())
+				{
+					//Start the game
+					coordinator->LoadSettings(argc, argv);
+					coordinator->SetParticipants({ sc2::CreateParticipant(sc2::Race::Terran, kokekokobot), sc2::CreateComputer(sc2::Race::Terran, sc2::Difficulty::VeryEasy) });
+					coordinator->LaunchStarcraft();
+					coordinator->StartGame(sc2::kMapBelShirVestigeLE);
+					while (coordinator->Update());
+
+					//Close the connections
+					modelrepositoryservice->StopListeningToModelService();
+					modelrepositoryservice->StopModelService();
+				}
+				else
+					throw std::exception("Failed to parse repository...");
 			}
+			else
+				throw std::exception("Failed to start the model...");
 		}
+		else
+			throw std::exception("Failed on starting a server for model...");
+
+		return 1;
 	}
 	catch (...)
 	{
 		std::cout << "Error Occurred! Failed to catch an application error..." << std::endl;
 		std::cerr << "Error in main()! An unhandled exception occurred...." << std::endl;
+
+		//Close the connections
+		modelrepositoryservice->StopListeningToModelService();
+		modelrepositoryservice->StopModelService();
 	}
 
-	std::cin >> s;
 	return 0;
 }

@@ -28,18 +28,14 @@ namespace KoKeKoKo
 			private:
 				//The instance of ModelRepositoryService
 				static ModelRepositoryService* _instance;
-				//ModelService startup information
-				STARTUPINFO startupinfo;
 				//ModelService process information
 				PROCESS_INFORMATION processinformation;
-				//A pipe from the ModelRepositoryService to ModelService
-				HANDLE _server = INVALID_HANDLE_VALUE;
-				//A pipe from the ModelService to ModelRepositoryService
-				HANDLE _client = INVALID_HANDLE_VALUE;
 				//A map of created threads where key is the function name, and value is the thread that runs the given function name
 				map<string, thread*> _createdthreads = map<string, thread*>();
 				//A lock when handling messages
 				mutex _messagelock;
+				//If the agent should keep listening to the model service
+				atomic<bool> _keeplisteningtomodelservice = false;
 
 				void CreateRepositoryFile()
 				{
@@ -57,47 +53,105 @@ namespace KoKeKoKo
 				}
 
 				//Keeps listening to the model and pushes the sent messages to a queue
-				void ListenToModel()
+				/*void ListenToModel()
 				{
 					try
 					{
 						DWORD dwread = 0;
 						string message = "";
 						char buffer[2048];
-						bool isnewmessage = false;
+						bool addmessage = false;
 
-						while (KeepListeningToModel)
+						ConnectNamedPipe(_server, NULL);
+						while (ReadFile(_server, buffer, sizeof(buffer) - 1, &dwread, NULL))
 						{
-							while (ReadFile(_server, buffer, sizeof(buffer) - 1, &dwread, NULL))
-							{
-								buffer[dwread] = '\0';
-								isnewmessage = true;
-							}
-
-							if (isnewmessage)
-							{
-								_messagelock.lock();
-								message = string(buffer);								
-								Messages.push_back(message);
-								_messagelock.unlock();
-
-								isnewmessage = false;
-							}
-
-							this_thread::sleep_for(chrono::milliseconds(2000));
+							buffer[dwread] = '\0';
+							addmessage = true;
 						}
+
+						if (addmessage)
+						{
+							message = string(buffer);
+							Messages.push_back(message);
+						}
+
+						addmessage = false;
 					}
 					catch (const exception& ex)
 					{
 						cout << "Error Occurred! Failed to keep listening to model service..." << endl;
 						cerr << "Error in Agent! ModelRepositoryService -> ListenToModel(): \n\t" << ex.what() << endl;
 					}
+				}*/
+
+				void ListenToModelService()
+				{
+					DWORD dwread = 0, dwwrite = 0;
+					HANDLE server = INVALID_HANDLE_VALUE;
+					LPSTR servername = TEXT("\\\\.\\pipe\\AgentServer");
+					string message = "", reply = "Recieved!";
+					char buffer[2048] = { 0 };
+
+					try
+					{
+						while (_keeplisteningtomodelservice)
+						{
+							//Re-initialize variables
+							dwread = 0;
+							dwwrite = 0;
+							server = INVALID_HANDLE_VALUE;
+							message = "";
+							ZeroMemory(buffer, sizeof(buffer));
+
+							//Create a named pipe
+							server = CreateNamedPipeA(servername, PIPE_ACCESS_DUPLEX, PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_WAIT, PIPE_UNLIMITED_INSTANCES, sizeof(buffer), sizeof(buffer), 0, NULL);
+							if (server != INVALID_HANDLE_VALUE)
+							{
+								//Wait for a client to connect to the server
+								if (ConnectNamedPipe(server, NULL))
+								{
+									//Read the message from the model
+									while (ReadFile(server, buffer, sizeof(buffer), &dwread, NULL))
+									{
+										cout << "Reading a message from the model..." << endl;
+										buffer[dwread] = '\0';
+									}
+
+									//Send a reply to the model
+									if (WriteFile(server, TEXT("Recieved!"), 1024, &dwwrite, NULL))
+									{
+										FlushFileBuffers(server);
+									}
+									else
+										cout << "Failed to send a reply to the model! Error: " << GetLastError() << endl;
+
+									//Store the message to the queue
+									_messagelock.lock();
+									message = string(buffer);
+									cout << message << endl;
+									Messages.push_back(message);
+									_messagelock.unlock();
+
+									//Disconnect the client
+									DisconnectNamedPipe(server);
+								}
+
+								//Close the pipe
+								CloseHandle(server);
+							}
+							else
+								throw exception("Failed to create a server for model service...");
+						}
+					}
+					catch (const exception& ex)
+					{
+						cout << "Error Occurred! Failed to keep listening to model service...";
+						cerr << "Error in Agent! ModelRepositoryService -> ListenToModelService(): \n\t" << ex.what() << endl;
+					}
 				}
 
 			public:
 				deque<string> Messages = deque<string>();
-				//If the program should keep listening to model
-				bool KeepListeningToModel = false;
 
 				//Returns the created instance of ModelRepositoryService
 				static ModelRepositoryService* GetModelRepositoryServiceInstance()
@@ -123,91 +177,109 @@ namespace KoKeKoKo
 					return false;
 				}
 
-				//Starts the ModelService and performs handshake messages
-				bool ExecuteModelService()
+				//Returns true if successfully executed ModelService process
+				bool StartModelService()
 				{
 					try
 					{
-						DWORD dwprocess = 0, dwread = 0;
-						LPSTR executable = new char[MAX_PATH], serverpipename = new char[MAX_PATH], clientpipename = new char[MAX_PATH];
-						string executablefilepath = GetRelativeFilepathOf(MODELSERVICE_FILENAME), sucessmessage = "";
-						char buffer[2048];
-						bool successconnection = false;
+						STARTUPINFO startupinfo = { 0 };
+						LPSTR executable = new char[MAX_PATH];
+						string executablefilepath = "";
 
-						//Perform Initialization
-						ZeroMemory(&startupinfo, sizeof(startupinfo));
 						ZeroMemory(&processinformation, sizeof(processinformation));
+						ZeroMemory(&startupinfo, sizeof(startupinfo));						
 						startupinfo.cb = sizeof(startupinfo);
+						executablefilepath = GetRelativeFilepathOf(MODELSERVICE_FILENAME);
 						executable = const_cast<char *>(executablefilepath.c_str());
-						serverpipename = TEXT("\\\\.\\pipe\\AgentServer");
-						clientpipename = TEXT("\\\\.\\pipe\\ModelServer");
 
-						//Create a pipe to ModelService
-						_server = CreateNamedPipeA(serverpipename, PIPE_ACCESS_DUPLEX, PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_WAIT, PIPE_UNLIMITED_INSTANCES, 2048, 2048, 0, NULL);
-						if (_server != INVALID_HANDLE_VALUE)
-						{
-							//Since the pipe to ModelService is a success
-							//Start running the process
-							if (CreateProcessA(NULL, executable, NULL, NULL, FALSE, 0, NULL, NULL, &startupinfo, &processinformation))
-							{
-								//Read the message of the model
-								WaitForSingleObject(processinformation.hProcess, 3000);
-								for (int retry = 0; ((!successconnection) && (retry < 5)); retry++)
-								{
-									cout << "Waiting for the ModelService to send a message... Retries Left: " << retry << endl;
-									while (ReadFile(_server, buffer, sizeof(buffer) - 1, &dwread, NULL))
-									{
-										cout << "Reading the message..." << endl;
-										buffer[dwread] = '\0';
-									}
-
-									sucessmessage = string(buffer);
-									if (sucessmessage == "Success!")
-										successconnection = true;
-								}
-
-								//If successfully received a message from model
-								if (successconnection)
-								{
-									//Start to keep listening to the model service
-									KeepListeningToModel = true;
-									auto listentomodel = new thread(&Model::ModelRepositoryService::ListenToModel, this);
-									listentomodel->detach();
-									_createdthreads.insert(make_pair("ListenToModel", listentomodel));
-
-									//Create the client pipe to model service
-									_client = CreateFileA(clientpipename, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
-									if (_client != INVALID_HANDLE_VALUE)
-									{
-										if (WaitForAMessage("Ready Reply", 5))
-										{
-											cout << "received!" << endl;
-										}
-										else
-											throw exception("Failed to receive confirmation from model service...");
-									}
-									else
-										throw exception("Failed to start a client pipe to the model service...");
-								}
-								else
-									throw exception("Failed to receive a message from model service...");
-							}
-							else
-								throw exception("Failed to start model service...");
-						}
-						else
-							throw exception("Failed to create a server pipe for the model service...");
+						//Create a process for model service
+						if (!(CreateProcessA(NULL, executable, NULL, NULL, FALSE, 0, NULL, NULL, &startupinfo, &processinformation)))
+							throw exception("Failed to create a process for model service...");
 
 						return true;
 					}
 					catch (const exception& ex)
 					{
-						cout << "Error Occurred! Failed to execute model service..." << endl;
-						cerr << "Error in Agent! ModelRepositoryService -> ExecuteModelService(): \n\t" << ex.what() << endl;
+						cout << "Error Occurred! Failed to start model service..." << endl;
+						cerr << "Error in Agent! ModelRepositoryService -> StartModelService(): \n\t" << ex.what() << endl;
 					}
 
 					return false;
-				}				
+				}
+
+				//Stops and retrieves the ModelService process return code
+				void StopModelService()
+				{
+					try
+					{
+						DWORD dwprocessresult = 0;
+
+						//Wait for the process to finish its procedures
+						WaitForSingleObject(processinformation.hProcess, INFINITE);
+						if (GetExitCodeProcess(processinformation.hProcess, &dwprocessresult))
+						{
+							cout << "ModelService Returned Value on Exit: " << dwprocessresult << endl;
+							CloseHandle(processinformation.hProcess);
+							CloseHandle(processinformation.hThread);
+						}
+						else
+							throw exception("Failed to retrieve exit code of model service...");
+					}
+					catch (const exception& ex)
+					{
+						cout << "Error Occurred! Failed to stop model service..." << endl;
+						cerr << "Error in Agent! ModelRepositoryService -> StopModelService(): \n\t" << ex.what() << endl;
+					}
+				}
+
+				//Returns true if successfully started to listen to model service
+				bool StartListeningToModelService()
+				{
+					try
+					{
+						_keeplisteningtomodelservice = true;
+
+						//Check if there is no a thread running
+						if (_createdthreads.find("ListenToModelService") == _createdthreads.end())
+						{
+							auto listentomodelservice = new thread(&Model::ModelRepositoryService::ListenToModelService, this);
+							listentomodelservice->detach();
+							_createdthreads.insert(make_pair("ListenToModelService", listentomodelservice));
+						}
+
+						return true;
+					}
+					catch (const exception& ex)
+					{
+						cout << "Error Occurred! Failed to start listening to model service..." << endl;
+						cerr << "Error in Agent! ModelRepositoryService -> StartListeningToModelService(): \n\t" << ex.what() << endl;
+					}
+
+					return false;
+				}
+
+				//Stops listening to model service
+				void StopListeningToModelService()
+				{
+					try
+					{
+						_keeplisteningtomodelservice = false;
+
+						//Check if there is a thread running
+						if (_createdthreads.find("ListenToModelService") != _createdthreads.end())
+						{
+							if (_createdthreads["ListenToModelService"]->joinable())
+								_createdthreads["ListenToModelService"]->join();
+
+							_createdthreads.erase("ListenToModelService");
+						}
+					}
+					catch (const exception& ex)
+					{
+						cout << "Error Occurred! Failed to stop listening to model service..." << endl;
+						cerr << "Error in Agent! ModelRepositoryService -> StopListeningToModelService(): \n\t" << ex.what() << endl;
+					}
+				}
 
 				//Returns the filename concatenated with the current project directory. If failed, returns nullptr
 				string GetRelativeFilepathOf(string filename)
@@ -228,7 +300,7 @@ namespace KoKeKoKo
 					return relativefilepath;
 				}
 
-				bool SendAMessageToModel(string message)
+				/*bool SendAMessageToModel(string message)
 				{
 					try
 					{
@@ -252,45 +324,7 @@ namespace KoKeKoKo
 					}
 
 					return false;
-				}
-
-				bool WaitForAMessage(string expected_message, int retries)
-				{
-					try
-					{
-						bool isfound = false;
-						string message = "";
-
-						_messagelock.lock();
-						//If there is no message
-						for (int retry = retries; ((Messages.empty()) && (retry > 0)); retry--)
-						{
-							cout << "Waiting for message..." << endl;
-						}
-
-						for (int retry = retries; ((!isfound) && (retry > 0)); retry--)
-						{
-							for (auto elements : Messages)
-							{
-								if (elements == expected_message)
-								{
-									isfound = true;
-									break;
-								}
-							}
-						}
-						_messagelock.unlock();
-
-						return isfound;
-					}
-					catch (const exception& ex)
-					{
-						cout << "Error Occurred! Failed to wait for a message..." << endl;
-						cerr << "Error in Agent! ModelRepositoryService -> WaitForAMessage(): \n\t" << ex.what() << endl;
-					}
-
-					return false;
-				}
+				}*/
 		};
 	}
 
@@ -361,9 +395,31 @@ int main(int argc, char* argv[])
 	auto coordinator = new sc2::Coordinator();
 	auto kokekokobot = new Agent::KoKeKoKoBot();
 	auto modelrepositoryservice = Model::ModelRepositoryService::GetModelRepositoryServiceInstance();
-
-	modelrepositoryservice->ExecuteModelService();
 	char s;
+	try
+	{
+		//Start the model
+		if (modelrepositoryservice->StartListeningToModelService())
+		{
+			//Start to listen to the model
+			if (modelrepositoryservice->StartModelService())
+			{
+				std::cout << "success listening" << std::endl;
+				for (auto m : modelrepositoryservice->Messages)
+					std::cout << m << std::endl;
+				
+				std::cout << "Ready to stop" << std::endl;
+				std::cin >> s;
+				
+			}
+		}
+	}
+	catch (...)
+	{
+		std::cout << "Error Occurred! Failed to catch an application error..." << std::endl;
+		std::cerr << "Error in main()! An unhandled exception occurred...." << std::endl;
+	}
+
 	std::cin >> s;
 	return 0;
 }

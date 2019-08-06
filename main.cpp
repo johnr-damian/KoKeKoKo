@@ -140,6 +140,8 @@ namespace KoKeKoKo
 							}
 							else
 								throw exception("Failed to create a server for model service...");
+
+							this_thread::sleep_for(chrono::milliseconds(1000));
 						}
 					}
 					catch (const exception& ex)
@@ -229,7 +231,7 @@ namespace KoKeKoKo
 							cout << "Failed to send an exit to model service... trying again...";
 
 						//Wait for the process to finish its procedures
-						WaitForSingleObject(processinformation.hProcess, INFINITE);
+						WaitForSingleObject(processinformation.hProcess, 10000);
 						if (GetExitCodeProcess(processinformation.hProcess, &dwprocessresult))
 						{
 							cout << "ModelService Returned Value on Exit: " << dwprocessresult << endl;
@@ -456,6 +458,9 @@ int main(int argc, char* argv[])
 			//Start to listen to the model
 			if (modelrepositoryservice->StartModelService())
 			{
+				//Give way to other threads first
+				std::this_thread::sleep_for(std::chrono::milliseconds(3000));
+
 				//Start generating a cached repository
 				if (modelrepositoryservice->GenerateRepository())
 				{
@@ -478,8 +483,6 @@ int main(int argc, char* argv[])
 		}
 		else
 			throw std::exception("Failed on starting a server for model...");
-
-		return 1;
 	}
 	catch (...)
 	{

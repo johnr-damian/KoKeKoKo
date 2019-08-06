@@ -499,39 +499,102 @@ namespace KoKeKoKo
 					_instance->SendMessageToModelService(message, 5);
 				}
 
-				virtual void OnStep() final
-				{
-					std::string m = _instance->Messages.front();
-					std::cout << m << std::endl;
-				}
+		public:
+			void InitializeBotParameters(string enemy_difficulty)
+			//A temporary function? Sets the initial difficulty and starts the thread
+			{
+				_currentrank = enemy_difficulty;
+				_generateactions = true;
+				_generatingactions = false;
+				_renewplan = false;
+				GenerateActions();
+			}
 
 				virtual void OnGameEnd() final
 				{
 
 				}				
 
-				virtual void OnUnitCreated(const Unit* unit) final
+			virtual void OnStep() final
+			{
+				//Observe the environment
+				//Is it already 20 secs? 
+					//If yes, we continue again the MCTS, start POMDP, and create the MCTS+POMDP
+					//If no, keep following the actions in queue
+					//If no but there is an emergency, we call the MCTS, POMDP and the combination to know what to do
+
+				/* For Guanga */
+				//Make the bot, train scv, build supply depot then build barracks then train marine
+				//After sufficient marine, attack the enemy. Follow this in summary -> https://github.com/Blizzard/s2client-api/blob/master/docs/tutorial1.md
+				
+			}
+
+		virtual void OnUnitIdle(const Unit* unit) final
+		{
+			switch (unit->unit_type.ToType())
+			{
+			case UNIT_TYPEID::TERRAN_COMMANDCENTER:
+			{
+				Actions()->UnitCommand(unit, ABILITY_ID::TRAIN_SCV);
+				break;
+			}
+			case UNIT_TYPEID::TERRAN_SCV:
+			{
+				const Unit* mineral_target = FindNearestMineralPatch(unit->pos);
+				if (!mineral_target)
 				{
-
+					break;
 				}
-
-				virtual void OnUnitIdle(const Unit* unit) final
-				{
-
-				}
-
-				virtual void OnUnitDestroyed(const Unit* unit) final
-				{
-
-				}
+				Actions()->UnitCommand(unit, ABILITY_ID::SMART, mineral_target);
+				break;
+			}
+			case UNIT_TYPEID::TERRAN_BARRACKS: 
+			{
+				Actions()->UnitCommand(unit, ABILITY_ID::TRAIN_MARINE);
+				break;
+			}
+			case UNIT_TYPEID::TERRAN_MARINE: 
+			{
+				const GameInfo& game_info = Observation()->GetGameInfo();
+				Actions()->UnitCommand(unit, ABILITY_ID::ATTACK_ATTACK, game_info.enemy_start_locations.front());
+				break;
+			}
+			default:
+			{
+				break;
+			}
 
 				virtual void OnUnitEnterVision(const Unit* unit) final
 				{
 
+			}
+		}
+
+		//Function to find the nearest unit from a specific unit
+		const Unit* FindNearestOf(Unit source, Unit destination)
+		{
+			Units units = Observation()->GetUnits(IsUnit(destination.unit_type));
+			float distance = std::numeric_limits<float>::max();
+			const Unit* target = nullptr;
+			for (const auto& u : units)
+			{
+				if (u->unit_type == destination.unit_type)
+				{
+					float d = DistanceSquared2D(destination.pos, source.pos);
+					if (d < distance) {
+						distance = d;
+						target = u;
+					}
 				}
-		};
-	}
-}
+			}
+			return target;
+		}
+
+		//Takes unit type and alliance
+		size_t CountOf(UNIT_TYPEID unit_type, Unit unit)
+		{
+			return Observation()->GetUnits(unit.alliance, IsUnit(unit_type)).size();
+		}
 
 using namespace KoKeKoKo;
 Model::ModelRepositoryService* Model::ModelRepositoryService::_instance = nullptr;

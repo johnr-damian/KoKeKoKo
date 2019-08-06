@@ -48,9 +48,10 @@ namespace ModelService
                             switch (partitionedmessage[0])
                             {
                                 case "Initialize":
-                                    if (!agent.SetParticipantUnits(partitionedmessage[1]))
-                                        throw new Exception("Failed to initialize the participant's units...");
+                                    //if (!agent.SetParticipantUnits(partitionedmessage[1]))
+                                    //    throw new Exception("Failed to initialize the participant's units...");
 
+                                    modelrepositoryservice.SendMessageToAgent(new Random().NextDouble().ToString());
                                     break;
                                 case "Update":
 

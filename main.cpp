@@ -19,6 +19,17 @@ namespace KoKeKoKo
 		const string COMMANDSREPOSITORY_FILENAME = "Documents\\Data\\CommandsRepository.csv";
 		//The extracted resources from the replay training data
 		const string RESOURCESREPOSITORY_FILENAME = "Documents\\Data\\ResourcesRepository.csv";
+		//The list of ranks contianing their respective range of ability value
+		const std::map<std::string, std::pair<double, double>> RANKS =
+		{
+			{"Bronze", {0 ,0}},
+			{"Silver", {0, 0}},
+			{"Gold", {0, 0}},
+			{"Diamond", {0, 0}},
+			{"Platinum", {0, 0}},
+			{"Master", {0, 0}},
+			{"Grandmaster", {0, 0}}
+		};
 
 		//The class that manages communication among Agent, Model, and Repository
 		class ModelRepositoryService
@@ -30,6 +41,9 @@ namespace KoKeKoKo
 				PROCESS_INFORMATION processinformation;
 				//A map of created threads where key is the function name, and value is the thread that runs the given function name
 				map<string, thread*> _createdthreads = map<string, thread*>();
+				//The parsed of commands repository
+					//Rank	//Previous Command	//Subsequent Command
+				map<string, map<string, vector<string>>> _parsedcommandsrepository = map<string, map<string, vector<string>>>();
 				//A lock when handling messages
 				mutex _messagelock;
 				//If the agent should keep listening to the model service
@@ -47,8 +61,69 @@ namespace KoKeKoKo
 							cout << "Parsing Commands Repository..." << endl;
 							while (getline(commandsrepository, repositoryline))
 							{
+								stringstream byline(repositoryline);
+								for (int current_column = 0; getline(byline, repositorycomma, ','); current_column++)
+								{
+									//Current column is either a rank or timestamp
+									if (current_column == 0)
+									{
+										if (currentrank == "")
+										{
+											if (RANKS.find(repositorycomma) != RANKS.end())
+											{
+												currentrank = repositorycomma;
+												_parsedcommandsrepository.insert(make_pair(currentrank, map<string, vector<string>>()));
+											}
+										}
+										else
+										{
+											//Get the current rank for the following line of commands
+											if (RANKS.find(repositorycomma) != RANKS.end())
+											{
+												//Repeat last command
+												_parsedcommandsrepository[currentrank][previouscommand].push_back(previouscommand);
+												currentowner = "";
+												previouscommand = "";
+												currentrank = repositorycomma;
+												_parsedcommandsrepository.insert(make_pair(currentrank, map<string, vector<string>>()));
+											}
+										}
+									}
 
+									//Get the owner of the commands
+									if (current_column == 1)
+									{
+										if (currentowner == "")
+											currentowner = repositorycomma;
+										else
+										{
+											if (currentowner != repositorycomma)
+											{
+												currentowner = repositorycomma;
+												_parsedcommandsrepository[currentrank][previouscommand].push_back(previouscommand);
+												previouscommand = "";
+											}
+										}
+										continue;
+									}
+
+									//Get the sequential commands executed by the same owner
+									if (current_column == 2)
+									{
+										if (previouscommand == "")
+											previouscommand = repositorycomma;
+
+										//Check if the current command has been mapped
+										if (_parsedcommandsrepository[currentrank].find(repositorycomma) == _parsedcommandsrepository[currentrank].end())
+											//If not mapped, add the command to the map
+											_parsedcommandsrepository[currentrank].insert(make_pair(repositorycomma, vector<string>()));
+
+										_parsedcommandsrepository[currentrank][previouscommand].push_back(repositorycomma);
+										previouscommand = repositorycomma;
+									}
+								}
 							}
+							_parsedcommandsrepository[currentrank][previouscommand].push_back(previouscommand);
 
 							commandsrepository.close();
 							finished_parsing = true;
@@ -91,7 +166,7 @@ namespace KoKeKoKo
 					{
 						cout << "Error Occurred! Failed to parse resources repository..." << endl;
 						cerr << "Error in Agent! ModelRepositoryService -> ParseResourcesRepository(): \n\t" << ex.what() << endl;
-						finished_parsing = false;
+						finished_parsing = true; //TODO Remove
 					}
 				}
 
@@ -374,23 +449,34 @@ namespace KoKeKoKo
 
 					return relativefilepath;
 				}
+
+				//Returns a string with code as head and the message as the values
+				string ConstructMessage(const vector<string>& message, string code = "")
+				{
+					string constructedmessage = "";
+
+					try
+					{
+						constructedmessage = code;
+						for (size_t iterator = 0; iterator < message.size(); iterator++)
+							constructedmessage += (((code == "" && iterator == 0) ? "" : "\n") + message[iterator]);
+					}
+					catch (const exception& ex)
+					{
+						cout << "Error Occurred! Failed to construct a message..." << endl;
+						cerr << "Error in Agent! ModelRepositoryService -> ContructMessage(): \n\t" << ex.what() << endl;
+					}
+
+					return constructedmessage;
+				}
+
+
 		};
 	}
 
 	namespace Agent
 	{
 		using namespace sc2;
-		//The list of ranks contianing their respective range of ability value
-		const std::map<std::string, std::pair<double, double>> RANKS = 
-		{
-			{"Bronze", {0 ,0}},
-			{"Silver", {0, 0}},
-			{"Gold", {0, 0}},
-			{"Diamond", {0, 0}},
-			{"Platinum", {0, 0}},
-			{"Master", {0, 0}},
-			{"Grandmaster", {0, 0}}
-		};
 
 		//The agent that plays in the environment
 		class KoKeKoKoBot : public Agent
@@ -403,13 +489,20 @@ namespace KoKeKoKo
 				{
 					//Get the instance of the service
 					_instance = Model::ModelRepositoryService::GetModelRepositoryServiceInstance();
+					//auto myunits = Observation()->GetUnits(Unit::Alliance::Self);
+					//std::vector<std::string> unitsstring = std::vector<std::string>();
+					//auto ulambda = std::for_each(myunits.begin(), myunits.end(), [&](Unit u) { unitsstring.push_back(UnitTypeToName(u.unit_type)); });
 
-
+					//Instruct ModelService to start
+					std::string message = _instance->ConstructMessage({ "Build Armory,Build Barracks,Build Bunker,Build Command Center,Build Engineering Bay,Build Factory,Build Liberator,Build Reactor,Build Refinery,Build Siege Tank,Build Starport,Build Supply Depot,Build Tech Lab,Build Widow Mine,Train Marine,Train SCV", "0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,3,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,3,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,1,1,0,0,1,0,0,1,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,1,0,1,2,0,1,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,1,0,1,0,0,0,2,1,0,0,0,0,1,0,0,2,4,0,0,0,0,0,0,0,0,0,0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,2,1,0,0,3,0,1,1,0,4,3,0,2,1,0,1,0,0,0,4,0,1,6,0,1,1,6" }, "Initialize");
+					std::cout << message << std::endl;
+					_instance->SendMessageToModelService(message, 5);
 				}
 
 				virtual void OnStep() final
 				{
-
+					std::string m = _instance->Messages.front();
+					std::cout << m << std::endl;
 				}
 
 				virtual void OnGameEnd() final

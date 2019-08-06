@@ -1,4 +1,4 @@
-﻿Bronze
+Bronze
 10,1,Build Supply Depot,Economy
 13,1,Train SCV,Economy
 31,1,Build Supply Depot,Economy
@@ -65,6 +65,101 @@
 185,2,Train Marine,Army 
 198,2,Train SCV,Economy
 207,2,Build Starport,Army
+215,2,Train SCV,Economy
+240,2,Build Widow Mine,Army
+248,2,Build Starport,Army
+250,2,Build Reactor,Army
+253,2,Build Armory,Tech
+277,2,Build Refinery,Economy
+305,2,Build Reactor,Army
+307,2,Build Liberator,Army
+310,2,Train SCV,Economy
+318,2,Build Supply Depot,Economy
+334,2,Train SCV,Economy
+338,2,Train SCV,Economy
+344,2,Build Supply Depot,Economy
+360,2,Build Liberator,Army
+362,2,Train Marine,Army 
+393,2,Train Marine,Army 
+411,2,Build Liberator,Army
+Silver
+10,1,Build Supply Depot,Economy
+13,1,Train SCV,Economy
+13,1,Train SCV,Economy
+31,1,Build Supply Depot,Economy
+31,1,Build Supply Depot,Economy
+41,1,Build Barracks,Army
+44,1,Train SCV,Economy
+52,1,Build Refinery,Economy
+56,1,Train SCV,Economy
+65,1,Train SCV,Economy
+79,1,Build Barracks,Army
+84,1,Train SCV,Economy
+87,1,Build Refinery,Army
+90,1,Train SCV,Economy
+98,1,Train Marine,Army 
+98,1,Train Marine,Army 
+98,1,Train Marine,Army 
+106,1,Train SCV,Economy
+117,1,Train SCV,Economy
+124,1,Build Barracks,Army
+131,1,Train Marine,Army 
+139,1,Train SCV,Economy
+144,1,Build Supply Depot,Economy
+152,1,Build Factory,Army
+156,1,Train Marine,Army 
+174,1,Build Factory,Army
+177,1,Train Marine,Army 
+182,1,Train Marine,Army 
+198,1,Train Marine,Army 
+201,1,Build Tech Lab,Tech
+209,1,Train Marine,Army 
+221,1,Build Siege Tank,Army
+224,1,Build Tech Lab,Tech
+233,1,Build Supply Depot,Economy
+235,1,Train Marine,Army 
+235,1,Train Marine,Army 
+244,1,Build Supply Depot,Economy
+249,1,Train Marine,Army 
+270,1,Build Siege Tank,Army
+272,1,Train Marine,Army 
+293,1,Build Siege Tank,Army
+315,1,Build Supply Depot,Economy
+322,1,Build Factory,Army
+325,1,Build Reactor,Army
+335,1,Build Siege Tank,Army
+409,1,Build Siege Tank,Army
+409,1,Build Siege Tank,Army
+411,1,Build Tech Lab,Tech
+418,1,Build Starport,Army
+1,2,Train SCV,Economy
+14,2,Build Supply Depot,Economy
+19,2,Train SCV,Economy
+28,2,Build Supply Depot,Economy
+32,2,Train SCV,Economy
+45,2,Train SCV,Economy
+49,2,Build Refinery,Economy
+56,2,Build Barracks,Army
+61,2,Train SCV,Economy
+71,2,Build Refinery,Economy
+75,2,Train SCV,Economy
+84,2,Train SCV,Economy
+93,2,Build Engineering Bay,Tech
+98,2,Train SCV,Economy
+98,2,Train SCV,Economy
+107,2,Build Bunker,Army
+110,2,Build Reactor,Army
+140,2,Build Command Center,Economy
+152,2,Train Marine,Army 
+152,2,Train Marine,Army 
+152,2,Train Marine,Army 
+157,2,Build Factory,Army
+174,2,Train Marine,Army 
+185,2,Train Marine,Army 
+198,2,Train SCV,Economy
+207,2,Build Starport,Army
+215,2,Train SCV,Economy
+215,2,Train SCV,Economy
 215,2,Train SCV,Economy
 240,2,Build Widow Mine,Army
 248,2,Build Starport,Army

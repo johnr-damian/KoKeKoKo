@@ -638,21 +638,246 @@ namespace KoKeKoKo
 			return TryBuildStructure(ABILITY_ID::BUILD_SUPPLYDEPOT);
 		}
 
-		bool TryBuildBarracks() 
+		bool TryBuildRefinery()
 		{
 			const ObservationInterface* observation = Observation();
 
-			if (CountUnitType(UNIT_TYPEID::TERRAN_SUPPLYDEPOT) < 1) 
+			if (CountUnitType(UNIT_TYPEID::TERRAN_SUPPLYDEPOT) < 1)
 			{
 				return false;
 			}
 
-			if (CountUnitType(UNIT_TYPEID::TERRAN_BARRACKS) > 0) 
+			if (CountUnitType(UNIT_TYPEID::TERRAN_REFINERY) > 0)
+			{
+				return false;
+			}
+
+			return TryBuildStructure(ABILITY_ID::BUILD_REFINERY);
+		}
+
+		bool TryBuildArmory()
+		{
+			const ObservationInterface* observation = Observation();
+
+			if (CountUnitType(UNIT_TYPEID::TERRAN_SUPPLYDEPOT) < 1)
+			{
+				return false;
+			}
+
+			if (CountUnitType(UNIT_TYPEID::TERRAN_ARMORY) > 0)
+			{
+				return false;
+			}
+
+			return TryBuildStructure(ABILITY_ID::BUILD_ARMORY);
+		}
+
+		bool TryBuildBarracks()
+		{
+			const ObservationInterface* observation = Observation();
+
+			if (CountUnitType(UNIT_TYPEID::TERRAN_SUPPLYDEPOT) < 1)
+			{
+				return false;
+			}
+
+			if (CountUnitType(UNIT_TYPEID::TERRAN_BARRACKS) > 0)
 			{
 				return false;
 			}
 
 			return TryBuildStructure(ABILITY_ID::BUILD_BARRACKS);
+		}
+
+		bool TryBuildBunker()
+		{
+			const ObservationInterface* observation = Observation();
+
+			if (CountUnitType(UNIT_TYPEID::TERRAN_SUPPLYDEPOT) < 1 || CountUnitType(UNIT_TYPEID::TERRAN_SUPPLYDEPOT) < 1)
+			{
+				return false;
+			}
+
+			if (CountUnitType(UNIT_TYPEID::TERRAN_BUNKER) > 0)
+			{
+				return false;
+			}
+
+			return TryBuildStructure(ABILITY_ID::BUILD_BUNKER);
+		}
+
+		bool TryBuildCommandCenter()
+		{
+			const ObservationInterface* observation = Observation();
+
+			if (CountUnitType(UNIT_TYPEID::TERRAN_SUPPLYDEPOT) < 1)
+			{
+				return false;
+			}
+
+			if (CountUnitType(UNIT_TYPEID::TERRAN_COMMANDCENTER) > 0)
+			{
+				return false;
+			}
+
+			return TryBuildStructure(ABILITY_ID::BUILD_COMMANDCENTER);
+		}
+
+		bool TryBuildEngineeringBay()
+		{
+			const ObservationInterface* observation = Observation();
+
+			if (CountUnitType(UNIT_TYPEID::TERRAN_SUPPLYDEPOT) < 1 || CountUnitType(UNIT_TYPEID::TERRAN_COMMANDCENTER) < 1)
+			{
+				return false;
+			}
+
+			if (CountUnitType(UNIT_TYPEID::TERRAN_ENGINEERINGBAY) > 0)
+			{
+				return false;
+			}
+
+			return TryBuildStructure(ABILITY_ID::BUILD_ENGINEERINGBAY);
+		}
+
+		bool TryBuildFactory()
+		{
+			const ObservationInterface* observation = Observation();
+
+			if (CountUnitType(UNIT_TYPEID::TERRAN_SUPPLYDEPOT) < 1 || CountUnitType(UNIT_TYPEID::TERRAN_SUPPLYDEPOT) < 1)
+			{
+				return false;
+			}
+
+			if (CountUnitType(UNIT_TYPEID::TERRAN_FACTORY) > 0)
+			{
+				return false;
+			}
+
+			return TryBuildStructure(ABILITY_ID::BUILD_FACTORY);
+		}
+
+		bool TryBuildFusionCore()
+		{
+			const ObservationInterface* observation = Observation();
+
+			if (CountUnitType(UNIT_TYPEID::TERRAN_SUPPLYDEPOT) < 1)
+			{
+				return false;
+			}
+
+			if (CountUnitType(UNIT_TYPEID::TERRAN_FUSIONCORE) > 0)
+			{
+				return false;
+			}
+
+			return TryBuildStructure(ABILITY_ID::BUILD_FUSIONCORE);
+		}
+
+		bool TryBuildGhostAcademy()
+		{
+			const ObservationInterface* observation = Observation();
+
+			if (CountUnitType(UNIT_TYPEID::TERRAN_SUPPLYDEPOT) < 1 || CountUnitType(UNIT_TYPEID::TERRAN_SUPPLYDEPOT) < 1)
+			{
+				return false;
+			}
+
+			if (CountUnitType(UNIT_TYPEID::TERRAN_GHOSTACADEMY) > 0)
+			{
+				return false;
+			}
+
+			return TryBuildStructure(ABILITY_ID::BUILD_GHOSTACADEMY);
+		}
+
+		bool TryBuildMissileTurret()
+		{
+			const ObservationInterface* observation = Observation();
+
+			if (CountUnitType(UNIT_TYPEID::TERRAN_SUPPLYDEPOT) < 1 || CountUnitType(UNIT_TYPEID::TERRAN_ENGINEERINGBAY) < 1)
+			{
+				return false;
+			}
+
+			if (CountUnitType(UNIT_TYPEID::TERRAN_MISSILETURRET) > 0)
+			{
+				return false;
+			}
+
+			return TryBuildStructure(ABILITY_ID::BUILD_MISSILETURRET);
+		}
+
+		bool TryBuildSensorTower()
+		{
+			const ObservationInterface* observation = Observation();
+
+			if (CountUnitType(UNIT_TYPEID::TERRAN_SUPPLYDEPOT) < 1 || CountUnitType(UNIT_TYPEID::TERRAN_ENGINEERINGBAY) < 1)
+			{
+				return false;
+			}
+
+			if (CountUnitType(UNIT_TYPEID::TERRAN_SENSORTOWER) > 0)
+			{
+				return false;
+			}
+
+			return TryBuildStructure(ABILITY_ID::BUILD_SENSORTOWER);
+		}
+
+		bool TryBuildStarport()
+		{
+			const ObservationInterface* observation = Observation();
+
+			if (CountUnitType(UNIT_TYPEID::TERRAN_SUPPLYDEPOT) < 1 || CountUnitType(UNIT_TYPEID::TERRAN_FACTORY) < 1)
+			{
+				return false;
+			}
+
+			if (CountUnitType(UNIT_TYPEID::TERRAN_STARPORT) > 0)
+			{
+				return false;
+			}
+
+			return TryBuildStructure(ABILITY_ID::BUILD_STARPORT);
+		}
+
+		const Unit* FindNearestMineralPatch(const Point2D& start)
+		{
+			Units units = Observation()->GetUnits(Unit::Alliance::Neutral);
+			float distance = std::numeric_limits<float>::max();
+			const Unit* target = nullptr;
+			for (const auto& u : units)
+			{
+				if (u->unit_type == UNIT_TYPEID::NEUTRAL_MINERALFIELD)
+				{
+					float d = DistanceSquared2D(u->pos, start);
+					if (d < distance) {
+						distance = d;
+						target = u;
+					}
+				}
+			}
+			return target;
+		}
+
+		const Unit* FindNearestVespeneGeyser(const Point2D& start)
+		{
+			Units units = Observation()->GetUnits(Unit::Alliance::Neutral);
+			float distance = std::numeric_limits<float>::max();
+			const Unit* target = nullptr;
+			for (const auto& u : units)
+			{
+				if (u->unit_type == UNIT_TYPEID::NEUTRAL_VESPENEGEYSER)
+				{
+					float d = DistanceSquared2D(u->pos, start);
+					if (d < distance) {
+						distance = d;
+						target = u;
+					}
+				}
+			}
+			return target;
 		}
 
 		const Unit* FindNearestMineralPatch(const Point2D& start)
@@ -715,36 +940,69 @@ namespace KoKeKoKo
 		{
 			switch (unit->unit_type.ToType())
 			{
-			case UNIT_TYPEID::TERRAN_COMMANDCENTER:
-			{
-				Actions()->UnitCommand(unit, ABILITY_ID::TRAIN_SCV);
-				break;
-			}
-			case UNIT_TYPEID::TERRAN_SCV:
-			{
-				const Unit* mineral_target = FindNearestMineralPatch(unit->pos);
-				if (!mineral_target)
+				case UNIT_TYPEID::TERRAN_COMMANDCENTER:
+				{
+					Actions()->UnitCommand(unit, ABILITY_ID::TRAIN_SCV);
+
+					break;
+				}
+				case UNIT_TYPEID::TERRAN_SCV:
+				{
+					const Unit* mineral_target = FindNearestMineralPatch(unit->pos);
+					if (!mineral_target)
+					{
+						break;
+					}
+					Actions()->UnitCommand(unit, ABILITY_ID::SMART, mineral_target);
+
+					break;
+				}
+				case UNIT_TYPEID::TERRAN_BARRACKS:
+				{
+					Actions()->UnitCommand(unit, ABILITY_ID::TRAIN_MARINE);
+					Actions()->UnitCommand(unit, ABILITY_ID::TRAIN_MARAUDER);
+					Actions()->UnitCommand(unit, ABILITY_ID::TRAIN_REAPER);
+					if (CountUnitType(UNIT_TYPEID::TERRAN_GHOSTACADEMY) > 0)
+					{
+						Actions()->UnitCommand(unit, ABILITY_ID::TRAIN_GHOST);
+					}
+					break;
+				}
+				case UNIT_TYPEID::TERRAN_FACTORY:
+				{
+					Actions()->UnitCommand(unit, ABILITY_ID::TRAIN_HELLION);
+					Actions()->UnitCommand(unit, ABILITY_ID::TRAIN_WIDOWMINE);
+					Actions()->UnitCommand(unit, ABILITY_ID::TRAIN_SIEGETANK);
+					Actions()->UnitCommand(unit, ABILITY_ID::TRAIN_CYCLONE);
+					if (CountUnitType(UNIT_TYPEID::TERRAN_ARMORY) > 0)
+					{
+						Actions()->UnitCommand(unit, ABILITY_ID::TRAIN_HELLBAT);
+						Actions()->UnitCommand(unit, ABILITY_ID::TRAIN_THOR);
+					}
+				}
+				case UNIT_TYPEID::TERRAN_STARPORT:
+				{
+					Actions()->UnitCommand(unit, ABILITY_ID::TRAIN_VIKINGFIGHTER);
+					Actions()->UnitCommand(unit, ABILITY_ID::TRAIN_MEDIVAC);
+					Actions()->UnitCommand(unit, ABILITY_ID::TRAIN_RAVEN);
+					Actions()->UnitCommand(unit, ABILITY_ID::TRAIN_BANSHEE);
+					Actions()->UnitCommand(unit, ABILITY_ID::TRAIN_LIBERATOR);
+					if (CountUnitType(UNIT_TYPEID::TERRAN_FUSIONCORE) > 0)
+					{
+						Actions()->UnitCommand(unit, ABILITY_ID::TRAIN_BATTLECRUISER);
+					}
+				}
+				case UNIT_TYPEID::TERRAN_MARINE:
+				{
+					const GameInfo& game_info = Observation()->GetGameInfo();
+					Actions()->UnitCommand(unit, ABILITY_ID::ATTACK_ATTACK, game_info.enemy_start_locations.front());
+
+					break;
+				}
+				default:
 				{
 					break;
 				}
-				Actions()->UnitCommand(unit, ABILITY_ID::SMART, mineral_target);
-				break;
-			}
-			case UNIT_TYPEID::TERRAN_BARRACKS: 
-			{
-				Actions()->UnitCommand(unit, ABILITY_ID::TRAIN_MARINE);
-				break;
-			}
-			case UNIT_TYPEID::TERRAN_MARINE: 
-			{
-				const GameInfo& game_info = Observation()->GetGameInfo();
-				Actions()->UnitCommand(unit, ABILITY_ID::ATTACK_ATTACK, game_info.enemy_start_locations.front());
-				break;
-			}
-			default:
-			{
-				break;
-			}
 
 			/* For Guanga */
 			//Create these functions in public

@@ -848,7 +848,7 @@ namespace KoKeKoKo
 			return TryTrainUnit(ABILITY_ID::TRAIN_HELLION, UNIT_TYPEID::TERRAN_FACTORY);
 		}
 
-		bool  TryTrainWidowMine()
+		bool TryTrainWidowMine()
 		{
 			const ObservationInterface* observation = Observation();
 
@@ -859,7 +859,7 @@ namespace KoKeKoKo
 			return TryTrainUnit(ABILITY_ID::TRAIN_WIDOWMINE, UNIT_TYPEID::TERRAN_FACTORY);
 		}
 
-		bool  TryTrainSiegeTank()
+		bool TryTrainSiegeTank()
 		{
 			const ObservationInterface* observation = Observation();
 
@@ -870,7 +870,7 @@ namespace KoKeKoKo
 			return TryTrainUnit(ABILITY_ID::TRAIN_SIEGETANK, UNIT_TYPEID::TERRAN_FACTORY);
 		} 
 
-		bool  TryTrainCyclone()
+		bool TryTrainCyclone()
 		{
 			const ObservationInterface* observation = Observation();
 
@@ -881,7 +881,7 @@ namespace KoKeKoKo
 			return TryTrainUnit(ABILITY_ID::TRAIN_CYCLONE, UNIT_TYPEID::TERRAN_FACTORY);
 		}
 
-		bool  TryTrainHellbat()
+		bool TryTrainHellbat()
 		{
 			const ObservationInterface* observation = Observation();
 
@@ -892,7 +892,7 @@ namespace KoKeKoKo
 			return TryTrainUnit(ABILITY_ID::TRAIN_HELLBAT, UNIT_TYPEID::TERRAN_FACTORY);
 		}
 
-		bool  TryTrainThor()
+		bool TryTrainThor()
 		{
 			const ObservationInterface* observation = Observation();
 
@@ -957,7 +957,7 @@ namespace KoKeKoKo
 			return TryTrainUnit(ABILITY_ID::TRAIN_VIKINGFIGHTER, UNIT_TYPEID::TERRAN_STARPORT);
 		}
 
-		bool  TryTrainMedivac()
+		bool TryTrainMedivac()
 		{
 			const ObservationInterface* observation = Observation();
 
@@ -968,7 +968,7 @@ namespace KoKeKoKo
 			return TryTrainUnit(ABILITY_ID::TRAIN_MEDIVAC, UNIT_TYPEID::TERRAN_STARPORT);
 		}
 
-		bool  TryTrainLiberator()
+		bool TryTrainLiberator()
 		{
 			const ObservationInterface* observation = Observation();
 
@@ -979,7 +979,7 @@ namespace KoKeKoKo
 			return TryTrainUnit(ABILITY_ID::TRAIN_LIBERATOR, UNIT_TYPEID::TERRAN_STARPORT);
 		}
 
-		bool  TryTrainRaven()
+		bool TryTrainRaven()
 		{
 			const ObservationInterface* observation = Observation();
 
@@ -990,7 +990,7 @@ namespace KoKeKoKo
 			return TryTrainUnit(ABILITY_ID::TRAIN_RAVEN, UNIT_TYPEID::TERRAN_STARPORT);
 		}
 
-		bool  TryTrainBanshee()
+		bool TryTrainBanshee()
 		{
 			const ObservationInterface* observation = Observation();
 
@@ -1001,7 +1001,7 @@ namespace KoKeKoKo
 			return TryTrainUnit(ABILITY_ID::TRAIN_BANSHEE, UNIT_TYPEID::TERRAN_STARPORT);
 		}
 
-		bool  TryTrainBattlecruiser()
+		bool TryTrainBattlecruiser()
 		{
 			const ObservationInterface* observation = Observation();
 
@@ -1014,7 +1014,7 @@ namespace KoKeKoKo
 		//Starport Units
 
 		//Starport Addons
-		bool TryBuildFactoryTechLab()
+		bool TryBuildStarportTechLab()
 		{
 			const ObservationInterface* observation = Observation();
 
@@ -1025,7 +1025,7 @@ namespace KoKeKoKo
 			return TryResearch(ABILITY_ID::BUILD_TECHLAB, UNIT_TYPEID::TERRAN_STARPORT);
 		}
 
-		bool TryBuildFactoryReactor()
+		bool TryBuildStarportReactor()
 		{
 			const ObservationInterface* observation = Observation();
 
@@ -1329,6 +1329,153 @@ namespace KoKeKoKo
 			}
 		}
 
+		void TryAction(string action)
+		{
+			if (action.find("Build Refinery") != string::npos)
+			{
+				TryBuildRefinery();
+			}
+			else if (action.find("Build Command Center") != string::npos)
+			{
+				TryBuildCommandCenter();
+			}
+			else if (action.find("Train SCV") != string::npos)
+			{
+				TrainSCV();
+			}
+			else if (action.find("Build Supply Depot") != string::npos)
+			{
+				TryBuildSupplyDepot();
+			}
+			else if (action.find("Build Barracks") != string::npos)
+			{
+				TryBuildBarracks();
+			}
+			else if (action.find("Train Marine") != string::npos)
+			{
+				TrainMarine();
+			}
+			else if (action.find("Train Reaper") != string::npos)
+			{
+				TrainReaper();
+			}
+			else if (action.find("Train Marauder") != string::npos)
+			{
+				TrainMarauder();
+			}
+			else if (action.find("Train Ghost") != string::npos)
+			{
+				TrainGhost();
+			}
+			else if (action.find("Build Barracks Tech") != string::npos)
+			{
+				TryBuildBarracksTechLab();
+			}
+			else if (action.find("Build Barracks Reactor") != string::npos)
+			{
+				TryBuildBarracksReactor();
+			}
+			else if (action.find("Build Factory") != string::npos)
+			{
+				TryBuildFactory();
+			}
+			else if (action.find("Train Hellion") != string::npos)
+			{
+				TryTrainHellion();
+			}
+			else if (action.find("Train Widow") != string::npos)
+			{
+				TryTrainWidowMine();
+			}
+			else if (action.find("Train Siege") != string::npos)
+			{
+				TryTrainSiegeTank();
+			}
+			else if (action.find("Train Cyclone") != string::npos)
+			{
+				TryTrainCyclone();
+			}
+			else if (action.find("Train Hell") != string::npos)
+			{
+				TryTrainHellbat();
+			}
+			else if (action.find("Train Thor") != string::npos)
+			{
+				TryTrainThor();
+			}
+			else if (action.find("Build Factory Tech") != string::npos)
+			{
+				TryBuildFactoryTechLab();
+			}
+			else if (action.find("Build Factory Reactor") != string::npos)
+			{
+				TryBuildFactoryReactor();
+			}
+			else if (action.find("Build Starport") != string::npos)
+			{
+				TryBuildStarport();
+			}
+			else if (action.find("Train Viking") != string::npos)
+			{
+				TryTrainViking();
+			}
+			else if (action.find("Train Medivac") != string::npos)
+			{
+				TryTrainMedivac();
+			}
+			else if (action.find("Train Liberator") != string::npos)
+			{
+				TryTrainLiberator();
+			}
+			else if (action.find("Train Raven") != string::npos)
+			{
+				TryTrainRaven();
+			}
+			else if (action.find("Train Banshee") != string::npos)
+			{
+				TryTrainBanshee();
+			}
+			else if (action.find("Train Battlecruiser") != string::npos)
+			{
+				TryTrainBattlecruiser();
+			}
+			else if (action.find("Build Starport Tech") != string::npos)
+			{
+				TryBuildStarportTechLab();
+			}
+			else if (action.find("Build Starport Reactor") != string::npos)
+			{
+				TryBuildStarportReactor();
+			}
+			else if (action.find("Build Fusion") != string::npos)
+			{
+				TryBuildFusionCore();
+			}
+			else if (action.find("Build Armory") != string::npos)
+			{
+				TryBuildArmory();
+			}
+			else if (action.find("Build Bunker") != string::npos)
+			{
+				TryBuildBunker();
+			}
+			else if (action.find("Build Engineering") != string::npos)
+			{
+				TryBuildEngineeringBay();
+			}
+			else if (action.find("Build Ghost") != string::npos)
+			{
+				TryBuildGhostAcademy();
+			}
+			else if (action.find("Build Missile Turret") != string::npos)
+			{
+				TryBuildMissileTurret();
+			}
+			else if (action.find("Build Sensor Tower") != string::npos)
+			{
+				TryBuildSensorTower();
+			}
+		}
 		//Function to find the nearest unit from a specific unit
 		const Unit* FindNearestOf(Unit source, Unit destination)
 		{

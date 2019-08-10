@@ -628,94 +628,83 @@ namespace KoKeKoKo
 			return true;
 		}
 
-		bool TryBuildSupplyDepot()
+		bool TryTrainUnit(ABILITY_ID ability_type_for_training, UNIT_TYPEID ID)
 		{
 			const ObservationInterface* observation = Observation();
+			const Unit* unit_origin = nullptr;
+			Units units = observation->GetUnits(Unit::Alliance::Self);
+			for (const auto& unit : units)
+			{
+				for (const auto& order : unit->orders)
+				{
+					if (order.ability_id == ability_type_for_training)
+					{
+						return false;
+					}
 
-			if (observation->GetFoodUsed() <= observation->GetFoodCap() - 2)
-				return false;
+					if (unit->unit_type == ID)
+					{
+						unit_origin = unit;
+					}
+				}
+			}
 
-			return TryBuildStructure(ABILITY_ID::BUILD_SUPPLYDEPOT);
+			Actions()->UnitCommand(unit_origin, ability_type_for_training);
+			return true;
 		}
 
+		bool TryResearch(ABILITY_ID ability_type_for_research, UNIT_TYPEID ID)
+		{
+			const ObservationInterface* observation = Observation();
+			const Unit* unit_origin = nullptr;
+			Units units = observation->GetUnits(Unit::Alliance::Self);
+			for (const auto& unit : units)
+			{
+				for (const auto& order : unit->orders)
+				{
+					if (order.ability_id == ability_type_for_research && order.progress <= 1.0f)
+					{
+						return false;
+					}
+
+					if (unit->unit_type == ID)
+					{
+						unit_origin = unit;
+					}
+				}
+			}
+
+			Actions()->UnitCommand(unit_origin, ability_type_for_research);
+			return true;
+		}
+	
 		bool TryBuildRefinery()
 		{
 			const ObservationInterface* observation = Observation();
 
-			if (CountUnitType(UNIT_TYPEID::TERRAN_SUPPLYDEPOT) < 1)
+			if (CountUnitType(UNIT_TYPEID::TERRAN_SUPPLYDEPOT) < 1 && observation->GetMinerals() < 75)
 			{
 				return false;
 			}
 
-			if (CountUnitType(UNIT_TYPEID::TERRAN_REFINERY) > 0)
+			if (CountUnitType(UNIT_TYPEID::TERRAN_REFINERY) > 0 && observation->GetMinerals() < 75)
 			{
 				return false;
 			}
 
 			return TryBuildStructure(ABILITY_ID::BUILD_REFINERY);
 		}
-
-		bool TryBuildArmory()
-		{
-			const ObservationInterface* observation = Observation();
-
-			if (CountUnitType(UNIT_TYPEID::TERRAN_SUPPLYDEPOT) < 1)
-			{
-				return false;
-			}
-
-			if (CountUnitType(UNIT_TYPEID::TERRAN_ARMORY) > 0)
-			{
-				return false;
-			}
-
-			return TryBuildStructure(ABILITY_ID::BUILD_ARMORY);
-		}
-
-		bool TryBuildBarracks()
-		{
-			const ObservationInterface* observation = Observation();
-
-			if (CountUnitType(UNIT_TYPEID::TERRAN_SUPPLYDEPOT) < 1)
-			{
-				return false;
-			}
-
-			if (CountUnitType(UNIT_TYPEID::TERRAN_BARRACKS) > 0)
-			{
-				return false;
-			}
-
-			return TryBuildStructure(ABILITY_ID::BUILD_BARRACKS);
-		}
-
-		bool TryBuildBunker()
-		{
-			const ObservationInterface* observation = Observation();
-
-			if (CountUnitType(UNIT_TYPEID::TERRAN_SUPPLYDEPOT) < 1 || CountUnitType(UNIT_TYPEID::TERRAN_SUPPLYDEPOT) < 1)
-			{
-				return false;
-			}
-
-			if (CountUnitType(UNIT_TYPEID::TERRAN_BUNKER) > 0)
-			{
-				return false;
-			}
-
-			return TryBuildStructure(ABILITY_ID::BUILD_BUNKER);
-		}
-
+		//Command Center Units
 		bool TryBuildCommandCenter()
 		{
 			const ObservationInterface* observation = Observation();
 
-			if (CountUnitType(UNIT_TYPEID::TERRAN_SUPPLYDEPOT) < 1)
+			if (CountUnitType(UNIT_TYPEID::TERRAN_SUPPLYDEPOT) < 1 && observation->GetMinerals() < 400)
 			{
 				return false;
 			}
 
-			if (CountUnitType(UNIT_TYPEID::TERRAN_COMMANDCENTER) > 0)
+			if (CountUnitType(UNIT_TYPEID::TERRAN_COMMANDCENTER) > 0 && observation->GetMinerals() < 400)
 			{
 				return false;
 			}
@@ -723,33 +712,124 @@ namespace KoKeKoKo
 			return TryBuildStructure(ABILITY_ID::BUILD_COMMANDCENTER);
 		}
 
-		bool TryBuildEngineeringBay()
+		bool TrainSCV()
 		{
 			const ObservationInterface* observation = Observation();
 
-			if (CountUnitType(UNIT_TYPEID::TERRAN_SUPPLYDEPOT) < 1 || CountUnitType(UNIT_TYPEID::TERRAN_COMMANDCENTER) < 1)
+			if (observation->GetFoodCap() - observation->GetFoodUsed() < 1 && observation->GetMinerals() < 50)
+			{
+				return false;
+			}
+			return TryTrainUnit(ABILITY_ID::TRAIN_SCV, UNIT_TYPEID::TERRAN_COMMANDCENTER);
+		}
+		//Command Center Units
+		bool TryBuildSupplyDepot()
+		{
+			const ObservationInterface* observation = Observation();
+
+			if (observation->GetFoodUsed() <= observation->GetFoodCap() - 2 && observation->GetMinerals() < 100)
+				return false;
+
+			return TryBuildStructure(ABILITY_ID::BUILD_SUPPLYDEPOT);
+		}
+		//Barracks Units
+		bool TryBuildBarracks()
+		{
+			const ObservationInterface* observation = Observation();
+
+			if (CountUnitType(UNIT_TYPEID::TERRAN_SUPPLYDEPOT) < 1 && observation->GetMinerals() < 150)
 			{
 				return false;
 			}
 
-			if (CountUnitType(UNIT_TYPEID::TERRAN_ENGINEERINGBAY) > 0)
+			if (CountUnitType(UNIT_TYPEID::TERRAN_BARRACKS) > 0 && observation->GetMinerals() < 150)
 			{
 				return false;
 			}
 
-			return TryBuildStructure(ABILITY_ID::BUILD_ENGINEERINGBAY);
+			return TryBuildStructure(ABILITY_ID::BUILD_BARRACKS);
 		}
 
+		bool TrainMarine()
+		{
+			const ObservationInterface* observation = Observation();
+
+			if (CountUnitType(UNIT_TYPEID::TERRAN_BARRACKS) > 0 && observation->GetFoodCap() - observation->GetFoodUsed() < 1 && observation->GetMinerals() < 50)
+			{
+				return false;
+			}
+			return TryTrainUnit(ABILITY_ID::TRAIN_MARINE, UNIT_TYPEID::TERRAN_BARRACKS);
+		}
+
+		bool TrainReaper()
+		{
+			const ObservationInterface* observation = Observation();
+
+			if (CountUnitType(UNIT_TYPEID::TERRAN_BARRACKS) > 0 && observation->GetFoodCap() - observation->GetFoodUsed() < 1 && observation->GetMinerals() < 50 && observation->GetVespene() < 50)
+			{
+				return false;
+			}
+			return TryTrainUnit(ABILITY_ID::TRAIN_REAPER, UNIT_TYPEID::TERRAN_BARRACKS);
+		}
+
+		bool TrainMarauder()
+		{
+			const ObservationInterface* observation = Observation();
+
+			if (CountUnitType(UNIT_TYPEID::TERRAN_BARRACKSTECHLAB) > 0 && observation->GetFoodCap() - observation->GetFoodUsed() < 2 && observation->GetMinerals() < 100 && observation->GetVespene() < 25)
+			{
+				return false;
+			}
+			return TryTrainUnit(ABILITY_ID::TRAIN_MARAUDER, UNIT_TYPEID::TERRAN_BARRACKS);
+		}
+
+		bool TrainGhost()
+		{
+			const ObservationInterface* observation = Observation();
+
+			if (CountUnitType(UNIT_TYPEID::TERRAN_BARRACKSTECHLAB) > 0 && CountUnitType(UNIT_TYPEID::TERRAN_GHOSTACADEMY) > 0 && observation->GetFoodCap() - observation->GetFoodUsed() < 2 && observation->GetMinerals() < 150 && observation->GetVespene() < 125)
+			{
+				return false;
+			}
+			return TryTrainUnit(ABILITY_ID::TRAIN_GHOST, UNIT_TYPEID::TERRAN_BARRACKS);
+		}
+		//Barracks Units
+
+		//Barracks Addons
+		bool TryBuildBarracksTechLab()
+		{
+			const ObservationInterface* observation = Observation();
+
+			if (CountUnitType(UNIT_TYPEID::TERRAN_BARRACKS) > 0 && observation->GetMinerals() < 50 && observation->GetVespene() < 25)
+			{
+				return false;
+			}
+			return TryResearch(ABILITY_ID::BUILD_TECHLAB, UNIT_TYPEID::TERRAN_BARRACKS);
+		}
+
+		bool TryBuildBarracksReactor()
+		{
+			const ObservationInterface* observation = Observation();
+
+			if (CountUnitType(UNIT_TYPEID::TERRAN_BARRACKS) > 0 && observation->GetMinerals() < 50 && observation->GetVespene() < 50)
+			{
+				return false;
+			}
+			return TryResearch(ABILITY_ID::BUILD_REACTOR, UNIT_TYPEID::TERRAN_BARRACKS);
+		}
+		//Barracks addons
+
+		//Factory Units
 		bool TryBuildFactory()
 		{
 			const ObservationInterface* observation = Observation();
 
-			if (CountUnitType(UNIT_TYPEID::TERRAN_SUPPLYDEPOT) < 1 || CountUnitType(UNIT_TYPEID::TERRAN_SUPPLYDEPOT) < 1)
+			if (CountUnitType(UNIT_TYPEID::TERRAN_SUPPLYDEPOT) < 1 && observation->GetMinerals() < 150 && observation->GetVespene < 100)
 			{
 				return false;
 			}
 
-			if (CountUnitType(UNIT_TYPEID::TERRAN_FACTORY) > 0)
+			if (CountUnitType(UNIT_TYPEID::TERRAN_FACTORY) > 0 && observation->GetMinerals() < 150 && observation->GetVespene < 100)
 			{
 				return false;
 			}
@@ -757,16 +837,216 @@ namespace KoKeKoKo
 			return TryBuildStructure(ABILITY_ID::BUILD_FACTORY);
 		}
 
-		bool TryBuildFusionCore()
+		bool TryTrainHellion()
 		{
 			const ObservationInterface* observation = Observation();
 
-			if (CountUnitType(UNIT_TYPEID::TERRAN_SUPPLYDEPOT) < 1)
+			if (CountUnitType(UNIT_TYPEID::TERRAN_FACTORY) > 0 && observation->GetFoodCap() - observation->GetFoodUsed() < 2 && observation->GetMinerals() < 100)
+			{
+				return false;
+			}
+			return TryTrainUnit(ABILITY_ID::TRAIN_HELLION, UNIT_TYPEID::TERRAN_FACTORY);
+		}
+
+		bool  TryTrainWidowMine()
+		{
+			const ObservationInterface* observation = Observation();
+
+			if (CountUnitType(UNIT_TYPEID::TERRAN_FACTORYTECHLAB) > 0 && observation->GetFoodCap() - observation->GetFoodUsed() < 2 && observation->GetMinerals() < 75 && observation->GetVespene < 25)
+			{
+				return false;
+			}
+			return TryTrainUnit(ABILITY_ID::TRAIN_WIDOWMINE, UNIT_TYPEID::TERRAN_FACTORY);
+		}
+
+		bool  TryTrainSiegeTank()
+		{
+			const ObservationInterface* observation = Observation();
+
+			if (CountUnitType(UNIT_TYPEID::TERRAN_FACTORYTECHLAB) > 0 && observation->GetFoodCap() - observation->GetFoodUsed() < 3 && observation->GetMinerals() < 150 && observation->GetVespene < 125)
+			{
+				return false;
+			}
+			return TryTrainUnit(ABILITY_ID::TRAIN_SIEGETANK, UNIT_TYPEID::TERRAN_FACTORY);
+		} 
+
+		bool  TryTrainCyclone()
+		{
+			const ObservationInterface* observation = Observation();
+
+			if (CountUnitType(UNIT_TYPEID::TERRAN_FACTORY) > 0 && observation->GetFoodCap() - observation->GetFoodUsed() < 3 && observation->GetMinerals() < 150 && observation->GetVespene < 100)
+			{
+				return false;
+			}
+			return TryTrainUnit(ABILITY_ID::TRAIN_CYCLONE, UNIT_TYPEID::TERRAN_FACTORY);
+		}
+
+		bool  TryTrainHellbat()
+		{
+			const ObservationInterface* observation = Observation();
+
+			if (CountUnitType(UNIT_TYPEID::TERRAN_FACTORY) > 0 && CountUnitType(UNIT_TYPEID::TERRAN_ARMORY) > 0 && observation->GetFoodCap() - observation->GetFoodUsed() < 2 && observation->GetMinerals() < 100)
+			{
+				return false;
+			}
+			return TryTrainUnit(ABILITY_ID::TRAIN_HELLBAT, UNIT_TYPEID::TERRAN_FACTORY);
+		}
+
+		bool  TryTrainThor()
+		{
+			const ObservationInterface* observation = Observation();
+
+			if (CountUnitType(UNIT_TYPEID::TERRAN_FACTORYTECHLAB) > 0 && CountUnitType(UNIT_TYPEID::TERRAN_ARMORY) > 0 && observation->GetFoodCap() - observation->GetFoodUsed() < 6 && observation->GetMinerals() < 300 && observation->GetVespene < 200)
+			{
+				return false;
+			}
+			return TryTrainUnit(ABILITY_ID::TRAIN_THOR, UNIT_TYPEID::TERRAN_FACTORY);
+		}
+		//Factory Units
+
+		//Factory Addons
+		bool TryBuildFactoryTechLab()
+		{
+			const ObservationInterface* observation = Observation();
+
+			if (CountUnitType(UNIT_TYPEID::TERRAN_FACTORY) > 0 && observation->GetMinerals() < 50 && observation->GetVespene() < 25)
+			{
+				return false;
+			}
+			return TryResearch(ABILITY_ID::BUILD_TECHLAB, UNIT_TYPEID::TERRAN_FACTORY);
+		}
+
+		bool TryBuildFactoryReactor()
+		{
+			const ObservationInterface* observation = Observation();
+
+			if (CountUnitType(UNIT_TYPEID::TERRAN_FACTORY) > 0 && observation->GetMinerals() < 50 && observation->GetVespene() < 50)
+			{
+				return false;
+			}
+			return TryResearch(ABILITY_ID::BUILD_REACTOR, UNIT_TYPEID::TERRAN_FACTORY);
+		}
+		//Factory addons
+
+		//Starport Units
+		bool TryBuildStarport()
+		{
+			const ObservationInterface* observation = Observation();
+
+			if (CountUnitType(UNIT_TYPEID::TERRAN_SUPPLYDEPOT) < 1 || CountUnitType(UNIT_TYPEID::TERRAN_FACTORY) < 1 && observation->GetMinerals() < 150 && observation->GetVespene < 100)
 			{
 				return false;
 			}
 
-			if (CountUnitType(UNIT_TYPEID::TERRAN_FUSIONCORE) > 0)
+			if (CountUnitType(UNIT_TYPEID::TERRAN_STARPORT) > 0 && observation->GetMinerals() < 150 && observation->GetVespene < 100)
+			{
+				return false;
+			}
+
+			return TryBuildStructure(ABILITY_ID::BUILD_STARPORT);
+		}
+
+		bool  TryTrainViking()
+		{
+			const ObservationInterface* observation = Observation();
+
+			if (CountUnitType(UNIT_TYPEID::TERRAN_STARPORT) > 0 && observation->GetFoodCap() - observation->GetFoodUsed() < 2 && observation->GetMinerals() < 150 && observation->GetVespene < 75)
+			{
+				return false;
+			}
+			return TryTrainUnit(ABILITY_ID::TRAIN_VIKINGFIGHTER, UNIT_TYPEID::TERRAN_STARPORT);
+		}
+
+		bool  TryTrainMedivac()
+		{
+			const ObservationInterface* observation = Observation();
+
+			if (CountUnitType(UNIT_TYPEID::TERRAN_STARPORT) > 0 && observation->GetFoodCap() - observation->GetFoodUsed() < 2 && observation->GetMinerals() < 100 && observation->GetVespene < 100)
+			{
+				return false;
+			}
+			return TryTrainUnit(ABILITY_ID::TRAIN_MEDIVAC, UNIT_TYPEID::TERRAN_STARPORT);
+		}
+
+		bool  TryTrainLiberator()
+		{
+			const ObservationInterface* observation = Observation();
+
+			if (CountUnitType(UNIT_TYPEID::TERRAN_STARPORT) > 0 && observation->GetFoodCap() - observation->GetFoodUsed() < 3 && observation->GetMinerals() < 150 && observation->GetVespene < 150)
+			{
+				return false;
+			}
+			return TryTrainUnit(ABILITY_ID::TRAIN_LIBERATOR, UNIT_TYPEID::TERRAN_STARPORT);
+		}
+
+		bool  TryTrainRaven()
+		{
+			const ObservationInterface* observation = Observation();
+
+			if (CountUnitType(UNIT_TYPEID::TERRAN_STARPORTTECHLAB) > 0 && observation->GetFoodCap() - observation->GetFoodUsed() < 2 && observation->GetMinerals() < 100 && observation->GetVespene < 200)
+			{
+				return false;
+			}
+			return TryTrainUnit(ABILITY_ID::TRAIN_RAVEN, UNIT_TYPEID::TERRAN_STARPORT);
+		}
+
+		bool  TryTrainBanshee()
+		{
+			const ObservationInterface* observation = Observation();
+
+			if (CountUnitType(UNIT_TYPEID::TERRAN_STARPORTTECHLAB) > 0 && observation->GetFoodCap() - observation->GetFoodUsed() < 3 && observation->GetMinerals() < 150 && observation->GetVespene < 100)
+			{
+				return false;
+			}
+			return TryTrainUnit(ABILITY_ID::TRAIN_BANSHEE, UNIT_TYPEID::TERRAN_STARPORT);
+		}
+
+		bool  TryTrainBattlecruiser()
+		{
+			const ObservationInterface* observation = Observation();
+
+			if (CountUnitType(UNIT_TYPEID::TERRAN_STARPORTTECHLAB) > 0 && CountUnitType(UNIT_TYPEID::TERRAN_FUSIONCORE) > 0 && observation->GetFoodCap() - observation->GetFoodUsed() < 6 && observation->GetMinerals() < 400 && observation->GetVespene < 300)
+			{
+				return false;
+			}
+			return TryTrainUnit(ABILITY_ID::TRAIN_BATTLECRUISER, UNIT_TYPEID::TERRAN_STARPORT);
+		}
+		//Starport Units
+
+		//Starport Addons
+		bool TryBuildFactoryTechLab()
+		{
+			const ObservationInterface* observation = Observation();
+
+			if (CountUnitType(UNIT_TYPEID::TERRAN_STARPORT) > 0 && observation->GetMinerals() < 50 && observation->GetVespene() < 25)
+			{
+				return false;
+			}
+			return TryResearch(ABILITY_ID::BUILD_TECHLAB, UNIT_TYPEID::TERRAN_STARPORT);
+		}
+
+		bool TryBuildFactoryReactor()
+		{
+			const ObservationInterface* observation = Observation();
+
+			if (CountUnitType(UNIT_TYPEID::TERRAN_STARPORT) > 0 && observation->GetMinerals() < 50 && observation->GetVespene() < 50)
+			{
+				return false;
+			}
+			return TryResearch(ABILITY_ID::BUILD_REACTOR, UNIT_TYPEID::TERRAN_STARPORT);
+		}
+		//Starport addons
+
+		bool TryBuildFusionCore()
+		{
+			const ObservationInterface* observation = Observation();
+
+			if (CountUnitType(UNIT_TYPEID::TERRAN_SUPPLYDEPOT) < 1 && observation->GetMinerals() < 150 && observation->GetVespene < 150)
+			{
+				return false;
+			}
+
+			if (CountUnitType(UNIT_TYPEID::TERRAN_FUSIONCORE) > 1 && observation->GetMinerals() < 150 && observation->GetVespene < 150)
 			{
 				return false;
 			}
@@ -774,16 +1054,67 @@ namespace KoKeKoKo
 			return TryBuildStructure(ABILITY_ID::BUILD_FUSIONCORE);
 		}
 
-		bool TryBuildGhostAcademy()
+		bool TryBuildArmory()
 		{
 			const ObservationInterface* observation = Observation();
 
-			if (CountUnitType(UNIT_TYPEID::TERRAN_SUPPLYDEPOT) < 1 || CountUnitType(UNIT_TYPEID::TERRAN_SUPPLYDEPOT) < 1)
+			if (CountUnitType(UNIT_TYPEID::TERRAN_SUPPLYDEPOT) < 1 && observation->GetMinerals() < 150 && observation->GetVespene < 100)
 			{
 				return false;
 			}
 
-			if (CountUnitType(UNIT_TYPEID::TERRAN_GHOSTACADEMY) > 0)
+			if (CountUnitType(UNIT_TYPEID::TERRAN_ARMORY) > 0 && observation->GetMinerals() < 150 && observation->GetVespene < 100)
+			{
+				return false;
+			}
+
+			return TryBuildStructure(ABILITY_ID::BUILD_ARMORY);
+		}
+
+		bool TryBuildBunker()
+		{
+			const ObservationInterface* observation = Observation();
+
+			if (CountUnitType(UNIT_TYPEID::TERRAN_SUPPLYDEPOT) < 1 && observation->GetMinerals() < 150)
+			{
+				return false;
+			}
+
+			if (CountUnitType(UNIT_TYPEID::TERRAN_BUNKER) > 0 && observation->GetMinerals() < 150)
+			{
+				return false;
+			}
+
+			return TryBuildStructure(ABILITY_ID::BUILD_BUNKER);
+		}
+
+		bool TryBuildEngineeringBay()
+		{
+			const ObservationInterface* observation = Observation();
+
+			if (CountUnitType(UNIT_TYPEID::TERRAN_SUPPLYDEPOT) < 1 || CountUnitType(UNIT_TYPEID::TERRAN_COMMANDCENTER) < 1 && observation->GetMinerals() < 125)
+			{
+				return false;
+			}
+
+			if (CountUnitType(UNIT_TYPEID::TERRAN_ENGINEERINGBAY) > 0 && observation->GetMinerals() < 125)
+			{
+				return false;
+			}
+
+			return TryBuildStructure(ABILITY_ID::BUILD_ENGINEERINGBAY);
+		}
+
+		bool TryBuildGhostAcademy()
+		{
+			const ObservationInterface* observation = Observation();
+
+			if (CountUnitType(UNIT_TYPEID::TERRAN_SUPPLYDEPOT) < 1 && observation->GetMinerals() < 150 && observation->GetVespene < 50)
+			{
+				return false;
+			}
+
+			if (CountUnitType(UNIT_TYPEID::TERRAN_GHOSTACADEMY) > 0 && observation->GetMinerals() < 150 && observation->GetVespene < 50)
 			{
 				return false;
 			}
@@ -795,12 +1126,12 @@ namespace KoKeKoKo
 		{
 			const ObservationInterface* observation = Observation();
 
-			if (CountUnitType(UNIT_TYPEID::TERRAN_SUPPLYDEPOT) < 1 || CountUnitType(UNIT_TYPEID::TERRAN_ENGINEERINGBAY) < 1)
+			if (CountUnitType(UNIT_TYPEID::TERRAN_SUPPLYDEPOT) < 1 || CountUnitType(UNIT_TYPEID::TERRAN_ENGINEERINGBAY) < 1 && observation->GetMinerals() < 100)
 			{
 				return false;
 			}
 
-			if (CountUnitType(UNIT_TYPEID::TERRAN_MISSILETURRET) > 0)
+			if (CountUnitType(UNIT_TYPEID::TERRAN_MISSILETURRET) > 0 && observation->GetMinerals() < 100)
 			{
 				return false;
 			}
@@ -812,34 +1143,17 @@ namespace KoKeKoKo
 		{
 			const ObservationInterface* observation = Observation();
 
-			if (CountUnitType(UNIT_TYPEID::TERRAN_SUPPLYDEPOT) < 1 || CountUnitType(UNIT_TYPEID::TERRAN_ENGINEERINGBAY) < 1)
+			if (CountUnitType(UNIT_TYPEID::TERRAN_SUPPLYDEPOT) < 1 || CountUnitType(UNIT_TYPEID::TERRAN_ENGINEERINGBAY) < 1 && observation->GetMinerals() < 125 && observation->GetVespene < 100)
 			{
 				return false;
 			}
 
-			if (CountUnitType(UNIT_TYPEID::TERRAN_SENSORTOWER) > 0)
+			if (CountUnitType(UNIT_TYPEID::TERRAN_SENSORTOWER) > 0 && observation->GetMinerals() < 125 && observation->GetVespene < 100)
 			{
 				return false;
 			}
 
 			return TryBuildStructure(ABILITY_ID::BUILD_SENSORTOWER);
-		}
-
-		bool TryBuildStarport()
-		{
-			const ObservationInterface* observation = Observation();
-
-			if (CountUnitType(UNIT_TYPEID::TERRAN_SUPPLYDEPOT) < 1 || CountUnitType(UNIT_TYPEID::TERRAN_FACTORY) < 1)
-			{
-				return false;
-			}
-
-			if (CountUnitType(UNIT_TYPEID::TERRAN_STARPORT) > 0)
-			{
-				return false;
-			}
-
-			return TryBuildStructure(ABILITY_ID::BUILD_STARPORT);
 		}
 
 		const Unit* FindNearestMineralPatch(const Point2D& start)
@@ -996,7 +1310,6 @@ namespace KoKeKoKo
 				{
 					const GameInfo& game_info = Observation()->GetGameInfo();
 					Actions()->UnitCommand(unit, ABILITY_ID::ATTACK_ATTACK, game_info.enemy_start_locations.front());
-
 					break;
 				}
 				default:

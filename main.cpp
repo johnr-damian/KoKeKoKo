@@ -531,20 +531,11 @@ namespace KoKeKoKo
 					Units units = observation->GetUnits(Unit::Alliance::Self);
 					for (const auto& unit : units)
 					{
-						for (const auto& order : unit->orders)
+						if (unit->unit_type == ID)
 						{
-							if (order.ability_id == ability_type_for_training)
-							{
-								return false;
-							}
-
-							if (unit->unit_type == ID)
-							{
-								unit_origin = unit;
-							}
+							unit_origin = unit;
 						}
 					}
-
 					Actions()->UnitCommand(unit_origin, ability_type_for_training);
 					return true;
 				}
@@ -556,20 +547,11 @@ namespace KoKeKoKo
 					Units units = observation->GetUnits(Unit::Alliance::Self);
 					for (const auto& unit : units)
 					{
-						for (const auto& order : unit->orders)
+						if (unit->unit_type == ID)
 						{
-							if (order.ability_id == ability_type_for_research && order.progress <= 1.0f)
-							{
-								return false;
-							}
-
-							if (unit->unit_type == ID)
-							{
-								unit_origin = unit;
-							}
+							unit_origin = unit;
 						}
 					}
-
 					Actions()->UnitCommand(unit_origin, ability_type_for_research);
 					return true;
 				}
@@ -1139,7 +1121,11 @@ namespace KoKeKoKo
 					{
 						TryBuildRefinery();
 					}
-					TrainMarine();
+					if(CountUnitType(UNIT_TYPEID::TERRAN_MARINE) < 4)
+					{
+						TrainMarine();
+					}
+					TrainMarauder();
 					//TryBuildBarracksReactor();
 					TryBuildBarracksTechLab();
 
@@ -1170,6 +1156,12 @@ namespace KoKeKoKo
 							case UNIT_TYPEID::TERRAN_SCV:
 							{
 								const Unit* mineral_target = FindNearestMineralPatch(unit->pos);
+								if (!mineral_target)
+								{
+									break;
+								}
+								Actions()->UnitCommand(unit, ABILITY_ID::SMART, mineral_target);
+								mineral_target = FindNearestVespeneGeyser(unit->pos);
 								if (!mineral_target)
 								{
 									break;
@@ -1216,7 +1208,7 @@ namespace KoKeKoKo
 							case UNIT_TYPEID::TERRAN_MARINE:
 							{
 								const GameInfo& game_info = Observation()->GetGameInfo();
-								Actions()->UnitCommand(unit, ABILITY_ID::ATTACK_ATTACK, game_info.enemy_start_locations.front());
+								//Actions()->UnitCommand(unit, ABILITY_ID::ATTACK_ATTACK, game_info.enemy_start_locations.front());
 								break;
 							}
 							default:
@@ -1409,9 +1401,9 @@ namespace KoKeKoKo
 				}
 
 				//Takes unit type and alliance
-				size_t CountOf(UNIT_TYPEID unit_type, Unit unit)
+				size_t CountOf(UNIT_TYPEID unit_type, Unit::Alliance alliance)
 				{
-					return Observation()->GetUnits(unit.alliance, IsUnit(unit_type)).size();
+					return Observation()->GetUnits(alliance, IsUnit(unit_type)).size();
 				}
 		};
 	}

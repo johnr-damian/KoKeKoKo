@@ -824,12 +824,12 @@ namespace KoKeKoKo
 		{
 			const ObservationInterface* observation = Observation();
 
-			if (CountUnitType(UNIT_TYPEID::TERRAN_SUPPLYDEPOT) < 1 && observation->GetMinerals() < 150 && observation->GetVespene < 100)
+			if (CountUnitType(UNIT_TYPEID::TERRAN_SUPPLYDEPOT) < 1 && observation->GetMinerals() < 150 && observation->GetVespene() < 100)
 			{
 				return false;
 			}
 
-			if (CountUnitType(UNIT_TYPEID::TERRAN_FACTORY) > 0 && observation->GetMinerals() < 150 && observation->GetVespene < 100)
+			if (CountUnitType(UNIT_TYPEID::TERRAN_FACTORY) > 0 && observation->GetMinerals() < 150 && observation->GetVespene() < 100)
 			{
 				return false;
 			}
@@ -852,7 +852,7 @@ namespace KoKeKoKo
 		{
 			const ObservationInterface* observation = Observation();
 
-			if (CountUnitType(UNIT_TYPEID::TERRAN_FACTORYTECHLAB) > 0 && observation->GetFoodCap() - observation->GetFoodUsed() < 2 && observation->GetMinerals() < 75 && observation->GetVespene < 25)
+			if (CountUnitType(UNIT_TYPEID::TERRAN_FACTORYTECHLAB) > 0 && observation->GetFoodCap() - observation->GetFoodUsed() < 2 && observation->GetMinerals() < 75 && observation->GetVespene() < 25)
 			{
 				return false;
 			}
@@ -863,7 +863,7 @@ namespace KoKeKoKo
 		{
 			const ObservationInterface* observation = Observation();
 
-			if (CountUnitType(UNIT_TYPEID::TERRAN_FACTORYTECHLAB) > 0 && observation->GetFoodCap() - observation->GetFoodUsed() < 3 && observation->GetMinerals() < 150 && observation->GetVespene < 125)
+			if (CountUnitType(UNIT_TYPEID::TERRAN_FACTORYTECHLAB) > 0 && observation->GetFoodCap() - observation->GetFoodUsed() < 3 && observation->GetMinerals() < 150 && observation->GetVespene() < 125)
 			{
 				return false;
 			}
@@ -874,7 +874,7 @@ namespace KoKeKoKo
 		{
 			const ObservationInterface* observation = Observation();
 
-			if (CountUnitType(UNIT_TYPEID::TERRAN_FACTORY) > 0 && observation->GetFoodCap() - observation->GetFoodUsed() < 3 && observation->GetMinerals() < 150 && observation->GetVespene < 100)
+			if (CountUnitType(UNIT_TYPEID::TERRAN_FACTORY) > 0 && observation->GetFoodCap() - observation->GetFoodUsed() < 3 && observation->GetMinerals() < 150 && observation->GetVespene() < 100)
 			{
 				return false;
 			}
@@ -896,7 +896,7 @@ namespace KoKeKoKo
 		{
 			const ObservationInterface* observation = Observation();
 
-			if (CountUnitType(UNIT_TYPEID::TERRAN_FACTORYTECHLAB) > 0 && CountUnitType(UNIT_TYPEID::TERRAN_ARMORY) > 0 && observation->GetFoodCap() - observation->GetFoodUsed() < 6 && observation->GetMinerals() < 300 && observation->GetVespene < 200)
+			if (CountUnitType(UNIT_TYPEID::TERRAN_FACTORYTECHLAB) > 0 && CountUnitType(UNIT_TYPEID::TERRAN_ARMORY) > 0 && observation->GetFoodCap() - observation->GetFoodUsed() < 6 && observation->GetMinerals() < 300 && observation->GetVespene() < 200)
 			{
 				return false;
 			}
@@ -933,12 +933,12 @@ namespace KoKeKoKo
 		{
 			const ObservationInterface* observation = Observation();
 
-			if (CountUnitType(UNIT_TYPEID::TERRAN_SUPPLYDEPOT) < 1 || CountUnitType(UNIT_TYPEID::TERRAN_FACTORY) < 1 && observation->GetMinerals() < 150 && observation->GetVespene < 100)
+			if (CountUnitType(UNIT_TYPEID::TERRAN_SUPPLYDEPOT) < 1 || CountUnitType(UNIT_TYPEID::TERRAN_FACTORY) < 1 && observation->GetMinerals() < 150 && observation->GetVespene() < 100)
 			{
 				return false;
 			}
 
-			if (CountUnitType(UNIT_TYPEID::TERRAN_STARPORT) > 0 && observation->GetMinerals() < 150 && observation->GetVespene < 100)
+			if (CountUnitType(UNIT_TYPEID::TERRAN_STARPORT) > 0 && observation->GetMinerals() < 150 && observation->GetVespene() < 100)
 			{
 				return false;
 			}
@@ -950,7 +950,7 @@ namespace KoKeKoKo
 		{
 			const ObservationInterface* observation = Observation();
 
-			if (CountUnitType(UNIT_TYPEID::TERRAN_STARPORT) > 0 && observation->GetFoodCap() - observation->GetFoodUsed() < 2 && observation->GetMinerals() < 150 && observation->GetVespene < 75)
+			if (CountUnitType(UNIT_TYPEID::TERRAN_STARPORT) > 0 && observation->GetFoodCap() - observation->GetFoodUsed() < 2 && observation->GetMinerals() < 150 && observation->GetVespene() < 75)
 			{
 				return false;
 			}
@@ -961,7 +961,7 @@ namespace KoKeKoKo
 		{
 			const ObservationInterface* observation = Observation();
 
-			if (CountUnitType(UNIT_TYPEID::TERRAN_STARPORT) > 0 && observation->GetFoodCap() - observation->GetFoodUsed() < 2 && observation->GetMinerals() < 100 && observation->GetVespene < 100)
+			if (CountUnitType(UNIT_TYPEID::TERRAN_STARPORT) > 0 && observation->GetFoodCap() - observation->GetFoodUsed() < 2 && observation->GetMinerals() < 100 && observation->GetVespene() < 100)
 			{
 				return false;
 			}
@@ -972,7 +972,7 @@ namespace KoKeKoKo
 		{
 			const ObservationInterface* observation = Observation();
 
-			if (CountUnitType(UNIT_TYPEID::TERRAN_STARPORT) > 0 && observation->GetFoodCap() - observation->GetFoodUsed() < 3 && observation->GetMinerals() < 150 && observation->GetVespene < 150)
+			if (CountUnitType(UNIT_TYPEID::TERRAN_STARPORT) > 0 && observation->GetFoodCap() - observation->GetFoodUsed() < 3 && observation->GetMinerals() < 150 && observation->GetVespene() < 150)
 			{
 				return false;
 			}
@@ -983,7 +983,7 @@ namespace KoKeKoKo
 		{
 			const ObservationInterface* observation = Observation();
 
-			if (CountUnitType(UNIT_TYPEID::TERRAN_STARPORTTECHLAB) > 0 && observation->GetFoodCap() - observation->GetFoodUsed() < 2 && observation->GetMinerals() < 100 && observation->GetVespene < 200)
+			if (CountUnitType(UNIT_TYPEID::TERRAN_STARPORTTECHLAB) > 0 && observation->GetFoodCap() - observation->GetFoodUsed() < 2 && observation->GetMinerals() < 100 && observation->GetVespene() < 200)
 			{
 				return false;
 			}
@@ -994,7 +994,7 @@ namespace KoKeKoKo
 		{
 			const ObservationInterface* observation = Observation();
 
-			if (CountUnitType(UNIT_TYPEID::TERRAN_STARPORTTECHLAB) > 0 && observation->GetFoodCap() - observation->GetFoodUsed() < 3 && observation->GetMinerals() < 150 && observation->GetVespene < 100)
+			if (CountUnitType(UNIT_TYPEID::TERRAN_STARPORTTECHLAB) > 0 && observation->GetFoodCap() - observation->GetFoodUsed() < 3 && observation->GetMinerals() < 150 && observation->GetVespene() < 100)
 			{
 				return false;
 			}
@@ -1005,7 +1005,7 @@ namespace KoKeKoKo
 		{
 			const ObservationInterface* observation = Observation();
 
-			if (CountUnitType(UNIT_TYPEID::TERRAN_STARPORTTECHLAB) > 0 && CountUnitType(UNIT_TYPEID::TERRAN_FUSIONCORE) > 0 && observation->GetFoodCap() - observation->GetFoodUsed() < 6 && observation->GetMinerals() < 400 && observation->GetVespene < 300)
+			if (CountUnitType(UNIT_TYPEID::TERRAN_STARPORTTECHLAB) > 0 && CountUnitType(UNIT_TYPEID::TERRAN_FUSIONCORE) > 0 && observation->GetFoodCap() - observation->GetFoodUsed() < 6 && observation->GetMinerals() < 400 && observation->GetVespene() < 300)
 			{
 				return false;
 			}
@@ -1041,12 +1041,12 @@ namespace KoKeKoKo
 		{
 			const ObservationInterface* observation = Observation();
 
-			if (CountUnitType(UNIT_TYPEID::TERRAN_SUPPLYDEPOT) < 1 && observation->GetMinerals() < 150 && observation->GetVespene < 150)
+			if (CountUnitType(UNIT_TYPEID::TERRAN_SUPPLYDEPOT) < 1 && observation->GetMinerals() < 150 && observation->GetVespene() < 150)
 			{
 				return false;
 			}
 
-			if (CountUnitType(UNIT_TYPEID::TERRAN_FUSIONCORE) > 1 && observation->GetMinerals() < 150 && observation->GetVespene < 150)
+			if (CountUnitType(UNIT_TYPEID::TERRAN_FUSIONCORE) > 1 && observation->GetMinerals() < 150 && observation->GetVespene() < 150)
 			{
 				return false;
 			}
@@ -1058,12 +1058,12 @@ namespace KoKeKoKo
 		{
 			const ObservationInterface* observation = Observation();
 
-			if (CountUnitType(UNIT_TYPEID::TERRAN_SUPPLYDEPOT) < 1 && observation->GetMinerals() < 150 && observation->GetVespene < 100)
+			if (CountUnitType(UNIT_TYPEID::TERRAN_SUPPLYDEPOT) < 1 && observation->GetMinerals() < 150 && observation->GetVespene() < 100)
 			{
 				return false;
 			}
 
-			if (CountUnitType(UNIT_TYPEID::TERRAN_ARMORY) > 0 && observation->GetMinerals() < 150 && observation->GetVespene < 100)
+			if (CountUnitType(UNIT_TYPEID::TERRAN_ARMORY) > 0 && observation->GetMinerals() < 150 && observation->GetVespene() < 100)
 			{
 				return false;
 			}
@@ -1109,12 +1109,12 @@ namespace KoKeKoKo
 		{
 			const ObservationInterface* observation = Observation();
 
-			if (CountUnitType(UNIT_TYPEID::TERRAN_SUPPLYDEPOT) < 1 && observation->GetMinerals() < 150 && observation->GetVespene < 50)
+			if (CountUnitType(UNIT_TYPEID::TERRAN_SUPPLYDEPOT) < 1 && observation->GetMinerals() < 150 && observation->GetVespene() < 50)
 			{
 				return false;
 			}
 
-			if (CountUnitType(UNIT_TYPEID::TERRAN_GHOSTACADEMY) > 0 && observation->GetMinerals() < 150 && observation->GetVespene < 50)
+			if (CountUnitType(UNIT_TYPEID::TERRAN_GHOSTACADEMY) > 0 && observation->GetMinerals() < 150 && observation->GetVespene() < 50)
 			{
 				return false;
 			}
@@ -1143,12 +1143,12 @@ namespace KoKeKoKo
 		{
 			const ObservationInterface* observation = Observation();
 
-			if (CountUnitType(UNIT_TYPEID::TERRAN_SUPPLYDEPOT) < 1 || CountUnitType(UNIT_TYPEID::TERRAN_ENGINEERINGBAY) < 1 && observation->GetMinerals() < 125 && observation->GetVespene < 100)
+			if (CountUnitType(UNIT_TYPEID::TERRAN_SUPPLYDEPOT) < 1 || CountUnitType(UNIT_TYPEID::TERRAN_ENGINEERINGBAY) < 1 && observation->GetMinerals() < 125 && observation->GetVespene() < 100)
 			{
 				return false;
 			}
 
-			if (CountUnitType(UNIT_TYPEID::TERRAN_SENSORTOWER) > 0 && observation->GetMinerals() < 125 && observation->GetVespene < 100)
+			if (CountUnitType(UNIT_TYPEID::TERRAN_SENSORTOWER) > 0 && observation->GetMinerals() < 125 && observation->GetVespene() < 100)
 			{
 				return false;
 			}
@@ -1194,25 +1194,6 @@ namespace KoKeKoKo
 			return target;
 		}
 
-		const Unit* FindNearestMineralPatch(const Point2D& start)
-		{
-			Units units = Observation()->GetUnits(Unit::Alliance::Neutral);
-			float distance = std::numeric_limits<float>::max();
-			const Unit* target = nullptr;
-			for (const auto& u : units)
-			{
-				if (u->unit_type == UNIT_TYPEID::NEUTRAL_MINERALFIELD)
-				{
-					float d = DistanceSquared2D(u->pos, start);
-					if (d < distance) {
-						distance = d;
-						target = u;
-					}
-				}
-			}
-			return target;
-		}
-
 	public:
 		void InitializeBotParameters(string enemy_difficulty)
 			//A temporary function? Sets the initial difficulty and starts the thread
@@ -1247,7 +1228,7 @@ namespace KoKeKoKo
 			//After sufficient marine, attack the enemy. Follow this in summary -> https://github.com/Blizzard/s2client-api/blob/master/docs/tutorial1.md
 			TryBuildSupplyDepot();
 			TryBuildBarracks();
-
+			
 		}
 
 		virtual void OnUnitIdle(const Unit* unit) final

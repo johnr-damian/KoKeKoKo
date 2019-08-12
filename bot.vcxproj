@@ -73,6 +73,10 @@
     <IncludePath>C:\Users\Gelo\Desktop\SC2 API lib\SC2API_Binary_vs2017\include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Users\Gelo\Desktop\SC2 API lib\SC2API_Binary_vs2017\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>C:\Users\Gelo\Desktop\SC2 API lib\SC2API_Binary_vs2017\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\Gelo\Desktop\SC2 API lib\SC2API_Binary_vs2017\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>

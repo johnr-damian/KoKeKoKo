@@ -17,71 +17,59 @@ namespace ModelService
     {
         static int Main(string[] args)
         {
-            Console.WriteLine("ModelService has started...");
-            ModelRepositoryService modelrepositoryservice = new ModelRepositoryService();
-            Participant agent = null;
-            bool keeprunningmodel = true;
+            var modelrepositoryservice = new ModelRepositoryService();
+            var agent = new Participant();
 
             try
             {
-                //Create a server to listen to agent
-                Console.WriteLine("Creating a server for Agent...");
-                if(modelrepositoryservice.CreateServerForAgent())
+                if(args.Length > 0)
                 {
-                    //Start the server
-                    Console.WriteLine("Successfully created a server for Agent...");
-                    modelrepositoryservice.StartListeningToAgent();
-                    while(keeprunningmodel)
+                    Console.WriteLine("ModelService has started in standalone mode!");
+                    Console.WriteLine("Performing Micromanagement Prediction...");
+
+                }
+                else
+                {
+                    Console.WriteLine("ModelService has started! Creating a server for agent...");
+                    if(modelrepositoryservice.CreateServerForAgent())
                     {
-                        //If there is a message sent by agent
-                        if (modelrepositoryservice.HasMessageFromAgent())
+                        Console.WriteLine("Successfully created a server for agent...");
+                        modelrepositoryservice.StartListeningToAgent();
+
+                        //Main loop that repeats to listen then responds to the requests
+                        for (bool keeprunningmodel = true; keeprunningmodel;)
                         {
-                            var rawmessage = modelrepositoryservice.GetMessageFromQueue();
-                            var partitionedmessage = rawmessage.Split('\n');
-
-                            //The expected messages are in the following format:
-                            //Initialize\nUnits of Agent\nStates\nTransition
-                            //Update\nUnits of Agent
-                            //Generate\n
-                            //ReGenerate\n
-                            //Exit
-                            switch (partitionedmessage[0])
+                            //If there is a request from agent
+                            if (modelrepositoryservice.HasMessageFromAgent())
                             {
-                                case "Initialize":
-                                    //if (!agent.SetParticipantUnits(partitionedmessage[1]))
-                                    //    throw new Exception("Failed to initialize the participant's units...");
+                                var rawmessage = modelrepositoryservice.GetMessageFromQueue();
+                                var partitionedmessage = rawmessage.Split('\n');
 
-                                    modelrepositoryservice.SendMessageToAgent(new Random().NextDouble().ToString());
-                                    break;
-                                case "Update":
-
-                                    break;
-                                case "Generate":
-
-                                    break;
-                                case "ReGenerate":
-
-                                    break;
-                                case "Exit":
-                                    keeprunningmodel = false;
-                                    break;
-                                default:
-                                    Console.WriteLine($@"Unable to parse '{rawmessage}'...");
-                                    break;
+                                switch (partitionedmessage[0])
+                                {
+                                    case "Exit":
+                                        keeprunningmodel = false;
+                                        break;
+                                    default:
+                                        Console.WriteLine($@"Unable to partition message {rawmessage}! Resulting partitioned message: ");
+                                        foreach (var message in partitionedmessage)
+                                            Console.WriteLine($@"\t{message}");
+                                        break;
+                                }
                             }
+
+                            //Give other thread to process their procedures
+                            Thread.Sleep(1000);
                         }
 
-                        //Let the thread give way by 1 seconds to other thread
-                        Thread.Sleep(1000);
+                        //Stop the server and remove it
+                        Console.WriteLine("Removing server for agent...");
+                        modelrepositoryservice.StopListeningToAgent();
+                        modelrepositoryservice.RemoveServerForAgent();
                     }
 
-                    //Stop the server and remove it
-                    Console.WriteLine("Removing the server for Agent...");
-                    modelrepositoryservice.StopListeningToAgent();
-                    modelrepositoryservice.RemoveServerForAgent();
+                    Console.WriteLine("Stopping ModelService...");
                 }
-
-                Console.WriteLine("Stopping ModelService...");
             }
             catch
             {

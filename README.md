@@ -11,6 +11,3 @@ You will have SC2API_Binary_vs2017 folder
   Delete all contents of project
   Clone this inside project folder
   Try to build
-
-
-  # Guanga Test

@@ -52,5 +52,46 @@ namespace ModelService.Micromanagement
 
             return results;
         }
+
+        /// <summary>
+        /// Simulates and returns the predicted result of the battle using different algorithm and target policy
+        /// </summary>
+        /// <returns>Returns the Algorithm and TargetPolicy used and their returned results</returns>
+        /// <example>
+        /// The return format is given below:
+        /// Algorithm_TargetPolicy, [Player 1's units survived, Player 2's units survived, Player 1's units lost, Player 2's units lost, Time Duration]
+        /// </example>
+        public static Queue<Tuple<string, Tuple<string, string, string, string, string>>> PredictBattleResults()
+        {
+            var results = new Queue<Tuple<string, Tuple<string, string, string, string, string>>>();
+
+            try
+            {
+
+            }
+            catch(Exception ex)
+            {
+
+            }
+
+            return results;
+        }
+
+        
+        public static Tuple<string, string, string> PredictBattleResults(string player_1_units, string player_2_units, Func<bool> test)
+        {
+            var result = new Tuple<string, string, string>(null, null, null);
+
+            try
+            {
+
+            }
+            catch(Exception ex)
+            {
+
+            }
+
+            return result;
+        }
     }
 }

@@ -25,10 +25,17 @@ namespace ModelService.Micromanagement
 
             try
             {
-                var source = new List<string>(owned_units.Split(','));
-                var target = new List<string>(enemy_units.Split(','));
+                var source = owned_units.Split('\n');
+                var target = enemy_units.Split('\n');
+                var parsed_owned_units = new List<Unit>();
+                var parsed_enemy_units = new List<Unit>();
 
-                
+                foreach (var u in source)
+                    parsed_owned_units.Add(new Unit(u));
+                foreach (var t in target)
+                    parsed_enemy_units.Add(new Unit(t));
+
+
             }
             catch(Exception ex)
             {
@@ -45,6 +52,16 @@ namespace ModelService.Micromanagement
 
             try
             {
+                var source = owned_units.Split('\n');
+                var target = enemy_units.Split('\n');
+                var parsed_owned_units = new List<Unit>();
+                var parsed_enemy_units = new List<Unit>();
+
+                foreach (var u in source)
+                    parsed_owned_units.Add(new Unit(u));
+                foreach (var t in target)
+                    parsed_enemy_units.Add(new Unit(t));
+
 
             }
             catch(Exception ex)

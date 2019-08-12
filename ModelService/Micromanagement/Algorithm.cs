@@ -8,6 +8,9 @@ namespace ModelService.Micromanagement
 {
     public static partial class Micromanagement
     {
+
+
+
         /// <summary>
         /// For during game
         /// </summary>

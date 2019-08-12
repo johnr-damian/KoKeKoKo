@@ -10,19 +10,19 @@ namespace ModelService.Micromanagement.Types
         /// <summary>
         /// The X position of the entity
         /// </summary>
-        public int X { get; private set; } = 0;
+        public double X { get; private set; } = 0;
 
         /// <summary>
         /// The Y position of the entity
         /// </summary>
-        public int Y { get; private set; } = 0;
+        public double Y { get; private set; } = 0;
 
         /// <summary>
         /// A Coordinate that contains the X and Y position of an entity
         /// </summary>
         /// <param name="x"></param>
         /// <param name="y"></param>
-        public Coordinate(int x, int y)
+        public Coordinate(double x, double y)
         {
             X = x;
             Y = x;

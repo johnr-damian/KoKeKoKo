@@ -64,11 +64,12 @@
     <Compile Include="Macromanagement\POMDP.cs" />
     <Compile Include="Macromanagement\Types\Participant.cs" />
     <Compile Include="Micromanagement\Algorithm.cs" />
-    <Compile Include="Micromanagement\MicroModel.cs" />
+    <Compile Include="Micromanagement\Micromanagement.cs" />
     <Compile Include="Micromanagement\Policy.cs" />
     <Compile Include="Micromanagement\Types\Coordinate.cs" />
     <Compile Include="Micromanagement\Types\Unit.cs" />
     <Compile Include="Micromanagement\Types\Units.cs" />
+    <Compile Include="Micromanagement\Types\UnitsEnumerator.cs" />
     <Compile Include="ModelRepositoryService.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

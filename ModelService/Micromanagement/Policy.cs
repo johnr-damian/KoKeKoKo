@@ -15,8 +15,43 @@ namespace ModelService.Micromanagement
         /// </summary>
         private static Dictionary<string, int> target_priority = new Dictionary<string, int>
         {
-            ["Marine"] = 13,
-            ["SCV"] = 13
+            //Ground Units
+            ["Wdiow Mine"] = 19,
+            ["SCV"] = 20,
+            ["Marine"] = 20,
+            ["Marauder"] = 20,
+            ["Reaper"] = 20,
+            ["Ghost"] = 20,
+            ["Hellion"] = 20,
+            ["Hellbat"] = 20,
+            ["Siege Tank"] = 20,
+            ["Cylclone"] = 20,
+            ["Thor"] = 20,
+            ["Auto-Turret"] = 20,
+            //Air Units
+            ["Viking"] = 20,
+            ["Medivac"] = 20,
+            ["Liberator"] = 20,
+            ["Raven"] = 20,
+            ["Banshee"] = 20,
+            ["Battlecruiser"] = 20,
+            //Buildings
+            ["Planetary Fortress"] = 20,
+            ["Bunker"] = 20,
+            ["Missile Turret"] = 19,
+            ["Command Center"] = 11,
+            ["Orbital Command"] = 11,
+            ["Supply Depot"] = 11,
+            ["Refinery"] = 11,
+            ["Barracks"] = 11,
+            ["Engineering Bay"] = 11,
+            ["Bunker"] = 11,
+            ["Sensor Tower"] = 11,
+            ["Factory"] = 11,
+            ["Ghost Academy"] = 11,
+            ["Starport"] = 11,
+            ["Armory"] = 11,
+            ["Fusion Core"] = 11,
         };
 
         public static List<Tuple<string, string>> RandomBasedTargetPolicy(string owned_units, string enemy_units)

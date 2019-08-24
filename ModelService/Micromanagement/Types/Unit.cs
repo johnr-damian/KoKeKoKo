@@ -40,6 +40,8 @@ namespace ModelService.Micromanagement.Types
         /// </summary>
         public List<string> Buffs { get; private set; } = null;
 
+        public Unit Target { get; set; } = null;
+
         /// <summary>
         /// The current position of this unit based on current observation
         /// </summary>

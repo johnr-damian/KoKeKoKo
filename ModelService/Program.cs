@@ -27,6 +27,15 @@ namespace ModelService
                     Console.WriteLine("ModelService has started in standalone mode!");
                     Console.WriteLine("Performing Micromanagement Prediction...");
 
+                    //Perform Micromanagement Testing
+                    Micromanagement.Micromanagement.PerformMicromanagementTest();
+
+                    Console.WriteLine("Performing Macromanagement Prediction...");
+                    Macromanagement.Macromanagement.PerformMacromanagementTest();
+
+                    Console.WriteLine("Successfully performed Micromanagement testing and Macromanagement testing!");
+                    Console.WriteLine("Press enter to exit...");
+                    Console.ReadLine();
                 }
                 else
                 {

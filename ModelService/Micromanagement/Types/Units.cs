@@ -58,6 +58,11 @@ namespace ModelService.Micromanagement.Types
             }
         }
 
+        public Tuple<double, double> GetPredictedValue()
+        {
+            return null;
+        }
+
         /// <summary>
         /// Creates a new instance of enumerator for units
         /// </summary>

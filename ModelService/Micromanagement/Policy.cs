@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ModelService.Micromanagement
 {
-    public static partial class Micromanagement
+    public partial class Micromanagement
     {
         /// <summary>
         /// A list that contains the unit name as key and the value is its respective target priority.
@@ -81,6 +81,38 @@ namespace ModelService.Micromanagement
             return target_matching;
         }
 
+        public static bool RandomBasedTargetPolicy(Types.Units owned_units, Types.Units enemy_units)
+        {
+            var has_targetable = false;
+
+            try
+            {
+
+            }
+            catch(Exception ex)
+            {
+
+            }
+
+            return has_targetable;
+        }
+
+        public static bool PriorityBasedTargetPolicy(Types.Units owned_units, Types.Units enemy_units)
+        {
+            var has_targetable = false;
+
+            try
+            {
+
+            }
+            catch(Exception ex)
+            {
+
+            }
+
+            return has_targetable;
+        }
+
         public static List<Tuple<string, string>> NearestPositionBasedTargetPolicy(string owned_units, string enemy_units)
         {
             var target_matching = new List<Tuple<string, string>>();
@@ -106,6 +138,22 @@ namespace ModelService.Micromanagement
             }
 
             return target_matching;
+        }
+
+        public static bool ResourceBasedTargetPolicy(Types.Units owned_units, Types.Units enemy_units)
+        {
+            var has_targetable = false;
+
+            try
+            {
+
+            }
+            catch(Exception ex)
+            {
+
+            }
+
+            return has_targetable;
         }
 
         public static List<Tuple<string, string>> ResourceCostBasedTargetPolicy(string owned_units, string enemy_units)

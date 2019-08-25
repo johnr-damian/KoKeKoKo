@@ -24,7 +24,7 @@ namespace ModelService
     /// </example>
     public class Participant
     {
-        private List<Unit> _units = null;
+        private List<Micromanagement.Types.ObservedUnits> _units = null;
 
 
 

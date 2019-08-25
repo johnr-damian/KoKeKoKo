@@ -6,35 +6,12 @@ using System.Threading.Tasks;
 
 namespace ModelService.Micromanagement
 {
-    public partial class Micromanagement
+    public partial class Micromanagement<T, C> where T : IEnumerable<C>
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="owned_units"></param>
-        /// <param name="enemy_units"></param>
-        /// <param name="target_policy"></param>
-        /// <returns></returns>
-        public static Tuple<Types.Units, Types.Units> LanchesterBasedPrediction(Types.Units owned_units, Types.Units enemy_units, Func<Types.Units, Types.Units, bool> target_policy)
+        public Tuple<T, T> LanchesterBasedPrediction(TargetPolicy target_policy)
         {
-            try
-            {
+            Tuple<T, T> battle_result = null;
 
-            }
-            catch(Exception ex)
-            {
-
-            }
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="owned_units"></param>
-        /// <param name="enemy_units"></param>
-        /// <returns></returns>
-        public Tuple<Types.Units, Types.Units> LanchesterBasedPrediction(Types.Units owned_units, Types.Units enemy_units)
-        {
             try
             {
                 
@@ -43,54 +20,40 @@ namespace ModelService.Micromanagement
             {
 
             }
+
+            return battle_result;
         }
 
-        public static Tuple<Types.Units, Types.Units> SustainedBasedPrediction(Types.Units owned_units, Types.Units enemy_units, Func<Types.Units, Types.Units, bool> target_policy)
+        public Tuple<T, T> StaticBasedPrediction(TargetPolicy target_policy)
         {
+            Tuple<T, T> battle_result = null;
+
             try
             {
-
+                //TODO
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
 
             }
+
+            return battle_result;
         }
 
-        public Tuple<Types.Units, Types.Units> SustainedBasedPrediction(Types.Units owned_units, Types.Units enemy_units)
+        public Tuple<T, T> DynamicBasedPrediction(TargetPolicy target_policy)
         {
+            Tuple<T, T> battle_result = null;
+
             try
             {
-
+                //TODO
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
 
             }
-        }
 
-        public static Tuple<Types.Units, Types.Units> DecreasingBasedPrediction(Types.Units owned_units, Types.Units enemy_units, Func<Types.Units, Types.Units, bool> target_policy)
-        {
-            try
-            {
-
-            }
-            catch(Exception ex)
-            {
-
-            }
-        }
-
-        public Tuple<Types.Units, Types.Units> DecreasingBasedPrediction(Types.Units owned_units, Types.Units enemy_units)
-        {
-            try
-            {
-
-            }
-            catch(Exception ex)
-            {
-
-            }
+            return battle_result;
         }
     }
 }

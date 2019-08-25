@@ -1,107 +1,191 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 
 namespace ModelService.Micromanagement.Types
 {
     /// <summary>
-    /// A parsed unit from string either based on game observation or CSV
+    /// A template for unit to be parsed either from CSV file or Observed string
     /// </summary>
-    public class Unit
+    public abstract class Unit
     {
         /// <summary>
-        /// The controller of this unit
+        /// Contains the unit's basic definition needed for combat
         /// </summary>
-        public string Alliance { get; private set; } = "";
-
-        /// <summary>
-        /// The name of this unit
-        /// </summary>
-        public string Name { get; private set; } = "";
-
-        /// <summary>
-        /// The current health of the unit based on current observation
-        /// </summary>
-        public double Health { get; private set; } = 0;
-
-        /// <summary>
-        /// The current energy of the unit based on current observation
-        /// </summary>
-        public double Energy { get; private set; } = 0;
-
-        /// <summary>
-        /// If the unit is currently flying based on current observation
-        /// </summary>
-        public bool Is_Flying { get; private set; } = false;
-
-        /// <summary>
-        /// The current buffs applied on this unit
-        /// </summary>
-        public List<string> Buffs { get; private set; } = null;
-
-        public Unit Target { get; set; } = null;
-
-        /// <summary>
-        /// The current position of this unit based on current observation
-        /// </summary>
-        public Coordinate Position { get; private set; } = null;
-
-        /// <summary>
-        /// The seconds where this unit is observed during combat
-        /// </summary>
-        public int Timestamp { get; private set; } = 0;
-
-        /// <summary>
-        /// Creates an instance of a unit based on a CSV file
-        /// </summary>
-        /// <param name="alliance"></param>
-        /// <param name="name"></param>
-        /// <param name="health"></param>
-        /// <param name="energy"></param>
-        /// <param name="x_position"></param>
-        /// <param name="y_position"></param>
-        /// <param name="is_flying"></param>
-        /// <param name="timestamp"></param>
-        /// <param name="buffs"></param>
-        public Unit(string alliance, string name, double health, double energy, double x_position, double y_position, bool is_flying, int timestamp, params string[] buffs)
+                                //Unit name,   Health, Energy, Ground Damage, Air Damage, Armor, Is Flying Type Unit, Mineral Cost, Vespene Cost, Supply Cost
+        public static Dictionary<string, Tuple<double, double, double, double, int, bool>> UNIT_DEFINITIONS = new Dictionary<string, Tuple<double, double, double, double, int, bool>>()
         {
-            try
-            {
-                Alliance = alliance;
-                Name = name;
-                Health = health;
-                Energy = energy;
-                Position = new Coordinate(x_position, y_position);
-                Is_Flying = is_flying;
-                Timestamp = timestamp;
-                Buffs = new List<string>(buffs);
-            }
-            catch(Exception ex)
-            {
-                Console.WriteLine("Error Occurred! Failed to create an instance of unit...");
-                Trace.WriteLine($@"Error in Model! Unit -> Unit(): \n\t{ex.Message}");
-            }
+            //TODO
+        };
+
+        /// <summary>
+        /// Contains the corresponding reward and priority to the unit
+        /// </summary>
+                                //Unit name,   Priority, Mineral Cost, Vespene Cost, Supply Cost
+        public static Dictionary<string, Tuple<int, double, double, int>> UNIT_VALUE = new Dictionary<string, Tuple<int, double, double, int>>()
+        {
+            //TODO
+            //Ground Units
+            ["Widow Mine"] = new Tuple<int, double, double, int>(19, -1, -1, -1),
+            ["SCV"] = new Tuple<int, double, double, int>(20, -1, -1, -1),
+            ["Marine"] = new Tuple<int, double, double, int>(20, -1, -1, -1),
+            ["Marauder"] = new Tuple<int, double, double, int>(20, -1, -1, -1),
+            ["Reaper"] = new Tuple<int, double, double, int>(20, -1, -1, -1),
+            ["Ghost"] = new Tuple<int, double, double, int>(20, -1, -1, -1),
+            ["Hellion"] = new Tuple<int, double, double, int>(20, -1, -1, -1),
+            ["Hellbat"] = new Tuple<int, double, double, int>(20, -1, -1, -1),
+            ["Siege Tank"] = new Tuple<int, double, double, int>(20, -1, -1, -1),
+            ["Cyclone"] = new Tuple<int, double, double, int>(20, -1, -1, -1),
+            ["Thor"] = new Tuple<int, double, double, int>(20, -1, -1, -1),
+            ["Auto-Turret"] = new Tuple<int, double, double, int>(20, -1, -1, -1),
+            //Air Units
+            ["Viking"] = new Tuple<int, double, double, int>(20, -1, -1, -1),
+            ["Medivac"] = new Tuple<int, double, double, int>(20, -1, -1, -1),
+            ["Liberator"] = new Tuple<int, double, double, int>(20, -1, -1, -1),
+            ["Raven"] = new Tuple<int, double, double, int>(20, -1, -1, -1),
+            ["Banshee"] = new Tuple<int, double, double, int>(20, -1, -1, -1),
+            ["Battlecruiser"] = new Tuple<int, double, double, int>(20, -1, -1, -1),
+            //Buildings
+            ["Planetary Fortress"] = new Tuple<int, double, double, int>(20, -1, -1, -1),
+            ["Bunker"] = new Tuple<int, double, double, int>(20, -1, -1, -1),
+            ["Missile Turret"] = new Tuple<int, double, double, int>(19, -1, -1, -1),
+            ["Command Center"] = new Tuple<int, double, double, int>(11, -1, -1, -1),
+            ["Orbital Command"] = new Tuple<int, double, double, int>(11, -1, -1, -1),
+            ["Supply Depot"] = new Tuple<int, double, double, int>(11, -1, -1, -1),
+            ["Refinery"] = new Tuple<int, double, double, int>(11, -1, -1, -1),
+            ["Barracks"] = new Tuple<int, double, double, int>(11, -1, -1, -1),
+            ["Engineering Bay"] = new Tuple<int, double, double, int>(11, -1, -1, -1),
+            ["Bunker"] = new Tuple<int, double, double, int>(11, -1, -1, -1),
+            ["Sensor Tower"] = new Tuple<int, double, double, int>(11, -1, -1, -1),
+            ["Factory"] = new Tuple<int, double, double, int>(11, -1, -1, -1),
+            ["Ghost Academy"] = new Tuple<int, double, double, int>(11, -1, -1, -1),
+            ["Starport"] = new Tuple<int, double, double, int>(11, -1, -1, -1),
+            ["Armory"] = new Tuple<int, double, double, int>(11, -1, -1, -1),
+            ["Fusion Core"] = new Tuple<int, double, double, int>(11, -1, -1, -1)
+        };
+
+
+        public static double GetCorrespondingBuffValue(string buff)
+        {
+            //TODO
+            throw new NotImplementedException();
+        }
+
+        #region Properties From Source
+        /// <summary>
+        /// The controller/alliance of this unit
+        /// </summary>
+        public string Owner { get; protected set; } = "";
+
+        /// <summary>
+        /// The common unit type name
+        /// </summary>
+        public string Name { get; protected set; } = "";
+
+        /// <summary>
+        /// The current position of this unit based on game observation
+        /// </summary>
+        public Coordinate Position { get; protected set; } = null;
+
+        /// <summary>
+        /// The current buffs that affect this unit
+        /// </summary>
+        public List<string> Buffs { get; protected set; } = null;
+
+        /// <summary>
+        /// The unit to be targeted by this unit
+        /// </summary>
+        public Unit Target { get; set; } = null;
+        #endregion
+
+        #region Properties For Simulation
+        /// <summary>
+        /// The current health of this unit in the simulation
+        /// </summary>
+        public double Simulated_Health { get; set; } = 0;
+
+        /// <summary>
+        /// The current energy of this unit in the simulation
+        /// </summary>
+        public double Simulated_Energy { get; set; } = 0;
+
+        /// <summary>
+        /// If this unit's health is below 0 in the simulation
+        /// </summary>
+        public virtual bool IsDead => Simulated_Health <= 0;
+
+        /// <summary>
+        /// If this unit's target health is below 0 in the simulation
+        /// </summary>
+        public virtual bool IsTargetDead => (Target == null || Target.IsDead);
+        #endregion
+
+        /// <summary>
+        /// Creates an instance of parsed unit with basic information
+        /// </summary>
+        /// <param name="owner"></param>
+        /// <param name="name"></param>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="buffs"></param>
+        public Unit(string owner, string name, double x, double y, params string[] buffs)
+        {
+            Owner = owner;
+            Name = name;
+            Position = new Coordinate(x, y);
+            Buffs = new List<string>(buffs);
         }
 
         /// <summary>
-        /// Creates an instance of a unit based on the current game observation
-        /// </summary>
-        /// <param name="alliance"></param>
-        /// <param name="name"></param>
-        /// <param name="health"></param>
-        /// <param name="energy"></param>
-        /// <param name="x_position"></param>
-        /// <param name="y_position"></param>
-        /// <param name="is_flying"></param>
-        /// <param name="buffs"></param>
-        public Unit(string alliance, string name, double health, double energy, double x_position, double y_position, bool is_flying, params string[] buffs)
-            : this(alliance, name, health, energy, x_position, y_position, is_flying, 0, buffs) { }
-
-        /// <summary>
-        /// Creates a deep copy of this unit with exact independent values
+        /// A method that creates a new instance with the same values of this unit
         /// </summary>
         /// <returns></returns>
-        public Unit CreateCopy() => new Unit(String.Copy(Alliance), String.Copy(Name), Health, Energy, Position.X, Position.Y, Is_Flying, Timestamp, (from buff in Buffs select String.Copy(buff)).ToArray());
+        public abstract Unit CreateDeepCopy();
+
+        /// <summary>
+        /// Deals an amount of damage applied with applicable buffs to this unit's target
+        /// </summary>
+        /// <returns>Returns false when this unit is dead, target is dead, or failed to deal a damage</returns>
+        public virtual bool DealDamageToTarget()
+        {
+            double damage_to_deal = 0;
+
+            try
+            {
+                //TODO
+                if(!(IsDead || IsTargetDead))
+                {
+                    //Set the initial damage of this unit can deal
+                    damage_to_deal = UNIT_DEFINITIONS[Name].Item1;
+                    //Update the damage with buffs that modifies the damage of this unit
+                    damage_to_deal += Convert.ToInt32(from buff in Buffs select buff);
+
+                    return Target.RecieveDamageFromTarget(damage_to_deal);
+                }
+
+                throw new NotImplementedException();
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine();
+            }
+
+            return false;
+        }
+
+        public virtual bool RecieveDamageFromTarget(double damage_to_recieve)
+        {
+            try
+            {
+                //TODO
+                throw new NotImplementedException();
+            }
+            catch(Exception ex)
+            {
+
+            }
+
+            return false;
+        }
     }
 }

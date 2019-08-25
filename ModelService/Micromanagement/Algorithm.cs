@@ -6,47 +6,54 @@ using System.Threading.Tasks;
 
 namespace ModelService.Micromanagement
 {
-    public static partial class Micromanagement
+    public partial class Micromanagement<T, C> where T : IEnumerable<C>
     {
-        /// <summary>
-        /// For during game
-        /// </summary>
-        /// <param name="target_policy"></param>
-        /// <returns></returns>
-        public static Tuple<string, string, string> PredictSimulatedBattle(Func<string, string, List<Tuple<string, string>>> target_policy)
+        public Tuple<T, T> LanchesterBasedPrediction(TargetPolicy target_policy)
         {
-            var predicted_result = new Tuple<string, string, string>(null, null, null);
+            Tuple<T, T> battle_result = null;
 
             try
-            {
-
-            }
-            catch(Exception ex)
-            {
-
-            }
-
-            return predicted_result;
-        }
-
-        /// <summary>
-        /// For Model training and testing
-        /// </summary>
-        /// <returns></returns>
-        public static List<Tuple<string, string, string>> PredictSimulatedBattle()
-        {
-            var predicted_results = new List<Tuple<string, string, string>>();
-
-            try
-            {
-
-            }
-            catch(Exception ex)
             {
                 
             }
+            catch(Exception ex)
+            {
 
-            return predicted_results;
+            }
+
+            return battle_result;
+        }
+
+        public Tuple<T, T> StaticBasedPrediction(TargetPolicy target_policy)
+        {
+            Tuple<T, T> battle_result = null;
+
+            try
+            {
+                //TODO
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            return battle_result;
+        }
+
+        public Tuple<T, T> DynamicBasedPrediction(TargetPolicy target_policy)
+        {
+            Tuple<T, T> battle_result = null;
+
+            try
+            {
+                //TODO
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            return battle_result;
         }
     }
 }

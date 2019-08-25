@@ -60,12 +60,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Macromanagement\Macromanagement.cs" />
     <Compile Include="Macromanagement\MCTS.cs" />
     <Compile Include="Macromanagement\POMDP.cs" />
     <Compile Include="Macromanagement\Types\Participant.cs" />
     <Compile Include="Micromanagement\Algorithm.cs" />
-    <Compile Include="Micromanagement\MicroModel.cs" />
+    <Compile Include="Micromanagement\Micromanagement.cs" />
     <Compile Include="Micromanagement\Policy.cs" />
+    <Compile Include="Micromanagement\Types\Coordinate.cs" />
+    <Compile Include="Micromanagement\Types\CSVUnit.cs" />
+    <Compile Include="Micromanagement\Types\CSVUnits.cs" />
+    <Compile Include="Micromanagement\Types\ObservedUnit.cs" />
+    <Compile Include="Micromanagement\Types\ObservedUnits.cs" />
     <Compile Include="Micromanagement\Types\Unit.cs" />
     <Compile Include="ModelRepositoryService.cs" />
     <Compile Include="Program.cs" />

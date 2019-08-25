@@ -590,6 +590,40 @@ namespace KoKeKoKo
 					return TryBuildStructure(ABILITY_ID::BUILD_COMMANDCENTER);
 				}
 
+				bool TryCommandCenterMorphOrbitalCommand()
+				{
+					const ObservationInterface* observation = Observation();
+
+					if (CountUnitType(UNIT_TYPEID::TERRAN_COMMANDCENTER) > 0 && observation->GetMinerals() < 150)
+					{
+						return false;
+					}
+					return (TryResearch(ABILITY_ID::MORPH_ORBITALCOMMAND, UNIT_TYPEID::TERRAN_COMMANDCENTER));
+				}
+
+				bool TryCommandCenterSummonMule()
+				{
+					const ObservationInterface* observation = Observation();
+
+					if (CountUnitType(UNIT_TYPEID::TERRAN_ORBITALCOMMAND) > 0)
+					{
+						return false;
+					}
+					return (TryResearch(ABILITY_ID::EFFECT_CALLDOWNMULE, UNIT_TYPEID::TERRAN_ORBITALCOMMAND));
+				}
+
+				bool TryCommandCenterMorphPlanetaryFortress()
+				{
+					const ObservationInterface* observation = Observation();
+
+					if (CountUnitType(UNIT_TYPEID::TERRAN_COMMANDCENTER) > 0 && observation->GetMinerals() < 150 && observation->GetVespene() < 150)
+					{
+						return false;
+					}
+					return (TryResearch(ABILITY_ID::MORPH_PLANETARYFORTRESS, UNIT_TYPEID::TERRAN_COMMANDCENTER));
+				}
+
+
 				bool TrainSCV()
 				{
 					const ObservationInterface* observation = Observation();
@@ -685,6 +719,39 @@ namespace KoKeKoKo
 					return TryResearch(ABILITY_ID::BUILD_TECHLAB, UNIT_TYPEID::TERRAN_BARRACKS);
 				}
 
+				bool TryBarracksTechLabResearchCombatShield()
+				{
+					const ObservationInterface* observation = Observation();
+
+					if (CountUnitType(UNIT_TYPEID::TERRAN_BARRACKSTECHLAB) > 0 && observation->GetMinerals() < 100 && observation->GetVespene() < 100)
+					{
+						return false;
+					}
+					return TryResearch(ABILITY_ID::RESEARCH_COMBATSHIELD, UNIT_TYPEID::TERRAN_BARRACKSTECHLAB);
+				}
+
+				bool TryBarracksTechLabResearchStimpack()
+				{
+					const ObservationInterface* observation = Observation();
+
+					if (CountUnitType(UNIT_TYPEID::TERRAN_BARRACKSTECHLAB) > 0 && observation->GetMinerals() < 100 && observation->GetVespene() < 100)
+					{
+						return false;
+					}
+					return TryResearch(ABILITY_ID::RESEARCH_STIMPACK, UNIT_TYPEID::TERRAN_BARRACKSTECHLAB);
+				}
+
+				bool TryBarracksTechLabResearchConcussiveShells()
+				{
+					const ObservationInterface* observation = Observation();
+
+					if (CountUnitType(UNIT_TYPEID::TERRAN_BARRACKSTECHLAB) > 0 && observation->GetMinerals() < 50 && observation->GetVespene() < 50)
+					{
+						return false;
+					}
+					return TryResearch(ABILITY_ID::RESEARCH_CONCUSSIVESHELLS, UNIT_TYPEID::TERRAN_BARRACKSTECHLAB);
+				}
+
 				bool TryBuildBarracksReactor()
 				{
 					const ObservationInterface* observation = Observation();
@@ -724,6 +791,11 @@ namespace KoKeKoKo
 						return false;
 					}
 					return TryTrainUnit(ABILITY_ID::TRAIN_HELLION, UNIT_TYPEID::TERRAN_FACTORY);
+				}
+
+				bool TryTransformHellionHellbat()
+				{
+					return TryResearch(ABILITY_ID::MORPH_HELLBAT, UNIT_TYPEID::TERRAN_HELLION);
 				}
 
 				bool TryTrainWidowMine()
@@ -770,6 +842,11 @@ namespace KoKeKoKo
 					return TryTrainUnit(ABILITY_ID::TRAIN_HELLBAT, UNIT_TYPEID::TERRAN_FACTORY);
 				}
 
+				bool TryTransformHellbatHellion()
+				{
+					return TryResearch(ABILITY_ID::MORPH_HELLION, UNIT_TYPEID::TERRAN_HELLIONTANK);
+				}
+
 				bool TryTrainThor()
 				{
 					const ObservationInterface* observation = Observation();
@@ -792,6 +869,39 @@ namespace KoKeKoKo
 						return false;
 					}
 					return TryResearch(ABILITY_ID::BUILD_TECHLAB, UNIT_TYPEID::TERRAN_FACTORY);
+				}
+
+				bool TryFactoryResearchInfernalPreIgniter()
+				{
+					const ObservationInterface* observation = Observation();
+
+					if (CountUnitType(UNIT_TYPEID::TERRAN_FACTORYTECHLAB) > 0 && observation->GetMinerals() < 100 && observation->GetVespene() < 100)
+					{
+						return false;
+					}
+					return TryResearch(ABILITY_ID::RESEARCH_INFERNALPREIGNITER, UNIT_TYPEID::TERRAN_FACTORYTECHLAB);
+				}
+
+				bool TryFactoryResearchMagFieldAccelerator()
+				{
+					const ObservationInterface* observation = Observation();
+
+					if (CountUnitType(UNIT_TYPEID::TERRAN_FACTORYTECHLAB) > 0 && observation->GetMinerals() < 100 && observation->GetVespene() < 100)
+					{
+						return false;
+					}
+					return TryResearch(ABILITY_ID::RESEARCH_MAGFIELDLAUNCHERS, UNIT_TYPEID::TERRAN_FACTORYTECHLAB);
+				}
+
+				bool TryFactoryResearchDrillingClaws()
+				{
+					const ObservationInterface* observation = Observation();
+
+					if (CountUnitType(UNIT_TYPEID::TERRAN_FACTORYTECHLAB) > 0 && observation->GetMinerals() < 75 && observation->GetVespene() < 75)
+					{
+						return false;
+					}
+					return TryResearch(ABILITY_ID::RESEARCH_DRILLINGCLAWS, UNIT_TYPEID::TERRAN_FACTORYTECHLAB);
 				}
 
 				bool TryBuildFactoryReactor()
@@ -857,6 +967,16 @@ namespace KoKeKoKo
 					return TryTrainUnit(ABILITY_ID::TRAIN_LIBERATOR, UNIT_TYPEID::TERRAN_STARPORT);
 				}
 
+				bool TryTransformLiberatorLiberatorAG()
+				{
+					return TryResearch(ABILITY_ID::MORPH_LIBERATORAGMODE, UNIT_TYPEID::TERRAN_LIBERATOR);
+				}
+
+				bool TryTransformLiberatorAGLiberator()
+				{
+					return TryResearch(ABILITY_ID::MORPH_LIBERATORAAMODE, UNIT_TYPEID::TERRAN_LIBERATORAG);
+				}
+
 				bool TryTrainRaven()
 				{
 					const ObservationInterface* observation = Observation();
@@ -866,6 +986,28 @@ namespace KoKeKoKo
 						return false;
 					}
 					return TryTrainUnit(ABILITY_ID::TRAIN_RAVEN, UNIT_TYPEID::TERRAN_STARPORT);
+				}
+
+				bool TryRavenSummonPointDefenseDrone()
+				{
+					const ObservationInterface* observation = Observation();
+
+					if (CountUnitType(UNIT_TYPEID::TERRAN_RAVEN) > 0)
+					{
+						return false;
+					}
+					return (TryResearch(ABILITY_ID::EFFECT_POINTDEFENSEDRONE, UNIT_TYPEID::TERRAN_RAVEN));
+				}
+
+				bool TryRavenSummonAutoTurret()
+				{
+					const ObservationInterface* observation = Observation();
+
+					if (CountUnitType(UNIT_TYPEID::TERRAN_RAVEN) > 0)
+					{
+						return false;
+					}
+					return (TryResearch(ABILITY_ID::EFFECT_AUTOTURRET, UNIT_TYPEID::TERRAN_RAVEN));
 				}
 
 				bool TryTrainBanshee()
@@ -903,6 +1045,61 @@ namespace KoKeKoKo
 					return TryResearch(ABILITY_ID::BUILD_TECHLAB, UNIT_TYPEID::TERRAN_STARPORT);
 				}
 
+				bool TryStarportResearchCorvidReactor()
+				{
+					const ObservationInterface* observation = Observation();
+
+					if (CountUnitType(UNIT_TYPEID::TERRAN_STARPORTTECHLAB) > 0 && observation->GetMinerals() < 150 && observation->GetVespene() < 150)
+					{
+						return false;
+					}
+					return TryResearch(ABILITY_ID::RESEARCH_RAVENCORVIDREACTOR, UNIT_TYPEID::TERRAN_STARPORTTECHLAB);
+				}
+
+				bool TryStarportResearchCloakingField()
+				{
+					const ObservationInterface* observation = Observation();
+
+					if (CountUnitType(UNIT_TYPEID::TERRAN_STARPORTTECHLAB) > 0 && observation->GetMinerals() < 100 && observation->GetVespene() < 100)
+					{
+						return false;
+					}
+					return TryResearch(ABILITY_ID::RESEARCH_BANSHEECLOAKINGFIELD, UNIT_TYPEID::TERRAN_STARPORTTECHLAB);
+				}
+
+				bool TryStarportResearchHyperflightRotors()
+				{
+					const ObservationInterface* observation = Observation();
+
+					if (CountUnitType(UNIT_TYPEID::TERRAN_STARPORTTECHLAB) > 0 && observation->GetMinerals() < 150 && observation->GetVespene() < 150)
+					{
+						return false;
+					}
+					return TryResearch(ABILITY_ID::RESEARCH_BANSHEEHYPERFLIGHTROTORS, UNIT_TYPEID::TERRAN_STARPORTTECHLAB);
+				}
+
+				bool TryStarportResearchAdvancedBallistics()
+				{
+					const ObservationInterface* observation = Observation();
+
+					if (CountUnitType(UNIT_TYPEID::TERRAN_STARPORTTECHLAB) > 0 && observation->GetMinerals() < 150 && observation->GetVespene() < 150)
+					{
+						return false;
+					}
+					return TryResearch(ABILITY_ID::RESEARCH_ADVANCEDBALLISTICS, UNIT_TYPEID::TERRAN_STARPORTTECHLAB);
+				}
+
+				bool TryStarportResearchRapidReignitionSystem()
+				{
+					const ObservationInterface* observation = Observation();
+
+					if (CountUnitType(UNIT_TYPEID::TERRAN_STARPORTTECHLAB) > 0 && observation->GetMinerals() < 100 && observation->GetVespene() < 100)
+					{
+						return false;
+					}
+					return TryResearch(ABILITY_ID::RESEARCH_HIGHCAPACITYFUELTANKS, UNIT_TYPEID::TERRAN_STARPORTTECHLAB);
+				}
+
 				bool TryBuildStarportReactor()
 				{
 					const ObservationInterface* observation = Observation();
@@ -932,6 +1129,17 @@ namespace KoKeKoKo
 					return TryBuildStructure(ABILITY_ID::BUILD_FUSIONCORE);
 				}
 
+				bool TryFusionCoreResearchResearchWeaponRefit()
+				{
+					const ObservationInterface* observation = Observation();
+
+					if (CountUnitType(UNIT_TYPEID::TERRAN_STARPORTTECHLAB) > 0 && observation->GetMinerals() < 150 && observation->GetVespene() < 150)
+					{
+						return false;
+					}
+					return TryResearch(ABILITY_ID::RESEARCH_BATTLECRUISERWEAPONREFIT, UNIT_TYPEID::TERRAN_FUSIONCORE);
+				}
+
 				bool TryBuildArmory()
 				{
 					const ObservationInterface* observation = Observation();
@@ -948,6 +1156,85 @@ namespace KoKeKoKo
 
 					return TryBuildStructure(ABILITY_ID::BUILD_ARMORY);
 				}
+
+				bool TryArmoryResearchVehicleWeapons()
+				{
+					const ObservationInterface* observation = Observation();
+					for (UpgradeID i : observation->GetUpgrades())
+					{
+						if (observation->GetMinerals() < 100 & observation->GetVespene() < 100)
+						{
+							return false;
+						}
+						else if (i == UPGRADE_ID::TERRANVEHICLEWEAPONSLEVEL1 && observation->GetMinerals() < 175 & observation->GetVespene() < 175)
+						{
+							return false;
+						}
+						else if (i == UPGRADE_ID::TERRANVEHICLEWEAPONSLEVEL2 && observation->GetMinerals() < 250 & observation->GetVespene() < 250)
+						{
+							return false;
+						}
+						else if (i == UPGRADE_ID::TERRANVEHICLEWEAPONSLEVEL3)
+						{
+							return false;
+						}
+					}
+
+					return TryResearch(ABILITY_ID::RESEARCH_TERRANVEHICLEWEAPONS, UNIT_TYPEID::TERRAN_ARMORY);
+				}
+
+				bool TryArmoryResearchShipWeapons()
+				{
+					const ObservationInterface* observation = Observation();
+					for (UpgradeID i : observation->GetUpgrades())
+					{
+						if (observation->GetMinerals() < 100 & observation->GetVespene() < 100)
+						{
+							return false;
+						}
+						else if (i == UPGRADE_ID::TERRANSHIPWEAPONSLEVEL1 && observation->GetMinerals() < 175 & observation->GetVespene() < 175)
+						{
+							return false;
+						}
+						else if (i == UPGRADE_ID::TERRANSHIPWEAPONSLEVEL2 && observation->GetMinerals() < 250 & observation->GetVespene() < 250)
+						{
+							return false;
+						}
+						else if (i == UPGRADE_ID::TERRANSHIPWEAPONSLEVEL3)
+						{
+							return false;
+						}
+					}
+
+					return TryResearch(ABILITY_ID::RESEARCH_TERRANSHIPWEAPONS, UNIT_TYPEID::TERRAN_ARMORY);
+				}
+
+				bool TryArmoryResearchVehicleShipPlating()
+				{
+					const ObservationInterface* observation = Observation();
+					for (UpgradeID i : observation->GetUpgrades())
+					{
+						if (observation->GetMinerals() < 100 & observation->GetVespene() < 100)
+						{
+							return false;
+						}
+						else if (i == UPGRADE_ID::TERRANVEHICLEANDSHIPARMORSLEVEL1 && observation->GetMinerals() < 175 & observation->GetVespene() < 175)
+						{
+							return false;
+						}
+						else if (i == UPGRADE_ID::TERRANVEHICLEANDSHIPARMORSLEVEL2 && observation->GetMinerals() < 250 & observation->GetVespene() < 250)
+						{
+							return false;
+						}
+						else if (i == UPGRADE_ID::TERRANVEHICLEANDSHIPARMORSLEVEL3)
+						{
+							return false;
+						}
+					}
+
+					return TryResearch(ABILITY_ID::RESEARCH_TERRANVEHICLEANDSHIPPLATING, UNIT_TYPEID::TERRAN_ARMORY);
+				}
+
 
 				bool TryBuildBunker()
 				{
@@ -983,6 +1270,58 @@ namespace KoKeKoKo
 					return TryBuildStructure(ABILITY_ID::BUILD_ENGINEERINGBAY);
 				}
 
+				bool TryEngineeringBayResearchInfantryArmor()
+				{
+					const ObservationInterface* observation = Observation();
+					for (UpgradeID i : observation->GetUpgrades())
+					{
+						if (observation->GetMinerals() < 100 & observation->GetVespene() < 100)
+						{
+							return false;
+						}
+						else if (i == UPGRADE_ID::TERRANINFANTRYARMORSLEVEL1 && observation->GetMinerals() < 175 & observation->GetVespene() < 175)
+						{
+							return false;
+						}
+						else if (i == UPGRADE_ID::TERRANINFANTRYARMORSLEVEL2 && observation->GetMinerals() < 250 & observation->GetVespene() < 250)
+						{
+							return false;
+						}
+						else if (i == UPGRADE_ID::TERRANINFANTRYARMORSLEVEL3)
+						{
+							return false;
+						}
+					}
+
+					return TryResearch(ABILITY_ID::RESEARCH_TERRANINFANTRYARMOR, UNIT_TYPEID::TERRAN_ENGINEERINGBAY);
+				}
+
+				bool TryEngineeringBayResearchInfantryWeapon()
+				{
+					const ObservationInterface* observation = Observation();
+					for (UpgradeID i : observation->GetUpgrades())
+					{
+						if (observation->GetMinerals() < 100 & observation->GetVespene() < 100)
+						{
+							return false;
+						}
+						else if (i == UPGRADE_ID::TERRANINFANTRYWEAPONSLEVEL1 && observation->GetMinerals() < 175 & observation->GetVespene() < 175)
+						{
+							return false;
+						}
+						else if (i == UPGRADE_ID::TERRANINFANTRYWEAPONSLEVEL2 && observation->GetMinerals() < 250 & observation->GetVespene() < 250)
+						{
+							return false;
+						}
+						else if (i ==  UPGRADE_ID::TERRANINFANTRYWEAPONSLEVEL3)
+						{
+							return false;
+						}
+					}
+
+					return TryResearch(ABILITY_ID::RESEARCH_TERRANINFANTRYWEAPONS, UNIT_TYPEID::TERRAN_ENGINEERINGBAY);
+				}
+
 				bool TryBuildGhostAcademy()
 				{
 					const ObservationInterface* observation = Observation();
@@ -998,6 +1337,28 @@ namespace KoKeKoKo
 					}
 
 					return TryBuildStructure(ABILITY_ID::BUILD_GHOSTACADEMY);
+				}
+
+				bool TryGhostAcademyResearchPersonalCloaking()
+				{
+					const ObservationInterface* observation = Observation();
+
+					if (CountUnitType(UNIT_TYPEID::TERRAN_STARPORTTECHLAB) > 0 && observation->GetMinerals() < 150 && observation->GetVespene() < 150)
+					{
+						return false;
+					}
+					return TryResearch(ABILITY_ID::RESEARCH_PERSONALCLOAKING, UNIT_TYPEID::TERRAN_GHOSTACADEMY);
+				}
+
+				bool TryGhostAcademyBuildNuke()
+				{
+					const ObservationInterface* observation = Observation();
+
+					if (CountUnitType(UNIT_TYPEID::TERRAN_STARPORTTECHLAB) > 0 && observation->GetMinerals() < 100 && observation->GetVespene() < 100)
+					{
+						return false;
+					}
+					return TryResearch(ABILITY_ID::BUILD_NUKE, UNIT_TYPEID::TERRAN_GHOSTACADEMY);
 				}
 
 				bool TryBuildMissileTurret()
@@ -1243,6 +1604,18 @@ namespace KoKeKoKo
 					{
 						TryBuildCommandCenter();
 					}
+					else if (action.find("Orbital Command") != string::npos)
+					{
+						TryCommandCenterMorphOrbitalCommand();
+					}
+					else if (action.find("Calldown: MULE") != string::npos)
+					{
+						TryCommandCenterSummonMule();
+					}
+					else if (action.find("Planetary Fortress") != string::npos)
+					{
+						TryCommandCenterMorphPlanetaryFortress();
+					}
 					else if (action.find("Train SCV") != string::npos)
 					{
 						TrainSCV();
@@ -1275,6 +1648,18 @@ namespace KoKeKoKo
 					{
 						TryBuildBarracksTechLab();
 					}
+					else if (action.find("Research Combat Shield") != string::npos)
+					{
+						TryBarracksTechLabResearchCombatShield();
+					}
+					else if (action.find("Research Stimpack") != string::npos)
+					{
+						TryBarracksTechLabResearchStimpack();
+					}
+					else if (action.find("Research Concussive Shells") != string::npos)
+					{
+						TryBarracksTechLabResearchConcussiveShells();
+					}
 					else if (action.find("Build Barracks Reactor") != string::npos)
 					{
 						TryBuildBarracksReactor();
@@ -1286,6 +1671,10 @@ namespace KoKeKoKo
 					else if (action.find("Train Hellion") != string::npos)
 					{
 						TryTrainHellion();
+					}
+					else if (action.find("Hellbat Mode") != string::npos)
+					{
+						TryTransformHellionHellbat();
 					}
 					else if (action.find("Train Widow") != string::npos)
 					{
@@ -1299,9 +1688,13 @@ namespace KoKeKoKo
 					{
 						TryTrainCyclone();
 					}
-					else if (action.find("Train Hell") != string::npos)
+					else if (action.find("Train Hellbat") != string::npos)
 					{
 						TryTrainHellbat();
+					}
+					else if (action.find("Hellion Mode") != string::npos)
+					{
+						TryTransformHellbatHellion();
 					}
 					else if (action.find("Train Thor") != string::npos)
 					{
@@ -1310,6 +1703,18 @@ namespace KoKeKoKo
 					else if (action.find("Build Factory Tech") != string::npos)
 					{
 						TryBuildFactoryTechLab();
+					}
+					else if (action.find("Research Infernal Pre-Igniter") != string::npos)
+					{
+						TryFactoryResearchInfernalPreIgniter();
+					}
+					else if (action.find("Research Mag-Field Accelerator") != string::npos)
+					{
+						TryFactoryResearchMagFieldAccelerator();
+					}
+					else if (action.find("Research Drilling Claws") != string::npos)
+					{
+						TryFactoryResearchDrillingClaws();
 					}
 					else if (action.find("Build Factory Reactor") != string::npos)
 					{
@@ -1331,9 +1736,21 @@ namespace KoKeKoKo
 					{
 						TryTrainLiberator();
 					}
+					else if (action.find("Defender Mode") != string::npos)
+					{
+						TryTransformLiberatorLiberatorAG();
+					}
+					else if (action.find("Fighter Mode") != string::npos)
+					{
+						TryTransformLiberatorAGLiberator();
+					}
 					else if (action.find("Train Raven") != string::npos)
 					{
 						TryTrainRaven();
+					}
+					else if (action.find("Build Auto-Turret") != string::npos)
+					{
+						TryRavenSummonAutoTurret();
 					}
 					else if (action.find("Train Banshee") != string::npos)
 					{
@@ -1347,29 +1764,81 @@ namespace KoKeKoKo
 					{
 						TryBuildStarportTechLab();
 					}
-					else if (action.find("Build Starport Reactor") != string::npos)
+					else if (action.find("Build Starport Tech") != string::npos)
 					{
-						TryBuildStarportReactor();
+						TryBuildStarportTechLab();
 					}
-					else if (action.find("Build Fusion") != string::npos)
+					else if (action.find("Research Rapid Reignition System") != string::npos)
+					{
+						TryStarportResearchRapidReignitionSystem();
+					}
+					else if (action.find("Research Corvid Reactor") != string::npos)
+					{
+						TryStarportResearchCorvidReactor();
+					}
+					else if (action.find("Research Cloaking Field") != string::npos)
+					{
+						TryStarportResearchCloakingField();
+					}
+					else if (action.find("Research Hyperflight Rotors") != string::npos)
+					{
+						TryStarportResearchHyperflightRotors();
+					}
+					else if (action.find("Research Advanced Ballistics") != string::npos)
+					{
+						TryStarportResearchAdvancedBallistics();
+					}
+					else if (action.find("Build Fusion Core") != string::npos)
 					{
 						TryBuildFusionCore();
+					}
+					else if (action.find("Research Weapon Refit") != string::npos)
+					{
+						TryFusionCoreResearchResearchWeaponRefit();
 					}
 					else if (action.find("Build Armory") != string::npos)
 					{
 						TryBuildArmory();
 					}
+					else if (action.find("Research Vehicle Weapons") != string::npos)
+					{
+						TryArmoryResearchVehicleWeapons();
+					}
+					else if (action.find("Research Ship Weapons") != string::npos)
+					{
+						TryArmoryResearchShipWeapons();
+					}
+					else if (action.find("Research Vehicle and Ship Plating") != string::npos)
+					{
+						TryArmoryResearchVehicleShipPlating();
+					}
 					else if (action.find("Build Bunker") != string::npos)
 					{
 						TryBuildBunker();
 					}
-					else if (action.find("Build Engineering") != string::npos)
+					else if (action.find("Build Engineering Bay") != string::npos)
 					{
 						TryBuildEngineeringBay();
 					}
-					else if (action.find("Build Ghost") != string::npos)
+					else if (action.find("Research Infantry Weapons") != string::npos)
+					{
+						TryEngineeringBayResearchInfantryWeapon();
+					}
+					else if (action.find("Research Infantry Armor") != string::npos)
+					{
+						TryEngineeringBayResearchInfantryArmor();
+					}
+					else if (action.find("Build Ghost Academy") != string::npos)
 					{
 						TryBuildGhostAcademy();
+					}
+					else if (action.find("Research Personal Cloaking") != string::npos)
+					{
+						TryGhostAcademyResearchPersonalCloaking();
+					}
+					else if (action.find("Build Nuke") != string::npos)
+					{
+						TryGhostAcademyBuildNuke();
 					}
 					else if (action.find("Build Missile Turret") != string::npos)
 					{

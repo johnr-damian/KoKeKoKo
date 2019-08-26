@@ -280,9 +280,10 @@ namespace ModelService
                     if(filename == @"Test\ArmyTraining.csv")
                     {
                         bool ready_for_storage = false;
+                        int line_pointer = 0, content_start = -1, content_end = -1;
                         string current_rank = "", current_replay = "";
 
-                        for(int line_pointer = 0, content_start = -1, content_end = -1; line_pointer < raw_repository.Length; line_pointer++)
+                        for(; line_pointer < raw_repository.Length; line_pointer++)
                         {
                             var contents = raw_repository[line_pointer].Split(',');
 
@@ -312,6 +313,16 @@ namespace ModelService
                                     ready_for_storage = false;
                                 }
                             }
+                        }
+
+                        //There is a residue to add
+                        if(ready_for_storage)
+                        {
+                            int end_offset = (ranks.Contains(raw_repository[line_pointer - 1])) ? 1 : 0;
+
+                            content_end = line_pointer - end_offset;
+                            var battle = String.Join("\n", raw_repository.Skip(content_start).Take(content_end - content_start)).Split(new string[] { "END" }, StringSplitOptions.None);
+                            repository[current_replay] = new Tuple<string, string, string>(current_rank, battle[0].Trim('\n', ' ', '\r'), battle[1].Trim('\n', ' ', '\r'));
                         }
                     }
                     else if(filename == @"Test\CommandsRepository.csv")

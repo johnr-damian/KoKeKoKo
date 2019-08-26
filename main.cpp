@@ -16,9 +16,9 @@ namespace KoKeKoKo
 		//The program that computes for POMDP Model and MCTS Model using R
 		const string MODELSERVICE_FILENAME = "ModelService\\bin\\Debug\\ModelService.exe";
 		//The extracted commands from the replay training data
-		const string COMMANDSREPOSITORY_FILENAME = "Documents\\Data\\CommandsRepository.csv";
+		const string COMMANDSREPOSITORY_FILENAME = "Documents\\Training\\CommandsRepository.csv";
 		//The extracted resources from the replay training data
-		const string RESOURCESREPOSITORY_FILENAME = "Documents\\Data\\ResourcesRepository.csv";
+		const string RESOURCESREPOSITORY_FILENAME = "Documents\\Training\\ResourcesRepository.csv";
 		//The list of ranks contianing their respective range of ability value
 		const std::map<std::string, std::pair<double, double>> RANKS =
 		{

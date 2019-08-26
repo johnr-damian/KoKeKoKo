@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Pipes;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -34,16 +35,30 @@ namespace ModelService
                     Console.WriteLine("Performing Micromanagement Prediction...");
 
                     //Perform Micromanagement Testing
-                    //Read stuff
-
+                    var raw_battles = new List<Micromanagement<CSVUnits, CSVUnit>>();
+                    //Read the Repository
                     var army_repository = ModelRepositoryService.ReadRepository(@"Test\ArmyTraining.csv");
-                    foreach(var kv in army_repository)
+                    var resource_repository = ModelRepositoryService.ReadRepository(@"Test\ResourcesRepository.csv");
+                    //Relate the ResourceRepository to ArmyRepository for Buffs
+                    var combined_repository = new Dictionary<string, Tuple<string, string, string, string>>();
+                    //foreach(var kv in army_repository)
+                    //{
+                    //    Console.WriteLine($@"{kv.Key}: ");
+                    //    Console.WriteLine($@"{kv.Value.Item2}");
+                    //    Console.WriteLine("END: ");
+                    //    Console.WriteLine($@"{kv.Value.Item3}");
+                    //    Console.ReadLine();
+                    //}
+                    foreach (var raw_units in army_repository)
                     {
-                        Console.WriteLine($@"{kv.Key}: ");
-                        Console.WriteLine($@"{kv.Value.Item2}");
-                        Console.WriteLine("END: ");
-                        Console.WriteLine($@"{kv.Value.Item3}");
-                        Console.ReadLine();
+                        //var owned_units = raw_units.Value.Item2.Split('\n').GroupBy(line => line.Split(',')[1]).ToList();
+                        //var owned_units = (from line in raw_units.Value.Item2.Split('\n') group line by line.Split(',')[1] into army select from armed in army select armed).ToList();
+                        var owned_units = (from repository_line in raw_units.Value.Item2.Split('\n')
+                                          group repository_line by repository_line.Split(',')[1] into armies
+                                          select armies).ToList();
+                        foreach (var k in owned_units.SelectMany(x => x))
+                            Console.WriteLine(k);
+                        //Task.Run(raw_battles.Add(new Micromanagement<CSVUnits, CSVUnit>(new CSVUnits(), new CSVUnits())));
                     }
                     var micromanagement = new Micromanagement<CSVUnits, CSVUnit>(null, null);
                     var lanchester_random = micromanagement.LanchesterBasedPrediction(TargetPolicy.Random);

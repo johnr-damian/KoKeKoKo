@@ -35,6 +35,16 @@ namespace ModelService
 
                     //Perform Micromanagement Testing
                     //Read stuff
+
+                    var army_repository = ModelRepositoryService.ReadRepository(@"Test\ArmyTraining.csv");
+                    foreach(var kv in army_repository)
+                    {
+                        Console.WriteLine($@"{kv.Key}: ");
+                        Console.WriteLine($@"{kv.Value.Item2}");
+                        Console.WriteLine("END: ");
+                        Console.WriteLine($@"{kv.Value.Item3}");
+                        Console.ReadLine();
+                    }
                     var micromanagement = new Micromanagement<CSVUnits, CSVUnit>(null, null);
                     var lanchester_random = micromanagement.LanchesterBasedPrediction(TargetPolicy.Random);
                     var lanchester_priority = micromanagement.LanchesterBasedPrediction(TargetPolicy.Priority);

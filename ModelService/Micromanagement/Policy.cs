@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ModelService.Micromanagement
 {
-    public partial class Micromanagement<T, C> where T : IEnumerable<C>
+    public partial class Micromanagement<T, C> where T : IEnumerable<C> where C : Types.Unit
     {
         private bool RandomBasedTargetPolicy(T owned_units, T enemy_units)
         {
@@ -24,6 +24,9 @@ namespace ModelService.Micromanagement
                 }
                 else
                 {
+                    var gamebased_owned_units = (owned_units as Types.ObservedUnits);
+                    var gamebased_enemy_units = (owned_units as Types.ObservedUnits);
+
 
                 }
             }

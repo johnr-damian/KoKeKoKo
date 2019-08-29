@@ -35,7 +35,7 @@ namespace ModelService
                     Console.WriteLine("Performing Micromanagement Prediction...");
 
                     //Perform Micromanagement Testing
-                    var raw_battles = new List<Micromanagement<CSVUnits, CSVUnit>>();
+                    var battles = new List<Micromanagement<CSVUnits, CSVUnit>>();
                     //Read the Repository
                     var army_repository = ModelRepositoryService.ReadRepository(@"Test\ArmyTraining.csv");
                     var resource_repository = ModelRepositoryService.ReadRepository(@"Test\ResourcesRepository.csv");
@@ -49,25 +49,77 @@ namespace ModelService
                     //    Console.WriteLine($@"{kv.Value.Item3}");
                     //    Console.ReadLine();
                     //}
-                    foreach (var raw_units in army_repository)
-                    {
-                        //var owned_units = raw_units.Value.Item2.Split('\n').GroupBy(line => line.Split(',')[1]).ToList();
-                        //var owned_units = (from line in raw_units.Value.Item2.Split('\n') group line by line.Split(',')[1] into army select from armed in army select armed).ToList();
-                        var owned_units = (from repository_line in raw_units.Value.Item2.Split('\n')
-                                          group repository_line by repository_line.Split(',')[1] into armies
-                                          select armies).ToList();
-                        foreach (var k in owned_units.SelectMany(x => x))
-                            Console.WriteLine(k);
-                        //Task.Run(raw_battles.Add(new Micromanagement<CSVUnits, CSVUnit>(new CSVUnits(), new CSVUnits())));
-                    }
-                    var micromanagement = new Micromanagement<CSVUnits, CSVUnit>(null, null);
-                    var lanchester_random = micromanagement.LanchesterBasedPrediction(TargetPolicy.Random);
-                    var lanchester_priority = micromanagement.LanchesterBasedPrediction(TargetPolicy.Priority);
-                    var lanchester_resource = micromanagement.LanchesterBasedPrediction(TargetPolicy.Resource);
 
-                    Console.WriteLine(micromanagement.GetSummaryOfResults(lanchester_random.Item1, lanchester_random.Item2));
-                    Console.WriteLine(micromanagement.GetSummaryOfResults(lanchester_priority.Item1, lanchester_priority.Item2));
-                    Console.WriteLine(micromanagement.GetSummaryOfResults(lanchester_resource.Item1, lanchester_resource.Item2));
+
+
+                    foreach(var battle in army_repository)
+                    {
+                        var armies = battle.Value.Item2.Split('\n').GroupBy(army => army.Split(',')[0]).ToDictionary(key => key.Key, value => value.ToList());
+                        var parsed_armies = (from army in armies select new CSVUnits(String.Join("\n", army.Value))).ToList();
+
+                        if (parsed_armies.Count == 2)
+                            battles.Add(new Micromanagement<CSVUnits, CSVUnit>(parsed_armies[0], parsed_armies[1]));
+                        else
+                            throw new InvalidOperationException("There is no armies to simulate battle...");
+                    }
+                    //Start simulating
+                    var tasks = new List<Task>();
+                    foreach (var battle in battles)
+                        //Task.Factory.StartNew(() => battle.GetSummaryOfResults());
+                        tasks.Add(Task.Run(() => battle.GetSummaryOfResults()));
+
+                    Console.WriteLine("test");
+
+                    tasks.ForEach(task => task.Wait());
+
+                    Console.WriteLine("We");
+                    Console.ReadLine();
+                    
+
+
+                    //foreach (var raw_units in army_repository)
+                    //{
+                    //    //var owned_units = raw_units.Value.Item2.Split('\n').GroupBy(line => line.Split(',')[1]).ToList();
+                    //    //var owned_units = (from line in raw_units.Value.Item2.Split('\n') group line by line.Split(',')[1] into army select from armed in army select armed).ToList();
+                    //    //var owned_units = (from repository_line in raw_units.Value.Item2.Split('\n')
+                    //    //                  group repository_line by repository_line.Split(',')[1] into armies
+                    //    //                  select armies).ToList();
+                    //    var owned_units = raw_units.Value.Item2.Split('\n');
+                    //    var owned_units2 = owned_units.GroupBy(elements => elements.Split(',')[1]);
+                    //    //var owned_units3 = owned_units2.ToDictionary(key => key.Key, value => value.SelectMany(line => line));
+                    //    var owned_units3 = owned_units2.ToDictionary(key => key.Key, value => value.ToList());
+                    //    //foreach (var k in owned_units2)
+                    //    //{
+                    //    //    foreach(var s in k)
+                    //    //    {
+                    //    //        Console.WriteLine(s);
+                    //    //        Console.ReadLine();
+                    //    //    }
+                    //    //    Console.WriteLine(Environment.NewLine);
+                    //    //}
+
+                    //    foreach(var k in owned_units3)
+                    //    {
+                    //        foreach (var s in k.Value)
+                    //            Console.WriteLine(s);
+                    //        //Console.WriteLine(k.Value.ToString());
+                    //        Console.WriteLine(Environment.NewLine);
+                    //        Console.ReadLine();
+                    //    }
+                    //    //Task.Run(raw_battles.Add(new Micromanagement<CSVUnits, CSVUnit>(new CSVUnits(), new CSVUnits())));
+                    //}
+                    ////var micromanagement = new Micromanagement<CSVUnits, CSVUnit>(null, null);
+                    ////var micromanagement = from battle in army_repository
+                    ////                      select battle.Value.Item2.Split('\n').GroupBy(unit => unit.Split(',')[1]).ToDictionary(key => key.Key, value => value.ToList());
+
+
+                    //var lanchester_random = micromanagement.LanchesterBasedPrediction(TargetPolicy.Random);
+                    //var lanchester_priority = micromanagement.LanchesterBasedPrediction(TargetPolicy.Priority);
+                    //var lanchester_resource = micromanagement.LanchesterBasedPrediction(TargetPolicy.Resource);
+
+                    //Console.WriteLine(micromanagement.GetSummaryOfResults(lanchester_random.Item1, lanchester_random.Item2));
+                    //Console.WriteLine(micromanagement.GetSummaryOfResults(lanchester_priority.Item1, lanchester_priority.Item2));
+                    //Console.WriteLine(micromanagement.GetSummaryOfResults(lanchester_resource.Item1, lanchester_resource.Item2));
 
                     Console.WriteLine("Performing Macromanagement Prediction...");
                     Macromanagement.Macromanagement.PerformMacromanagementTest();

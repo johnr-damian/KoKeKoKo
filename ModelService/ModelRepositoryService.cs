@@ -257,6 +257,11 @@ namespace ModelService
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="filename"></param>
+        /// <returns>Army- Returns Replay filename, Rank, Units from both sides, Survived units</returns>
         public static Dictionary<string, Tuple<string, string, string>> ReadRepository(string filename)
         {
             var repository = new Dictionary<string, Tuple<string, string, string>>();

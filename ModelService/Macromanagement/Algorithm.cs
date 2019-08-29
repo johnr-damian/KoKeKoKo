@@ -7,10 +7,20 @@ using System.Threading.Tasks;
 namespace ModelService.Macromanagement
 {
     public partial class Macromanagement
-    {        
-        public static void PerformMacromanagementTest()
+    {
+        public string POMDP()
         {
+            return "";
+        }
 
+        public string MCTS()
+        {
+            return "";
+        }
+
+        public string POMDPMCTS()
+        {
+            return "";
         }
     }
 }

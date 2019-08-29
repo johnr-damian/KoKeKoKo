@@ -60,9 +60,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Macromanagement\Algorithm.cs" />
     <Compile Include="Macromanagement\Macromanagement.cs" />
-    <Compile Include="Macromanagement\MCTS.cs" />
-    <Compile Include="Macromanagement\POMDP.cs" />
     <Compile Include="Macromanagement\Types\Participant.cs" />
     <Compile Include="Micromanagement\Algorithm.cs" />
     <Compile Include="Micromanagement\Micromanagement.cs" />

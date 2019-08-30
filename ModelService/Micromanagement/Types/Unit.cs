@@ -16,6 +16,49 @@ namespace ModelService.Micromanagement.Types
         public static Dictionary<string, Tuple<double, double, double, double, int, bool>> UNIT_DEFINITIONS = new Dictionary<string, Tuple<double, double, double, double, int, bool>>()
         {
             //TODO
+            //Ground Units
+            ["Widow Mine"] = new Tuple<double, double, double, double, int, bool>(90, 0, 125, 125, 0, false),
+            ["SCV"] = new Tuple<double, double, double, double, int, bool>(45, 0, 4.67, 0, 0, false),
+            ["Marine"] = new Tuple<double, double, double, double, int, bool>(45, 0, 9.8, 9.8, 0, false),
+            ["Marauder"] = new Tuple<double, double, double, double, int, bool>(125, 0, 9.3, 0, 1, false),
+            ["Reaper"] = new Tuple<double, double, double, double, int, bool>(60, 0, 10.1, 0, 0, false),
+            ["Ghost"] = new Tuple<double, double, double, double, int, bool>(100, 200, 9.3, 9.3, 0, false), //75/200
+            ["Hellion"] = new Tuple<double, double, double, double, int, bool>(90, 0, 4.48, 0, 0, false),
+            ["Hellbat"] = new Tuple<double, double, double, double, int, bool>(135, 0, 12.6, 0, 0, false),
+            ["Siege Tank (Tank mode)"] = new Tuple<double, double, double, double, int, bool>(175, 0, 20.27, 0, 1, false),
+            ["Siege Tank (Siege mode)"] = new Tuple<double, double, double, double, int, bool>(175, 0, 18.69, 0, 1, false),
+            ["Cyclone"] = new Tuple<double, double, double, double, int, bool>(120, 0, 25.2, 25.2, 1, false),
+            ["Thor (Attack 1)"] = new Tuple<double, double, double, double, int, bool>(400, 0, 65.9, 0, 1, false),
+            ["Thor (Explosive)"] = new Tuple<double, double, double, double, int, bool>(400, 0, 0, 11.2, 1, false),
+            ["Thor (High Impact)"] = new Tuple<double, double, double, double, int, bool>(400, 0, 0, 23.4, 1, false),
+            ["Auto-Turret"] = new Tuple<double, double, double, double, int, bool>(150, 0, 31.58, 31.58, 1, false),
+            //Air Units
+            ["Viking (Attack 1)"] = new Tuple<double, double, double, double, int, bool>(135, 0, 16.8, 0, 0, true),
+            ["Viking (Attack 2)"] = new Tuple<double, double, double, double, int, bool>(135, 0, 0, 14, 0, true),
+            ["Medivac"] = new Tuple<double, double, double, double, int, bool>(150, 200, 0, 0, 1, true), //50/200
+            ["Liberator (Attack 1)"] = new Tuple<double, double, double, double, int, bool>(180, 0, 65.8, 0, 0, true),
+            ["Liberator (Attack 2)"] = new Tuple<double, double, double, double, int, bool>(180, 0, 0, 7.8, 0, true),
+            ["Raven"] = new Tuple<double, double, double, double, int, bool>(140, 200, 0, 0, 1, true), //50(+25)/200
+            ["Banshee"] = new Tuple<double, double, double, double, int, bool>(140, 200, 27, 0, 0, true),
+            ["Battlecruiser (Attack 1)"] = new Tuple<double, double, double, double, int, bool>(550, 200, 49.8, 0, 3, true),
+            ["Battlecruiser (Attack 2)"] = new Tuple<double, double, double, double, int, bool>(550, 200, 0, 31.1, 3, true),
+            //Buildings
+            ["Planetary Fortress"] = new Tuple<double, double, double, double, int, bool>(1500, 0, 28, 0, 3, false),
+            ["Bunker"] = new Tuple<double, double, double, double, int, bool>(400, 0, 0, 0, 1, false),
+            ["Missile Turret"] = new Tuple<double, double, double, double, int, bool>(250, 0, 0, 39.3, 1, false),
+            ["Command Center"] = new Tuple<double, double, double, double, int, bool>(1500, 0, 0, 0, 1, false),
+            ["Orbital Command"] = new Tuple<double, double, double, double, int, bool>(1500, 200, 0, 0, 1, false), //50/200
+            ["Supply Depot"] = new Tuple<double, double, double, double, int, bool>(400, 0, 0, 0, 1, false),
+            ["Refinery"] = new Tuple<double, double, double, double, int, bool>(500, 0, 0, 0, 1, false),
+            ["Barracks"] = new Tuple<double, double, double, double, int, bool>(1000, 0, 0, 0, 1, false),
+            ["Engineering Bay"] = new Tuple<double, double, double, double, int, bool>(850, 0, 0, 0, 1, false),
+            ["Bunker"] = new Tuple<double, double, double, double, int, bool>(400, 0, 0, 0, 1, false),
+            ["Sensor Tower"] = new Tuple<double, double, double, double, int, bool>(200, 0, 0, 0, 0, false),
+            ["Factory"] = new Tuple<double, double, double, double, int, bool>(1250, 0, 0, 0, 1, false),
+            ["Ghost Academy"] = new Tuple<double, double, double, double, int, bool>(1250, 0, 0, 0, 1, false),
+            ["Starport"] = new Tuple<double, double, double, double, int, bool>(1300, 0, 0, 0, 1, false),
+            ["Armory"] = new Tuple<double, double, double, double, int, bool>(750, 0, 0, 0, 1, false),
+            ["Fusion Core"] = new Tuple<double, double, double, double, int, bool>(750, 0, 0, 0, 1, false)
         };
 
         /// <summary>
@@ -26,42 +69,42 @@ namespace ModelService.Micromanagement.Types
         {
             //TODO
             //Ground Units
-            ["Widow Mine"] = new Tuple<int, double, double, int>(19, -1, -1, -1),
-            ["SCV"] = new Tuple<int, double, double, int>(20, -1, -1, -1),
-            ["Marine"] = new Tuple<int, double, double, int>(20, -1, -1, -1),
-            ["Marauder"] = new Tuple<int, double, double, int>(20, -1, -1, -1),
-            ["Reaper"] = new Tuple<int, double, double, int>(20, -1, -1, -1),
-            ["Ghost"] = new Tuple<int, double, double, int>(20, -1, -1, -1),
-            ["Hellion"] = new Tuple<int, double, double, int>(20, -1, -1, -1),
-            ["Hellbat"] = new Tuple<int, double, double, int>(20, -1, -1, -1),
-            ["Siege Tank"] = new Tuple<int, double, double, int>(20, -1, -1, -1),
-            ["Cyclone"] = new Tuple<int, double, double, int>(20, -1, -1, -1),
-            ["Thor"] = new Tuple<int, double, double, int>(20, -1, -1, -1),
-            ["Auto-Turret"] = new Tuple<int, double, double, int>(20, -1, -1, -1),
+            ["Widow Mine"] = new Tuple<int, double, double, int>(19, 75, 25, 2),
+            ["SCV"] = new Tuple<int, double, double, int>(20, 50, 0, 1),
+            ["Marine"] = new Tuple<int, double, double, int>(20, 50, 0, 1),
+            ["Marauder"] = new Tuple<int, double, double, int>(20, 100, 25, 2),
+            ["Reaper"] = new Tuple<int, double, double, int>(20, 50, 50, 1),
+            ["Ghost"] = new Tuple<int, double, double, int>(20, 150, 125, 2),
+            ["Hellion"] = new Tuple<int, double, double, int>(20, 100, 0, 2),
+            ["Hellbat"] = new Tuple<int, double, double, int>(20, 100, 0, 2),
+            ["Siege Tank"] = new Tuple<int, double, double, int>(20, 150, 125, 3),
+            ["Cyclone"] = new Tuple<int, double, double, int>(20, 150, 100, 3),
+            ["Thor"] = new Tuple<int, double, double, int>(20, 300, 200, 6),
+            ["Auto-Turret"] = new Tuple<int, double, double, int>(20, 0, 0, 0),
             //Air Units
-            ["Viking"] = new Tuple<int, double, double, int>(20, -1, -1, -1),
-            ["Medivac"] = new Tuple<int, double, double, int>(20, -1, -1, -1),
-            ["Liberator"] = new Tuple<int, double, double, int>(20, -1, -1, -1),
-            ["Raven"] = new Tuple<int, double, double, int>(20, -1, -1, -1),
-            ["Banshee"] = new Tuple<int, double, double, int>(20, -1, -1, -1),
-            ["Battlecruiser"] = new Tuple<int, double, double, int>(20, -1, -1, -1),
+            ["Viking"] = new Tuple<int, double, double, int>(20, 150, 75, 2),
+            ["Medivac"] = new Tuple<int, double, double, int>(20, 100, 100, 2),
+            ["Liberator"] = new Tuple<int, double, double, int>(20, 150, 150, 3),
+            ["Raven"] = new Tuple<int, double, double, int>(20, 100, 200, 2),
+            ["Banshee"] = new Tuple<int, double, double, int>(20, 150, 100, 3),
+            ["Battlecruiser"] = new Tuple<int, double, double, int>(20, 400, 300, 6),
             //Buildings
-            ["Planetary Fortress"] = new Tuple<int, double, double, int>(20, -1, -1, -1),
-            ["Bunker"] = new Tuple<int, double, double, int>(20, -1, -1, -1),
-            ["Missile Turret"] = new Tuple<int, double, double, int>(19, -1, -1, -1),
-            ["Command Center"] = new Tuple<int, double, double, int>(11, -1, -1, -1),
-            ["Orbital Command"] = new Tuple<int, double, double, int>(11, -1, -1, -1),
-            ["Supply Depot"] = new Tuple<int, double, double, int>(11, -1, -1, -1),
-            ["Refinery"] = new Tuple<int, double, double, int>(11, -1, -1, -1),
-            ["Barracks"] = new Tuple<int, double, double, int>(11, -1, -1, -1),
-            ["Engineering Bay"] = new Tuple<int, double, double, int>(11, -1, -1, -1),
-            ["Bunker"] = new Tuple<int, double, double, int>(11, -1, -1, -1),
-            ["Sensor Tower"] = new Tuple<int, double, double, int>(11, -1, -1, -1),
-            ["Factory"] = new Tuple<int, double, double, int>(11, -1, -1, -1),
-            ["Ghost Academy"] = new Tuple<int, double, double, int>(11, -1, -1, -1),
-            ["Starport"] = new Tuple<int, double, double, int>(11, -1, -1, -1),
-            ["Armory"] = new Tuple<int, double, double, int>(11, -1, -1, -1),
-            ["Fusion Core"] = new Tuple<int, double, double, int>(11, -1, -1, -1)
+            ["Planetary Fortress"] = new Tuple<int, double, double, int>(20, 550, 150, 0),
+            ["Bunker"] = new Tuple<int, double, double, int>(20, 100, 0, 0),
+            ["Missile Turret"] = new Tuple<int, double, double, int>(19, 100, 0, 0),
+            ["Command Center"] = new Tuple<int, double, double, int>(11, 400, 0, 0),
+            ["Orbital Command"] = new Tuple<int, double, double, int>(11, 550, 0, 0),
+            ["Supply Depot"] = new Tuple<int, double, double, int>(11, 100, 0, 0),
+            ["Refinery"] = new Tuple<int, double, double, int>(11, 75, 0, 0),
+            ["Barracks"] = new Tuple<int, double, double, int>(11, 150, 0, 0),
+            ["Engineering Bay"] = new Tuple<int, double, double, int>(11, 125, 0, 0),
+            ["Bunker"] = new Tuple<int, double, double, int>(11, 100, 0, 0),
+            ["Sensor Tower"] = new Tuple<int, double, double, int>(11, 125, 100, 0),
+            ["Factory"] = new Tuple<int, double, double, int>(11, 150, 100, 0),
+            ["Ghost Academy"] = new Tuple<int, double, double, int>(11, 150, 100, 0),
+            ["Starport"] = new Tuple<int, double, double, int>(11, 150, 100, 0),
+            ["Armory"] = new Tuple<int, double, double, int>(11, 150, 100, 0),
+            ["Fusion Core"] = new Tuple<int, double, double, int>(11, 150, 150, 0)
         };
 
 

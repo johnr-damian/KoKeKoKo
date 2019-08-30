@@ -61,6 +61,21 @@ namespace ModelService.Types
         public double Simulated_Energy { get; set; } = -1;
 
         /// <summary>
+        /// The current ground damage of this unit it can deal in the simulation
+        /// </summary>
+        public double Simulated_Ground_Damage { get; set; } = -1;
+
+        /// <summary>
+        /// The current air damage of this unit it can deal in the simulation
+        /// </summary>
+        public double Simulated_Air_Damage { get; set; } = -1;
+
+        /// <summary>
+        /// The current armor of this unit in the simulation
+        /// </summary>
+        public int Simulated_Armor { get; set; } = -1;
+
+        /// <summary>
         /// If this unit's health is below or equal 0 in the simulation
         /// </summary>
         public virtual bool IsDead => Simulated_Health <= 0;

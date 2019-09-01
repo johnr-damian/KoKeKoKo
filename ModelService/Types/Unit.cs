@@ -51,34 +51,59 @@ namespace ModelService.Types
 
         #region Properties From Simulation
         /// <summary>
-        /// The current health of this unit in the simulation
+        /// The original health of this unit
         /// </summary>
-        public double Simulated_Health { get; set; } = -1;
+        public double Health { get; set; } = -1;
 
         /// <summary>
-        /// The current energy of this unit in the simulation
+        /// The current health of this unit
         /// </summary>
-        public double Simulated_Energy { get; set; } = -1;
+        public double Current_Health { get; set; } = -1;
 
         /// <summary>
-        /// The current ground damage of this unit it can deal in the simulation
+        /// The original energy of this unit
         /// </summary>
-        public double Simulated_Ground_Damage { get; set; } = -1;
+        public double Energy { get; set; } = -1;
 
         /// <summary>
-        /// The current air damage of this unit it can deal in the simulation
+        /// The current energy of this unit
         /// </summary>
-        public double Simulated_Air_Damage { get; set; } = -1;
+        public double Current_Energy { get; set; } = -1;
 
         /// <summary>
-        /// The current armor of this unit in the simulation
+        /// The original armor of this unit
         /// </summary>
-        public int Simulated_Armor { get; set; } = -1;
+        public int Armor { get; set; } = -1;
 
         /// <summary>
-        /// If this unit's health is below or equal 0 in the simulation
+        /// The current armor of this unit
         /// </summary>
-        public virtual bool IsDead => Simulated_Health <= 0;
+        public int Current_Armor { get; set; } = -1;
+
+        /// <summary>
+        /// The original ground damage of this unit
+        /// </summary>
+        public double Ground_Damage { get; set; } = -1;
+
+        /// <summary>
+        /// The current ground damage of this unit
+        /// </summary>
+        public double Current_Ground_Damage { get; set; } = -1;
+
+        /// <summary>
+        /// The original air damage of this unit
+        /// </summary>
+        public double Air_Damage { get; set; } = -1;
+
+        /// <summary>
+        /// The current air damage of this unit
+        /// </summary>
+        public double Current_Air_Damage { get; set; } = -1;
+
+        /// <summary>
+        /// If this <see cref="Unit.Current_Health"/> is below or equal 0 in the simulation
+        /// </summary>
+        public virtual bool IsDead => Current_Health <= 0;
 
         /// <summary>
         /// The unit to be targeted by this unit
@@ -92,7 +117,7 @@ namespace ModelService.Types
         }
 
         /// <summary>
-        /// If this unit's target health is below or equal 0, or if there is no unit to be targeted by this unit
+        /// If this unit's current target <see cref="Unit.Health"/> is below or equal 0, or if there is no unit to be targeted by this unit
         /// </summary>
         public virtual bool IsTargetDead => (Target == null || Target.IsDead); 
         #endregion

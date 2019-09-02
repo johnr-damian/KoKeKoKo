@@ -51,34 +51,59 @@ namespace ModelService.Types
 
         #region Properties From Simulation
         /// <summary>
-        /// The current health of this unit in the simulation
+        /// The original health of this unit
         /// </summary>
-        public double Simulated_Health { get; set; } = -1;
+        public double Health { get; set; } = -1;
 
         /// <summary>
-        /// The current energy of this unit in the simulation
+        /// The current health of this unit
         /// </summary>
-        public double Simulated_Energy { get; set; } = -1;
+        public double Current_Health { get; set; } = -1;
 
         /// <summary>
-        /// The current ground damage of this unit it can deal in the simulation
+        /// The original energy of this unit
         /// </summary>
-        public double Simulated_Ground_Damage { get; set; } = -1;
+        public double Energy { get; set; } = -1;
 
         /// <summary>
-        /// The current air damage of this unit it can deal in the simulation
+        /// The current energy of this unit
         /// </summary>
-        public double Simulated_Air_Damage { get; set; } = -1;
+        public double Current_Energy { get; set; } = -1;
 
         /// <summary>
-        /// The current armor of this unit in the simulation
+        /// The original armor of this unit
         /// </summary>
-        public int Simulated_Armor { get; set; } = -1;
+        public int Armor { get; set; } = -1;
 
         /// <summary>
-        /// If this unit's health is below or equal 0 in the simulation
+        /// The current armor of this unit
         /// </summary>
-        public virtual bool IsDead => Simulated_Health <= 0;
+        public int Current_Armor { get; set; } = -1;
+
+        /// <summary>
+        /// The original ground damage of this unit
+        /// </summary>
+        public double Ground_Damage { get; set; } = -1;
+
+        /// <summary>
+        /// The current ground damage of this unit
+        /// </summary>
+        public double Current_Ground_Damage { get; set; } = -1;
+
+        /// <summary>
+        /// The original air damage of this unit
+        /// </summary>
+        public double Air_Damage { get; set; } = -1;
+
+        /// <summary>
+        /// The current air damage of this unit
+        /// </summary>
+        public double Current_Air_Damage { get; set; } = -1;
+
+        /// <summary>
+        /// If this <see cref="Unit.Current_Health"/> is below or equal 0 in the simulation
+        /// </summary>
+        public virtual bool IsDead => Current_Health <= 0;
 
         /// <summary>
         /// The unit to be targeted by this unit
@@ -92,13 +117,13 @@ namespace ModelService.Types
         }
 
         /// <summary>
-        /// If this unit's target health is below or equal 0, or if there is no unit to be targeted by this unit
+        /// If this unit's current target <see cref="Unit.Health"/> is below or equal 0, or if there is no unit to be targeted by this unit
         /// </summary>
         public virtual bool IsTargetDead => (Target == null || Target.IsDead); 
         #endregion
 
         /// <summary>
-        /// 
+        /// Creates an instance of parsed unit with basic information
         /// </summary>
         /// <param name="uid"></param>
         /// <param name="owner"></param>
@@ -118,10 +143,55 @@ namespace ModelService.Types
         }
 
         /// <summary>
-        /// 
+        /// A method that creates a new instance with the same values of this unit
         /// </summary>
         /// <returns></returns>
         public abstract Unit CreateDeepCopy();
+
+        /// <summary>
+        /// Initializes the properties needed for combat simulation from dictionary
+        /// and applies necessary buffs from <see cref="Buffs"/>
+        /// </summary>
+        public virtual void Initialize()
+        {
+            Health = DEFINITIONS[Name].Item1;
+            Energy = DEFINITIONS[Name].Item2;
+            Ground_Damage = DEFINITIONS[Name].Item3;
+            Air_Damage = DEFINITIONS[Name].Item4;
+            Armor = DEFINITIONS[Name].Item5;
+
+            Current_Health = Health;
+            Current_Energy = Energy;
+            Current_Ground_Damage = Ground_Damage;
+            Current_Air_Damage = Air_Damage;
+            Current_Armor = Armor;
+
+            ApplyBuffsOrModifiers();
+        }
+
+        /// <summary>
+        /// Resets the properties with the counterpart values
+        /// </summary>
+        public virtual void Reset()
+        {
+            Current_Health = Health;
+            Current_Energy = Energy;
+            Current_Ground_Damage = Ground_Damage;
+            Current_Air_Damage = Air_Damage;
+            Current_Armor = Armor;
+        }
+
+        /// <summary>
+        /// Checks if the target to be set can be a valid target for this unit
+        /// </summary>
+        /// <param name="target_unit"></param>
+        /// <returns></returns>
+        public virtual bool CanTarget(Unit target_unit)
+        {
+            bool target_is_flying_unit = DEFINITIONS[target_unit.Name].Item6;
+
+            return (target_is_flying_unit) ? (Air_Damage > 0) : (Ground_Damage > 0);
+        }
 
         /// <summary>
         /// Adds a target for this unit
@@ -134,7 +204,8 @@ namespace ModelService.Types
         }
 
         /// <summary>
-        /// 
+        /// This is to be use when there are static buffs in the <see cref="Buffs"/>
+        /// so it can be use to initialize values
         /// </summary>
         /// <remarks>
         /// This is to be use to apply static buffs or modifiers
@@ -170,7 +241,11 @@ namespace ModelService.Types
             //TODO
         }
 
-        public virtual void UseBuffsOrModifiers()
+        /// <summary>
+        /// This is to be use when using a reusable buffs or modifiers.
+        /// Usually this is a skill that affects this unit's properties
+        /// </summary>
+        public virtual void UseBuffsOrModifiers(string buff_name)
         {
             //TODO
         }
@@ -179,7 +254,7 @@ namespace ModelService.Types
         /// This is to be use when using a reusable buffs or modifiers.
         /// Usually this is a skill like single-target skill
         /// </summary>
-        public virtual DATA_TYPE UseBuffsOrModifiers<DATA_TYPE>(DATA_TYPE value)
+        public virtual T UseBuffsOrModifiers<T>(string buff_name, T value)
         {
             //TODO
             throw new NotImplementedException();
@@ -191,7 +266,7 @@ namespace ModelService.Types
         /// <returns></returns>
         public virtual bool AttackTarget()
         {
-            double damage_to_deal = 0;
+            double minimum_potential_damage = 0, maximum_potential_damage = 0;
 
             try
             {
@@ -199,7 +274,7 @@ namespace ModelService.Types
                 {
                     //TODO
 
-                    return Target.ReceiveAttackFromTarget(damage_to_deal);
+                    return Target.ReceiveAttackFromTarget(minimum_potential_damage);
                 }
                 else
                     throw new InvalidOperationException("This unit is either dead, or the target has been killed...");
@@ -236,7 +311,7 @@ namespace ModelService.Types
         }
 
         /// <summary>
-        /// 
+        /// Returns a string that can be use in messaging to agent to command what to do
         /// </summary>
         /// <returns></returns>
         /// <remarks>
@@ -249,8 +324,13 @@ namespace ModelService.Types
         /// </remarks>
         public override string ToString()
         {
-            //TODO
-            return base.ToString();
+            string message = "";
+
+            message += String.Format($@"{UniqueID},{Owner},{Name}");
+            foreach (var target in _targets)
+                message += String.Format($@",{target.UniqueID}");
+
+            return message;
         }
     }
 }

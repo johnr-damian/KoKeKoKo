@@ -24,10 +24,6 @@ namespace ModelService
     /// </example>
     public class Participant
     {
-        private List<Micromanagement.Types.ObservedUnits> _units = null;
-
-
-
         public bool SetParticipantUnits(string units)
         {
             try

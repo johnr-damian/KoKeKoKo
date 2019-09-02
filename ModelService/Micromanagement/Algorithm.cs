@@ -1,69 +1,90 @@
-﻿using System;
+﻿using ModelService.Types;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace ModelService.Micromanagement
 {
-    public partial class Micromanagement<T, C> where T : IEnumerable<C> where C : Types.Unit
+    public partial class Micromanagement<T> where T : Unit
     {
-        public Tuple<T, T> LanchesterBasedPrediction(TargetPolicy target_policy)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="target_policy"></param>
+        /// <returns></returns>
+        public string LanchesterBasedPrediction(TargetPolicy target_policy)
         {
-            Tuple<T, T> battle_result = null;
-            
+            string battle_result = "";
+
             try
             {
-                if (typeof(T) == typeof(Types.CSVUnits))
-                {
-                    var csvbased_owned_units = (_owned_units as Types.CSVUnits);
-                    var csvbased_enemy_units = (_enemy_units as Types.CSVUnits);
-
-
-                }
-                else
-                {
-                    var gamebased_owned_units = (_owned_units as Types.ObservedUnits);
-                    var gamebased_enemy_units = (_enemy_units as Types.ObservedUnits);
-
-
-                }
+                Console.WriteLine("1");
+                Console.WriteLine("1");
+                Console.WriteLine("1");
             }
             catch(Exception ex)
             {
+                Console.WriteLine("Error in Model! Failed to predict battle using Lanchester algorithm...");
+                Trace.WriteLine($@"Error in Model! Micromanagement -> LanchesterBasedPrediction(): \n\t{ex.Message}");
 
+                battle_result = "";
             }
 
             return battle_result;
         }
 
-        public Tuple<T, T> StaticBasedPrediction(TargetPolicy target_policy)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="target_policy"></param>
+        /// <returns></returns>
+        public string StaticBasedPrediction(TargetPolicy target_policy)
         {
-            Tuple<T, T> battle_result = null;
+            string battle_result = "";
 
             try
             {
                 //TODO
+                Console.WriteLine("2");
+                Console.WriteLine("2");
+                Console.WriteLine("2");
             }
             catch (Exception ex)
             {
+                Console.WriteLine("Error in Model! Failed to predict battle using Static algorithm...");
+                Trace.WriteLine($@"Error in Model! Micromanagement -> StaticBasedPrediction(): \n\t{ex.Message}");
 
+                battle_result = "";
             }
 
             return battle_result;
         }
 
-        public Tuple<T, T> DynamicBasedPrediction(TargetPolicy target_policy)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="target_policy"></param>
+        /// <returns></returns>
+        public string DynamicBasedPrediction(TargetPolicy target_policy)
         {
-            Tuple<T, T> battle_result = null;
+            string battle_result = "";
 
             try
             {
                 //TODO
+                Console.WriteLine("3");
+                Console.WriteLine("3");
+                Console.WriteLine("3");
             }
             catch (Exception ex)
             {
+                Console.WriteLine("Error in Model! Failed to predict battle using Dynamic algorithm...");
+                Trace.WriteLine($@"Error in Model! Micromanagement -> DynamicBasedPrediction(): \n\t{ex.Message}");
 
+                battle_result = "";
             }
 
             return battle_result;

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ModelService.Types;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -7,91 +8,63 @@ using System.Threading.Tasks;
 
 namespace ModelService.Micromanagement
 {
-    public partial class Micromanagement<T, C> where T : IEnumerable<C> where C : Types.Unit
+    public partial class Micromanagement<T> where T : Unit
     {
-        private bool RandomBasedTargetPolicy(T owned_units, T enemy_units)
+        private bool RandomBasedTargetPolicy(Army owned_units, Army enemy_units)
         {
             bool has_targetable = false;
 
             try
             {
-                if(typeof(T) == typeof(Types.CSVUnits))
-                {
-                    var csvbased_owned_units = (owned_units as Types.CSVUnits);
-                    var csvbased_enemy_units = (enemy_units as Types.CSVUnits);
-
-
-                }
-                else
-                {
-                    var gamebased_owned_units = (owned_units as Types.ObservedUnits);
-                    var gamebased_enemy_units = (owned_units as Types.ObservedUnits);
-
-
-                }
+                //TODO
             }
             catch(Exception ex)
             {
+                Console.WriteLine("Error in Model! Failed to generate a random-based target for both armies...");
+                Trace.WriteLine($@"Error in Model! Micromanagement -> RandomBasedTargetPolicy(): \n\t{ex.Message}");
 
+                has_targetable = false;
             }
 
             return has_targetable;
         }
 
-        private bool PriorityBasedTargetPolicy()
+        private bool PriorityBasedTargetPolicy(Army owned_units, Army enemy_units)
         {
             bool has_targetable = false;
 
             try
             {
-                if (typeof(T) == typeof(Types.CSVUnits))
-                {
-
-                }
-                else
-                {
-
-                }
+                //TODO
             }
             catch (Exception ex)
             {
+                Console.WriteLine("Error in Model! Failed to generate a priority-based target for both armies...");
+                Trace.WriteLine($@"Error in Model! Micromanagement -> PriorityBasedTargetPolicy(): \n\t{ex.Message}");
 
+                has_targetable = false;
             }
 
             return has_targetable;
         }
 
-        private bool ResourceBasedTargetPolicy()
+        private bool ResourceBasedTargetPolicy(Army owned_units, Army enemy_units)
         {
             bool has_targetable = false;
 
             try
             {
-                if (typeof(T) == typeof(Types.CSVUnits))
-                {
-
-                }
-                else
-                {
-
-                }
+                //TODO
             }
             catch (Exception ex)
             {
+                Console.WriteLine("Error in Model! Failed to generate a resource-based target for both armies...");
+                Trace.WriteLine($@"Error in Model! Micromanagement -> ResourceBasedTargetPolicy(): \n\t{ex.Message}");
 
+                has_targetable = false;
             }
 
             return has_targetable;
-        }
-
-        private bool FirstTargetBasedTargetPolicy()
-        {
-            throw new NotImplementedException();
-        }
-
-        private bool FirstDeathBasedTargetPolicy()
-        {
-            throw new NotImplementedException();
         }
     }
 }

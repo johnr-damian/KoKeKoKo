@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ModelService.Types
 {
@@ -17,53 +14,97 @@ namespace ModelService.Types
         public static Dictionary<string, Tuple<double, double, double, double, int, bool>> DEFINITIONS = new Dictionary<string, Tuple<double, double, double, double, int, bool>>()
         {
             //Ground Units
-            ["Widow Mine"] = new Tuple<double, double, double, double, int, bool>(90, 0, 125, 125, 0, false),
-            ["SCV"] = new Tuple<double, double, double, double, int, bool>(45, 0, 4.67, 0, 0, false),
-            ["Marine"] = new Tuple<double, double, double, double, int, bool>(45, 0, 9.8, 9.8, 0, false),
-            ["Marauder"] = new Tuple<double, double, double, double, int, bool>(125, 0, 9.3, 0, 1, false),
-            ["Reaper"] = new Tuple<double, double, double, double, int, bool>(60, 0, 10.1, 0, 0, false),
-            ["Ghost"] = new Tuple<double, double, double, double, int, bool>(100, 200, 9.3, 9.3, 0, false), //75/200
-            ["Hellion"] = new Tuple<double, double, double, double, int, bool>(90, 0, 4.48, 0, 0, false),
-            ["Hellbat"] = new Tuple<double, double, double, double, int, bool>(135, 0, 12.6, 0, 0, false),
-            ["Siege Tank (Tank mode)"] = new Tuple<double, double, double, double, int, bool>(175, 0, 20.27, 0, 1, false),
-            ["Siege Tank (Siege mode)"] = new Tuple<double, double, double, double, int, bool>(175, 0, 18.69, 0, 1, false),
-            ["Cyclone"] = new Tuple<double, double, double, double, int, bool>(120, 0, 25.2, 25.2, 1, false),
-            ["Thor (Attack 1)"] = new Tuple<double, double, double, double, int, bool>(400, 0, 65.9, 0, 1, false),
-            ["Thor (Explosive)"] = new Tuple<double, double, double, double, int, bool>(400, 0, 0, 11.2, 1, false),
-            ["Thor (High Impact)"] = new Tuple<double, double, double, double, int, bool>(400, 0, 0, 23.4, 1, false),
-            ["Auto-Turret"] = new Tuple<double, double, double, double, int, bool>(150, 0, 31.58, 31.58, 1, false),
+            ["TERRAN_WIDOWMINE"] = new Tuple<double, double, double, double, int, bool>(90, 0, 125, 125, 0, false),
+            ["TERRAN_SCV"] = new Tuple<double, double, double, double, int, bool>(45, 0, 4.67, 0, 0, false),
+            ["TERRAN_MARINE"] = new Tuple<double, double, double, double, int, bool>(45, 0, 9.8, 9.8, 0, false),
+            ["TERRAN_MARAUDER"] = new Tuple<double, double, double, double, int, bool>(125, 0, 9.3, 0, 1, false),
+            ["TERRAN_REAPER"] = new Tuple<double, double, double, double, int, bool>(60, 0, 10.1, 0, 0, false),
+            ["TERRAN_GHOST"] = new Tuple<double, double, double, double, int, bool>(100, 200, 9.3, 9.3, 0, false), //75/200
+            ["TERRAN_HELLION"] = new Tuple<double, double, double, double, int, bool>(90, 0, 4.48, 0, 0, false),
+            ["TERRAN_HELLIONTANK"] = new Tuple<double, double, double, double, int, bool>(135, 0, 12.6, 0, 0, false),
+            ["TERRAN_SIEGETANK"] = new Tuple<double, double, double, double, int, bool>(175, 0, 20.27, 0, 1, false),
+            ["TERRAN_SIEGETANKSIEGED"] = new Tuple<double, double, double, double, int, bool>(175, 0, 18.69, 0, 1, false),
+            ["TERRAN_CYCLONE"] = new Tuple<double, double, double, double, int, bool>(120, 0, 25.2, 25.2, 1, false),
+            ["TERRAN_THOR"] = new Tuple<double, double, double, double, int, bool>(400, 0, 65.9, 11.2, 1, false),
+            ["TERRAN_THORAP"] = new Tuple<double, double, double, double, int, bool>(400, 0, 65.9, 23.4, 1, false),
+            ["TERRAN_AUTOTURRET"] = new Tuple<double, double, double, double, int, bool>(150, 0, 31.58, 31.58, 1, false),
             //Air Units
-            ["Viking (Attack 1)"] = new Tuple<double, double, double, double, int, bool>(135, 0, 16.8, 0, 0, true),
-            ["Viking (Attack 2)"] = new Tuple<double, double, double, double, int, bool>(135, 0, 0, 14, 0, true),
-            ["Medivac"] = new Tuple<double, double, double, double, int, bool>(150, 200, 0, 0, 1, true), //50/200
-            ["Liberator (Attack 1)"] = new Tuple<double, double, double, double, int, bool>(180, 0, 65.8, 0, 0, true),
-            ["Liberator (Attack 2)"] = new Tuple<double, double, double, double, int, bool>(180, 0, 0, 7.8, 0, true),
-            ["Raven"] = new Tuple<double, double, double, double, int, bool>(140, 200, 0, 0, 1, true), //50(+25)/200
-            ["Banshee"] = new Tuple<double, double, double, double, int, bool>(140, 200, 27, 0, 0, true),
-            ["Battlecruiser (Attack 1)"] = new Tuple<double, double, double, double, int, bool>(550, 200, 49.8, 0, 3, true),
-            ["Battlecruiser (Attack 2)"] = new Tuple<double, double, double, double, int, bool>(550, 200, 0, 31.1, 3, true),
+            ["TERRAN_VIKINGASSAULT"] = new Tuple<double, double, double, double, int, bool>(135, 0, 16.8, 0, 0, true),
+            ["TERRAN_VIKINGFIGHTER"] = new Tuple<double, double, double, double, int, bool>(135, 0, 0, 14, 0, true),
+            ["TERRAN_MEDIVAC"] = new Tuple<double, double, double, double, int, bool>(150, 200, 0, 0, 1, true), //50/200
+            ["TERRAN_LIBERATORAG"] = new Tuple<double, double, double, double, int, bool>(180, 0, 65.8, 0, 0, true),
+            ["TERRAN_LIBERATOR"] = new Tuple<double, double, double, double, int, bool>(180, 0, 0, 7.8, 0, true),
+            ["TERRAN_RAVEN"] = new Tuple<double, double, double, double, int, bool>(140, 200, 0, 0, 1, true), //50(+25)/200
+            ["TERRAN_BANSHEE"] = new Tuple<double, double, double, double, int, bool>(140, 200, 27, 0, 0, true),
+            ["TERRAN_BATTLECRUISER"] = new Tuple<double, double, double, double, int, bool>(550, 200, 49.8, 31.1, 3, true),
             //Buildings
-            ["Planetary Fortress"] = new Tuple<double, double, double, double, int, bool>(1500, 0, 28, 0, 3, false),
-            ["Bunker"] = new Tuple<double, double, double, double, int, bool>(400, 0, 0, 0, 1, false),
-            ["Missile Turret"] = new Tuple<double, double, double, double, int, bool>(250, 0, 0, 39.3, 1, false),
-            ["Command Center"] = new Tuple<double, double, double, double, int, bool>(1500, 0, 0, 0, 1, false),
-            ["Orbital Command"] = new Tuple<double, double, double, double, int, bool>(1500, 200, 0, 0, 1, false), //50/200
-            ["Supply Depot"] = new Tuple<double, double, double, double, int, bool>(400, 0, 0, 0, 1, false),
-            ["Refinery"] = new Tuple<double, double, double, double, int, bool>(500, 0, 0, 0, 1, false),
-            ["Barracks"] = new Tuple<double, double, double, double, int, bool>(1000, 0, 0, 0, 1, false),
-            ["Engineering Bay"] = new Tuple<double, double, double, double, int, bool>(850, 0, 0, 0, 1, false),
-            ["Bunker"] = new Tuple<double, double, double, double, int, bool>(400, 0, 0, 0, 1, false),
-            ["Sensor Tower"] = new Tuple<double, double, double, double, int, bool>(200, 0, 0, 0, 0, false),
-            ["Factory"] = new Tuple<double, double, double, double, int, bool>(1250, 0, 0, 0, 1, false),
-            ["Ghost Academy"] = new Tuple<double, double, double, double, int, bool>(1250, 0, 0, 0, 1, false),
-            ["Starport"] = new Tuple<double, double, double, double, int, bool>(1300, 0, 0, 0, 1, false),
-            ["Armory"] = new Tuple<double, double, double, double, int, bool>(750, 0, 0, 0, 1, false),
-            ["Fusion Core"] = new Tuple<double, double, double, double, int, bool>(750, 0, 0, 0, 1, false)
+            ["TERRAN_PLANETARYFORTRESS"] = new Tuple<double, double, double, double, int, bool>(1500, 0, 28, 0, 3, false),
+            ["TERRAN_BUNKER"] = new Tuple<double, double, double, double, int, bool>(400, 0, 0, 0, 1, false),
+            ["TERRAN_MISSILETURRET"] = new Tuple<double, double, double, double, int, bool>(250, 0, 0, 39.3, 1, false),
+            ["TERRAN_COMMANDCENTER"] = new Tuple<double, double, double, double, int, bool>(1500, 0, 0, 0, 1, false),
+            ["TERRAN_ORBITALCOMMAND"] = new Tuple<double, double, double, double, int, bool>(1500, 200, 0, 0, 1, false), //50/200
+            ["TERRAN_SUPPLYDEPOT"] = new Tuple<double, double, double, double, int, bool>(400, 0, 0, 0, 1, false),
+            ["TERRAN_REFINERY"] = new Tuple<double, double, double, double, int, bool>(500, 0, 0, 0, 1, false),
+            ["TERRAN_BARRACKS"] = new Tuple<double, double, double, double, int, bool>(1000, 0, 0, 0, 1, false),
+            ["TERRAN_ENGINEERINGBAY"] = new Tuple<double, double, double, double, int, bool>(850, 0, 0, 0, 1, false),
+            ["TERRAN_BUNKER"] = new Tuple<double, double, double, double, int, bool>(400, 0, 0, 0, 1, false),
+            ["TERRAN_SENSORTOWER"] = new Tuple<double, double, double, double, int, bool>(200, 0, 0, 0, 0, false),
+            ["TERRAN_FACTORY"] = new Tuple<double, double, double, double, int, bool>(1250, 0, 0, 0, 1, false),
+            ["TERRAN_GHOSTACADEMY"] = new Tuple<double, double, double, double, int, bool>(1250, 0, 0, 0, 1, false),
+            ["TERRAN_STARPORT"] = new Tuple<double, double, double, double, int, bool>(1300, 0, 0, 0, 1, false),
+            ["TERRAN_ARMORY"] = new Tuple<double, double, double, double, int, bool>(750, 0, 0, 0, 1, false),
+            ["TERRAN_FUSIONCORE"] = new Tuple<double, double, double, double, int, bool>(750, 0, 0, 0, 1, false)
         };
 
+        /// <summary>
+        /// Unit's static worth for micromanagement and macromanagement
+        /// </summary>
+        /// <remarks>
+        /// The key is the <see cref="Unit.Name"/> and the values are Priority, Mineral Cost, Vespene Cost, Supply Cost
+        /// </remarks>
         public static Dictionary<string, Tuple<int, double, double, int>> VALUES = new Dictionary<string, Tuple<int, double, double, int>>()
         {
-
+            //Ground Units
+            ["TERRAN_WIDOWMINE"] = new Tuple<int, double, double, int>(19, 75, 25, 2),
+            ["TERRAN_SCV"] = new Tuple<int, double, double, int>(20, 50, 0, 1),
+            ["TERRAN_MARINE"] = new Tuple<int, double, double, int>(20, 50, 0, 1),
+            ["TERRAN_MARAUDER"] = new Tuple<int, double, double, int>(20, 100, 25, 2),
+            ["TERRAN_REAPER"] = new Tuple<int, double, double, int>(20, 50, 50, 1),
+            ["TERRAN_GHOST"] = new Tuple<int, double, double, int>(20, 150, 125, 2),
+            ["TERRAN_HELLION"] = new Tuple<int, double, double, int>(20, 100, 0, 2),
+            ["TERRAN_HELLIONTANK"] = new Tuple<int, double, double, int>(20, 100, 0, 2),
+            ["TERRAN_SIEGETANK"] = new Tuple<int, double, double, int>(20, 150, 125, 3),
+            ["TERRAN_SIEGETANKSEIGED"] = new Tuple<int, double, double, int>(20, 150, 125, 3),
+            ["TERRAN_CYCLONE"] = new Tuple<int, double, double, int>(20, 150, 100, 3),
+            ["TERRAN_THOR"] = new Tuple<int, double, double, int>(20, 300, 200, 6),
+            ["TERRAN_THORAP"] = new Tuple<int, double, double, int>(20, 300, 200, 6),
+            ["TERRAN_AUTOTURRET"] = new Tuple<int, double, double, int>(20, 0, 0, 0),
+            //Air Units
+            ["TERRAN_VIKINGASSAULT"] = new Tuple<int, double, double, int>(20, 150, 75, 2),
+            ["TERRAN_VIKINGFIGHTER"] = new Tuple<int, double, double, int>(20, 150, 75, 2),
+            ["TERRAN_MEDIVAC"] = new Tuple<int, double, double, int>(20, 100, 100, 2),
+            ["TERRAN_LIBERATORAG"] = new Tuple<int, double, double, int>(20, 150, 150, 3),
+            ["TERRAN_LIBERATOR"] = new Tuple<int, double, double, int>(20, 150, 150, 3),
+            ["TERRAN_RAVEN"] = new Tuple<int, double, double, int>(20, 100, 200, 2),
+            ["TERRAN_BANSHEE"] = new Tuple<int, double, double, int>(20, 150, 100, 3),
+            ["TERRAN_BATTLECRUISERr"] = new Tuple<int, double, double, int>(20, 400, 300, 6),
+            //Buildings
+            ["TERRAN_PLANETARYFORTRESS"] = new Tuple<int, double, double, int>(20, 550, 150, 0),
+            ["TERRAN_BUNKER"] = new Tuple<int, double, double, int>(20, 100, 0, 0),
+            ["TERRAN_MISSILETURRET"] = new Tuple<int, double, double, int>(19, 100, 0, 0),
+            ["TERRAN_COMMANDCENTER"] = new Tuple<int, double, double, int>(11, 400, 0, 0),
+            ["TERRAN_ORBITALCOMMAND"] = new Tuple<int, double, double, int>(11, 550, 0, 0),
+            ["TERRAN_SUPPLYDEPOT"] = new Tuple<int, double, double, int>(11, 100, 0, 0),
+            ["TERRAN_REFINERY"] = new Tuple<int, double, double, int>(11, 75, 0, 0),
+            ["TERRAN_BARRACKS"] = new Tuple<int, double, double, int>(11, 150, 0, 0),
+            ["TERRAN_ENGINEERINGBAY"] = new Tuple<int, double, double, int>(11, 125, 0, 0),
+            ["TERRAN_BUNKER"] = new Tuple<int, double, double, int>(11, 100, 0, 0),
+            ["TERRAN_SENSORTOWER"] = new Tuple<int, double, double, int>(11, 125, 100, 0),
+            ["TERRAN_FACTORY"] = new Tuple<int, double, double, int>(11, 150, 100, 0),
+            ["TERRAN_GHOSTACADEMY"] = new Tuple<int, double, double, int>(11, 150, 100, 0),
+            ["TERRAN_STARPORT"] = new Tuple<int, double, double, int>(11, 150, 100, 0),
+            ["TERRAN_ARMORY"] = new Tuple<int, double, double, int>(11, 150, 100, 0),
+            ["TERRAN_FUSIONCORE"] = new Tuple<int, double, double, int>(11, 150, 150, 0)
         };
     }
 }

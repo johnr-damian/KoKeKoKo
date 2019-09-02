@@ -230,7 +230,7 @@ namespace ModelService.Types
         /// This is to be use when using a reusable buffs or modifiers.
         /// Usually this is a skill like single-target skill
         /// </summary>
-        public virtual DATA_TYPE UseBuffsOrModifiers<DATA_TYPE>(string buff_name, DATA_TYPE value)
+        public virtual T UseBuffsOrModifiers<T>(string buff_name, T value)
         {
             //TODO
             throw new NotImplementedException();

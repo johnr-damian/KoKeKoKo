@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ModelService.Types
 {
@@ -79,7 +75,7 @@ namespace ModelService.Types
             double value = 0;
 
             foreach (var unit in Units)
-                value += 0;
+                value += 0; //TODO
 
             return value;
         }

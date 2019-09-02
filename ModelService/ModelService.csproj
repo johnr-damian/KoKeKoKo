@@ -60,6 +60,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Definitions\Micromanagement.cs" />
     <Compile Include="Definitions\Unit.cs" />
     <Compile Include="Macromanagement\Algorithm.cs" />
     <Compile Include="Macromanagement\Macromanagement.cs" />

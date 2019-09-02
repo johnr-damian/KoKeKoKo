@@ -68,14 +68,19 @@
     <Compile Include="Micromanagement\Micromanagement.cs" />
     <Compile Include="Micromanagement\Policy.cs" />
     <Compile Include="Micromanagement\Types\Coordinate.cs" />
+    <Compile Include="Micromanagement\Types\CSVbasedArmy.cs" />
+    <Compile Include="Micromanagement\Types\CSVbasedUnit.cs" />
     <Compile Include="Micromanagement\Types\CSVUnit.cs" />
     <Compile Include="Micromanagement\Types\CSVUnits.cs" />
+    <Compile Include="Micromanagement\Types\GamebasedArmy.cs" />
+    <Compile Include="Micromanagement\Types\GamebasedUnit.cs" />
     <Compile Include="Micromanagement\Types\ObservedUnit.cs" />
     <Compile Include="Micromanagement\Types\ObservedUnits.cs" />
     <Compile Include="Micromanagement\Types\Unit.cs" />
     <Compile Include="ModelRepositoryService.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Types\Army.cs" />
     <Compile Include="Types\Coordinate.cs" />
     <Compile Include="Types\Unit.cs" />
   </ItemGroup>
@@ -83,6 +88,5 @@
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

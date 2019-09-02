@@ -123,7 +123,7 @@ namespace ModelService.Types
         #endregion
 
         /// <summary>
-        /// 
+        /// Creates an instance of parsed unit with basic information
         /// </summary>
         /// <param name="uid"></param>
         /// <param name="owner"></param>
@@ -143,10 +143,55 @@ namespace ModelService.Types
         }
 
         /// <summary>
-        /// 
+        /// A method that creates a new instance with the same values of this unit
         /// </summary>
         /// <returns></returns>
         public abstract Unit CreateDeepCopy();
+
+        /// <summary>
+        /// Initializes the properties needed for combat simulation from dictionary
+        /// and applies necessary buffs from <see cref="Buffs"/>
+        /// </summary>
+        public virtual void Initialize()
+        {
+            Health = DEFINITIONS[Name].Item1;
+            Energy = DEFINITIONS[Name].Item2;
+            Ground_Damage = DEFINITIONS[Name].Item3;
+            Air_Damage = DEFINITIONS[Name].Item4;
+            Armor = DEFINITIONS[Name].Item5;
+
+            Current_Health = Health;
+            Current_Energy = Energy;
+            Current_Ground_Damage = Ground_Damage;
+            Current_Air_Damage = Air_Damage;
+            Current_Armor = Armor;
+
+            ApplyBuffsOrModifiers();
+        }
+
+        /// <summary>
+        /// Resets the properties with the counterpart values
+        /// </summary>
+        public virtual void Reset()
+        {
+            Current_Health = Health;
+            Current_Energy = Energy;
+            Current_Ground_Damage = Ground_Damage;
+            Current_Air_Damage = Air_Damage;
+            Current_Armor = Armor;
+        }
+
+        /// <summary>
+        /// Checks if the target to be set can be a valid target for this unit
+        /// </summary>
+        /// <param name="target_unit"></param>
+        /// <returns></returns>
+        public virtual bool CanTarget(Unit target_unit)
+        {
+            bool target_is_flying_unit = DEFINITIONS[target_unit.Name].Item6;
+
+            return (target_is_flying_unit) ? (Air_Damage > 0) : (Ground_Damage > 0);
+        }
 
         /// <summary>
         /// Adds a target for this unit
@@ -159,7 +204,8 @@ namespace ModelService.Types
         }
 
         /// <summary>
-        /// 
+        /// This is to be use when there are static buffs in the <see cref="Buffs"/>
+        /// so it can be use to initialize values
         /// </summary>
         /// <remarks>
         /// This is to be use to apply static buffs or modifiers
@@ -171,7 +217,11 @@ namespace ModelService.Types
             //TODO
         }
 
-        public virtual void UseBuffsOrModifiers()
+        /// <summary>
+        /// This is to be use when using a reusable buffs or modifiers.
+        /// Usually this is a skill that affects this unit's properties
+        /// </summary>
+        public virtual void UseBuffsOrModifiers(string buff_name)
         {
             //TODO
         }
@@ -180,7 +230,7 @@ namespace ModelService.Types
         /// This is to be use when using a reusable buffs or modifiers.
         /// Usually this is a skill like single-target skill
         /// </summary>
-        public virtual DATA_TYPE UseBuffsOrModifiers<DATA_TYPE>(DATA_TYPE value)
+        public virtual DATA_TYPE UseBuffsOrModifiers<DATA_TYPE>(string buff_name, DATA_TYPE value)
         {
             //TODO
             throw new NotImplementedException();
@@ -192,7 +242,7 @@ namespace ModelService.Types
         /// <returns></returns>
         public virtual bool AttackTarget()
         {
-            double damage_to_deal = 0;
+            double minimum_potential_damage = 0, maximum_potential_damage = 0;
 
             try
             {
@@ -200,7 +250,7 @@ namespace ModelService.Types
                 {
                     //TODO
 
-                    return Target.ReceiveAttackFromTarget(damage_to_deal);
+                    return Target.ReceiveAttackFromTarget(minimum_potential_damage);
                 }
                 else
                     throw new InvalidOperationException("This unit is either dead, or the target has been killed...");
@@ -237,7 +287,7 @@ namespace ModelService.Types
         }
 
         /// <summary>
-        /// 
+        /// Returns a string that can be use in messaging to agent to command what to do
         /// </summary>
         /// <returns></returns>
         /// <remarks>
@@ -250,8 +300,13 @@ namespace ModelService.Types
         /// </remarks>
         public override string ToString()
         {
-            //TODO
-            return base.ToString();
+            string message = "";
+
+            message += String.Format($@"{UniqueID},{Owner},{Name}");
+            foreach (var target in _targets)
+                message += String.Format($@",{target.UniqueID}");
+
+            return message;
         }
     }
 }

@@ -33,7 +33,7 @@ namespace ModelService
                     
                     Console.WriteLine("ModelService has started in standalone mode!");
                     Console.WriteLine("Performing Micromanagement Prediction...");
-
+                    
                     //Perform Micromanagement Testing
                     var battles = new List<Micromanagement<CSVUnits, CSVUnit>>();
                     //Read the Repository

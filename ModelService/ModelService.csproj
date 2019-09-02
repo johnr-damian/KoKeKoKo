@@ -64,7 +64,7 @@
     <Compile Include="Definitions\Unit.cs" />
     <Compile Include="Macromanagement\Algorithm.cs" />
     <Compile Include="Macromanagement\Macromanagement.cs" />
-    <Compile Include="Macromanagement\Types\Participant.cs" />
+    <Compile Include="Macromanagement\Policy.cs" />
     <Compile Include="Micromanagement\Algorithm.cs" />
     <Compile Include="Micromanagement\Micromanagement.cs" />
     <Compile Include="Micromanagement\Policy.cs" />
@@ -77,11 +77,15 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Types\Army.cs" />
     <Compile Include="Types\Coordinate.cs" />
+    <Compile Include="Types\Player.cs" />
     <Compile Include="Types\Unit.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Macromanagement\Types\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

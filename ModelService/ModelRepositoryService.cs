@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RDotNet;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -348,6 +349,20 @@ namespace ModelService
             }
 
             return repository;
+        }
+
+        private static REngine _engine = null;
+
+        public static REngine StartREngine()
+        {
+            if (_engine == null)
+            {
+                REngine.SetEnvironmentVariables();
+                _engine = REngine.GetInstance();
+                _engine.Initialize();
+            }
+
+            return _engine;
         }
     }
 }

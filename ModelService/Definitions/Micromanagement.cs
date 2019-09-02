@@ -2,17 +2,6 @@
 
 namespace ModelService.Micromanagement
 {
-    public partial class Micromanagement<T>
-    {
-        public static class MicromanagementExtensions
-        {
-            private static TargetPolicy _allpolicy = TargetPolicy.Random | TargetPolicy.Priority | TargetPolicy.Resource;
-            private static PredictionAlgorithm _allalgorithm = PredictionAlgorithm.Lanchester | PredictionAlgorithm.Static | PredictionAlgorithm.Dynamic;
-
-            
-        }
-    }
-
     /// <summary>
     /// A list of available policy for targeting units
     /// </summary>
@@ -33,27 +22,5 @@ namespace ModelService.Micromanagement
         /// Targets a unit based on resource. The unit with a higher cost is picked first
         /// </summary>
         Resource = 4
-    }
-
-    /// <summary>
-    /// A list of available policy 
-    /// </summary>
-    [Flags]
-    public enum PredictionAlgorithm
-    {
-        /// <summary>
-        /// Predicts the battle using the Lanchester algorithm.
-        /// </summary>
-        Lanchester = 1,
-
-        /// <summary>
-        /// Predicts the battle using the Static algorithm
-        /// </summary>
-        Static = 2,
-
-        /// <summary>
-        /// Predicts the battle using the Dynamic algorithm
-        /// </summary>
-        Dynamic = 4
     }
 }

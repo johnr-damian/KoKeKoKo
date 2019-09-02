@@ -1,8 +1,10 @@
-﻿using System;
+﻿using RDotNet;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Pipes;
+using System.Linq;
 using System.Threading;
 
 namespace ModelService
@@ -254,6 +256,113 @@ namespace ModelService
                 Console.WriteLine("Error Occurred! Failed to send a message to agent...");
                 Trace.WriteLine($@"Error in Model! ModelRepositoryService -> SendMessageToAgent(): \n\t{ex.Message}");
             }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="filename"></param>
+        /// <returns>Army- Returns Replay filename, Rank, Units from both sides, Survived units</returns>
+        public static Dictionary<string, Tuple<string, string, string>> ReadRepository(string filename)
+        {
+            var repository = new Dictionary<string, Tuple<string, string, string>>();
+            var ranks = new List<string>()
+            {
+                "Bronze",
+                "Silver",
+                "Gold",
+                "Diamond",
+                "Platinum",
+                "Master",
+                "Grandmaster"
+            };
+
+            try
+            {
+                var raw_repository = File.ReadAllLines(Path.Combine(Path.GetFullPath(@"..\..\..\Documents"), filename));
+
+                if (raw_repository.Length > 0)
+                {
+                    if(filename == @"Test\ArmyTraining.csv")
+                    {
+                        bool ready_for_storage = false;
+                        int line_pointer = 0, content_start = -1, content_end = -1;
+                        string current_rank = "", current_replay = "";
+
+                        for(; line_pointer < raw_repository.Length; line_pointer++)
+                        {
+                            var contents = raw_repository[line_pointer].Split(',');
+
+                            if(contents.Length == 1)
+                            {
+                                //If the current line is a rank
+                                if (ranks.Contains(raw_repository[line_pointer]))
+                                    current_rank = raw_repository[line_pointer];
+                                else if (raw_repository[line_pointer] == "END")
+                                    ready_for_storage = true;
+                                else
+                                {
+                                    repository.Add(raw_repository[line_pointer], null);
+
+                                    if (ready_for_storage)
+                                    {
+                                        int end_offset = (ranks.Contains(raw_repository[line_pointer - 1])) ? 1 : 0;
+
+                                        content_end = line_pointer - end_offset;
+                                        var battle = String.Join("\n", raw_repository.Skip(content_start).Take(content_end - content_start)).Split(new string[] { "END" }, StringSplitOptions.None);
+                                        repository[current_replay] = new Tuple<string, string, string>(current_rank, battle[0].Trim('\n', ' ', '\r'), battle[1].Trim('\n', ' ', '\r'));
+                                    }
+
+                                    current_replay = raw_repository[line_pointer];
+                                    content_start = line_pointer + 1;
+                                    content_end = -1;
+                                    ready_for_storage = false;
+                                }
+                            }
+                        }
+
+                        //There is a residue to add
+                        if(ready_for_storage)
+                        {
+                            int end_offset = (ranks.Contains(raw_repository[line_pointer - 1])) ? 1 : 0;
+
+                            content_end = line_pointer - end_offset;
+                            var battle = String.Join("\n", raw_repository.Skip(content_start).Take(content_end - content_start)).Split(new string[] { "END" }, StringSplitOptions.None);
+                            repository[current_replay] = new Tuple<string, string, string>(current_rank, battle[0].Trim('\n', ' ', '\r'), battle[1].Trim('\n', ' ', '\r'));
+                        }
+                    }
+                    else if(filename == @"Test\CommandsRepository.csv")
+                    {
+
+                    }
+                    else if(filename == @"Test\ResourcesRepository.csv")
+                    {
+
+                    }
+                }
+                else
+                    throw new InvalidOperationException("The repository does not contain anything to be parsed...");
+            }
+            catch(Exception ex)
+            {
+
+            }
+
+            return repository;
+        }
+
+        private static REngine _engine = null;
+
+        public static REngine StartREngine()
+        {
+            if (_engine == null)
+            {
+                REngine.SetEnvironmentVariables();
+                _engine = REngine.GetInstance();
+                _engine.Initialize();
+            }
+
+            return _engine;
         }
     }
 }

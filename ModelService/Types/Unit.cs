@@ -143,6 +143,30 @@ namespace ModelService.Types
         /// </remarks>
         public virtual void ApplyBuffsOrModifiers()
         {
+            foreach (string buff in Buffs)
+            {
+                switch (buff)
+                {
+                    case "TERRANINFANTRYWEAPONSLEVEL1":
+                        if (Name == "TERRAN_MARINE")
+                        {
+                            Simulated_Ground_Damage = Unit.DEFINITIONS[Name].Item3 + 1.6;
+                            Simulated_Air_Damage = Unit.DEFINITIONS[Name].Item3 + 1.6;
+                        }
+                        else if(Name == "TERRAN_REAPER")
+                            Simulated_Ground_Damage = Unit.DEFINITIONS[Name].Item3 + 2.5;
+                        else if (Name == "TERRAN_MARAUDER")
+                            Simulated_Ground_Damage = Unit.DEFINITIONS[Name].Item3 + 0.93;
+                        else if(Name == "TERRAN_GHOST")
+                        {
+                            Simulated_Ground_Damage = Unit.DEFINITIONS[Name].Item3 + 0.93;
+                            Simulated_Air_Damage = Unit.DEFINITIONS[Name].Item3 + 0.93;
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
             //TODO
         }
 

@@ -60,17 +60,18 @@ namespace ModelService.Types
             public void Reset() => position = -1;
         }
 
+#warning Improve code here, there is a mixup of GetEnumerator and Ienumerable.getenumerator
         /// <summary>
         /// Returns a new instance of <see cref="Army.Enumerator"/>
         /// </summary>
         /// <returns></returns>
-        public IEnumerator<Unit> GetEnumerator() => GetEnumerator();
+        public IEnumerator<Unit> GetEnumerator() => new Enumerator(Units);
 
         /// <summary>
         /// Interface implementation of returning a new instance of <see cref="Army.Enumerator"/>
         /// </summary>
         /// <returns></returns>
-        IEnumerator IEnumerable.GetEnumerator() => new Enumerator(Units);
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         /// <summary>
         /// A method that creates a new instance of <see cref="Army"/> with the same values

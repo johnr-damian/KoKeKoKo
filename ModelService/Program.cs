@@ -25,7 +25,7 @@ namespace ModelService
         static int Main(string[] args)
         {
             var modelrepositoryservice = new ModelRepositoryService();
-            var agent = new Participant();
+            //var agent = new Participant();
 
             try
             {
@@ -53,9 +53,12 @@ namespace ModelService
                     }
 
                     //Start performing simulation
+                    //foreach (var battle in battles)
+                    //    threads.Add(new Thread(new ThreadStart(() => battles_result.Add(battle.GetMicromanagementAccuracy(10)))));
+                    //threads.ForEach(thread => thread.Start()); //OVERFLOW CAUSE THREAD, DEBUG THREADING PLS
+
                     foreach (var battle in battles)
-                        threads.Add(new Thread(new ThreadStart(() => battles_result.Add(battle.GetMicromanagementAccuracy(10)))));
-                    threads.ForEach(thread => thread.Start());
+                        battles_result.Add(battle.GetMicromanagementAccuracy(10));
 
                     Console.WriteLine("Getting Macromanagement accuracy report...");
                     var command_repository = ModelRepositoryService.ReadRepository(@"Test\CommandsRepository.csv");
@@ -63,7 +66,7 @@ namespace ModelService
                     var matches = new List<Macromanagement.Macromanagement>();
                     //macthes_result
                     //TODO mirror micro
-                    threads.ForEach(thread => thread.Join());
+                   // threads.ForEach(thread => thread.Join());
                     //Add macro threads
 
                     Console.WriteLine("Micromanagement Result: ");

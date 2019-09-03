@@ -21,9 +21,37 @@ namespace ModelService.Micromanagement
 
             try
             {
-                Console.WriteLine("1");
-                Console.WriteLine("1");
-                Console.WriteLine("1");
+                var owned_units = _owned_units.CreateDeepCopy();
+                var enemy_units = _enemy_units.CreateDeepCopy();
+
+                //First, compute the potential dpf
+                double owned_units_health = 0, enemy_units_health = 0;
+                double owned_units_minimum_potential_air = 0, enemy_units_minimum_potential_air = 0;
+                double owned_units_maximum_potential_air = 0, enemy_units_maximum_potential_air = 0;
+                double owned_units_minimum_potential_ground = 0, enemy_units_minimum_potential_ground = 0;
+                double owned_units_maximum_potential_ground = 0, enemy_units_maximum_potential_ground = 0;
+                double potentialdpf_ownedtoenemy = 0, potentialdpf_enemytoowned = 0;
+
+                //compute the average health of the army
+                owned_units_health = (owned_units.Sum(unit => unit.Current_Health) / owned_units.Length);
+                enemy_units_health = (enemy_units.Sum(unit => unit.Current_Health) / enemy_units.Length);
+
+                //compute the minimum potentials
+                owned_units_minimum_potential_air = owned_units.Sum(unit => Unit.DEFINITIONS[unit.Name].Item4);
+                owned_units_minimum_potential_ground = owned_units.Sum(unit => Unit.DEFINITIONS[unit.Name].Item3);
+                enemy_units_minimum_potential_air = enemy_units.Sum(unit => Unit.DEFINITIONS[unit.Name].Item4);
+                enemy_units_minimum_potential_ground = enemy_units.Sum(unit => Unit.DEFINITIONS[unit.Name].Item3);
+
+                //compute the maximum potentials
+                owned_units_maximum_potential_air = owned_units.Sum(unit => unit.Current_Air_Damage);
+                owned_units_maximum_potential_ground = owned_units.Sum(unit => unit.Current_Ground_Damage);
+                enemy_units_maximum_potential_air = enemy_units.Sum(unit => unit.Current_Air_Damage);
+                enemy_units_maximum_potential_ground = enemy_units.Sum(unit => unit.Current_Ground_Damage);
+
+                //the potential dpf
+                potentialdpf_ownedtoenemy = 
+
+
             }
             catch(Exception ex)
             {

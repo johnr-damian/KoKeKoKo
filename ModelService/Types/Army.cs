@@ -9,9 +9,19 @@ namespace ModelService.Types
     public abstract class Army : IEnumerable<Unit>
     {
         /// <summary>
+        /// A raw copy of passed units
+        /// </summary>
+        protected string Raw_Units { get; set; } = "";
+
+        /// <summary>
         /// A collection of <see cref="Unit"/>
         /// </summary>
         protected Unit[] Units { get; set; } = null;
+
+        /// <summary>
+        /// Number of units in a army
+        /// </summary>
+        public int Length => Units.Length;
 
         private class Enumerator : IEnumerator<Unit>
         {
@@ -61,6 +71,12 @@ namespace ModelService.Types
         /// </summary>
         /// <returns></returns>
         IEnumerator IEnumerable.GetEnumerator() => new Enumerator(Units);
+
+        /// <summary>
+        /// A method that creates a new instance of <see cref="Army"/> with the same values
+        /// </summary>
+        /// <returns></returns>
+        public abstract Army CreateDeepCopy();
 
         /// <summary>
         /// Gets the total army value with configurable weight importance by adding the 

@@ -221,18 +221,352 @@ namespace ModelService.Types
                     case "TERRANINFANTRYWEAPONSLEVEL1":
                         if (Name == "TERRAN_MARINE")
                         {
-                            Simulated_Ground_Damage = Unit.DEFINITIONS[Name].Item3 + 1.6;
-                            Simulated_Air_Damage = Unit.DEFINITIONS[Name].Item3 + 1.6;
+                            Current_Ground_Damage= Unit.DEFINITIONS[Name].Item3 + 1.6;
+                            Current_Air_Damage = Unit.DEFINITIONS[Name].Item4 + 1.6;
                         }
                         else if(Name == "TERRAN_REAPER")
-                            Simulated_Ground_Damage = Unit.DEFINITIONS[Name].Item3 + 2.5;
+                            Current_Ground_Damage = Unit.DEFINITIONS[Name].Item3 + 2.5;
                         else if (Name == "TERRAN_MARAUDER")
-                            Simulated_Ground_Damage = Unit.DEFINITIONS[Name].Item3 + 0.93;
+                            Current_Ground_Damage = Unit.DEFINITIONS[Name].Item3 + 0.93;
                         else if(Name == "TERRAN_GHOST")
                         {
-                            Simulated_Ground_Damage = Unit.DEFINITIONS[Name].Item3 + 0.93;
-                            Simulated_Air_Damage = Unit.DEFINITIONS[Name].Item3 + 0.93;
+                            Current_Ground_Damage = Unit.DEFINITIONS[Name].Item3 + 0.93;
+                            Current_Air_Damage = Unit.DEFINITIONS[Name].Item4 + 0.93;
                         }
+                        break;
+                    case "TERRANINFANTRYWEAPONSLEVEL2":
+                        if (Name == "TERRAN_MARINE")
+                        {
+                            Current_Ground_Damage = Unit.DEFINITIONS[Name].Item3 + (1.6*2);
+                            Current_Air_Damage = Unit.DEFINITIONS[Name].Item4 + (1.6 * 2);
+                        }
+                        else if (Name == "TERRAN_REAPER")
+                            Current_Ground_Damage = Unit.DEFINITIONS[Name].Item3 + (2.5*2);
+                        else if (Name == "TERRAN_MARAUDER")
+                            Current_Ground_Damage = Unit.DEFINITIONS[Name].Item3 + (0.93*2);
+                        else if (Name == "TERRAN_GHOST")
+                        {
+                            Current_Ground_Damage = Unit.DEFINITIONS[Name].Item3 + (0.93 * 2);
+                            Current_Air_Damage = Unit.DEFINITIONS[Name].Item4 + (0.93 * 2);
+                        }
+                        break;
+                    case "TERRANINFANTRYWEAPONSLEVEL3":
+                        if (Name == "TERRAN_MARINE")
+                        {
+                            Current_Ground_Damage = Unit.DEFINITIONS[Name].Item3 + (1.6 * 3);
+                            Current_Air_Damage = Unit.DEFINITIONS[Name].Item4 + (1.6 * 3);
+                        }
+                        else if (Name == "TERRAN_REAPER")
+                            Current_Ground_Damage = Unit.DEFINITIONS[Name].Item3 + (2.5 * 3);
+                        else if (Name == "TERRAN_MARAUDER")
+                            Current_Ground_Damage = Unit.DEFINITIONS[Name].Item3 + (0.93 * 3);
+                        else if (Name == "TERRAN_GHOST")
+                        {
+                            Current_Ground_Damage = Unit.DEFINITIONS[Name].Item3 + (0.93 * 3);
+                            Current_Air_Damage = Unit.DEFINITIONS[Name].Item4 + (0.93 * 3);
+                        }
+                        break;
+                    case "TERRANINFANTRYARMORSLEVEL1":
+                        if (Name == "TERRAN_MARINE")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + 1;
+                        else if (Name == "TERRAN_REAPER")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + 1;
+                        else if (Name == "TERRAN_MARAUDER")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + 1;
+                        else if (Name == "TERRAN_GHOST")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + 1;
+                        break;
+                    case "TERRANINFANTRYARMORSLEVEL2":
+                        if (Name == "TERRAN_MARINE")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + (1*2);
+                        else if (Name == "TERRAN_REAPER")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + (1*2);
+                        else if (Name == "TERRAN_MARAUDER")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + (1*2);
+                        else if (Name == "TERRAN_GHOST")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + (1*2);
+                        break;
+                    case "TERRANINFANTRYARMORSLEVEL3":
+                        if (Name == "TERRAN_MARINE")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + (1*3);
+                        else if (Name == "TERRAN_REAPER")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + (1*3);
+                        else if (Name == "TERRAN_MARAUDER")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + (1*3);
+                        else if (Name == "TERRAN_GHOST")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + (1*3);
+                        break;
+                    case "TERRANVEHICLEWEAPONSLEVEL1":
+                        if (Name == "TERRAN_HELLION")
+                            Current_Ground_Damage = Unit.DEFINITIONS[Name].Item3 + 0.56;
+                        else if (Name == "TERRAN_SIEGETANK")
+                            Current_Ground_Damage = Unit.DEFINITIONS[Name].Item3 + 2.7;
+                        else if (Name == "TERRAN_SIEGETANKSIEGED")
+                            Current_Ground_Damage = Unit.DEFINITIONS[Name].Item3 + 1.87;
+                        else if (Name == "TERRAN_CYCLONE")
+                        {
+                            Current_Ground_Damage = Unit.DEFINITIONS[Name].Item3 + 2.8;
+                            Current_Air_Damage = Unit.DEFINITIONS[Name].Item4 + 2.8;
+                        }
+                        else if (Name == "TERRAN_HELLIONTANK")
+                            Current_Ground_Damage = Unit.DEFINITIONS[Name].Item3 + 1.4;
+                        else if (Name == "TERRAN_THOR")
+                        {
+                            Current_Ground_Damage = Unit.DEFINITIONS[Name].Item3 + 6.59;
+                            Current_Air_Damage = Unit.DEFINITIONS[Name].Item4 + 1.87;
+                        }
+                        else if (Name == "TERRAN_THORAP")
+                        {
+                            Current_Ground_Damage = Unit.DEFINITIONS[Name].Item3 + 6.59;
+                            Current_Air_Damage = Unit.DEFINITIONS[Name].Item4 + 2.3;
+                        }
+                        break;
+                    case "TERRANVEHICLEWEAPONSLEVEL2":
+                        if (Name == "TERRAN_HELLION")
+                            Current_Ground_Damage = Unit.DEFINITIONS[Name].Item3 + (0.56*2);
+                        else if (Name == "TERRAN_SIEGETANK")
+                            Current_Ground_Damage = Unit.DEFINITIONS[Name].Item3 + (2.7*2);
+                        else if (Name == "TERRAN_SIEGETANKSIEGED")
+                            Current_Ground_Damage = Unit.DEFINITIONS[Name].Item3 + (1.87*2);
+                        else if (Name == "TERRAN_CYCLONE")
+                        {
+                            Current_Ground_Damage = Unit.DEFINITIONS[Name].Item3 + (2.8*2);
+                            Current_Air_Damage = Unit.DEFINITIONS[Name].Item4 + (2.8*2);
+                        }
+                        else if (Name == "TERRAN_HELLIONTANK")
+                            Current_Ground_Damage = Unit.DEFINITIONS[Name].Item3 + (1.4*2);
+                        else if (Name == "TERRAN_THOR")
+                        {
+                            Current_Ground_Damage = Unit.DEFINITIONS[Name].Item3 + (6.59*2);
+                            Current_Air_Damage = Unit.DEFINITIONS[Name].Item4 + (1.87*2);
+                        }
+                        else if (Name == "TERRAN_THORAP")
+                        {
+                            Current_Ground_Damage = Unit.DEFINITIONS[Name].Item3 + (6.59*2);
+                            Current_Air_Damage = Unit.DEFINITIONS[Name].Item4 + (2.3*2);
+                        }
+                        break;
+                    case "TERRANVEHICLEWEAPONSLEVEL3":
+                        if (Name == "TERRAN_HELLION")
+                            Current_Ground_Damage = Unit.DEFINITIONS[Name].Item3 + (0.56 * 3);
+                        else if (Name == "TERRAN_SIEGETANK")
+                            Current_Ground_Damage = Unit.DEFINITIONS[Name].Item3 + (2.7 * 3);
+                        else if (Name == "TERRAN_SIEGETANKSIEGED")
+                            Current_Ground_Damage = Unit.DEFINITIONS[Name].Item3 + (1.87 * 3);
+                        else if (Name == "TERRAN_CYCLONE")
+                        {
+                            Current_Ground_Damage = Unit.DEFINITIONS[Name].Item3 + (2.8 * 3);
+                            Current_Air_Damage = Unit.DEFINITIONS[Name].Item4 + (2.8 * 2);
+                        }
+                        else if (Name == "TERRAN_HELLIONTANK")
+                            Current_Ground_Damage = Unit.DEFINITIONS[Name].Item3 + (1.4 * 3);
+                        else if (Name == "TERRAN_THOR")
+                        {
+                            Current_Ground_Damage = Unit.DEFINITIONS[Name].Item3 + (6.59 * 3);
+                            Current_Air_Damage = Unit.DEFINITIONS[Name].Item4 + (1.87 * 2);
+                        }
+                        else if (Name == "TERRAN_THORAP")
+                        {
+                            Current_Ground_Damage = Unit.DEFINITIONS[Name].Item3 + (6.59 * 3);
+                            Current_Air_Damage = Unit.DEFINITIONS[Name].Item4 + (2.3 * 3);
+                        }
+                        break;
+                    case "TERRANSHIPWEAPONSLEVEL1":
+                        if (Name == "TERRAN_VIKINGASSAULT")
+                            Current_Ground_Damage = Unit.DEFINITIONS[Name].Item3 + 1.4;
+                        else if (Name == "TERRAN_VIKINGFIGHTER")
+                            Current_Air_Damage = Unit.DEFINITIONS[Name].Item4 + 1.4;
+                        else if (Name == "TERRAN_LIBERATOR")
+                            Current_Air_Damage = Unit.DEFINITIONS[Name].Item4 + 1.4;
+                        else if (Name == "TERRAN_LIBERATORAG")
+                            Current_Ground_Damage = Unit.DEFINITIONS[Name].Item3 + 4.4;
+                        else if (Name == "TERRAN_BANSHEE")
+                            Current_Ground_Damage = Unit.DEFINITIONS[Name].Item3 + 2.25;
+                        else if (Name == "TERRAN_BATTLECRUISER")
+                        {
+                            Current_Ground_Damage = Unit.DEFINITIONS[Name].Item3 + 6.2;
+                            Current_Air_Damage = Unit.DEFINITIONS[Name].Item4 + 6.2;
+                        }
+                        break;
+                    case "TERRANSHIPWEAPONSLEVEL2":
+                        if (Name == "TERRAN_VIKINGASSAULT")
+                            Current_Ground_Damage = Unit.DEFINITIONS[Name].Item3 + (1.4*2);
+                        else if (Name == "TERRAN_VIKINGFIGHTER")
+                            Current_Air_Damage = Unit.DEFINITIONS[Name].Item4 + (1.4 * 2);
+                        else if (Name == "TERRAN_LIBERATOR")
+                            Current_Air_Damage = Unit.DEFINITIONS[Name].Item4 + (1.4 * 2);
+                        else if (Name == "TERRAN_LIBERATORAG")
+                            Current_Ground_Damage = Unit.DEFINITIONS[Name].Item3 + (4.4*2);
+                        else if (Name == "TERRAN_BANSHEE")
+                            Current_Ground_Damage = Unit.DEFINITIONS[Name].Item3 + (2.25*2);
+                        else if (Name == "TERRAN_BATTLECRUISER")
+                        {
+                            Current_Ground_Damage = Unit.DEFINITIONS[Name].Item3 + (6.2*2);
+                            Current_Air_Damage = Unit.DEFINITIONS[Name].Item4 + (6.2*2);
+                        }
+                        break;
+                    case "TERRANSHIPWEAPONSLEVEL3":
+                        if (Name == "TERRAN_VIKINGASSAULT")
+                            Current_Ground_Damage = Unit.DEFINITIONS[Name].Item3 + (1.4 * 3);
+                        else if (Name == "TERRAN_VIKINGFIGHTER")
+                            Current_Air_Damage = Unit.DEFINITIONS[Name].Item4 + (1.4 * 3);
+                        else if (Name == "TERRAN_LIBERATOR")
+                            Current_Air_Damage = Unit.DEFINITIONS[Name].Item4 + (1.4 * 3);
+                        else if (Name == "TERRAN_LIBERATORAG")
+                            Current_Ground_Damage = Unit.DEFINITIONS[Name].Item3 + (4.4 * 3);
+                        else if (Name == "TERRAN_BANSHEE")
+                            Current_Ground_Damage = Unit.DEFINITIONS[Name].Item3 + (2.25 * 3);
+                        else if (Name == "TERRAN_BATTLECRUISER")
+                        {
+                            Current_Ground_Damage = Unit.DEFINITIONS[Name].Item3 + (6.2 * 3);
+                            Current_Air_Damage = Unit.DEFINITIONS[Name].Item4 + (6.2 * 3);
+                        }
+                        break;
+                    case "TERRANVEHICLEANDSHIPARMORSLEVEL1":
+                        if (Name == "TERRAN_HELLION")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + 1;
+                        else if (Name == "TERRAN_WIDOWMINE")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + 1;
+                        else if (Name == "TERRAN_SIEGETANK")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + 1;
+                        else if (Name == "TERRAN_SIEGETANKSIEGED")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + 1;
+                        else if (Name == "TERRAN_CYCLONE")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + 1;
+                        else if (Name == "TERRAN_HELLIONTANK")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + 1;
+                        else if (Name == "TERRAN_THOR")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + 1;
+                        else if (Name == "TERRAN_THORAP")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + 1;
+                        else if (Name == "TERRAN_VIKINGASSAULT")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + 1;
+                        else if (Name == "TERRAN_VIKINGFIGHTER")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + 1;
+                        else if (Name == "TERRAN_MEDIVAC")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + 1;
+                        else if (Name == "TERRAN_LIBERATOR")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + 1;
+                        else if (Name == "TERRAN_LIBERATORAG")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + 1;
+                        else if (Name == "TERRAN_RAVEN")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + 1;
+                        else if (Name == "TERRAN_BANSHEE")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + 1;
+                        else if (Name == "TERRAN_BATTLECRUISER")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + 1;
+                        break;
+                    case "TERRANVEHICLEANDSHIPARMORSLEVEL2":
+                        if (Name == "TERRAN_HELLION")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + (1 * 2);
+                        else if (Name == "TERRAN_WIDOWMINE")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + (1 * 2);
+                        else if (Name == "TERRAN_SIEGETANK")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + (1 * 2);
+                        else if (Name == "TERRAN_SIEGETANKSIEGED")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + (1 * 2);
+                        else if (Name == "TERRAN_CYCLONE")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + (1 * 2);
+                        else if (Name == "TERRAN_HELLIONTANK")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + (1 * 2);
+                        else if (Name == "TERRAN_THOR")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + (1 * 2);
+                        else if (Name == "TERRAN_THORAP")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + (1 * 2);
+                        else if (Name == "TERRAN_VIKINGASSAULT")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + (1 * 2);
+                        else if (Name == "TERRAN_VIKINGFIGHTER")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + (1 * 2);
+                        else if (Name == "TERRAN_MEDIVAC")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + (1 * 2);
+                        else if (Name == "TERRAN_LIBERATOR")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + (1 * 2);
+                        else if (Name == "TERRAN_LIBERATORAG")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + (1 * 2);
+                        else if (Name == "TERRAN_RAVEN")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + (1 * 2);
+                        else if (Name == "TERRAN_BANSHEE")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + (1 * 2);
+                        else if (Name == "TERRAN_BATTLECRUISER")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + (1 * 2);
+                        break;
+                    case "TERRANVEHICLEANDSHIPARMORSLEVEL3":
+                        if (Name == "TERRAN_HELLION")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + (1 * 3);
+                        else if (Name == "TERRAN_WIDOWMINE")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + (1 * 3);
+                        else if (Name == "TERRAN_SIEGETANK")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + (1 * 3);
+                        else if (Name == "TERRAN_SIEGETANKSIEGED")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + (1 * 3);
+                        else if (Name == "TERRAN_CYCLONE")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + (1 * 3);
+                        else if (Name == "TERRAN_HELLIONTANK")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + (1 * 3);
+                        else if (Name == "TERRAN_THOR")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + (1 * 3);
+                        else if (Name == "TERRAN_THORAP")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + (1 * 3);
+                        else if (Name == "TERRAN_VIKINGASSAULT")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + (1 * 3);
+                        else if (Name == "TERRAN_VIKINGFIGHTER")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + (1 * 3);
+                        else if (Name == "TERRAN_MEDIVAC")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + (1 * 3);
+                        else if (Name == "TERRAN_LIBERATOR")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + (1 * 3);
+                        else if (Name == "TERRAN_LIBERATORAG")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + (1 * 3);
+                        else if (Name == "TERRAN_RAVEN")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + (1 * 3);
+                        else if (Name == "TERRAN_BANSHEE")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + (1 * 3);
+                        else if (Name == "TERRAN_BATTLECRUISER")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + (1 * 3);
+                        break;
+                    case "NEOSTEELFRAME":
+                        if (Name == "TERRAN_COMMANDCENTER")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + 2;
+                        else if (Name == "TERRAN_PLANETARYFORTRESS")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + 2;
+                        else if (Name == "TERRAN_ORBITALCOMMAND")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + 2;
+                        else if (Name == "TERRAN_SUPPLYDEPOT")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + 2;
+                        else if (Name == "TERRAN_REFINERY")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + 2;
+                        else if (Name == "TERRAN_BARRACKS")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + 2;
+                        else if (Name == "TERRAN_BARRACKSREACTOR")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + 2;
+                        else if (Name == "TERRAN_BARRACKSTECHLAB")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + 2;
+                        else if (Name == "TERRAN_ENGINEERINGBAY")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + 2;
+                        else if (Name == "TERRAN_BUNKER")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + 2;
+                        else if (Name == "TERRAN_SENSORTOWER")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + 2;
+                        else if (Name == "TERRAN_MISSILETURRET")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + 2;
+                        else if (Name == "TERRAN_FACTORY")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + 2;
+                        else if (Name == "TERRAN_FACTORYREACTOR")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + 2;
+                        else if (Name == "TERRAN_FACTORYTECHLAB")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + 2;
+                        else if (Name == "TERRAN_GHOSTACADEMY")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + 2;
+                        else if (Name == "TERRAN_STARPORT")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + 2;
+                        else if (Name == "TERRAN_STARPORTREACTOR")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + 2;
+                        else if (Name == "TERRAN_STARPORTTECHLAB")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + 2;
+                        else if (Name == "TERRAN_ARMORY")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + 2;
+                        else if (Name == "TERRAN_FUSIONCORE")
+                            Current_Armor = Unit.DEFINITIONS[Name].Item5 + 2;
                         break;
                     default:
                         break;
@@ -273,7 +607,6 @@ namespace ModelService.Types
                 if (!(IsDead || IsTargetDead))
                 {
                     //TODO
-
                     return Target.ReceiveAttackFromTarget(minimum_potential_damage);
                 }
                 else

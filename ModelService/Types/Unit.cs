@@ -594,6 +594,80 @@ namespace ModelService.Types
             throw new NotImplementedException();
         }
 
+        //for actual damage values after armor application (Target armor, Target isflying)
+        public virtual double ApplyArmor(double armor, bool IsFlying)
+        {
+            double Actual_Ground_Damage = 0, Actual_Air_Damage = 0;
+            if (Name == "TERRAN_MARINE")
+            {
+                Actual_Ground_Damage = Current_Ground_Damage - (1.6 * armor);
+                Actual_Air_Damage = Current_Air_Damage - (1.6 * armor);
+            }
+            else if (Name == "TERRAN_WIDOWMINE")
+            {
+                Actual_Ground_Damage = Current_Ground_Damage - (1 * armor);
+                Actual_Air_Damage = Current_Air_Damage - (1 * armor);
+            }
+            else if (Name == "TERRAN_SCV")
+                Actual_Ground_Damage = Current_Ground_Damage - (0.93 * armor);
+            else if (Name == "TERRAN_REAPER")
+                Actual_Ground_Damage = Current_Ground_Damage - (2.5 * armor);
+            else if (Name == "TERRAN_MARAUDER")
+                Actual_Ground_Damage = Current_Ground_Damage - (0.93 * armor);
+            else if (Name == "TERRAN_GHOST")
+            {
+                Actual_Ground_Damage = Current_Ground_Damage - (0.93 * armor);
+                Actual_Air_Damage = Current_Air_Damage - (0.93 * armor);
+            }
+            else if (Name == "TERRAN_HELLION")
+                Actual_Ground_Damage = Current_Ground_Damage - (0.56 * armor);
+            else if (Name == "TERRAN_SIEGETANK")
+                Actual_Ground_Damage = Current_Ground_Damage - (1.35 * armor);
+            else if (Name == "TERRAN_SIEGETANKSIEGED")
+                Actual_Ground_Damage = Current_Ground_Damage - (0.47 * armor);
+            else if (Name == "TERRAN_CYCLONE")
+            {
+                Actual_Ground_Damage = Current_Ground_Damage - (1.26 * armor);
+                Actual_Air_Damage = Current_Air_Damage - (1.26 * armor);
+            }
+            else if (Name == "TERRAN_HELLIONTANK")
+                Actual_Ground_Damage = Current_Ground_Damage - (0.71 * armor);
+            else if (Name == "TERRAN_THOR")
+            {
+                Actual_Ground_Damage = Current_Ground_Damage - (2.16 * armor);
+                Actual_Air_Damage = Current_Air_Damage - (1.87 * armor);
+            }
+            else if (Name == "TERRAN_THORAP")
+            {
+                Actual_Ground_Damage = Current_Ground_Damage - (2.16 * armor);
+                Actual_Air_Damage = Current_Air_Damage - (0.59 * armor);
+            }
+            else if(Name == "TERRAN_AUTOTURRET")
+            {
+                Actual_Ground_Damage = Current_Ground_Damage - (1.76 * armor);
+                Actual_Air_Damage = Current_Air_Damage - (1.76 * armor);
+            }
+            else if (Name == "TERRAN_VIKINGASSAULT")
+                Actual_Ground_Damage = Current_Ground_Damage - (1.4 * armor);
+            else if (Name == "TERRAN_VIKINGFIGHTER")
+                Actual_Air_Damage = Current_Air_Damage - (1.4 * armor);
+            else if (Name == "TERRAN_LIBERATOR")
+                Actual_Air_Damage = Current_Air_Damage - (1.4 * armor);
+            else if (Name == "TERRAN_LIBERATORAG")
+                Actual_Ground_Damage = Current_Ground_Damage - (0.81 * armor);
+            else if (Name == "TERRAN_BANSHEE")
+                Actual_Ground_Damage = Current_Ground_Damage - (2.25 * armor);
+            else if (Name == "TERRAN_BATTLECRUISER")
+            {
+                Actual_Ground_Damage = Current_Ground_Damage - (6.2 * armor);
+                Actual_Air_Damage = Current_Air_Damage - (6.2 * armor);
+            }
+            if (IsFlying == false)
+                return Actual_Ground_Damage;
+            else
+                return Actual_Air_Damage;
+        }
+
         /// <summary>
         /// Deals damage to this unit's target with buffs or other modifiers
         /// </summary>
@@ -607,7 +681,15 @@ namespace ModelService.Types
                 if (!(IsDead || IsTargetDead))
                 {
                     //TODO
-                    return Target.ReceiveAttackFromTarget(minimum_potential_damage);
+                    if (Target.Current_Armor <= 0 && Current_Air_Damage > 0 && Unit.DEFINITIONS[Target.Name].Item6)
+                        return Target.ReceiveAttackFromTarget(Current_Air_Damage);
+                    else if(Target.Current_Armor <= 0 && Current_Ground_Damage > 0 && !Unit.DEFINITIONS[Target.Name].Item6)
+                        return Target.ReceiveAttackFromTarget(Current_Ground_Damage);
+                    if (Current_Air_Damage > 0 && Unit.DEFINITIONS[Target.Name].Item6 || Current_Air_Damage > 0 && !Unit.DEFINITIONS[Target.Name].Item6)
+                    {
+                        return Target.ReceiveAttackFromTarget(ApplyArmor(Target.Current_Armor, Unit.DEFINITIONS[Target.Name].Item6));
+                    }
+                    //return Target.ReceiveAttackFromTarget(minimum_potential_damage);
                 }
                 else
                     throw new InvalidOperationException("This unit is either dead, or the target has been killed...");
@@ -630,8 +712,7 @@ namespace ModelService.Types
         {
             try
             {
-                //TODO
-
+                Current_Health = Current_Health - damage_to_receive;
                 return true;
             }
             catch(Exception ex)

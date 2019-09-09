@@ -86,25 +86,40 @@ namespace ModelService.Micromanagement
                 //Owned units win
                 {
                     is_own_only = true;
+                    Console.WriteLine("A WINS!");
                 }
                 else if (cardinality == owned_relative_effectiveness)
                 //The fight is draw
                 {
                     is_own_only = null;
+                    Console.WriteLine("DRAW!");
                 }
                 else if (cardinality < owned_relative_effectiveness)
                 //Enemy units win
                 {
                     is_own_only = false;
+                    Console.WriteLine("B WINS!");
                 }
                 else
                     throw new ArgumentException("What the hell is this value!");
 
                 string message = "";
 
+                var m = "";
+                foreach (var u in owned_units)
+                    m += (u.Target == null) ? "" : u.Target.ToString();
+                Console.WriteLine(m);
+
                 if(target_policy.HasFlag(TargetPolicy.Random))
                 {
-
+                    if(RandomBasedTargetPolicy(owned_units, enemy_units))
+                    {
+                        
+                    }
+                    m = "";
+                    foreach (var u in owned_units)
+                        m += (u.Target == null) ? "" : u.Target.ToString();
+                    Console.WriteLine(m);
                 }
 
                 if(target_policy.HasFlag(TargetPolicy.Priority))

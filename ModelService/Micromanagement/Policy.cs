@@ -12,11 +12,18 @@ namespace ModelService.Micromanagement
     {
         private bool RandomBasedTargetPolicy(Army owned_units, Army enemy_units)
         {
+            var random = new Random();
             bool has_targetable = false;
 
             try
             {
-                //TODO
+                var array = enemy_units.ToArray();
+                for (var enumerator = owned_units.GetEnumerator(); enumerator.MoveNext();)
+                    enumerator.Current.SetTarget(array[random.Next(0, enemy_units.Length)]);
+
+                var array2 = owned_units.ToArray();
+                for (var enumerator = enemy_units.GetEnumerator(); enumerator.MoveNext();)
+                    enumerator.Current.SetTarget(array2[random.Next(0, owned_units.Length)]);
             }
             catch(Exception ex)
             {

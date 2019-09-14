@@ -1676,7 +1676,7 @@ namespace KoKeKoKo
 					{
 						TryBarracksTechLabResearchStimpack();
 					}
-					else if (action.find(" RESEARCH_CONCUSSIVESHELLS") != string::npos)
+					else if (action.find("RESEARCH_CONCUSSIVESHELLS") != string::npos)
 					{
 						TryBarracksTechLabResearchConcussiveShells();
 					}
@@ -1804,7 +1804,7 @@ namespace KoKeKoKo
 					{
 						TryBuildStarportTechLab();
 					}
-					else if (action.find("Research Rapid Reignition System") != string::npos)
+					else if (action.find("RESEARCH_HIGHCAPACITYFUELTANKS") != string::npos)
 					{
 						TryStarportResearchRapidReignitionSystem();
 					}

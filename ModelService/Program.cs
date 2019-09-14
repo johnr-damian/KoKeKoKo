@@ -88,25 +88,34 @@ namespace ModelService
                             if (modelrepositoryservice.HasMessageFromAgent())
                             {
                                 var rawmessage = modelrepositoryservice.GetMessageFromQueue();
-                                var partitionedmessage = rawmessage.Split('\n');
+                                var partitionedmessage = rawmessage.Split('~');
 
-                                switch (partitionedmessage[0])
+                                //switch (partitionedmessage[0])
+                                //{
+                                //    case "Initialize":
+
+                                //        break;
+                                //    case "Generate":
+
+                                //        break;
+                                //    case "Exit":
+                                //        keeprunningmodel = false;
+                                //        break;
+                                //    default:
+                                //        Console.WriteLine($@"Unable to partition message {rawmessage}! Resulting partitioned message: ");
+                                //        foreach (var message in partitionedmessage)
+                                //            Console.WriteLine($@"\t{message}");
+                                //        break;
+                                //}
+
+                                Console.WriteLine(partitionedmessage.Length);
+                                if(partitionedmessage.Length > 0)
                                 {
-                                    case "Initialize":
-
-                                        break;
-                                    case "Generate":
-
-                                        break;
-                                    case "Exit":
-                                        keeprunningmodel = false;
-                                        break;
-                                    default:
-                                        Console.WriteLine($@"Unable to partition message {rawmessage}! Resulting partitioned message: ");
-                                        foreach (var message in partitionedmessage)
-                                            Console.WriteLine($@"\t{message}");
-                                        break;
+                                    foreach (var s in partitionedmessage)
+                                        Console.WriteLine(s);
                                 }
+
+                                modelrepositoryservice.SendMessageToAgent("Hello World!");
                             }
 
                             //Give other thread to process their procedures

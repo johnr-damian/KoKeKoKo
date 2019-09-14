@@ -601,7 +601,7 @@ namespace KoKeKoKo
 					return (TryResearch(ABILITY_ID::MORPH_ORBITALCOMMAND, UNIT_TYPEID::TERRAN_COMMANDCENTER));
 				}
 
-				bool TryCommandCenterSummonMule()
+				bool TryOrbitalCommandSummonMule()
 				{
 					const ObservationInterface* observation = Observation();
 
@@ -820,6 +820,16 @@ namespace KoKeKoKo
 					return TryTrainUnit(ABILITY_ID::TRAIN_SIEGETANK, UNIT_TYPEID::TERRAN_FACTORY);
 				}
 
+				bool TryTransformSiegeMode()
+				{
+					return TryResearch(ABILITY_ID::MORPH_SIEGEMODE, UNIT_TYPEID::TERRAN_SIEGETANK);
+				}
+
+				bool TryTransformUnsiege()
+				{
+					return TryResearch(ABILITY_ID::MORPH_UNSIEGE, UNIT_TYPEID::TERRAN_SIEGETANK);
+				}
+
 				bool TryTrainCyclone()
 				{
 					const ObservationInterface* observation = Observation();
@@ -943,6 +953,16 @@ namespace KoKeKoKo
 						return false;
 					}
 					return TryTrainUnit(ABILITY_ID::TRAIN_VIKINGFIGHTER, UNIT_TYPEID::TERRAN_STARPORT);
+				}
+
+				bool TryTransformVikingAssault()
+				{
+					return TryResearch(ABILITY_ID::MORPH_VIKINGASSAULTMODE, UNIT_TYPEID::TERRAN_VIKINGFIGHTER);
+				}
+
+				bool TryTransformVikingFighter()
+				{
+					return TryResearch(ABILITY_ID::MORPH_VIKINGFIGHTERMODE, UNIT_TYPEID::TERRAN_VIKINGASSAULT);
 				}
 
 				bool TryTrainMedivac()
@@ -1596,43 +1616,43 @@ namespace KoKeKoKo
 
 				void TryAction(string action)
 				{
-					if (action.find("Build Refinery") != string::npos)
+					if (action.find("BUILD_REFINERY") != string::npos)
 					{
 						TryBuildRefinery();
 					}
-					else if (action.find("Build Command Center") != string::npos)
+					else if (action.find("BUILD_COMMANDCENTER") != string::npos)
 					{
 						TryBuildCommandCenter();
 					}
-					else if (action.find("Orbital Command") != string::npos)
+					else if (action.find("MORPH_ORBITALCOMMAND") != string::npos)
 					{
 						TryCommandCenterMorphOrbitalCommand();
 					}
-					else if (action.find("Calldown: MULE") != string::npos)
+					else if (action.find("EFFECT_CALLDOWNMULE") != string::npos)
 					{
-						TryCommandCenterSummonMule();
+						TryOrbitalCommandSummonMule();
 					}
-					else if (action.find("Planetary Fortress") != string::npos)
+					else if (action.find("MORPH_PLANETARYFORTRESS") != string::npos)
 					{
 						TryCommandCenterMorphPlanetaryFortress();
 					}
-					else if (action.find("Train SCV") != string::npos)
+					else if (action.find("TRAIN_SCV") != string::npos)
 					{
 						TrainSCV();
 					}
-					else if (action.find("Build Supply Depot") != string::npos)
+					else if (action.find("BUILD_SUPPLYDEPOT") != string::npos)
 					{
 						TryBuildSupplyDepot();
 					}
-					else if (action.find("Build Barracks") != string::npos)
+					else if (action.find("BUILD_BARRACKS") != string::npos)
 					{
 						TryBuildBarracks();
 					}
-					else if (action.find("Train Marine") != string::npos)
+					else if (action.find("TRAIN_MARINE") != string::npos)
 					{
 						TrainMarine();
 					}
-					else if (action.find("Train Reaper") != string::npos)
+					else if (action.find("TRAIN_REAPER") != string::npos)
 					{
 						TrainReaper();
 					}
@@ -1640,131 +1660,147 @@ namespace KoKeKoKo
 					{
 						TrainMarauder();
 					}
-					else if (action.find("Train Ghost") != string::npos)
+					else if (action.find("TRAIN_MARAUDER") != string::npos)
 					{
 						TrainGhost();
 					}
-					else if (action.find("Build Barracks Tech") != string::npos)
+					else if (action.find("BUILD_BARRACKSTECHLAB") != string::npos)
 					{
 						TryBuildBarracksTechLab();
 					}
-					else if (action.find("Research Combat Shield") != string::npos)
+					else if (action.find("RESEARCH_COMBATSHIELD") != string::npos)
 					{
 						TryBarracksTechLabResearchCombatShield();
 					}
-					else if (action.find("Research Stimpack") != string::npos)
+					else if (action.find("RESEARCH_STIMPACK") != string::npos)
 					{
 						TryBarracksTechLabResearchStimpack();
 					}
-					else if (action.find("Research Concussive Shells") != string::npos)
+					else if (action.find(" RESEARCH_CONCUSSIVESHELLS") != string::npos)
 					{
 						TryBarracksTechLabResearchConcussiveShells();
 					}
-					else if (action.find("Build Barracks Reactor") != string::npos)
+					else if (action.find("BUILD_BARRACKSREACTOR") != string::npos)
 					{
 						TryBuildBarracksReactor();
 					}
-					else if (action.find("Build Factory") != string::npos)
+					else if (action.find("BUILD_FACTORY") != string::npos)
 					{
 						TryBuildFactory();
 					}
-					else if (action.find("Train Hellion") != string::npos)
+					else if (action.find("TRAIN_HELLION") != string::npos)
 					{
 						TryTrainHellion();
 					}
-					else if (action.find("Hellbat Mode") != string::npos)
+					else if (action.find("MORPH_HELLBAT") != string::npos)
 					{
 						TryTransformHellionHellbat();
 					}
-					else if (action.find("Train Widow") != string::npos)
+					else if (action.find("TRAIN_WIDOWMINE") != string::npos)
 					{
 						TryTrainWidowMine();
 					}
-					else if (action.find("Train Siege") != string::npos)
+					else if (action.find("TRAIN_SIEGETANK") != string::npos)
 					{
 						TryTrainSiegeTank();
 					}
-					else if (action.find("Train Cyclone") != string::npos)
+					else if (action.find("MORPH_SIEGEMODE") != string::npos)
+					{
+						TryTransformSiegeMode();
+					}
+					else if (action.find("MORPH_UNSIEGE") != string::npos)
+					{
+						TryTransformUnsiege();
+					}
+					else if (action.find("TRAIN_CYCLONE") != string::npos)
 					{
 						TryTrainCyclone();
 					}
-					else if (action.find("Train Hellbat") != string::npos)
+					else if (action.find("TRAIN_HELLBAT") != string::npos)
 					{
 						TryTrainHellbat();
 					}
-					else if (action.find("Hellion Mode") != string::npos)
+					else if (action.find("MORPH_HELLION") != string::npos)
 					{
 						TryTransformHellbatHellion();
 					}
-					else if (action.find("Train Thor") != string::npos)
+					else if (action.find("TRAIN_THOR") != string::npos)
 					{
 						TryTrainThor();
 					}
-					else if (action.find("Build Factory Tech") != string::npos)
+					else if (action.find("BUILD_FACTORYTECHLAB") != string::npos)
 					{
 						TryBuildFactoryTechLab();
 					}
-					else if (action.find("Research Infernal Pre-Igniter") != string::npos)
+					else if (action.find("RESEARCH_INFERNALPREIGNITER") != string::npos)
 					{
 						TryFactoryResearchInfernalPreIgniter();
 					}
-					else if (action.find("Research Mag-Field Accelerator") != string::npos)
+					else if (action.find("RESEARCH_MAGFIELDLAUNCHERS") != string::npos)
 					{
 						TryFactoryResearchMagFieldAccelerator();
 					}
-					else if (action.find("Research Drilling Claws") != string::npos)
+					else if (action.find("RESEARCH_DRILLINGCLAWS") != string::npos)
 					{
 						TryFactoryResearchDrillingClaws();
 					}
-					else if (action.find("Build Factory Reactor") != string::npos)
+					else if (action.find("BUILD_FACTORYREACTOR") != string::npos)
 					{
 						TryBuildFactoryReactor();
 					}
-					else if (action.find("Build Starport") != string::npos)
+					else if (action.find("BUILD_STARPORT") != string::npos)
 					{
 						TryBuildStarport();
 					}
-					else if (action.find("Train Viking") != string::npos)
+					else if (action.find("TRAIN_VIKINGFIGHTER") != string::npos)
 					{
 						TryTrainViking();
 					}
-					else if (action.find("Train Medivac") != string::npos)
+					else if (action.find("MORPH_VIKINGFIGHTERMODE") != string::npos)
+					{
+						TryTransformVikingFighter();
+					}
+					else if (action.find("MORPH_VIKINGASSAULTMODE") != string::npos)
+					{
+						TryTransformVikingAssault();
+					}
+					else if (action.find("TRAIN_MEDIVAC") != string::npos)
 					{
 						TryTrainMedivac();
 					}
-					else if (action.find("Train Liberator") != string::npos)
+					else if (action.find("TRAIN_LIBERATOR") != string::npos)
 					{
 						TryTrainLiberator();
 					}
-					else if (action.find("Defender Mode") != string::npos)
+					else if (action.find("MORPH_LIBERATORAGMODE") != string::npos)
 					{
 						TryTransformLiberatorLiberatorAG();
 					}
-					else if (action.find("Fighter Mode") != string::npos)
+					else if (action.find("MORPH_LIBERATORAAMODE") != string::npos)
 					{
 						TryTransformLiberatorAGLiberator();
 					}
-					else if (action.find("Train Raven") != string::npos)
+					else if (action.find("TRAIN_RAVEN") != string::npos)
 					{
 						TryTrainRaven();
 					}
-					else if (action.find("Build Auto-Turret") != string::npos)
+					else if (action.find("EFFECT_AUTOTURRET") != string::npos)
 					{
 						TryRavenSummonAutoTurret();
 					}
-					else if (action.find("Train Banshee") != string::npos)
+					else if (action.find("TRAIN_BANSHEE") != string::npos)
 					{
 						TryTrainBanshee();
 					}
-					else if (action.find("Train Battlecruiser") != string::npos)
+					else if (action.find("TRAIN_BATTLECRUISER") != string::npos)
 					{
 						TryTrainBattlecruiser();
 					}
-					else if (action.find("Build Starport Tech") != string::npos)
+					else if (action.find("BUILD_STARPORTREACTOR") != string::npos)
 					{
-						TryBuildStarportTechLab();
+						TryBuildStarportReactor();
 					}
-					else if (action.find("Build Starport Tech") != string::npos)
+					else if (action.find("BUILD_STARPORTTECHLAB") != string::npos)
 					{
 						TryBuildStarportTechLab();
 					}
@@ -1772,79 +1808,79 @@ namespace KoKeKoKo
 					{
 						TryStarportResearchRapidReignitionSystem();
 					}
-					else if (action.find("Research Corvid Reactor") != string::npos)
+					else if (action.find("RESEARCH_RAVENCORVIDREACTOR") != string::npos)
 					{
 						TryStarportResearchCorvidReactor();
 					}
-					else if (action.find("Research Cloaking Field") != string::npos)
+					else if (action.find("RESEARCH_BANSHEECLOAKINGFIELD") != string::npos)
 					{
 						TryStarportResearchCloakingField();
 					}
-					else if (action.find("Research Hyperflight Rotors") != string::npos)
+					else if (action.find("RESEARCH_BANSHEEHYPERFLIGHTROTORS") != string::npos)
 					{
 						TryStarportResearchHyperflightRotors();
 					}
-					else if (action.find("Research Advanced Ballistics") != string::npos)
+					else if (action.find("RESEARCH_ADVANCEDBALLISTICS") != string::npos)
 					{
 						TryStarportResearchAdvancedBallistics();
 					}
-					else if (action.find("Build Fusion Core") != string::npos)
+					else if (action.find("BUILD_FUSIONCORE") != string::npos)
 					{
 						TryBuildFusionCore();
 					}
-					else if (action.find("Research Weapon Refit") != string::npos)
+					else if (action.find("RESEARCH_BATTLECRUISERWEAPONREFIT") != string::npos)
 					{
 						TryFusionCoreResearchResearchWeaponRefit();
 					}
-					else if (action.find("Build Armory") != string::npos)
+					else if (action.find("BUILD_ARMORY") != string::npos)
 					{
 						TryBuildArmory();
 					}
-					else if (action.find("Research Vehicle Weapons") != string::npos)
+					else if (action.find("RESEARCH_TERRANVEHICLEWEAPONS") != string::npos)
 					{
 						TryArmoryResearchVehicleWeapons();
 					}
-					else if (action.find("Research Ship Weapons") != string::npos)
+					else if (action.find("RESEARCH_TERRANSHIPWEAPONS") != string::npos)
 					{
 						TryArmoryResearchShipWeapons();
 					}
-					else if (action.find("Research Vehicle and Ship Plating") != string::npos)
+					else if (action.find("RESEARCH_TERRANVEHICLEANDSHIPPLATING") != string::npos)
 					{
 						TryArmoryResearchVehicleShipPlating();
 					}
-					else if (action.find("Build Bunker") != string::npos)
+					else if (action.find("BUILD_BUNKER") != string::npos)
 					{
 						TryBuildBunker();
 					}
-					else if (action.find("Build Engineering Bay") != string::npos)
+					else if (action.find("BUILD_ENGINEERINGBAY") != string::npos)
 					{
 						TryBuildEngineeringBay();
 					}
-					else if (action.find("Research Infantry Weapons") != string::npos)
+					else if (action.find("RESEARCH_TERRANINFANTRYWEAPONS") != string::npos)
 					{
 						TryEngineeringBayResearchInfantryWeapon();
 					}
-					else if (action.find("Research Infantry Armor") != string::npos)
+					else if (action.find("RESEARCH_TERRANINFANTRYARMOR") != string::npos)
 					{
 						TryEngineeringBayResearchInfantryArmor();
 					}
-					else if (action.find("Build Ghost Academy") != string::npos)
+					else if (action.find("BUILD_GHOSTACADEMY") != string::npos)
 					{
 						TryBuildGhostAcademy();
 					}
-					else if (action.find("Research Personal Cloaking") != string::npos)
+					else if (action.find("RESEARCH_PERSONALCLOAKING") != string::npos)
 					{
 						TryGhostAcademyResearchPersonalCloaking();
 					}
-					else if (action.find("Build Nuke") != string::npos)
+					else if (action.find("BUILD_NUKE") != string::npos)
 					{
 						TryGhostAcademyBuildNuke();
 					}
-					else if (action.find("Build Missile Turret") != string::npos)
+					else if (action.find("BUILD_MISSILETURRET") != string::npos)
 					{
 						TryBuildMissileTurret();
 					}
-					else if (action.find("Build Sensor Tower") != string::npos)
+					else if (action.find("BUILD_SENSORTOWER") != string::npos)
 					{
 						TryBuildSensorTower();
 					}

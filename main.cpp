@@ -696,12 +696,12 @@ namespace KoKeKoKo
 
 				bool TryTransformSiegeMode()
 				{
-					return TryResearch(ABILITY_ID::MORPH_SIEGEMODE, UNIT_TYPEID::TERRAN_SIEGETANK);
+					return ExecuteResearchAbility(ABILITY_ID::MORPH_SIEGEMODE, UNIT_TYPEID::TERRAN_SIEGETANK);
 				}
 
 				bool TryTransformUnsiege()
 				{
-					return TryResearch(ABILITY_ID::MORPH_UNSIEGE, UNIT_TYPEID::TERRAN_SIEGETANK);
+					return ExecuteResearchAbility(ABILITY_ID::MORPH_UNSIEGE, UNIT_TYPEID::TERRAN_SIEGETANK);
 				}
 
 				bool TryTrainCyclone()
@@ -829,12 +829,12 @@ namespace KoKeKoKo
 
 				bool TryTransformVikingAssault()
 				{
-					return TryResearch(ABILITY_ID::MORPH_VIKINGASSAULTMODE, UNIT_TYPEID::TERRAN_VIKINGFIGHTER);
+					return ExecuteResearchAbility(ABILITY_ID::MORPH_VIKINGASSAULTMODE, UNIT_TYPEID::TERRAN_VIKINGFIGHTER);
 				}
 
 				bool TryTransformVikingFighter()
 				{
-					return TryResearch(ABILITY_ID::MORPH_VIKINGFIGHTERMODE, UNIT_TYPEID::TERRAN_VIKINGASSAULT);
+					return ExecuteResearchAbility(ABILITY_ID::MORPH_VIKINGFIGHTERMODE, UNIT_TYPEID::TERRAN_VIKINGASSAULT);
 				}
 
 				bool TryTrainMedivac()
@@ -1404,271 +1404,271 @@ namespace KoKeKoKo
 				//Executes a valid action that is within the ability_type of the agent
 				void ExecuteAbility(std::string ability)
 				{
-					if (action.find("BUILD_REFINERY") != string::npos)
+					if (ability.find("BUILD_REFINERY") != std::string::npos)
 					{
 						TryBuildRefinery();
 					}
-					else if (action.find("BUILD_COMMANDCENTER") != string::npos)
+					else if (ability.find("BUILD_COMMANDCENTER") != std::string::npos)
 					{
 						TryBuildCommandCenter();
 					}
-					else if (action.find("MORPH_ORBITALCOMMAND") != string::npos)
+					else if (ability.find("MORPH_ORBITALCOMMAND") != std::string::npos)
 					{
 						TryCommandCenterMorphOrbitalCommand();
 					}
-					else if (action.find("EFFECT_CALLDOWNMULE") != string::npos)
+					else if (ability.find("EFFECT_CALLDOWNMULE") != std::string::npos)
 					{
 						TryOrbitalCommandSummonMule();
 					}
-					else if (action.find("MORPH_PLANETARYFORTRESS") != string::npos)
+					else if (ability.find("MORPH_PLANETARYFORTRESS") != std::string::npos)
 					{
 						TryCommandCenterMorphPlanetaryFortress();
 					}
-					else if (action.find("TRAIN_SCV") != string::npos)
+					else if (ability.find("TRAIN_SCV") != std::string::npos)
 					{
 						TrainSCV();
 					}
-					else if (action.find("BUILD_SUPPLYDEPOT") != string::npos)
+					else if (ability.find("BUILD_SUPPLYDEPOT") != std::string::npos)
 					{
 						TryBuildSupplyDepot();
 					}
-					else if (action.find("BUILD_BARRACKS") != string::npos)
+					else if (ability.find("BUILD_BARRACKS") != std::string::npos)
 					{
 						TryBuildBarracks();
 					}
-					else if (action.find("TRAIN_MARINE") != string::npos)
+					else if (ability.find("TRAIN_MARINE") != std::string::npos)
 					{
 						TrainMarine();
 					}
-					else if (action.find("TRAIN_REAPER") != string::npos)
+					else if (ability.find("TRAIN_REAPER") != std::string::npos)
 					{
 						TrainReaper();
 					}
-					else if (action.find("TRAIN_MARAUDER") != string::npos)
+					else if (ability.find("TRAIN_MARAUDER") != std::string::npos)
 					{
 						TrainMarauder();
 					}
-					else if (action.find("TRAIN_GHOST") != string::npos)
+					else if (ability.find("TRAIN_GHOST") != std::string::npos)
 					{
 						TrainGhost();
 					}
-					else if (action.find("BUILD_BARRACKSTECHLAB") != string::npos) //Not on Offical Typeenums
+					else if (ability.find("BUILD_BARRACKSTECHLAB") != std::string::npos) //Not on Offical Typeenums
 					{
 						TryBuildBarracksTechLab();
 					}
-					else if (action.find("RESEARCH_COMBATSHIELD") != string::npos)
+					else if (ability.find("RESEARCH_COMBATSHIELD") != std::string::npos)
 					{
 						TryBarracksTechLabResearchCombatShield();
 					}
-					else if (action.find("RESEARCH_STIMPACK") != string::npos)
+					else if (ability.find("RESEARCH_STIMPACK") != std::string::npos)
 					{
 						TryBarracksTechLabResearchStimpack();
 					}
-					else if (action.find("RESEARCH_CONCUSSIVESHELLS") != string::npos)
+					else if (ability.find("RESEARCH_CONCUSSIVESHELLS") != std::string::npos)
 					{
 						TryBarracksTechLabResearchConcussiveShells();
 					}
-					else if (action.find("BUILD_BARRACKSREACTOR") != string::npos) //Not on Offical Typeenums
+					else if (ability.find("BUILD_BARRACKSREACTOR") != std::string::npos) //Not on Offical Typeenums
 					{
 						TryBuildBarracksReactor();
 					}
-					else if (action.find("BUILD_FACTORY") != string::npos)
+					else if (ability.find("BUILD_FACTORY") != std::string::npos)
 					{
 						TryBuildFactory();
 					}
-					else if (action.find("TRAIN_HELLION") != string::npos)
+					else if (ability.find("TRAIN_HELLION") != std::string::npos)
 					{
 						TryTrainHellion();
 					}
-					else if (action.find("MORPH_HELLBAT") != string::npos)
+					else if (ability.find("MORPH_HELLBAT") != std::string::npos)
 					{
 						TryTransformHellionHellbat();
 					}
-					else if (action.find("TRAIN_WIDOWMINE") != string::npos)
+					else if (ability.find("TRAIN_WIDOWMINE") != std::string::npos)
 					{
 						TryTrainWidowMine();
 					}
-					else if (action.find("TRAIN_SIEGETANK") != string::npos)
+					else if (ability.find("TRAIN_SIEGETANK") != std::string::npos)
 					{
 						TryTrainSiegeTank();
 					}
-					else if (action.find("MORPH_SIEGEMODE") != string::npos)
+					else if (ability.find("MORPH_SIEGEMODE") != std::string::npos)
 					{
 						TryTransformSiegeMode();
 					}
-					else if (action.find("MORPH_UNSIEGE") != string::npos)
+					else if (ability.find("MORPH_UNSIEGE") != std::string::npos)
 					{
 						TryTransformUnsiege();
 					}
-					else if (action.find("TRAIN_CYCLONE") != string::npos)
+					else if (ability.find("TRAIN_CYCLONE") != std::string::npos)
 					{
 						TryTrainCyclone();
 					}
-					else if (action.find("TRAIN_HELLBAT") != string::npos)
+					else if (ability.find("TRAIN_HELLBAT") != std::string::npos)
 					{
 						TryTrainHellbat();
 					}
-					else if (action.find("MORPH_HELLION") != string::npos)
+					else if (ability.find("MORPH_HELLION") != std::string::npos)
 					{
 						TryTransformHellbatHellion();
 					}
-					else if (action.find("TRAIN_THOR") != string::npos)
+					else if (ability.find("TRAIN_THOR") != std::string::npos)
 					{
 						TryTrainThor();
 					}
-					else if (action.find("BUILD_FACTORYTECHLAB") != string::npos) //Not on Offical Typeenums
+					else if (ability.find("BUILD_FACTORYTECHLAB") != std::string::npos) //Not on Offical Typeenums
 					{
 						TryBuildFactoryTechLab();
 					}
-					else if (action.find("RESEARCH_INFERNALPREIGNITER") != string::npos)
+					else if (ability.find("RESEARCH_INFERNALPREIGNITER") != std::string::npos)
 					{
 						TryFactoryResearchInfernalPreIgniter();
 					}
-					else if (action.find("RESEARCH_MAGFIELDLAUNCHERS") != string::npos)
+					else if (ability.find("RESEARCH_MAGFIELDLAUNCHERS") != std::string::npos)
 					{
 						TryFactoryResearchMagFieldAccelerator();
 					}
-					else if (action.find("RESEARCH_DRILLINGCLAWS") != string::npos)
+					else if (ability.find("RESEARCH_DRILLINGCLAWS") != std::string::npos)
 					{
 						TryFactoryResearchDrillingClaws();
 					}
-					else if (action.find("BUILD_FACTORYREACTOR") != string::npos) //Not on Offical Typeenums
+					else if (ability.find("BUILD_FACTORYREACTOR") != std::string::npos) //Not on Offical Typeenums
 					{
 						TryBuildFactoryReactor();
 					}
-					else if (action.find("BUILD_STARPORT") != string::npos)
+					else if (ability.find("BUILD_STARPORT") != std::string::npos)
 					{
 						TryBuildStarport();
 					}
-					else if (action.find("TRAIN_VIKINGFIGHTER") != string::npos)
+					else if (ability.find("TRAIN_VIKINGFIGHTER") != std::string::npos)
 					{
 						TryTrainViking();
 					}
-					else if (action.find("MORPH_VIKINGFIGHTERMODE") != string::npos)
+					else if (ability.find("MORPH_VIKINGFIGHTERMODE") != std::string::npos)
 					{
 						TryTransformVikingFighter();
 					}
-					else if (action.find("MORPH_VIKINGASSAULTMODE") != string::npos)
+					else if (ability.find("MORPH_VIKINGASSAULTMODE") != std::string::npos)
 					{
 						TryTransformVikingAssault();
 					}
-					else if (action.find("TRAIN_MEDIVAC") != string::npos)
+					else if (ability.find("TRAIN_MEDIVAC") != std::string::npos)
 					{
 						TryTrainMedivac();
 					}
-					else if (action.find("TRAIN_LIBERATOR") != string::npos)
+					else if (ability.find("TRAIN_LIBERATOR") != std::string::npos)
 					{
 						TryTrainLiberator();
 					}
-					else if (action.find("MORPH_LIBERATORAGMODE") != string::npos)
+					else if (ability.find("MORPH_LIBERATORAGMODE") != std::string::npos)
 					{
 						TryTransformLiberatorLiberatorAG();
 					}
-					else if (action.find("MORPH_LIBERATORAAMODE") != string::npos)
+					else if (ability.find("MORPH_LIBERATORAAMODE") != std::string::npos)
 					{
 						TryTransformLiberatorAGLiberator();
 					}
-					else if (action.find("TRAIN_RAVEN") != string::npos)
+					else if (ability.find("TRAIN_RAVEN") != std::string::npos)
 					{
 						TryTrainRaven();
 					}
-					else if (action.find("EFFECT_AUTOTURRET") != string::npos)
+					else if (ability.find("EFFECT_AUTOTURRET") != std::string::npos)
 					{
 						TryRavenSummonAutoTurret();
 					}
-					else if (action.find("TRAIN_BANSHEE") != string::npos)
+					else if (ability.find("TRAIN_BANSHEE") != std::string::npos)
 					{
 						TryTrainBanshee();
 					}
-					else if (action.find("TRAIN_BATTLECRUISER") != string::npos)
+					else if (ability.find("TRAIN_BATTLECRUISER") != std::string::npos)
 					{
 						TryTrainBattlecruiser();
 					}
-					else if (action.find("BUILD_STARPORTREACTOR") != string::npos) //Not on Offical Typeenums
+					else if (ability.find("BUILD_STARPORTREACTOR") != std::string::npos) //Not on Offical Typeenums
 					{
 						TryBuildStarportReactor();
 					}
-					else if (action.find("BUILD_STARPORTTECHLAB") != string::npos) //Not on Offical Typeenums
+					else if (ability.find("BUILD_STARPORTTECHLAB") != std::string::npos) //Not on Offical Typeenums
 					{
 						TryBuildStarportTechLab();
 					}
-					else if (action.find("RESEARCH_HIGHCAPACITYFUELTANKS") != string::npos)
+					else if (ability.find("RESEARCH_HIGHCAPACITYFUELTANKS") != std::string::npos)
 					{
 						TryStarportResearchRapidReignitionSystem();
 					}
-					else if (action.find("RESEARCH_RAVENCORVIDREACTOR") != string::npos)
+					else if (ability.find("RESEARCH_RAVENCORVIDREACTOR") != std::string::npos)
 					{
 						TryStarportResearchCorvidReactor();
 					}
-					else if (action.find("RESEARCH_BANSHEECLOAKINGFIELD") != string::npos)
+					else if (ability.find("RESEARCH_BANSHEECLOAKINGFIELD") != std::string::npos)
 					{
 						TryStarportResearchCloakingField();
 					}
-					else if (action.find("RESEARCH_BANSHEEHYPERFLIGHTROTORS") != string::npos)
+					else if (ability.find("RESEARCH_BANSHEEHYPERFLIGHTROTORS") != std::string::npos)
 					{
 						TryStarportResearchHyperflightRotors();
 					}
-					else if (action.find("RESEARCH_ADVANCEDBALLISTICS") != string::npos)
+					else if (ability.find("RESEARCH_ADVANCEDBALLISTICS") != std::string::npos)
 					{
 						TryStarportResearchAdvancedBallistics();
 					}
-					else if (action.find("BUILD_FUSIONCORE") != string::npos)
+					else if (ability.find("BUILD_FUSIONCORE") != std::string::npos)
 					{
 						TryBuildFusionCore();
 					}
-					else if (action.find("RESEARCH_BATTLECRUISERWEAPONREFIT") != string::npos)
+					else if (ability.find("RESEARCH_BATTLECRUISERWEAPONREFIT") != std::string::npos)
 					{
 						TryFusionCoreResearchResearchWeaponRefit();
 					}
-					else if (action.find("BUILD_ARMORY") != string::npos)
+					else if (ability.find("BUILD_ARMORY") != std::string::npos)
 					{
 						TryBuildArmory();
 					}
-					else if (action.find("RESEARCH_TERRANVEHICLEWEAPONS") != string::npos)
+					else if (ability.find("RESEARCH_TERRANVEHICLEWEAPONS") != std::string::npos)
 					{
 						TryArmoryResearchVehicleWeapons();
 					}
-					else if (action.find("RESEARCH_TERRANSHIPWEAPONS") != string::npos)
+					else if (ability.find("RESEARCH_TERRANSHIPWEAPONS") != std::string::npos)
 					{
 						TryArmoryResearchShipWeapons();
 					}
-					else if (action.find("RESEARCH_TERRANVEHICLEANDSHIPPLATING") != string::npos)
+					else if (ability.find("RESEARCH_TERRANVEHICLEANDSHIPPLATING") != std::string::npos)
 					{
 						TryArmoryResearchVehicleShipPlating();
 					}
-					else if (action.find("BUILD_BUNKER") != string::npos)
+					else if (ability.find("BUILD_BUNKER") != std::string::npos)
 					{
 						TryBuildBunker();
 					}
-					else if (action.find("BUILD_ENGINEERINGBAY") != string::npos)
+					else if (ability.find("BUILD_ENGINEERINGBAY") != std::string::npos)
 					{
 						TryBuildEngineeringBay();
 					}
-					else if (action.find("RESEARCH_TERRANINFANTRYWEAPONS") != string::npos)
+					else if (ability.find("RESEARCH_TERRANINFANTRYWEAPONS") != std::string::npos)
 					{
 						TryEngineeringBayResearchInfantryWeapon();
 					}
-					else if (action.find("RESEARCH_TERRANINFANTRYARMOR") != string::npos)
+					else if (ability.find("RESEARCH_TERRANINFANTRYARMOR") != std::string::npos)
 					{
 						TryEngineeringBayResearchInfantryArmor();
 					}
-					else if (action.find("BUILD_GHOSTACADEMY") != string::npos)
+					else if (ability.find("BUILD_GHOSTACADEMY") != std::string::npos)
 					{
 						TryBuildGhostAcademy();
 					}
-					else if (action.find("RESEARCH_PERSONALCLOAKING") != string::npos)
+					else if (ability.find("RESEARCH_PERSONALCLOAKING") != std::string::npos)
 					{
 						TryGhostAcademyResearchPersonalCloaking();
 					}
-					else if (action.find("BUILD_NUKE") != string::npos)
+					else if (ability.find("BUILD_NUKE") != std::string::npos)
 					{
 						TryGhostAcademyBuildNuke();
 					}
-					else if (action.find("BUILD_MISSILETURRET") != string::npos)
+					else if (ability.find("BUILD_MISSILETURRET") != std::string::npos)
 					{
 						TryBuildMissileTurret();
 					}
-					else if (action.find("BUILD_SENSORTOWER") != string::npos)
+					else if (ability.find("BUILD_SENSORTOWER") != std::string::npos)
 					{
 						TryBuildSensorTower();
 					}

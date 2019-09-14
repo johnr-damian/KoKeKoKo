@@ -1664,7 +1664,7 @@ namespace KoKeKoKo
 					{
 						TrainGhost();
 					}
-					else if (action.find("BUILD_BARRACKSTECHLAB") != string::npos)
+					else if (action.find("BUILD_BARRACKSTECHLAB") != string::npos) //Not on Offical Typeenums
 					{
 						TryBuildBarracksTechLab();
 					}
@@ -1680,7 +1680,7 @@ namespace KoKeKoKo
 					{
 						TryBarracksTechLabResearchConcussiveShells();
 					}
-					else if (action.find("BUILD_BARRACKSREACTOR") != string::npos)
+					else if (action.find("BUILD_BARRACKSREACTOR") != string::npos) //Not on Offical Typeenums
 					{
 						TryBuildBarracksReactor();
 					}
@@ -1728,7 +1728,7 @@ namespace KoKeKoKo
 					{
 						TryTrainThor();
 					}
-					else if (action.find("BUILD_FACTORYTECHLAB") != string::npos)
+					else if (action.find("BUILD_FACTORYTECHLAB") != string::npos) //Not on Offical Typeenums
 					{
 						TryBuildFactoryTechLab();
 					}
@@ -1744,7 +1744,7 @@ namespace KoKeKoKo
 					{
 						TryFactoryResearchDrillingClaws();
 					}
-					else if (action.find("BUILD_FACTORYREACTOR") != string::npos)
+					else if (action.find("BUILD_FACTORYREACTOR") != string::npos) //Not on Offical Typeenums
 					{
 						TryBuildFactoryReactor();
 					}
@@ -1796,11 +1796,11 @@ namespace KoKeKoKo
 					{
 						TryTrainBattlecruiser();
 					}
-					else if (action.find("BUILD_STARPORTREACTOR") != string::npos)
+					else if (action.find("BUILD_STARPORTREACTOR") != string::npos) //Not on Offical Typeenums
 					{
 						TryBuildStarportReactor();
 					}
-					else if (action.find("BUILD_STARPORTTECHLAB") != string::npos)
+					else if (action.find("BUILD_STARPORTTECHLAB") != string::npos) //Not on Offical Typeenums
 					{
 						TryBuildStarportTechLab();
 					}

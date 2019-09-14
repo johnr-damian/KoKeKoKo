@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using ModelService.Types;
 
 namespace ModelService.Micromanagement.Types
 {
@@ -14,6 +15,7 @@ namespace ModelService.Micromanagement.Types
         /// <param name="units"></param>
         public CSVbasedArmy(string units)
         {
+            Raw_Units = units;
             var parsed_units = units.Split('\n');
 
             if(parsed_units.Length > 0)
@@ -35,6 +37,17 @@ namespace ModelService.Micromanagement.Types
             }
             else
                 throw new InvalidOperationException("There are no units to be parsed...");
+        }
+
+        /// <summary>
+        /// Creates a new instance of <see cref="CSVbasedArmy"/>
+        /// </summary>
+        /// <returns></returns>
+        public override Army CreateDeepCopy()
+        {
+            Army new_army = new CSVbasedArmy(Raw_Units);
+
+            return new_army;
         }
 
         /// <summary>

@@ -44,23 +44,25 @@ namespace ModelService.Micromanagement
 
             try
             {
-                //Lanchester
-                var lanchester_thread = new Thread(new ThreadStart(() => algorithm_results.Add("Lanchester", LanchesterBasedPrediction(TargetPolicy.Random | TargetPolicy.Priority | TargetPolicy.Resource))));
-                lanchester_thread.Start();
-                //Static
-                var static_thread = new Thread(new ThreadStart(() => algorithm_results.Add("Static", StaticBasedPrediction(TargetPolicy.Random | TargetPolicy.Priority | TargetPolicy.Resource))));
-                static_thread.Start();
-                //Dynamic
-                var dynamic_thread = new Thread(new ThreadStart(() => algorithm_results.Add("Dynamic", DynamicBasedPrediction(TargetPolicy.Random | TargetPolicy.Priority | TargetPolicy.Resource))));
-                dynamic_thread.Start();
+                ////Lanchester
+                //var lanchester_thread = new Thread(new ThreadStart(() => algorithm_results.Add("Lanchester", LanchesterBasedPrediction(TargetPolicy.Random | TargetPolicy.Priority | TargetPolicy.Resource))));
+                //lanchester_thread.Start();
+                ////Static
+                //var static_thread = new Thread(new ThreadStart(() => algorithm_results.Add("Static", StaticBasedPrediction(TargetPolicy.Random | TargetPolicy.Priority | TargetPolicy.Resource))));
+                //static_thread.Start();
+                ////Dynamic
+                //var dynamic_thread = new Thread(new ThreadStart(() => algorithm_results.Add("Dynamic", DynamicBasedPrediction(TargetPolicy.Random | TargetPolicy.Priority | TargetPolicy.Resource))));
+                //dynamic_thread.Start();
 
-                //Add threads
-                threads.Add(lanchester_thread);
-                threads.Add(static_thread);
-                threads.Add(dynamic_thread);
+                ////Add threads
+                //threads.Add(lanchester_thread);
+                //threads.Add(static_thread);
+                //threads.Add(dynamic_thread);
 
-                //TODO
-                threads.ForEach(thread => thread.Join());
+                ////TODO
+                //threads.ForEach(thread => thread.Join());
+                algorithm_results.Add("Lanchester", LanchesterBasedPrediction(TargetPolicy.Random | TargetPolicy.Priority | TargetPolicy.Resource));
+
                 Console.WriteLine("4");
                 Console.WriteLine("4");
                 Console.WriteLine("4");

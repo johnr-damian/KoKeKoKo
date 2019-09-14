@@ -25,7 +25,7 @@ namespace ModelService
         static int Main(string[] args)
         {
             var modelrepositoryservice = new ModelRepositoryService();
-            var agent = new Participant();
+            //var agent = new Participant();
 
             try
             {
@@ -53,9 +53,12 @@ namespace ModelService
                     }
 
                     //Start performing simulation
+                    //foreach (var battle in battles)
+                    //    threads.Add(new Thread(new ThreadStart(() => battles_result.Add(battle.GetMicromanagementAccuracy(10)))));
+                    //threads.ForEach(thread => thread.Start()); //OVERFLOW CAUSE THREAD, DEBUG THREADING PLS
+
                     foreach (var battle in battles)
-                        threads.Add(new Thread(new ThreadStart(() => battles_result.Add(battle.GetMicromanagementAccuracy(10)))));
-                    threads.ForEach(thread => thread.Start());
+                        battles_result.Add(battle.GetMicromanagementAccuracy(10));
 
                     Console.WriteLine("Getting Macromanagement accuracy report...");
                     var command_repository = ModelRepositoryService.ReadRepository(@"Test\CommandsRepository.csv");
@@ -63,7 +66,7 @@ namespace ModelService
                     var matches = new List<Macromanagement.Macromanagement>();
                     //macthes_result
                     //TODO mirror micro
-                    threads.ForEach(thread => thread.Join());
+                   // threads.ForEach(thread => thread.Join());
                     //Add macro threads
 
                     Console.WriteLine("Micromanagement Result: ");
@@ -85,25 +88,34 @@ namespace ModelService
                             if (modelrepositoryservice.HasMessageFromAgent())
                             {
                                 var rawmessage = modelrepositoryservice.GetMessageFromQueue();
-                                var partitionedmessage = rawmessage.Split('\n');
+                                var partitionedmessage = rawmessage.Split('~');
 
-                                switch (partitionedmessage[0])
+                                //switch (partitionedmessage[0])
+                                //{
+                                //    case "Initialize":
+
+                                //        break;
+                                //    case "Generate":
+
+                                //        break;
+                                //    case "Exit":
+                                //        keeprunningmodel = false;
+                                //        break;
+                                //    default:
+                                //        Console.WriteLine($@"Unable to partition message {rawmessage}! Resulting partitioned message: ");
+                                //        foreach (var message in partitionedmessage)
+                                //            Console.WriteLine($@"\t{message}");
+                                //        break;
+                                //}
+
+                                Console.WriteLine(partitionedmessage.Length);
+                                if(partitionedmessage.Length > 0)
                                 {
-                                    case "Initialize":
-
-                                        break;
-                                    case "Generate":
-
-                                        break;
-                                    case "Exit":
-                                        keeprunningmodel = false;
-                                        break;
-                                    default:
-                                        Console.WriteLine($@"Unable to partition message {rawmessage}! Resulting partitioned message: ");
-                                        foreach (var message in partitionedmessage)
-                                            Console.WriteLine($@"\t{message}");
-                                        break;
+                                    foreach (var s in partitionedmessage)
+                                        Console.WriteLine(s);
                                 }
+
+                                modelrepositoryservice.SendMessageToAgent("Hello World!");
                             }
 
                             //Give other thread to process their procedures

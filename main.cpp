@@ -1656,11 +1656,11 @@ namespace KoKeKoKo
 					{
 						TrainReaper();
 					}
-					else if (action.find("Train Marauder") != string::npos)
+					else if (action.find("TRAIN_MARAUDER") != string::npos)
 					{
 						TrainMarauder();
 					}
-					else if (action.find("TRAIN_MARAUDER") != string::npos)
+					else if (action.find("TRAIN_GHOST") != string::npos)
 					{
 						TrainGhost();
 					}

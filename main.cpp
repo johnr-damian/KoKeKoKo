@@ -55,6 +55,10 @@ namespace KoKeKoKo
 
 					if (!CreateProcessA(NULL, executablefile, NULL, NULL, FALSE, 0, NULL, NULL, &startupinfo, &_model))
 						throw exception(("Error Occurred! Failed to create process for model service with an exit code of " + to_string(GetLastError()) + "...").c_str());
+
+					#if _DEBUG
+						cout << "ModelRepositoryService() has been executed! The model should start by now..." << endl;
+					#endif
 				}
 
 				//Waits for model service to connect and accepts any messages from model service
@@ -65,6 +69,10 @@ namespace KoKeKoKo
 					LPSTR name = TEXT("\\\\.\\pipe\\AgentServer");
 					char buffer[4096] = { 0 };
 					string message = "";
+
+					#if _DEBUG
+						cout << "ListenForMessages() has been called! Preparing to listen for messages..." << endl;
+					#endif
 
 					for (int failures = 0; _shouldacceptmessages;)
 					{
@@ -80,6 +88,10 @@ namespace KoKeKoKo
 							server = CreateNamedPipeA(name, PIPE_ACCESS_DUPLEX, PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_WAIT, PIPE_UNLIMITED_INSTANCES, sizeof(buffer), sizeof(buffer), 0, NULL);
 							if (server != INVALID_HANDLE_VALUE)
 							{
+								#if _DEBUG
+									cout << "ListenForMessages() -> Successfully created a server for model service! Waiting for a connection..." << endl;
+								#endif
+
 								//Wait for model service to connect
 								if (ConnectNamedPipe(server, NULL))
 								{
@@ -90,6 +102,9 @@ namespace KoKeKoKo
 									//Enqueue the message
 									_messagelock.lock();
 									message = string(buffer);
+									#if _DEBUG
+										cout << "ListenForMessages() -> Model service has connected! Your message is: \n\t" << message << endl;
+									#endif
 									_messages.push_back(message);
 									_messagelock.unlock();
 
@@ -98,6 +113,9 @@ namespace KoKeKoKo
 								}
 
 								//Close the server
+								#if _DEBUG
+									cout << "ListenForMessages() -> Model Service has been disconnected..." << endl;
+								#endif
 								CloseHandle(server);
 							}
 							else
@@ -147,6 +165,9 @@ namespace KoKeKoKo
 
 					try
 					{
+						#if _DEBUG
+							cout << "SendMessageToModelService() has been called! Sending a message to model service..." << endl;
+						#endif
 						strcpy_s(buffer, message.c_str());
 
 						client = CreateFileA(name, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
@@ -158,6 +179,9 @@ namespace KoKeKoKo
 								throw exception(("Error Occurred! Failed to send a message with an exit code of " + to_string(GetLastError()) + "...").c_str());
 
 							//Close the client
+							#if _DEBUG
+								cout << "SendMessageToModelService() -> Finished sending a message to model service..." << endl;
+							#endif
 							CloseHandle(client);
 						}
 						else if (GetLastError() == ERROR_PIPE_BUSY)
@@ -200,10 +224,18 @@ namespace KoKeKoKo
 
 					try
 					{
+						#if _DEBUG
+							cout << "GetMessageFromModelService() has been called!" << endl;
+						#endif
+
 						_messagelock.lock();
 						while (!_messages.empty())
 						{
+							#if _DEBUG
+								cout << "GetMessageFromModelService() -> Getting the messages..." << endl;
+							#endif
 							messages.push(_messages.front());
+							_messages.pop_front();
 						}
 						_messagelock.unlock();
 					}
@@ -263,10 +295,18 @@ namespace KoKeKoKo
 
 					try
 					{
+						#if _DEBUG
+							std::cout << "GetAnActionFromMessage() has been called!" << std::endl;
+						#endif
+
 						_actionslock.lock();
 						if (!_actions.empty())
 						{
 							action = _actions.front();
+							_actions.pop();
+							#if _DEBUG
+								std::cout << "GetAnActionFromMessage() -> An action has been retrieved from queue..." << std::endl;
+							#endif							
 						}
 					}
 					catch (const std::exception& ex)
@@ -285,10 +325,18 @@ namespace KoKeKoKo
 					{
 						try
 						{
+							#if _DEBUG
+								std::cout << "GetMessageFromModelService() has been called!" << std::endl;
+							#endif
+
 							_actionslock.lock();
 							for (auto message = _instance->GetMessageFromModelService(); !message.empty();)
 							{
+								#if _DEBUG
+									std::cout << "GetMessageFromModelService() -> Retrieving message: " << message.front() << std::endl;
+								#endif
 								_actions.push(message.front());
+								message.pop();
 							}
 							_actionslock.unlock();
 
@@ -310,8 +358,12 @@ namespace KoKeKoKo
 					{
 						try
 						{
+							#if _DEBUG
+								std::cout << "SendUpdatesToModelService() has been called!" << std::endl;
+							#endif
+
 							const ObservationInterface* current_observation = Observation();
-							std::string message = "";
+							std::string message = "Macromanagement:";
 							
 							//Send the current state of the agent
 							//Macro details
@@ -323,7 +375,7 @@ namespace KoKeKoKo
 							message += std::to_string(CountOf(UNIT_TYPEID::TERRAN_SCV)); //No. of Workers
 							for (const auto& upgrade : current_observation->GetUpgrades())
 								message += ("," + upgrade.to_string());
-							message += "~";
+							message += ":Macromanagement~Micromanagement(Self):";
 
 							//Self Army details
 							for (const auto& unit : current_observation->GetUnits(Unit::Alliance::Self))
@@ -331,7 +383,7 @@ namespace KoKeKoKo
 								if (unit->is_alive)
 									message += (std::to_string(current_observation->GetPlayerID()) + "," + unit->unit_type.to_string() + "," + std::to_string(unit->tag) + "," + std::to_string(unit->pos.x) + "," + std::to_string(unit->pos.y) + "\n");
 							}
-							message += "~";
+							message += ":Micromanagement(Self)~Micromanagement(Enemy):";
 
 							//Enemy Army Units
 							for (const auto& unit : current_observation->GetUnits(Unit::Alliance::Enemy))
@@ -339,6 +391,10 @@ namespace KoKeKoKo
 								if (unit->is_alive)
 									message += (std::to_string(unit->alliance) + "," + unit->unit_type.to_string() + "," + std::to_string(unit->tag) + "," + std::to_string(unit->pos.x) + "," + std::to_string(unit->pos.y) + "\n");
 							}
+
+							#if _DEBUG
+								std::cout << "SendUpdatesToModelService() -> Finished processing message..." << std::endl;
+							#endif
 
 							//Send this message to model service
 							_instance->SendMessageToModelService(message);
@@ -1300,9 +1356,17 @@ namespace KoKeKoKo
 					//We periodically get message and send updates to model service
 					StartSendingUpdatesToModelService();
 
+					#if _DEBUG
+						std::cout << "Finished calling StartSendingUpdatesToModelService()! Proceeding to start the game... Getting the current action...";
+					#endif
+
+
 					//while there is still no action, we wait for a message
 					while (_currentaction.empty())
 					{
+						#if _DEBUG
+							std::cout << "Current action is still empty! Cannot continue to the game..." << std::endl;
+						#endif
 						_currentaction = GetAnActionFromMessage();
 						if (_currentaction.empty())
 							//Wait for 5 seconds if there is still no message

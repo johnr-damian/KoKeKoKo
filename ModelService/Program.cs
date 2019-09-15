@@ -88,6 +88,8 @@ namespace ModelService
                             if (modelrepositoryservice.HasMessageFromAgent())
                             {
                                 var rawmessage = modelrepositoryservice.GetMessageFromQueue();
+                                Console.WriteLine(rawmessage);
+                                Console.WriteLine("Message has been received!\n\n\n\n");
                                 var partitionedmessage = rawmessage.Split('~');
 
                                 //switch (partitionedmessage[0])
@@ -117,6 +119,8 @@ namespace ModelService
 
                                 modelrepositoryservice.SendMessageToAgent("Hello World!");
                             }
+
+                            Console.WriteLine("Program.cs -> Model Service is running!");
 
                             //Give other thread to process their procedures
                             Thread.Sleep(1000);

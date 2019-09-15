@@ -17,6 +17,7 @@ namespace ModelService.Micromanagement
     {
         private Army _owned_units = null;
         private Army _enemy_units = null;
+        private string _actual = null;
 
         /// <summary>
         /// Stores this agent's army and its opposing army
@@ -28,6 +29,17 @@ namespace ModelService.Micromanagement
         {
             _owned_units = owned_units;
             _enemy_units = enemy_units;
+        }
+
+        public Micromanagement(Army owned_units, Army enemy_units, string actual)
+            : this(owned_units, enemy_units)
+        {
+            _actual = actual;
+        }
+
+        private void PerformJaccardIndex(string simulation, string actual)
+        {
+
         }
 
         /// <summary>
@@ -62,6 +74,9 @@ namespace ModelService.Micromanagement
                 ////TODO
                 //threads.ForEach(thread => thread.Join());
                 algorithm_results.Add("Lanchester", LanchesterBasedPrediction(TargetPolicy.Random | TargetPolicy.Priority | TargetPolicy.Resource));
+
+
+                Console.ReadLine();
 
                 Console.WriteLine("4");
                 Console.WriteLine("4");

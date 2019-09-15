@@ -263,9 +263,9 @@ namespace ModelService
         /// </summary>
         /// <param name="filename"></param>
         /// <returns>Army- Returns Replay filename, Rank, Units from both sides, Survived units</returns>
-        public static Dictionary<string, Tuple<string, string, string>> ReadRepository(string filename)
+        public static Dictionary<string, Tuple<string, string, string, string>> ReadRepository(string filename)
         {
-            var repository = new Dictionary<string, Tuple<string, string, string>>();
+            var repository = new Dictionary<string, Tuple<string, string, string, string>>();
             var ranks = new List<string>()
             {
                 "Bronze",
@@ -310,7 +310,7 @@ namespace ModelService
 
                                         content_end = line_pointer - end_offset;
                                         var battle = String.Join("\n", raw_repository.Skip(content_start).Take(content_end - content_start)).Split(new string[] { "END" }, StringSplitOptions.None);
-                                        repository[current_replay] = new Tuple<string, string, string>(current_rank, battle[0].Trim('\n', ' ', '\r'), battle[1].Trim('\n', ' ', '\r'));
+                                        repository[current_replay] = new Tuple<string, string, string, string>(current_rank, battle[0].Trim('\n', ' ', '\r'), battle[1].Trim('\n', ' ', '\r'), null);
                                     }
 
                                     current_replay = raw_repository[line_pointer];
@@ -328,7 +328,7 @@ namespace ModelService
 
                             content_end = line_pointer - end_offset;
                             var battle = String.Join("\n", raw_repository.Skip(content_start).Take(content_end - content_start)).Split(new string[] { "END" }, StringSplitOptions.None);
-                            repository[current_replay] = new Tuple<string, string, string>(current_rank, battle[0].Trim('\n', ' ', '\r'), battle[1].Trim('\n', ' ', '\r'));
+                            repository[current_replay] = new Tuple<string, string, string, string>(current_rank, battle[0].Trim('\n', ' ', '\r'), battle[1].Trim('\n', ' ', '\r'), null);
                         }
                     }
                     else if(filename == @"Test\CommandsRepository.csv")

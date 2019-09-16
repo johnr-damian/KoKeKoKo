@@ -46,6 +46,8 @@ namespace ModelService.Micromanagement
                 //Need to get the true middle/central hp of the army
                 //We either use a triangular distribution, continue with min + max /2 or value / n
                 //For now, this follows wholefully to the study
+
+
                 
             }
             catch(Exception ex)

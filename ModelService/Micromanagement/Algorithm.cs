@@ -81,12 +81,60 @@ namespace ModelService.Micromanagement
                 //The winner is 
                 double cardinality = owned_units.Length / enemy_units.Length;
                 bool? is_own_only = null;
+                int number_of_surviving_units = (int)Math.Round(Math.Sqrt(Math.Pow(owned_units.Length, 2) - ((owned_intensity_alpha / enemy_intensity_beta) * Math.Pow(enemy_units.Length, 2))));
+                int number_of_enemy = (int)Math.Round(Math.Sqrt(Math.Pow(enemy_units.Length, 2) - ((enemy_intensity_beta / owned_intensity_alpha) * Math.Pow(owned_units.Length, 2))));
+                var owned = owned_units.Take(number_of_surviving_units).GetEnumerator();
+                var ene = enemy_units.Take(number_of_enemy).GetEnumerator();
+
+
+                string message = "";
+
+                var m = "";
+                foreach (var u in owned_units)
+                    m += (u.Target == null) ? "" : u.Target.ToString();
+                Console.WriteLine(m);                
+
+
+                if (target_policy.HasFlag(TargetPolicy.Random))
+                {
+                    if(RandomBasedTargetPolicy(owned_units, enemy_units))
+                    {
+                        
+                    }
+                    m = "";
+                    foreach (var u in owned_units)
+                        m += (u.Target == null) ? "" : u.Target.ToString();
+                    Console.WriteLine(m);
+
+                    
+
+
+                }
+
+                if(target_policy.HasFlag(TargetPolicy.Priority))
+                {
+
+                }
+
+                if(target_policy.HasFlag(TargetPolicy.Resource))
+                {
+
+                }
 
                 if (cardinality > owned_relative_effectiveness)
                 //Owned units win
                 {
                     is_own_only = true;
                     Console.WriteLine("A WINS!");
+                    
+
+                    for (int iterator = 0; owned.MoveNext(); iterator++)
+                    {
+                        if (iterator == 0)
+                            battle_result += owned.Current.ToString();
+                        else
+                            battle_result += ("," + owned.Current.ToString());
+                    }
                 }
                 else if (cardinality == owned_relative_effectiveness)
                 //The fight is draw
@@ -99,38 +147,17 @@ namespace ModelService.Micromanagement
                 {
                     is_own_only = false;
                     Console.WriteLine("B WINS!");
+
+                    for (int iterator = 0; ene.MoveNext(); iterator++)
+                    {
+                        if (iterator == 0)
+                            battle_result += ene.Current.ToString();
+                        else
+                            battle_result += ("," + ene.Current.ToString());
+                    }
                 }
                 else
                     throw new ArgumentException("What the hell is this value!");
-
-                string message = "";
-
-                var m = "";
-                foreach (var u in owned_units)
-                    m += (u.Target == null) ? "" : u.Target.ToString();
-                Console.WriteLine(m);
-
-                if(target_policy.HasFlag(TargetPolicy.Random))
-                {
-                    if(RandomBasedTargetPolicy(owned_units, enemy_units))
-                    {
-                        
-                    }
-                    m = "";
-                    foreach (var u in owned_units)
-                        m += (u.Target == null) ? "" : u.Target.ToString();
-                    Console.WriteLine(m);
-                }
-
-                if(target_policy.HasFlag(TargetPolicy.Priority))
-                {
-
-                }
-
-                if(target_policy.HasFlag(TargetPolicy.Resource))
-                {
-
-                }
 
                 //Apply target selection
             }

@@ -13,7 +13,11 @@ namespace KoKeKoKo
 	{
 		using namespace std;
 		//The directory of the model
-		const string MODELSERVICE_FILENAME = "ModelService\\bin\\Debug\\ModelService.exe";
+		#if _DEBUG
+			const string MODELSERVICE_FILENAME = "ModelService\\bin\\Debug\\ModelService.exe";
+		#else
+			const string MODELSERVICE_FILENAME = "ModelService\\bin\\Release\\ModelService.exe";
+		#endif
 
 		//Manages the communication between agent and model
 		class ModelRepositoryService

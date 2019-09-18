@@ -34,40 +34,43 @@ namespace ModelService
                     Console.WriteLine("ModelService has started in standalone mode!");
                     Console.WriteLine("Getting Micromanagement accuracy report...");
 
+                    var micro = modelrepositoryservice.ReadArmyRepository();
+
                     var battles = new List<Micromanagement<CSVbasedUnit>>();
                     var battles_result = new List<List<double>>();
-                    var army_repository = ModelRepositoryService.ReadRepository(@"Test\ArmyTraining.csv");
-                    var resource_repository = ModelRepositoryService.ReadRepository(@"Test\ResourcesRepository.csv");
+                    //var army_repository = ModelRepositoryService.ReadRepositories(@"Test\ArmyTraining.csv");
+                    //var resource_repository = ModelRepositoryService.ReadRepositories(@"Test\ResourcesRepository.csv");
                     var threads = new List<Thread>();
 
-                    //TODO relate resource to army, improve modelrepository
-                    foreach(var battle in army_repository)
-                    {
-                        var armies = battle.Value.Item2.Split('\n').GroupBy(army => army.Split(',')[2]).ToDictionary(key => key.Key, value => value.ToList());
-                        var parsed_armies = (from army in armies select (new CSVbasedArmy(String.Join("\n", army.Value)))).ToList();
+                    ////TODO relate resource to army, improve modelrepository
+                    //foreach(var battle in army_repository)
+                    //{
+                    //    var armies = battle.Value.Item2.Split('\n').GroupBy(army => army.Split(',')[2]).ToDictionary(key => key.Key, value => value.ToList());
+                    //    var parsed_armies = (from army in armies select (new CSVbasedArmy(String.Join("\n", army.Value)))).ToList();
 
-                        if (parsed_armies.Count == 2)
-                            battles.Add(new Micromanagement<CSVbasedUnit>(parsed_armies[0], parsed_armies[1]));
-                        else
-                            throw new InvalidOperationException("There is no armies to simulate battle...");
-                    }
-
+                    //    if (parsed_armies.Count == 2)
+                    //        battles.Add(new Micromanagement<CSVbasedUnit>(parsed_armies[0], parsed_armies[1]));
+                    //    else
+                    //        throw new InvalidOperationException("There is no armies to simulate battle...");
+                    //}
+                    foreach (var m in micro)
+                        battles.Add(new Micromanagement<CSVbasedUnit>(new CSVbasedArmy(m.Item3), new CSVbasedArmy(m.Item4), m.Item5));
                     //Start performing simulation
                     //foreach (var battle in battles)
                     //    threads.Add(new Thread(new ThreadStart(() => battles_result.Add(battle.GetMicromanagementAccuracy(10)))));
                     //threads.ForEach(thread => thread.Start()); //OVERFLOW CAUSE THREAD, DEBUG THREADING PLS
 
-                    foreach (var battle in battles)
-                        battles_result.Add(battle.GetMicromanagementAccuracy(10));
+                   // foreach (var battle in battles)
+                   //     battles_result.Add(battle.GetMicromanagementAccuracy(10));
 
-                    Console.WriteLine("Getting Macromanagement accuracy report...");
-                    var command_repository = ModelRepositoryService.ReadRepository(@"Test\CommandsRepository.csv");
-                    //TODO relate resource to command, improve all
-                    var matches = new List<Macromanagement.Macromanagement>();
-                    //macthes_result
-                    //TODO mirror micro
-                   // threads.ForEach(thread => thread.Join());
-                    //Add macro threads
+                   // Console.WriteLine("Getting Macromanagement accuracy report...");
+                   // var command_repository = ModelRepositoryService.ReadRepositories(@"Test\CommandsRepository.csv");
+                   // //TODO relate resource to command, improve all
+                   // var matches = new List<Macromanagement.Macromanagement>();
+                   // //macthes_result
+                   // //TODO mirror micro
+                   //// threads.ForEach(thread => thread.Join());
+                   // //Add macro threads
 
                     Console.WriteLine("Micromanagement Result: ");
                     Console.WriteLine("Macromanagement Result: ");

@@ -408,21 +408,5 @@ namespace ModelService
                 Trace.WriteLine($@"Error in Model! ModelRepositoryService -> SendMessageToAgent(): \n\t{ex.Message}");
             }
         }
-
-        private static REngine _engine = null;
-
-        public static REngine StartREngine()
-        {
-            if (_engine == null)
-            {
-                REngine.SetEnvironmentVariables();
-                _engine = REngine.GetInstance();
-                _engine.Initialize();
-            }
-
-            return _engine;
-        }
-
-
     }
 }

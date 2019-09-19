@@ -289,9 +289,22 @@ namespace ModelService.Types
             return (Unit.Definitions[unit.Target.Name].IsFlying_Unit ? Actual_Air_Damage : Actual_Ground_Damage);
         }
 
-        private static double GetPotentialMaximumDamage(this Unit unit)
+        /// <summary>
+        /// The Potential maximum damage is the upper limit for triangular distribution. It is the 
+        /// sum of current damage (meaning there is probability there is buff) + possible actions that
+        /// can deal additional damage to enemy
+        /// </summary>
+        /// <param name="unit"></param>
+        /// <returns></returns>
+        public static Tuple<double, double> GetPotentialMaximumDamage(this Unit unit)
         {
-            return 0;
+            double air_maxima = 0, ground_maxima = 0;
+
+            if (unit.Energy > 0)
+                air_maxima += 10; //If there is a boost/damaging skill that can be activated. Add it to the potential damage
+
+
+            return new Tuple<double, double>(air_maxima + unit.Current_Air_Damage, ground_maxima + unit.Current_Ground_Damage);
         }
 
         /// <summary>

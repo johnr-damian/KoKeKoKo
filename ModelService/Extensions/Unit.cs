@@ -296,15 +296,14 @@ namespace ModelService.Types
         /// </summary>
         /// <param name="unit"></param>
         /// <returns></returns>
-        public static Tuple<double, double> GetPotentialMaximumDamage(this Unit unit)
+        public static Tuple<double, double> GetPotentialMaximumDamage(this Unit unit, bool ignore_energy)
         {
-            double air_maxima = 0, ground_maxima = 0;
+            double air_maxima = 0, ground_maxima = 0, ignored_air_maxima = 0, ignored_ground_maxima = 0;
 
             if (unit.Energy > 0)
                 air_maxima += 10; //If there is a boost/damaging skill that can be activated. Add it to the potential damage
 
-
-            return new Tuple<double, double>(air_maxima + unit.Current_Air_Damage, ground_maxima + unit.Current_Ground_Damage);
+            return (ignore_energy)? new Tuple<double, double>(air_maxima + unit.Current_Air_Damage + ignored_air_maxima, ground_maxima + unit.Current_Ground_Damage) : new Tuple<double, double>(air_maxima + unit.Current_Air_Damage, ground_maxima + unit.Current_Ground_Damage + ignored_ground_maxima);
         }
 
         /// <summary>

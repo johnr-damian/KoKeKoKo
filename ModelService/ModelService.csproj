@@ -60,6 +60,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Extensions\Army.cs" />
     <Compile Include="Extensions\ICopyable.cs" />
     <Compile Include="Extensions\IDefeatable.cs" />
     <Compile Include="Extensions\IMessage.cs" />

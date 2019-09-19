@@ -1,5 +1,4 @@
 ﻿using ModelService.Micromanagement;
-using ModelService.Micromanagement.Types;
 using ModelService.Macromanagement;
 using RDotNet;
 
@@ -36,7 +35,7 @@ namespace ModelService
 
                     var micro = modelrepositoryservice.ReadArmyRepository();
 
-                    var battles = new List<Micromanagement<CSVbasedUnit>>();
+                    var battles = new List<Micromanagement.Micromanagement>();
                     var battles_result = new List<List<double>>();
                     //var army_repository = ModelRepositoryService.ReadRepositories(@"Test\ArmyTraining.csv");
                     //var resource_repository = ModelRepositoryService.ReadRepositories(@"Test\ResourcesRepository.csv");
@@ -54,7 +53,7 @@ namespace ModelService
                     //        throw new InvalidOperationException("There is no armies to simulate battle...");
                     //}
                     foreach (var m in micro)
-                        battles.Add(new Micromanagement<CSVbasedUnit>(new CSVbasedArmy(m.Item3), new CSVbasedArmy(m.Item4), m.Item5));
+                        battles.Add(new Micromanagement.Micromanagement(new Army(m.Item3), new Army(m.Item4), new Army(m.Item5)));
                     //Start performing simulation
                     //foreach (var battle in battles)
                     //    threads.Add(new Thread(new ThreadStart(() => battles_result.Add(battle.GetMicromanagementAccuracy(10)))));
@@ -71,6 +70,8 @@ namespace ModelService
                    // //TODO mirror micro
                    //// threads.ForEach(thread => thread.Join());
                    // //Add macro threads
+                   
+                    
 
                     Console.WriteLine("Micromanagement Result: ");
                     Console.WriteLine("Macromanagement Result: ");

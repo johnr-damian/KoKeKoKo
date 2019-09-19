@@ -19,11 +19,11 @@ namespace ModelService.Micromanagement
             {
                 var array = enemy_units.ToArray();
                 for (var enumerator = owned_units.GetEnumerator(); enumerator.MoveNext();)
-                    enumerator.Current.SetTarget(array[random.Next(0, enemy_units.Length)]);
+                    enumerator.Current.SetTarget(array[random.Next(0, enemy_units.Count())]);
 
                 var array2 = owned_units.ToArray();
                 for (var enumerator = enemy_units.GetEnumerator(); enumerator.MoveNext();)
-                    enumerator.Current.SetTarget(array2[random.Next(0, owned_units.Length)]);
+                    enumerator.Current.SetTarget(array2[random.Next(0, owned_units.Count())]);
             }
             catch(Exception ex)
             {

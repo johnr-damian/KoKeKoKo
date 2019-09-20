@@ -300,7 +300,53 @@ namespace ModelService.Types
         {
             double air_maxima = 0, ground_maxima = 0, ignored_air_maxima = 0, ignored_ground_maxima = 0;
 
-            if (unit.Energy > 0)
+            //if (unit.Energy > 0)
+            foreach (string buff in unit.Buffs)
+            {
+                switch (buff)
+                {
+                    case "STIMPACK":
+                        if (unit.Name == "TERRAN_MARINE" || unit.Name == "TERRAN_MARAUDER")
+                        {
+                            air_maxima = unit.Current_Air_Damage + (0.50 * unit.Current_Air_Damage);
+                            ground_maxima = unit.Current_Ground_Damage + (0.50 * unit.Current_Ground_Damage);
+                        }
+                        break;
+                    case "EFFECT_KD8CHARGE":
+                        if(unit.Name == "TERRAN_REAPER")
+                            ground_maxima = unit.Current_Ground_Damage + 5;
+                        break;
+                    case "EFFECT_NUKECALLDOWN":
+                        if(unit.Name == "TERRAN_GHOST")
+                        {
+                            ground_maxima = unit.Current_Ground_Damage + 300;
+                            air_maxima = unit.Current_Air_Damage + 300;
+                        }
+                        break;
+                    case "EFFECT_GHOSTSNIPE":
+                        if (unit.Name == "TERRAN_GHOST" && unit.Energy >= 50)
+                        {
+                            ground_maxima = unit.Current_Ground_Damage + 170;
+                            air_maxima = unit.Current_Air_Damage + 170;
+                        }
+                        break;
+                    case "EFFECT_LOCKON":
+                        if (unit.Name == "TERRAN_CYCLONE")
+                        {
+                            ground_maxima = unit.Current_Ground_Damage + 400;
+                            air_maxima = unit.Current_Air_Damage + 400;
+                        }
+                        break;
+                    case "EFFECT_YAMATOGUN":
+                        if (unit.Name == "TERRAN_BATTLECRUISER")
+                        {
+                            ground_maxima = unit.Current_Ground_Damage + 240;
+                            air_maxima = unit.Current_Air_Damage + 240;
+                        }
+                        break;
+                }
+
+            }
                 air_maxima += 10; //If there is a boost/damaging skill that can be activated. Add it to the potential damage
 
             return (ignore_energy)? new Tuple<double, double>(air_maxima + unit.Current_Air_Damage + ignored_air_maxima, ground_maxima + unit.Current_Ground_Damage) : new Tuple<double, double>(air_maxima + unit.Current_Air_Damage, ground_maxima + unit.Current_Ground_Damage + ignored_ground_maxima);

@@ -7,6 +7,9 @@ using ModelService.Types;
 
 namespace ModelService.Micromanagement
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public struct LanchesterVariables
     {
         /// <summary>

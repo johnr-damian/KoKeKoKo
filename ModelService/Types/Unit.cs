@@ -106,6 +106,11 @@ namespace ModelService.Types
         public double Current_Air_Damage { get; set; } = default(double);
 
         /// <summary>
+        /// A list of skills that was activated/used
+        /// </summary>
+        public Dictionary<string, UnitSkills> Activated_Skills { get; set; } = default(Dictionary<string, UnitSkills>);
+
+        /// <summary>
         /// The current opposing unit that is targeted by this unit
         /// </summary>
         public Unit Target => ((Targets.Count == 0) ? null : Targets[Current_Target]);
@@ -152,6 +157,7 @@ namespace ModelService.Types
             Current_Ground_Damage = Ground_Damage = Definitions[Name].Ground_Damage;
             Current_Air_Damage = Air_Damage = Definitions[Name].Air_Damage;
             Current_Armor = Armor = Definitions[Name].Armor;
+            Activated_Skills = new Dictionary<string, UnitSkills>();
 
             //Apply the applicable new values from permanent buffs
             ApplyApplicableUpgrades();

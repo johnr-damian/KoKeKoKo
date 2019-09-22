@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
+using System.Threading;
 
 namespace ModelService.Types
 {
@@ -100,11 +102,31 @@ namespace ModelService.Types
         }
     }
 
+    public struct UnitSkills
+    {
+        public double Cooldown { get; set; }
+
+        public double Duration { get; set; }
+
+
+        public UnitSkills(double cooldown, double duration)
+        {
+            Cooldown = cooldown;
+            Duration = duration;
+        }
+
+        public UnitSkills DecrementCountdown() => new UnitSkills(Cooldown - 1, Duration - 1);
+    }
+
     /// <summary>
     /// The static information about a unit
     /// </summary>
     public partial class Unit
     {
+        private static Timer Duration_Timer;
+        private static Dictionary<int, UnitSkills> Duration_Logger;
+        private static int Duration_Tracker;
+
         /// <summary>
         /// The base definitions for a unit
         /// </summary>
@@ -202,11 +224,53 @@ namespace ModelService.Types
         };
 
         /// <summary>
+        /// Initializes
+        /// </summary>
+        static Unit()
+        {
+            Duration_Timer = new Timer(DecrementSkillsDuration, new AutoResetEvent(false), 0, 1000);
+            Duration_Logger = new Dictionary<int, UnitSkills>();
+            Duration_Tracker = -1;
+        }
+
+        /// <summary>
+        /// Decrements the duration in <see cref="Activated_Skills"/>
+        /// </summary>
+        /// <param name="state"></param>
+        private static void DecrementSkillsDuration(object state)
+        {
+            lock(Duration_Logger)
+            {
+                var count = Duration_Logger.Count;
+                for (int decrementor = 0; decrementor < count; decrementor++)
+                    Duration_Logger[decrementor] = Duration_Logger[decrementor].DecrementCountdown();
+            }
+        }
+
+        /// <summary>
         /// Returns a list of unique id of the <see cref="Unit.Targets"/>
         /// </summary>
         /// <param name="unit"></param>
         /// <returns></returns>
         public static List<string> GetTargetsOfUnit(Unit unit) => new List<string>((from target in unit.Targets select target.UniqueID));
+
+        /// <summary>
+        /// Adds the activated skill
+        /// </summary>
+        /// <param name="skill_details"></param>
+        /// <returns></returns>
+        public static int TrackActivatedSkill(UnitSkills skill_details)
+        {
+            var current_skill_key = -1;
+
+            lock(Duration_Logger)
+            {
+                current_skill_key = ++Duration_Tracker;
+                Duration_Logger.Add(current_skill_key, skill_details);
+            }
+
+            return current_skill_key;
+        }
     }
 
     /// <summary>
@@ -215,9 +279,6 @@ namespace ModelService.Types
     /// </summary>
     public static class UnitExtensions
     {
-        private static List<int> TimeTracker { get; set; } = new List<int>();
-        private static int GlobalIDGenerator { get; set; } = -1;
-
         private static double ApplyArmorToDamage(this Unit unit)
         {
             double Actual_Ground_Damage = 0, Actual_Air_Damage = 0;
@@ -296,87 +357,52 @@ namespace ModelService.Types
         /// </summary>
         /// <param name="unit"></param>
         /// <returns></returns>
-        public static Tuple<double, double> GetPotentialMaximumDamage(this Unit unit, bool ignore_energy)
+        public static Tuple<double, double> GetPotentialUnitDamage(this Unit unit, bool ignore_energy)
         {
-            double air_maxima = 0, ground_maxima = 0, ignored_air_maxima = 0, ignored_ground_maxima = 0;
+            double potential_air_damage = -1, potential_ground_damage = -1;
+            double temporary_current_air_damage = unit.Current_Air_Damage, temporary_current_ground_damage = unit.Current_Ground_Damage;
 
-            //if (unit.Energy > 0)
-            foreach (string buff in unit.Buffs)
+            switch(unit.Name)
             {
-                switch (buff)
-                {
-                    case "STIMPACK":
-                        if (unit.Name == "TERRAN_MARINE" || unit.Name == "TERRAN_MARAUDER")
-                        {
-                            air_maxima = unit.Current_Air_Damage + (0.50 * unit.Current_Air_Damage);
-                            ground_maxima = unit.Current_Ground_Damage + (0.50 * unit.Current_Ground_Damage);
-                        }
-                        break;
-                    case "EFFECT_KD8CHARGE":
-                        if(unit.Name == "TERRAN_REAPER")
-                            ground_maxima = unit.Current_Ground_Damage + 5;
-                        break;
-                    case "EFFECT_NUKECALLDOWN":
-                        if(unit.Name == "TERRAN_GHOST")
-                        {
-                            ground_maxima = unit.Current_Ground_Damage + 300;
-                            air_maxima = unit.Current_Air_Damage + 300;
-                        }
-                        break;
-                    case "EFFECT_GHOSTSNIPE":
-                        if (unit.Name == "TERRAN_GHOST" && unit.Energy >= 50)
-                        {
-                            ground_maxima = unit.Current_Ground_Damage + 170;
-                            air_maxima = unit.Current_Air_Damage + 170;
-                        }
-                        break;
-                    case "EFFECT_LOCKON":
-                        if (unit.Name == "TERRAN_CYCLONE")
-                        {
-                            ground_maxima = unit.Current_Ground_Damage + 400;
-                            air_maxima = unit.Current_Air_Damage + 400;
-                        }
-                        break;
-                    case "EFFECT_YAMATOGUN":
-                        if (unit.Name == "TERRAN_BATTLECRUISER")
-                        {
-                            ground_maxima = unit.Current_Ground_Damage + 240;
-                            air_maxima = unit.Current_Air_Damage + 240;
-                        }
-                        break;
-                }
-
+                case "TERRAN_MARINE":
+                    //A skill that deals 100 damage
+                    if (unit.Current_Energy >= 200)
+                        potential_ground_damage += 100;
+                    //A skill that boosts damage
+                    if (unit.Current_Energy >= 300)
+                        temporary_current_ground_damage += (temporary_current_ground_damage * .03); //Adds a 3% boost damage to ground damage
+                    break;
             }
-                air_maxima += 10; //If there is a boost/damaging skill that can be activated. Add it to the potential damage
 
-            return (ignore_energy)? new Tuple<double, double>(air_maxima + unit.Current_Air_Damage + ignored_air_maxima, ground_maxima + unit.Current_Ground_Damage) : new Tuple<double, double>(air_maxima + unit.Current_Air_Damage, ground_maxima + unit.Current_Ground_Damage + ignored_ground_maxima);
+            return new Tuple<double, double>(potential_air_damage, potential_ground_damage);
         }
 
         /// <summary>
-        /// A method when the unit uses a one-time skill or ability
+        /// 
         /// </summary>
         /// <param name="unit"></param>
         /// <param name="skill_name"></param>
         public static void UseSkillOrAbilities(this Unit unit, string skill_name)
         {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// A method when the unit uses a time-based skill or ability.
-        /// This returns the id from the list of <see cref="TimeTracker"/>
-        /// </summary>
-        /// <param name="unit"></param>
-        /// <param name="skill_name"></param>
-        /// <returns></returns>
-        public static int UseTemporarySkillOrAbilities(this Unit unit, string skill_name)
-        {
-            throw new NotImplementedException();
+            switch(unit.Name)
+            {
+                case "TERRAN_MARINE":
+                    if (skill_name == "STIMPACK")
+                        unit.Activated_Skills.Add(skill_name, new UnitSkills(7, 10));
+                    //example of damage skill and uses energy
+                    else if(skill_name == "NUKE")
+                    {
+                        unit.Target.Current_Health -= 1000;
+                        unit.Current_Energy -= 100;
+                        unit.Activated_Skills.Add(skill_name, new UnitSkills(1, 20));
+                    }
+                    break;
+            }
         }
 
         public static void DestroyTarget(this Unit unit)
         {
-
+            
         }
 
         /// <summary>

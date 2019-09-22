@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
+using System.Threading;
 
 namespace ModelService.Types
 {
@@ -105,6 +107,10 @@ namespace ModelService.Types
     /// </summary>
     public partial class Unit
     {
+        private static Timer Duration_Timer;
+        private static Dictionary<int, double> Duration_Logger;
+        private static int Duration_Tracker;
+
         /// <summary>
         /// The base definitions for a unit
         /// </summary>
@@ -201,12 +207,60 @@ namespace ModelService.Types
             ["TERRAN_FUSIONCORE"] = new UnitWorth(11, 150, 150, 0)
         };
 
+        public static NameValueCollection Skills = new NameValueCollection()
+        {
+            { "TERRAN_MARINE", "STIMPACK" },
+            { "TERRAN_MARINE", "KABOOM" }
+        };
+
+        /// <summary>
+        /// Initializes
+        /// </summary>
+        static Unit()
+        {
+            Duration_Timer = new Timer(DecrementSkillsDuration, new AutoResetEvent(false), 0, 1000);
+            Duration_Logger = new Dictionary<int, double>();
+            Duration_Tracker = -1;
+        }
+
+        /// <summary>
+        /// Decrements the duration in <see cref="Activated_Skills"/>
+        /// </summary>
+        /// <param name="state"></param>
+        private static void DecrementSkillsDuration(object state)
+        {
+            lock(Duration_Logger)
+            {
+                var count = Duration_Logger.Count;
+                for (int decrementor = 0; decrementor < count; decrementor++)
+                    Duration_Logger[decrementor] -= 1;
+            }
+        }
+
         /// <summary>
         /// Returns a list of unique id of the <see cref="Unit.Targets"/>
         /// </summary>
         /// <param name="unit"></param>
         /// <returns></returns>
         public static List<string> GetTargetsOfUnit(Unit unit) => new List<string>((from target in unit.Targets select target.UniqueID));
+
+        /// <summary>
+        /// Adds the activated skill
+        /// </summary>
+        /// <param name="skill_duration"></param>
+        /// <returns></returns>
+        public static int TrackActivatedSkill(double skill_duration)
+        {
+            var current_skill_key = -1;
+
+            lock(Duration_Logger)
+            {
+                current_skill_key = ++Duration_Tracker;
+                Duration_Logger.Add(current_skill_key, skill_duration);
+            }
+
+            return current_skill_key;
+        }
     }
 
     /// <summary>
@@ -215,9 +269,6 @@ namespace ModelService.Types
     /// </summary>
     public static class UnitExtensions
     {
-        private static List<int> TimeTracker { get; set; } = new List<int>();
-        private static int GlobalIDGenerator { get; set; } = -1;
-
         private static double ApplyArmorToDamage(this Unit unit)
         {
             double Actual_Ground_Damage = 0, Actual_Air_Damage = 0;
@@ -303,29 +354,36 @@ namespace ModelService.Types
             if (unit.Energy > 0)
                 air_maxima += 10; //If there is a boost/damaging skill that can be activated. Add it to the potential damage
 
+            switch(unit.Name)
+            {
+                case "TERRAN_MARINE":
+                    air_maxima += 10;
+                    air_maxima += 20;
+                    break;
+            }
+
+            air_maxima += (unit.Current_Air_Damage * .10); //boost
+
             return (ignore_energy)? new Tuple<double, double>(air_maxima + unit.Current_Air_Damage + ignored_air_maxima, ground_maxima + unit.Current_Ground_Damage) : new Tuple<double, double>(air_maxima + unit.Current_Air_Damage, ground_maxima + unit.Current_Ground_Damage + ignored_ground_maxima);
         }
 
         /// <summary>
-        /// A method when the unit uses a one-time skill or ability
+        /// 
         /// </summary>
         /// <param name="unit"></param>
         /// <param name="skill_name"></param>
         public static void UseSkillOrAbilities(this Unit unit, string skill_name)
         {
-            throw new NotImplementedException();
-        }
+            int skill_duration = -1;
 
-        /// <summary>
-        /// A method when the unit uses a time-based skill or ability.
-        /// This returns the id from the list of <see cref="TimeTracker"/>
-        /// </summary>
-        /// <param name="unit"></param>
-        /// <param name="skill_name"></param>
-        /// <returns></returns>
-        public static int UseTemporarySkillOrAbilities(this Unit unit, string skill_name)
-        {
-            throw new NotImplementedException();
+            switch(Unit.Skills[unit.Name])
+            {
+                case "STIMPACK":
+                    skill_duration = 11;
+                    break;
+            }
+
+            unit.Activated_Skills.Add(skill_name, Unit.TrackActivatedSkill(skill_duration));
         }
 
         public static void DestroyTarget(this Unit unit)

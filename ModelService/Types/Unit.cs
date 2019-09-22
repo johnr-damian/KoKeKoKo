@@ -108,7 +108,7 @@ namespace ModelService.Types
         /// <summary>
         /// A list of skills that was activated/used
         /// </summary>
-        public Dictionary<string, int> Activated_Skills { get; set; } = default(Dictionary<string, int>);
+        public Dictionary<string, UnitSkills> Activated_Skills { get; set; } = default(Dictionary<string, UnitSkills>);
 
         /// <summary>
         /// The current opposing unit that is targeted by this unit
@@ -157,7 +157,7 @@ namespace ModelService.Types
             Current_Ground_Damage = Ground_Damage = Definitions[Name].Ground_Damage;
             Current_Air_Damage = Air_Damage = Definitions[Name].Air_Damage;
             Current_Armor = Armor = Definitions[Name].Armor;
-            Activated_Skills = new Dictionary<string, int>();
+            Activated_Skills = new Dictionary<string, UnitSkills>();
 
             //Apply the applicable new values from permanent buffs
             ApplyApplicableUpgrades();

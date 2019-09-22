@@ -102,13 +102,29 @@ namespace ModelService.Types
         }
     }
 
+    public struct UnitSkills
+    {
+        public double Cooldown { get; set; }
+
+        public double Duration { get; set; }
+
+
+        public UnitSkills(double cooldown, double duration)
+        {
+            Cooldown = cooldown;
+            Duration = duration;
+        }
+
+        public UnitSkills DecrementCountdown() => new UnitSkills(Cooldown - 1, Duration - 1);
+    }
+
     /// <summary>
     /// The static information about a unit
     /// </summary>
     public partial class Unit
     {
         private static Timer Duration_Timer;
-        private static Dictionary<int, double> Duration_Logger;
+        private static Dictionary<int, UnitSkills> Duration_Logger;
         private static int Duration_Tracker;
 
         /// <summary>
@@ -207,19 +223,13 @@ namespace ModelService.Types
             ["TERRAN_FUSIONCORE"] = new UnitWorth(11, 150, 150, 0)
         };
 
-        public static NameValueCollection Skills = new NameValueCollection()
-        {
-            { "TERRAN_MARINE", "STIMPACK" },
-            { "TERRAN_MARINE", "KABOOM" }
-        };
-
         /// <summary>
         /// Initializes
         /// </summary>
         static Unit()
         {
             Duration_Timer = new Timer(DecrementSkillsDuration, new AutoResetEvent(false), 0, 1000);
-            Duration_Logger = new Dictionary<int, double>();
+            Duration_Logger = new Dictionary<int, UnitSkills>();
             Duration_Tracker = -1;
         }
 
@@ -233,7 +243,7 @@ namespace ModelService.Types
             {
                 var count = Duration_Logger.Count;
                 for (int decrementor = 0; decrementor < count; decrementor++)
-                    Duration_Logger[decrementor] -= 1;
+                    Duration_Logger[decrementor] = Duration_Logger[decrementor].DecrementCountdown();
             }
         }
 
@@ -247,16 +257,16 @@ namespace ModelService.Types
         /// <summary>
         /// Adds the activated skill
         /// </summary>
-        /// <param name="skill_duration"></param>
+        /// <param name="skill_details"></param>
         /// <returns></returns>
-        public static int TrackActivatedSkill(double skill_duration)
+        public static int TrackActivatedSkill(UnitSkills skill_details)
         {
             var current_skill_key = -1;
 
             lock(Duration_Logger)
             {
                 current_skill_key = ++Duration_Tracker;
-                Duration_Logger.Add(current_skill_key, skill_duration);
+                Duration_Logger.Add(current_skill_key, skill_details);
             }
 
             return current_skill_key;
@@ -374,16 +384,20 @@ namespace ModelService.Types
         /// <param name="skill_name"></param>
         public static void UseSkillOrAbilities(this Unit unit, string skill_name)
         {
-            int skill_duration = -1;
-
-            switch(Unit.Skills[unit.Name])
+            switch(unit.Name)
             {
-                case "STIMPACK":
-                    skill_duration = 11;
+                case "TERRAN_MARINE":
+                    if (skill_name == "STIMPACK")
+                        unit.Activated_Skills.Add(skill_name, new UnitSkills(7, 10));
+                    //example of damage skill and uses energy
+                    else if(skill_name == "NUKE")
+                    {
+                        unit.Target.Current_Health -= 1000;
+                        unit.Current_Energy -= 100;
+                        unit.Activated_Skills.Add(skill_name, new UnitSkills(1, 20));
+                    }
                     break;
             }
-
-            unit.Activated_Skills.Add(skill_name, Unit.TrackActivatedSkill(skill_duration));
         }
 
         public static void DestroyTarget(this Unit unit)

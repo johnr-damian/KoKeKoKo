@@ -357,7 +357,7 @@ namespace ModelService.Types
         /// </summary>
         /// <param name="unit"></param>
         /// <returns></returns>
-        public static Tuple<double, double> GetPotentialMaximumDamage(this Unit unit, bool ignore_energy)
+        public static Tuple<double, double> GetPotentialUnitDamage(this Unit unit, bool ignore_energy)
         {
             double air_maxima = 0, ground_maxima = 0, ignored_air_maxima = 0, ignored_ground_maxima = 0;
 
@@ -374,7 +374,26 @@ namespace ModelService.Types
 
             air_maxima += (unit.Current_Air_Damage * .10); //boost
 
-            return (ignore_energy)? new Tuple<double, double>(air_maxima + unit.Current_Air_Damage + ignored_air_maxima, ground_maxima + unit.Current_Ground_Damage) : new Tuple<double, double>(air_maxima + unit.Current_Air_Damage, ground_maxima + unit.Current_Ground_Damage + ignored_ground_maxima);
+            //return (ignore_energy)? new Tuple<double, double>(air_maxima + unit.Current_Air_Damage + ignored_air_maxima, ground_maxima + unit.Current_Ground_Damage) : new Tuple<double, double>(air_maxima + unit.Current_Air_Damage, ground_maxima + unit.Current_Ground_Damage + ignored_ground_maxima);
+
+
+
+            double potential_air_damage = -1, potential_ground_damage = -1;
+            double temporary_current_air_damage = unit.Current_Air_Damage, temporary_current_ground_damage = unit.Current_Ground_Damage;
+
+            switch(unit.Name)
+            {
+                case "TERRAN_MARINE":
+                    //A skill that deals 100 damage
+                    if (unit.Current_Energy >= 200)
+                        potential_ground_damage += 100;
+                    //A skill that boosts damage
+                    if (unit.Current_Energy >= 300)
+                        temporary_current_ground_damage += (temporary_current_ground_damage * .03); //Adds a 3% boost damage to ground damage
+                    break;
+            }
+
+            return new Tuple<double, double>(potential_air_damage, potential_ground_damage);
         }
 
         /// <summary>
@@ -402,7 +421,7 @@ namespace ModelService.Types
 
         public static void DestroyTarget(this Unit unit)
         {
-
+            
         }
 
         /// <summary>

@@ -1,77 +1,58 @@
-﻿using ModelService.Types;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ModelService.Micromanagement
 {
-    public partial class Micromanagement<T> where T : Unit
+    public partial class Micromanagement
     {
-        private bool RandomBasedTargetPolicy(Army owned_units, Army enemy_units)
+        /// <summary>
+        /// RandomBasedTargetPolicy is about how likely a unit will survive in a battle.
+        /// A unit will survive based on its health and its distance from its nearest target
+        /// As such this algorithm is based on the assumption that the higher the health of a unit,
+        /// and the farther its distance to an enemy is likely to survive in a battle. This algorithm
+        /// only performs operations on <paramref name="focused_army"/>, which means only
+        /// the <paramref name="focused_army"/> will only have targets at the end
+        /// </summary>
+        /// <param name="focused_army"></param>
+        /// <param name="opposed_army"></param>
+        private void RandomBasedTargetPolicy(Army focused_army, Army opposed_army)
         {
-            var random = new Random();
-            bool has_targetable = false;
+            var array_focused_army = focused_army.ToArray();
+            var array_opposed_army = opposed_army.ToArray();
 
-            try
+            //Set the oppenents for focused army
+            for(int focused_iterator = 0; focused_iterator < array_focused_army.Length; focused_iterator++)
             {
-                var array = enemy_units.ToArray();
-                for (var enumerator = owned_units.GetEnumerator(); enumerator.MoveNext();)
-                    enumerator.Current.SetTarget(array[random.Next(0, enemy_units.Count())]);
+                var minimum_distance = Double.MaxValue;
+                var targeted_enemy = -1;
+                for(int opposed_iterator = 0; opposed_iterator < array_opposed_army.Length; opposed_iterator++)
+                {
+                    var current_distance = array_focused_army[focused_iterator].Position.GetDistance(array_opposed_army[opposed_iterator].Position);
 
-                var array2 = owned_units.ToArray();
-                for (var enumerator = enemy_units.GetEnumerator(); enumerator.MoveNext();)
-                    enumerator.Current.SetTarget(array2[random.Next(0, owned_units.Count())]);
+                    if(current_distance < minimum_distance)
+                    {
+                        minimum_distance = current_distance;
+                        targeted_enemy = opposed_iterator;
+                    }
+                }
+
+                //Set the target
+                array_focused_army[focused_iterator].SetTarget(array_opposed_army[targeted_enemy]);
             }
-            catch(Exception ex)
-            {
-                Console.WriteLine("Error in Model! Failed to generate a random-based target for both armies...");
-                Trace.WriteLine($@"Error in Model! Micromanagement -> RandomBasedTargetPolicy(): \n\t{ex.Message}");
 
-                has_targetable = false;
-            }
-
-            return has_targetable;
+            //Return the result where the list is sorted by the farthest and having a high health
+            //to nearest and having a low health
+            focused_army = ((Army)array_focused_army.OrderByDescending(unit => unit.Position.GetDistance(unit.Target.Position)).ThenByDescending(unit => unit.Current_Health));
         }
 
-        private bool PriorityBasedTargetPolicy(Army owned_units, Army enemy_units)
+        private void PriorityBasedTargetPolicy(Army owned_units, Army enemy_units)
         {
-            bool has_targetable = false;
 
-            try
-            {
-                //TODO
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Error in Model! Failed to generate a priority-based target for both armies...");
-                Trace.WriteLine($@"Error in Model! Micromanagement -> PriorityBasedTargetPolicy(): \n\t{ex.Message}");
-
-                has_targetable = false;
-            }
-
-            return has_targetable;
         }
 
-        private bool ResourceBasedTargetPolicy(Army owned_units, Army enemy_units)
+        private void ResourceBasedTargetPolicy(Army owned_units, Army enemy_units)
         {
-            bool has_targetable = false;
 
-            try
-            {
-                //TODO
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Error in Model! Failed to generate a resource-based target for both armies...");
-                Trace.WriteLine($@"Error in Model! Micromanagement -> ResourceBasedTargetPolicy(): \n\t{ex.Message}");
-
-                has_targetable = false;
-            }
-
-            return has_targetable;
         }
     }
 }

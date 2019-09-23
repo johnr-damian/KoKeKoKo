@@ -59,19 +59,19 @@ namespace ModelService
                     //    threads.Add(new Thread(new ThreadStart(() => battles_result.Add(battle.GetMicromanagementAccuracy(10)))));
                     //threads.ForEach(thread => thread.Start()); //OVERFLOW CAUSE THREAD, DEBUG THREADING PLS
 
-                   // foreach (var battle in battles)
-                   //     battles_result.Add(battle.GetMicromanagementAccuracy(10));
+                    // foreach (var battle in battles)
+                    //     battles_result.Add(battle.GetMicromanagementAccuracy(10));
 
-                   // Console.WriteLine("Getting Macromanagement accuracy report...");
-                   // var command_repository = ModelRepositoryService.ReadRepositories(@"Test\CommandsRepository.csv");
-                   // //TODO relate resource to command, improve all
-                   // var matches = new List<Macromanagement.Macromanagement>();
-                   // //macthes_result
-                   // //TODO mirror micro
-                   //// threads.ForEach(thread => thread.Join());
-                   // //Add macro threads
-                   
-                    
+                    // Console.WriteLine("Getting Macromanagement accuracy report...");
+                    // var command_repository = ModelRepositoryService.ReadRepositories(@"Test\CommandsRepository.csv");
+                    // //TODO relate resource to command, improve all
+                    // var matches = new List<Macromanagement.Macromanagement>();
+                    // //macthes_result
+                    // //TODO mirror micro
+                    //// threads.ForEach(thread => thread.Join());
+                    // //Add macro threads
+
+                    battles[0].GetMicromanagementAccuracyReport(10);
 
                     Console.WriteLine("Micromanagement Result: ");
                     Console.WriteLine("Macromanagement Result: ");

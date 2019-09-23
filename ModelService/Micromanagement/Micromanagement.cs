@@ -9,9 +9,15 @@ namespace ModelService.Micromanagement
     /// </summary>
     public partial class Micromanagement
     {
+        private static Random _random_generator = null;
         private Army _owned_units = null;
         private Army _enemy_units = null;
         private Army _postbattle = null;
+
+        static Micromanagement()
+        {
+            _random_generator = new Random();
+        }
 
         /// <summary>
         /// A csv-based micromanagement. Represents a battle from a game observation
@@ -36,6 +42,9 @@ namespace ModelService.Micromanagement
 
         public List<double> GetMicromanagementAccuracyReport(int number_of_simulations)
         {
+            var stuff = LanchesterBasedPrediction(TargetPolicy.Random);
+            Console.ReadLine();
+
             return null;
         }
     }

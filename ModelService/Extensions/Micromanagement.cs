@@ -78,18 +78,40 @@ namespace ModelService.Micromanagement
             //Compute the total health of ground units from both army
             var ownedarmy_ground_totalhealth = owned_army.Sum(unit => unit.Current_Health);
             var enemyarmy_ground_totalhealth = enemy_army.Sum(unit => unit.Current_Health);
-
+        
             //Compute the mean of effective potential damage of air units from both army
-            var ownedarmy_air_meandamage = owned_army.Sum(unit => unit.GetPotentialMaximumDamage().Item1);
-            //var enemyarmy_air_meandamage = owned
+            var ownedarmy_air_meandamage = owned_army.GetLanchesterMeanTriangularAirDamage();
+            var enemyarmy_air_meandamage = enemy_army.GetLanchesterMeanTriangularAirDamage();
 
-            //Do the triangular mean first
-            throw new NotImplementedException();
+            //Compute the mean of effective potential damage of ground units from both army
+            var ownedarmy_ground_meandamage = owned_army.GetLanchesterMeanTriangularGroundDamage();
+            var enemyarmy_ground_meandamage = enemy_army.GetLanchesterMeanTriangularGroundDamage();
+
+            //Compute the OwnedArmyToEnemyArmy_EffectivePotentialDamage
+            //known as DPF(A, B) = (((DPFa(A) * HPa(B)) + (DPFg(A) * HPg(B))) / (HPa(B) + HPg(B)))
+            OwnedArmyToEnemyArmy_EffectivePotentialDamage = (((ownedarmy_air_meandamage * enemyarmy_air_totalhealth) + (ownedarmy_ground_meandamage * enemyarmy_ground_totalhealth)) / (enemyarmy_air_totalhealth + enemyarmy_ground_totalhealth));
+
+            //Compute the EnemyArmyToOwnedArmy_EffectivePotentialDamage
+            //known as DPF(B, A) = (((DPFa(B) * HPa(A)) + (DPFg(B) * HPg(A))) / (HPa(A) + HPg(A)))
+            EnemyArmyToOwnedArmy_EffectivePotentialDamage = (((enemyarmy_air_meandamage * ownedarmy_air_totalhealth) + (enemyarmy_ground_meandamage * ownedarmy_ground_totalhealth)) / (ownedarmy_air_totalhealth + ownedarmy_ground_totalhealth));
+
+            //Can now compute the effectiveness
+            //Compute the combat effectiveness of own army
+            //known as alpha = DPF(B, A) / HP(A)
+            OwnedArmy_CombatEffectiveness = EnemyArmyToOwnedArmy_EffectivePotentialDamage / ownedarmy_meanhealth;
+
+            //Compute the combat effectiveness of enemy army
+            //known as beta = DPF(A, B) / HP(B)
+            EnemyArmy_CombatEffectiveness = OwnedArmyToEnemyArmy_EffectivePotentialDamage / enemyarmy_meanhealth;
+
+            //Can now compute the relative effectiveness
+            //Compute the relative effectiveness of own army
+            //known as Ra = Sqrt(alpha / beta)
+            OwnedArmy_RelativeEffectiveness = Math.Sqrt(OwnedArmy_CombatEffectiveness / EnemyArmy_CombatEffectiveness);
+
+            //Compute the relative effectiveness of eenmy army
+            //known as Rb = Sqrt(beta / alpha)
+            EnemyArmy_RelativeEffectiveness = Math.Sqrt(EnemyArmy_CombatEffectiveness / OwnedArmy_CombatEffectiveness);
         }
-    }
-
-    public static class LanchesterBasedPredictionExtensions
-    {
-
     }
 }

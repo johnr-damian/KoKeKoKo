@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ModelService.Micromanagement;
+using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
@@ -100,6 +101,13 @@ namespace ModelService.Types
             Vespene = vespene;
             Supply = supply;
         }
+
+        /// <summary>
+        /// Returns the <see cref="Army.GetValueOfArmy"/> but the values are negative
+        /// to represent that these values are what have been lost in a battle
+        /// </summary>
+        /// <returns></returns>
+        public UnitWorth GetComplementOfValue() => new UnitWorth(-Priority, -Mineral, -Vespene, -Supply);
     }
 
     public struct UnitSkills
@@ -357,7 +365,7 @@ namespace ModelService.Types
         /// </summary>
         /// <param name="unit"></param>
         /// <returns></returns>
-        public static Tuple<double, double> GetPotentialUnitDamage(this Unit unit, bool ignore_energy)
+        public static Tuple<double, double> GetPotentialUnitDamage(this Unit unit)
         {
             double potential_air_damage = -1, potential_ground_damage = -1;
             double temporary_current_air_damage = unit.Current_Air_Damage, temporary_current_ground_damage = unit.Current_Ground_Damage;
@@ -375,6 +383,16 @@ namespace ModelService.Types
             }
 
             return new Tuple<double, double>(potential_air_damage, potential_ground_damage);
+        }
+
+        public static double GetMaximumPotentialAirDamage(this Unit unit)
+        {
+            return 0;
+        }
+
+        public static double GetMaximumPotentialGroundDamage(this Unit unit)
+        {
+            return 0;
         }
 
         /// <summary>

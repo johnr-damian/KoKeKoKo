@@ -1,6 +1,7 @@
 ﻿using ModelService.Types;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ModelService.Micromanagement
 {
@@ -14,13 +15,59 @@ namespace ModelService.Micromanagement
         /// </summary>
         /// <param name="target_policy"></param>
         /// <returns>The winner's army can be owner or enemy. But the value will always be the owner</returns>
-        public Tuple<string, double> LanchesterBasedPrediction(TargetPolicy target_policy)
+        public Tuple<string, UnitWorth> LanchesterBasedPrediction(TargetPolicy target_policy)
         {
-            Tuple<string, double> battle_result = null;
+            Tuple<string, UnitWorth> battle_result = null;
 
             try
             {
+                var owned_units = _owned_units.GetDeepCopy();
+                var enemy_units = _enemy_units.GetDeepCopy();
+                var cardinality = owned_units.Count() / enemy_units.Count();
+                var lanchester_result = new LanchesterVariables(owned_units, enemy_units);
 
+
+                //Generate target for each units
+                switch(target_policy)
+                {
+                    case TargetPolicy.Random:
+                        //Owned Army wins
+                        if (cardinality > lanchester_result.OwnedArmy_RelativeEffectiveness)
+                        {
+                            //Compute the estimated number of units survived
+                            var surviving_owned_units = Convert.ToInt32(Math.Sqrt((Math.Pow(owned_units.Count(), 2)) - ((lanchester_result.OwnedArmy_CombatEffectiveness / lanchester_result.EnemyArmy_CombatEffectiveness) * Math.Pow(enemy_units.Count(), 2))));
+
+                            //Apply the Targeting Policy to get the likelihood of units who will survive
+                            RandomBasedTargetPolicy(owned_units, enemy_units);
+
+                            //Get the surviving units and create the battle result
+                            var surviving_units = ((Army)owned_units.Take(surviving_owned_units));
+                            battle_result = new Tuple<string, UnitWorth>(surviving_units.ToString(), surviving_units.GetValueOfArmy());
+                        }
+                        //Draw
+                        else if (cardinality == lanchester_result.OwnedArmy_RelativeEffectiveness)
+                            battle_result = new Tuple<string, UnitWorth>(String.Empty, default(UnitWorth));
+                        //Enemy Army wins
+                        else if (cardinality < lanchester_result.OwnedArmy_RelativeEffectiveness)
+                        {
+                            //Compute the estimated number of units survived
+                            var surviving_enemy_units = Convert.ToInt32(Math.Sqrt((Math.Pow(enemy_units.Count(), 2)) - ((lanchester_result.EnemyArmy_CombatEffectiveness / lanchester_result.OwnedArmy_CombatEffectiveness) * Math.Pow(owned_units.Count(), 2))));
+
+                            //Apply the Targeting Policy to get the likelihood of units who will survive
+                            RandomBasedTargetPolicy(enemy_units, owned_units);
+
+                            //Get the surviving units and create the battle result
+                            var surviving_units = ((Army)enemy_units.Take(surviving_enemy_units));
+                            battle_result = new Tuple<string, UnitWorth>(surviving_units.ToString(), surviving_units.GetValueOfArmy().GetComplementOfValue());
+                        }
+                        break;
+                    case TargetPolicy.Priority:
+
+                        break;
+                    case TargetPolicy.Resource:
+
+                        break;
+                }
             }
             catch(Exception ex)
             {
@@ -44,7 +91,21 @@ namespace ModelService.Micromanagement
 
             try
             {
+                var owned_units = _owned_units.GetDeepCopy();
+                var enemy_units = _enemy_units.GetDeepCopy();
 
+                switch(target_policy)
+                {
+                    case TargetPolicy.Random:
+
+                        break;
+                    case TargetPolicy.Priority:
+
+                        break;
+                    case TargetPolicy.Resource:
+
+                        break;
+                }
             }
             catch (Exception ex)
             {
@@ -67,7 +128,10 @@ namespace ModelService.Micromanagement
 
             try
             {
+                var owned_units = _owned_units.GetDeepCopy();
+                var enemy_units = _enemy_units.GetDeepCopy();
 
+                
             }
             catch (Exception ex)
             {

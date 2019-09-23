@@ -152,6 +152,8 @@ namespace ModelService.Types
             Buffs = new List<string>(buffs);
 
             //Initialize the from simulation
+            if (Name == null)
+                return;
             Current_Health = Health = Definitions[Name].Health;
             Current_Energy = Energy = Definitions[Name].Energy;
             Current_Ground_Damage = Ground_Damage = Definitions[Name].Ground_Damage;

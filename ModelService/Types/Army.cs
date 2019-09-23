@@ -41,17 +41,30 @@ namespace ModelService.Micromanagement
                 {
                     var unit_details = parsed_units[iterator].Split(',');
 
-                    if (unit_details.Length > 0)
+                    if (unit_details.Length > 1)
                     {
                         var buffs = (unit_details.Length > 5) ? unit_details.Skip(5) : Enumerable.Empty<string>();
                         _units[iterator] = new Unit(Convert.ToInt64(unit_details[0]), unit_details[1], unit_details[2], unit_details[3], Convert.ToDouble(unit_details[4]), Convert.ToDouble(unit_details[5]), buffs.ToArray());
                     }
+                    //An empty string
+                    else if (unit_details.Length == 1)
+                        _units[iterator] = new Unit(default(long), default(string), String.Empty, default(string), default(Coordinate));
                     else
                         throw new ArgumentOutOfRangeException("The units have no details to be parsed...");
                 }
             }
             else
                 throw new ArgumentOutOfRangeException("There are no units to be parsed...");
+        }
+
+        /// <summary>
+        /// Lots of information loss unlike the other constructor. This is used for 
+        /// casting Units[] to Army
+        /// </summary>
+        /// <param name="units"></param>
+        public Army(IEnumerable<Unit> units)
+        {
+            _units = units.ToArray();
         }
 
         /// <summary>

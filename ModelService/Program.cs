@@ -72,6 +72,10 @@ namespace ModelService
                     // //Add macro threads
 
                     battles[0].GetMicromanagementAccuracyReport(10);
+                    battles[1].GetMicromanagementAccuracyReport(10);
+                    battles[2].GetMicromanagementAccuracyReport(10);
+                    battles[3].GetMicromanagementAccuracyReport(10);
+                    battles[4].GetMicromanagementAccuracyReport(10);
 
                     Console.WriteLine("Micromanagement Result: ");
                     Console.WriteLine("Macromanagement Result: ");

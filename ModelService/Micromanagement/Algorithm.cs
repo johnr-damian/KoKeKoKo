@@ -38,10 +38,10 @@ namespace ModelService.Micromanagement
                             var surviving_owned_units = Convert.ToInt32(Math.Sqrt((Math.Pow(owned_units.Count(), 2)) - ((lanchester_result.OwnedArmy_CombatEffectiveness / lanchester_result.EnemyArmy_CombatEffectiveness) * Math.Pow(enemy_units.Count(), 2))));
 
                             //Apply the Targeting Policy to get the likelihood of units who will survive
-                            RandomBasedTargetPolicy(owned_units, enemy_units);
+                            RandomBasedTargetPolicy(ref owned_units, enemy_units);
 
                             //Get the surviving units and create the battle result
-                            var surviving_units = ((Army)owned_units.Take(surviving_owned_units));
+                            var surviving_units = owned_units.Take(surviving_owned_units).ToArmy();
                             battle_result = new Tuple<string, UnitWorth>(surviving_units.ToString(), surviving_units.GetValueOfArmy());
                         }
                         //Draw
@@ -54,18 +54,74 @@ namespace ModelService.Micromanagement
                             var surviving_enemy_units = Convert.ToInt32(Math.Sqrt((Math.Pow(enemy_units.Count(), 2)) - ((lanchester_result.EnemyArmy_CombatEffectiveness / lanchester_result.OwnedArmy_CombatEffectiveness) * Math.Pow(owned_units.Count(), 2))));
 
                             //Apply the Targeting Policy to get the likelihood of units who will survive
-                            RandomBasedTargetPolicy(enemy_units, owned_units);
+                            RandomBasedTargetPolicy(ref enemy_units, owned_units);
 
                             //Get the surviving units and create the battle result
-                            var surviving_units = ((Army)enemy_units.Take(surviving_enemy_units));
+                            var surviving_units = enemy_units.Take(surviving_enemy_units).ToArmy();
                             battle_result = new Tuple<string, UnitWorth>(surviving_units.ToString(), surviving_units.GetValueOfArmy().GetComplementOfValue());
                         }
                         break;
                     case TargetPolicy.Priority:
+                        //Owned Army wins
+                        if (cardinality > lanchester_result.OwnedArmy_RelativeEffectiveness)
+                        {
+                            //Compute the estimated number of units survived
+                            var surviving_owned_units = Convert.ToInt32(Math.Sqrt((Math.Pow(owned_units.Count(), 2)) - ((lanchester_result.OwnedArmy_CombatEffectiveness / lanchester_result.EnemyArmy_CombatEffectiveness) * Math.Pow(enemy_units.Count(), 2))));
 
+                            //Apply the Targeting Policy to get the likelihood of units who will survive
+                            PriorityBasedTargetPolicy(ref owned_units, enemy_units);
+
+                            //Get the surviving units and create the battle result
+                            var surviving_units = owned_units.Take(surviving_owned_units).ToArmy();
+                            battle_result = new Tuple<string, UnitWorth>(surviving_units.ToString(), surviving_units.GetValueOfArmy());
+                        }
+                        //Draw
+                        else if (cardinality == lanchester_result.OwnedArmy_RelativeEffectiveness)
+                            battle_result = new Tuple<string, UnitWorth>(String.Empty, default(UnitWorth));
+                        //Enemy Army wins
+                        else if (cardinality < lanchester_result.OwnedArmy_RelativeEffectiveness)
+                        {
+                            //Compute the estimated number of units survived
+                            var surviving_enemy_units = Convert.ToInt32(Math.Sqrt((Math.Pow(enemy_units.Count(), 2)) - ((lanchester_result.EnemyArmy_CombatEffectiveness / lanchester_result.OwnedArmy_CombatEffectiveness) * Math.Pow(owned_units.Count(), 2))));
+
+                            //Apply the Targeting Policy to get the likelihood of units who will survive
+                            PriorityBasedTargetPolicy(ref enemy_units, owned_units);
+
+                            //Get the surviving units and create the battle result
+                            var surviving_units = enemy_units.Take(surviving_enemy_units).ToArmy();
+                            battle_result = new Tuple<string, UnitWorth>(surviving_units.ToString(), surviving_units.GetValueOfArmy().GetComplementOfValue());
+                        }
                         break;
                     case TargetPolicy.Resource:
+                        //Owned Army wins
+                        if (cardinality > lanchester_result.OwnedArmy_RelativeEffectiveness)
+                        {
+                            //Compute the estimated number of units survived
+                            var surviving_owned_units = Convert.ToInt32(Math.Sqrt((Math.Pow(owned_units.Count(), 2)) - ((lanchester_result.OwnedArmy_CombatEffectiveness / lanchester_result.EnemyArmy_CombatEffectiveness) * Math.Pow(enemy_units.Count(), 2))));
 
+                            //Apply the Targeting Policy to get the likelihood of units who will survive
+                            ResourceBasedTargetPolicy(ref owned_units, enemy_units);
+
+                            //Get the surviving units and create the battle result
+                            var surviving_units = owned_units.Take(surviving_owned_units).ToArmy();
+                            battle_result = new Tuple<string, UnitWorth>(surviving_units.ToString(), surviving_units.GetValueOfArmy());
+                        }
+                        //Draw
+                        else if (cardinality == lanchester_result.OwnedArmy_RelativeEffectiveness)
+                            battle_result = new Tuple<string, UnitWorth>(String.Empty, default(UnitWorth));
+                        //Enemy Army wins
+                        else if (cardinality < lanchester_result.OwnedArmy_RelativeEffectiveness)
+                        {
+                            //Compute the estimated number of units survived
+                            var surviving_enemy_units = Convert.ToInt32(Math.Sqrt((Math.Pow(enemy_units.Count(), 2)) - ((lanchester_result.EnemyArmy_CombatEffectiveness / lanchester_result.OwnedArmy_CombatEffectiveness) * Math.Pow(owned_units.Count(), 2))));
+
+                            //Apply the Targeting Policy to get the likelihood of units who will survive
+                            ResourceBasedTargetPolicy(ref enemy_units, owned_units);
+
+                            //Get the surviving units and create the battle result
+                            var surviving_units = enemy_units.Take(surviving_enemy_units).ToArmy();
+                            battle_result = new Tuple<string, UnitWorth>(surviving_units.ToString(), surviving_units.GetValueOfArmy().GetComplementOfValue());
+                        }
                         break;
                 }
             }

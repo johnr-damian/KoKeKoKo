@@ -1,4 +1,5 @@
-﻿using ModelService.Types;
+﻿using ModelService.Micromanagement;
+using ModelService.Types;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,8 @@ namespace ModelService.Types
 {
     public static class ArmyExtensions
     {
+        public static Army ToArmy(this IEnumerable<Unit> units) => new Army(units);
+
         public static double GetLanchesterMeanTriangularAirDamage(this IEnumerable<Unit> units)
         {
             var minimum_potential_army_damage = units.Sum(unit => unit.Current_Air_Damage);

@@ -108,6 +108,21 @@ namespace ModelService.Types
         /// </summary>
         /// <returns></returns>
         public UnitWorth GetComplementOfValue() => new UnitWorth(-Priority, -Mineral, -Vespene, -Supply);
+
+        /// <summary>
+        /// Returns the sum of mineral, vespene, and supply cost with 34%, 34%, and 32% weight respectively
+        /// </summary>
+        /// <returns></returns>
+        public double GetSummaryOfResource() => ((Mineral * .34) + (Vespene * .34) + (Supply * .32));
+
+        /// <summary>
+        /// Returns the sum of mineral, vespene, and supply cost with supplied weight
+        /// </summary>
+        /// <param name="mineral_weight"></param>
+        /// <param name="vespene_weight"></param>
+        /// <param name="supply_weight"></param>
+        /// <returns></returns>
+        public double GetSummaryOfResource(double mineral_weight, double vespene_weight, double supply_weight) => ((Mineral * mineral_weight) + (Vespene * vespene_weight) + (Supply * supply_weight));
     }
 
     public struct UnitSkills

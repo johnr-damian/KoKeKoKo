@@ -9,9 +9,6 @@ namespace ModelService.Macromanagement
 {
     public partial class Macromanagement
     {
-        private Player _agent = null;
-        private Player _enemy = null;
-
 
     }
 }

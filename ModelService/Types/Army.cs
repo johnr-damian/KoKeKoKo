@@ -1,40 +1,97 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ModelService.Types
 {
     /// <summary>
-    /// The collection of either <see cref="Micromanagement.Types.CSVbasedUnit"/> or <see cref="Micromanagement.Types.GamebasedUnit"/>
+    /// A collection of <see cref="Unit"/>
     /// </summary>
-    public abstract class Army : IEnumerable<Unit>
+    public partial class Army : IEnumerable<Unit>, ICopyable<Army>, IMessage
     {
+        #region Private Fields
         /// <summary>
-        /// A raw copy of passed units
+        /// A collection of <see cref="Unit"/> from source
         /// </summary>
-        protected string Raw_Units { get; set; } = "";
+        private Unit[] _units = default(Unit[]);
 
         /// <summary>
-        /// A collection of <see cref="Unit"/>
+        /// A raw copy of units from source
         /// </summary>
-        protected Unit[] Units { get; set; } = null;
+        private string _raw_units = default(string); 
+        #endregion
 
         /// <summary>
-        /// Number of units in a army
+        /// Parses the string of units and creates an instance of <see cref="Unit"/>. 
+        /// As such, it expects to follow the constructor of <see cref="Unit"/>
         /// </summary>
-        public int Length => Units.Length;
+        /// <param name="raw_units"></param>
+        public Army(string raw_units)
+        {
+            _raw_units = raw_units;
+            var parsed_units = raw_units.Split('\n');
 
+            if (parsed_units.Length > 0)
+            {
+                _units = new Unit[parsed_units.Length];
+
+                for(int iterator = 0; iterator < parsed_units.Length; iterator++)
+                {
+                    var unit_details = parsed_units[iterator].Split(',');
+
+                    if (unit_details.Length > 1)
+                    {
+                        var buffs = (unit_details.Length > 5) ? unit_details.Skip(5) : Enumerable.Empty<string>();
+                        _units[iterator] = new Unit(Convert.ToInt64(unit_details[0]), unit_details[1], unit_details[2], unit_details[3], Convert.ToDouble(unit_details[4]), Convert.ToDouble(unit_details[5]), buffs.ToArray());
+                    }
+                    //An empty string
+                    else if (unit_details.Length == 1)
+                        _units[iterator] = new Unit(default(long), default(string), String.Empty, default(string), default(Coordinate));
+                    else
+                        throw new ArgumentOutOfRangeException("The units have no details to be parsed...");
+                }
+            }
+            else
+                throw new ArgumentOutOfRangeException("There are no units to be parsed...");
+        }
+
+        /// <summary>
+        /// Lots of information loss unlike the other constructor. This is used for 
+        /// casting Units[] to Army
+        /// </summary>
+        /// <param name="units"></param>
+        public Army(IEnumerable<Unit> units)
+        {
+            _units = units.ToArray();
+        }
+
+        /// <summary>
+        /// Enumerator for <see cref="Army"/>
+        /// </summary>
         private class Enumerator : IEnumerator<Unit>
         {
-            private Unit[] _units = null;
+            /// <summary>
+            /// A collection of <see cref="Unit"/> from <see cref="Army"/>
+            /// </summary>
+            private Unit[] _units = default(Unit[]);
+
+            /// <summary>
+            /// The pointer to <see cref="_units"/>
+            /// </summary>
             private int position = -1;
 
+            /// <summary>
+            /// Creates an instance of enumerator for <see cref="Army"/>
+            /// </summary>
+            /// <param name="units"></param>
             public Enumerator(Unit[] units)
             {
                 _units = units;
             }
 
             /// <summary>
-            /// Returns the current pointed unit by the pointer
+            /// Returns the current pointed unit by the <see cref="position"/>
             /// </summary>
             public Unit Current => _units[position];
 
@@ -44,57 +101,95 @@ namespace ModelService.Types
             object IEnumerator.Current => Current;
 
             /// <summary>
-            /// Disposes this instance of enumerator
+            /// Disposes the instance of this enumerator
             /// </summary>
             public void Dispose() { }
 
             /// <summary>
-            /// Iterates the position of the pointer to the next unit
+            /// Increments the position of the pointer to the next unit
             /// </summary>
             /// <returns></returns>
             public bool MoveNext() => ((++position) < _units.Length);
 
             /// <summary>
-            /// Resets the position of pointer at the beginning
+            /// Resets the position of the pointer to the beginning
             /// </summary>
             public void Reset() => position = -1;
         }
 
-#warning Improve code here, there is a mixup of GetEnumerator and Ienumerable.getenumerator
+        #region Methods for Enumerator
         /// <summary>
-        /// Returns a new instance of <see cref="Army.Enumerator"/>
+        /// Creates a new instance of enumerator for this instance
         /// </summary>
         /// <returns></returns>
-        public IEnumerator<Unit> GetEnumerator() => new Enumerator(Units);
+        public IEnumerator<Unit> GetEnumerator() => new Enumerator(_units);
 
         /// <summary>
-        /// Interface implementation of returning a new instance of <see cref="Army.Enumerator"/>
+        /// Interface implementation of <see cref="GetEnumerator"/>
         /// </summary>
         /// <returns></returns>
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator(); 
+        #endregion
 
         /// <summary>
-        /// A method that creates a new instance of <see cref="Army"/> with the same values
+        /// Returns the total worth of this army
         /// </summary>
         /// <returns></returns>
-        public abstract Army CreateDeepCopy();
-
-        /// <summary>
-        /// Gets the total army value with configurable weight importance by adding the 
-        /// mineral cost, vespene cost, and supply cost
-        /// </summary>
-        /// <param name="mineral_weight"></param>
-        /// <param name="vespene_weight"></param>
-        /// <param name="supply_weight"></param>
-        /// <returns></returns>
-        public double GetArmyValue(double mineral_weight, double vespene_weight, double supply_weight)
+        public UnitWorth GetValueOfArmy()
         {
-            double value = 0;
+            var priority_worth = _units.Sum(unit => Unit.Values[unit.Name].Priority);
+            var mineral_worth = _units.Sum(unit => Unit.Values[unit.Name].Mineral);
+            var vespene_worth = _units.Sum(unit => Unit.Values[unit.Name].Vespene);
+            var supply_worth = _units.Sum(unit => Unit.Values[unit.Name].Supply);
 
-            foreach (var unit in Units)
-                value += 0; //TODO
-
-            return value;
+            return new UnitWorth(priority_worth, mineral_worth, vespene_worth, supply_worth);
         }
+
+        /// <summary>
+        /// Returns the instance of this army
+        /// </summary>
+        /// <returns></returns>
+        public Army GetShallowCopy() => this;
+
+        /// <summary>
+        /// Creates and returns a new instance of <see cref="Army"/> with the same value
+        /// of this instance
+        /// </summary>
+        /// <returns></returns>
+        public Army GetDeepCopy() => new Army(String.Copy(_raw_units));
+
+        /// <summary>
+        /// Returns a message-ready format that can be send to agent. The message format is:
+        /// <para>
+        /// <see cref="Unit.UniqueID"/>,<see cref="Unit.Targets"/>\n
+        /// ...
+        /// <see cref="Unit.UniqueID"/>,<see cref="Unit.Targets"/>
+        /// </para>
+        /// </summary>
+        /// <returns></returns>
+        public string CreateMessage()
+        {
+            string message = "";
+
+            foreach(var unit in _units)
+            {
+                var targets = Unit.GetTargetsOfUnit(unit);
+
+                message += unit.UniqueID;
+                foreach (var target in targets)
+                    message += ("," + target);
+                message += Environment.NewLine;
+            }
+
+            return message;
+        }
+
+        /// <summary>
+        /// Returns a Jaccard-ready format. It uses <see cref="Unit.ToString"/>. 
+        /// The message format is:
+        /// &lt;"<see cref="Unit.UniqueID"/>", ..., "<see cref="Unit.UniqueID"/>"&gt;
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString() => (String.Join(",", (from unit in _units select unit.ToString())));
     }
 }

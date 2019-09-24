@@ -1,226 +1,260 @@
 ﻿using ModelService.Types;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ModelService.Micromanagement
 {
-    public partial class Micromanagement<T> where T : Unit
+    public partial class Micromanagement
     {
         /// <summary>
-        /// 
+        /// The highest-level abstraction of prediction algorithm. It computes
+        /// the potential average of the army and statically computes who will won using
+        /// the Lanchester formula. It returns the winner's army and the value won from this
+        /// battle
         /// </summary>
         /// <param name="target_policy"></param>
-        /// <returns></returns>
-        public string LanchesterBasedPrediction(TargetPolicy target_policy)
+        /// <returns>The winner's army can be owner or enemy. But the value will always be the owner</returns>
+        public Tuple<string, UnitWorth> LanchesterBasedPrediction(TargetPolicy target_policy)
         {
-            string battle_result = "";
+            Tuple<string, UnitWorth> battle_result = null;
 
             try
             {
-                var owned_units = _owned_units.CreateDeepCopy();
-                var enemy_units = _enemy_units.CreateDeepCopy();
-
-                //var owned_units_attributes = LanchesterExtensions.GetArmyAttributes(this, owned_units);
-                var owned_units_attributes = owned_units.GetArmyAttributes();
-                var enemy_units_attributes = enemy_units.GetArmyAttributes();
-
-                ////First, compute the potential dpf
-                //double owned_units_health = 0, enemy_units_health = 0;
-                //double owned_units_minimum_potential_air = 0, enemy_units_minimum_potential_air = 0;
-                //double owned_units_maximum_potential_air = 0, enemy_units_maximum_potential_air = 0;
-                //double owned_units_minimum_potential_ground = 0, enemy_units_minimum_potential_ground = 0;
-                //double owned_units_maximum_potential_ground = 0, enemy_units_maximum_potential_ground = 0;
-                //double potentialdpf_ownedtoenemy = 0, potentialdpf_enemytoowned = 0;
-
-                ////compute the average health of the army
-                //owned_units_health = (owned_units.Sum(unit => unit.Current_Health) / owned_units.Length);
-                //enemy_units_health = (enemy_units.Sum(unit => unit.Current_Health) / enemy_units.Length);
-
-                ////compute the minimum potentials
-                //owned_units_minimum_potential_air = owned_units.Sum(unit => Unit.DEFINITIONS[unit.Name].Item4);
-                //owned_units_minimum_potential_ground = owned_units.Sum(unit => Unit.DEFINITIONS[unit.Name].Item3);
-                //enemy_units_minimum_potential_air = enemy_units.Sum(unit => Unit.DEFINITIONS[unit.Name].Item4);
-                //enemy_units_minimum_potential_ground = enemy_units.Sum(unit => Unit.DEFINITIONS[unit.Name].Item3);
-
-                ////compute the maximum potentials
-                //owned_units_maximum_potential_air = owned_units.Sum(unit => unit.Current_Air_Damage);
-                //owned_units_maximum_potential_ground = owned_units.Sum(unit => unit.Current_Ground_Damage);
-                //enemy_units_maximum_potential_air = enemy_units.Sum(unit => unit.Current_Air_Damage);
-                //enemy_units_maximum_potential_ground = enemy_units.Sum(unit => unit.Current_Ground_Damage);
-
-                ////the potential dpf
-                //potentialdpf_ownedtoenemy = (() / ())
-
-                double potential_owned_to_enemy = 0, potential_enemy_to_owned = 0;
-
-                //Compute the DPF function
-                //Item1 - Army Mean Health, 
-                //Item2 - Flying Sum Health, 
-                //Item3 - Ground Sum Health, 
-                //Item4 - Flying Mean Damage, 
-                //Item5 - Ground Mean Damage
-                //potential A to B = (((A.Item4 * B.Item2) + (A.Item5 * B.Item3)) /(B.Item2 + B.Item3))
-                potential_owned_to_enemy = (((owned_units_attributes.Item4 * enemy_units_attributes.Item2) + (owned_units_attributes.Item5 * enemy_units_attributes.Item3)) / (enemy_units_attributes.Item2 + enemy_units_attributes.Item3));
-                potential_enemy_to_owned = (((enemy_units_attributes.Item4 * owned_units_attributes.Item2) + (enemy_units_attributes.Item5 * owned_units_attributes.Item3)) / (owned_units_attributes.Item2 + owned_units_attributes.Item3));
+                var owned_units = _owned_units.GetDeepCopy();
+                var enemy_units = _enemy_units.GetDeepCopy();
+                var cardinality = owned_units.Count() / enemy_units.Count();
+                var lanchester_result = new LanchesterVariables(owned_units, enemy_units);
 
 
-                //Compute the combat intensity
-                double owned_intensity_alpha = 0, enemy_intensity_beta = 0;
-                owned_intensity_alpha = potential_enemy_to_owned / owned_units_attributes.Item1;
-                enemy_intensity_beta = potential_owned_to_enemy / enemy_units_attributes.Item1;
-
-                //Compute relative effectiveness
-                double owned_relative_effectiveness = 0, enemy_relative_effectiveness = 0;
-                owned_relative_effectiveness = Math.Sqrt((owned_intensity_alpha / enemy_intensity_beta));
-                enemy_relative_effectiveness = Math.Sqrt((enemy_intensity_beta / owned_intensity_alpha));
-
-                //The winner is 
-                double cardinality = owned_units.Length / enemy_units.Length;
-                bool? is_own_only = null;
-                int number_of_surviving_units = (int)Math.Round(Math.Sqrt(Math.Pow(owned_units.Length, 2) - ((owned_intensity_alpha / enemy_intensity_beta) * Math.Pow(enemy_units.Length, 2))));
-                int number_of_enemy = (int)Math.Round(Math.Sqrt(Math.Pow(enemy_units.Length, 2) - ((enemy_intensity_beta / owned_intensity_alpha) * Math.Pow(owned_units.Length, 2))));
-                var owned = owned_units.Take(number_of_surviving_units).GetEnumerator();
-                var ene = enemy_units.Take(number_of_enemy).GetEnumerator();
-
-
-                string message = "";
-
-                var m = "";
-                foreach (var u in owned_units)
-                    m += (u.Target == null) ? "" : u.Target.ToString();
-                Console.WriteLine(m);                
-
-
-                if (target_policy.HasFlag(TargetPolicy.Random))
+                //Generate target for each units
+                switch(target_policy)
                 {
-                    if(RandomBasedTargetPolicy(owned_units, enemy_units))
-                    {
-                        
-                    }
-                    m = "";
-                    foreach (var u in owned_units)
-                        m += (u.Target == null) ? "" : u.Target.ToString();
-                    Console.WriteLine(m);
+                    case TargetPolicy.Random:
+                        //Owned Army wins
+                        if (cardinality > lanchester_result.OwnedArmy_RelativeEffectiveness)
+                        {
+                            //Compute the estimated number of units survived
+                            var surviving_owned_units = Convert.ToInt32(Math.Sqrt((Math.Pow(owned_units.Count(), 2)) - ((lanchester_result.OwnedArmy_CombatEffectiveness / lanchester_result.EnemyArmy_CombatEffectiveness) * Math.Pow(enemy_units.Count(), 2))));
 
-                    
+                            //Apply the Targeting Policy to get the likelihood of units who will survive
+                            RandomBasedTargetPolicy(ref owned_units, enemy_units);
 
+                            //Get the surviving units and create the battle result
+                            var surviving_units = owned_units.Take(surviving_owned_units).ToArmy();
+                            battle_result = new Tuple<string, UnitWorth>(surviving_units.ToString(), surviving_units.GetValueOfArmy());
+                        }
+                        //Draw
+                        else if (cardinality == lanchester_result.OwnedArmy_RelativeEffectiveness)
+                            battle_result = new Tuple<string, UnitWorth>(String.Empty, default(UnitWorth));
+                        //Enemy Army wins
+                        else if (cardinality < lanchester_result.OwnedArmy_RelativeEffectiveness)
+                        {
+                            //Compute the estimated number of units survived
+                            var surviving_enemy_units = Convert.ToInt32(Math.Sqrt((Math.Pow(enemy_units.Count(), 2)) - ((lanchester_result.EnemyArmy_CombatEffectiveness / lanchester_result.OwnedArmy_CombatEffectiveness) * Math.Pow(owned_units.Count(), 2))));
 
+                            //Apply the Targeting Policy to get the likelihood of units who will survive
+                            RandomBasedTargetPolicy(ref enemy_units, owned_units);
+
+                            //Get the surviving units and create the battle result
+                            var surviving_units = enemy_units.Take(surviving_enemy_units).ToArmy();
+                            battle_result = new Tuple<string, UnitWorth>(surviving_units.ToString(), surviving_units.GetValueOfArmy().GetComplementOfValue());
+                        }
+                        break;
+                    case TargetPolicy.Priority:
+                        //Owned Army wins
+                        if (cardinality > lanchester_result.OwnedArmy_RelativeEffectiveness)
+                        {
+                            //Compute the estimated number of units survived
+                            var surviving_owned_units = Convert.ToInt32(Math.Sqrt((Math.Pow(owned_units.Count(), 2)) - ((lanchester_result.OwnedArmy_CombatEffectiveness / lanchester_result.EnemyArmy_CombatEffectiveness) * Math.Pow(enemy_units.Count(), 2))));
+
+                            //Apply the Targeting Policy to get the likelihood of units who will survive
+                            PriorityBasedTargetPolicy(ref owned_units, enemy_units);
+
+                            //Get the surviving units and create the battle result
+                            var surviving_units = owned_units.Take(surviving_owned_units).ToArmy();
+                            battle_result = new Tuple<string, UnitWorth>(surviving_units.ToString(), surviving_units.GetValueOfArmy());
+                        }
+                        //Draw
+                        else if (cardinality == lanchester_result.OwnedArmy_RelativeEffectiveness)
+                            battle_result = new Tuple<string, UnitWorth>(String.Empty, default(UnitWorth));
+                        //Enemy Army wins
+                        else if (cardinality < lanchester_result.OwnedArmy_RelativeEffectiveness)
+                        {
+                            //Compute the estimated number of units survived
+                            var surviving_enemy_units = Convert.ToInt32(Math.Sqrt((Math.Pow(enemy_units.Count(), 2)) - ((lanchester_result.EnemyArmy_CombatEffectiveness / lanchester_result.OwnedArmy_CombatEffectiveness) * Math.Pow(owned_units.Count(), 2))));
+
+                            //Apply the Targeting Policy to get the likelihood of units who will survive
+                            PriorityBasedTargetPolicy(ref enemy_units, owned_units);
+
+                            //Get the surviving units and create the battle result
+                            var surviving_units = enemy_units.Take(surviving_enemy_units).ToArmy();
+                            battle_result = new Tuple<string, UnitWorth>(surviving_units.ToString(), surviving_units.GetValueOfArmy().GetComplementOfValue());
+                        }
+                        break;
+                    case TargetPolicy.Resource:
+                        //Owned Army wins
+                        if (cardinality > lanchester_result.OwnedArmy_RelativeEffectiveness)
+                        {
+                            //Compute the estimated number of units survived
+                            var surviving_owned_units = Convert.ToInt32(Math.Sqrt((Math.Pow(owned_units.Count(), 2)) - ((lanchester_result.OwnedArmy_CombatEffectiveness / lanchester_result.EnemyArmy_CombatEffectiveness) * Math.Pow(enemy_units.Count(), 2))));
+
+                            //Apply the Targeting Policy to get the likelihood of units who will survive
+                            ResourceBasedTargetPolicy(ref owned_units, enemy_units);
+
+                            //Get the surviving units and create the battle result
+                            var surviving_units = owned_units.Take(surviving_owned_units).ToArmy();
+                            battle_result = new Tuple<string, UnitWorth>(surviving_units.ToString(), surviving_units.GetValueOfArmy());
+                        }
+                        //Draw
+                        else if (cardinality == lanchester_result.OwnedArmy_RelativeEffectiveness)
+                            battle_result = new Tuple<string, UnitWorth>(String.Empty, default(UnitWorth));
+                        //Enemy Army wins
+                        else if (cardinality < lanchester_result.OwnedArmy_RelativeEffectiveness)
+                        {
+                            //Compute the estimated number of units survived
+                            var surviving_enemy_units = Convert.ToInt32(Math.Sqrt((Math.Pow(enemy_units.Count(), 2)) - ((lanchester_result.EnemyArmy_CombatEffectiveness / lanchester_result.OwnedArmy_CombatEffectiveness) * Math.Pow(owned_units.Count(), 2))));
+
+                            //Apply the Targeting Policy to get the likelihood of units who will survive
+                            ResourceBasedTargetPolicy(ref enemy_units, owned_units);
+
+                            //Get the surviving units and create the battle result
+                            var surviving_units = enemy_units.Take(surviving_enemy_units).ToArmy();
+                            battle_result = new Tuple<string, UnitWorth>(surviving_units.ToString(), surviving_units.GetValueOfArmy().GetComplementOfValue());
+                        }
+                        break;
                 }
-
-                if(target_policy.HasFlag(TargetPolicy.Priority))
-                {
-
-                }
-
-                if(target_policy.HasFlag(TargetPolicy.Resource))
-                {
-
-                }
-
-                if (cardinality > owned_relative_effectiveness)
-                //Owned units win
-                {
-                    is_own_only = true;
-                    Console.WriteLine("A WINS!");
-                    
-
-                    for (int iterator = 0; owned.MoveNext(); iterator++)
-                    {
-                        if (iterator == 0)
-                            battle_result += owned.Current.ToString();
-                        else
-                            battle_result += ("," + owned.Current.ToString());
-                    }
-                }
-                else if (cardinality == owned_relative_effectiveness)
-                //The fight is draw
-                {
-                    is_own_only = null;
-                    Console.WriteLine("DRAW!");
-                }
-                else if (cardinality < owned_relative_effectiveness)
-                //Enemy units win
-                {
-                    is_own_only = false;
-                    Console.WriteLine("B WINS!");
-
-                    for (int iterator = 0; ene.MoveNext(); iterator++)
-                    {
-                        if (iterator == 0)
-                            battle_result += ene.Current.ToString();
-                        else
-                            battle_result += ("," + ene.Current.ToString());
-                    }
-                }
-                else
-                    throw new ArgumentException("What the hell is this value!");
-
-                //Apply target selection
             }
             catch(Exception ex)
             {
-                Console.WriteLine("Error in Model! Failed to predict battle using Lanchester algorithm...");
-                Trace.WriteLine($@"Error in Model! Micromanagement -> LanchesterBasedPrediction(): \n\t{ex.Message}");
-
-                battle_result = "";
+                Console.WriteLine($@"LanchesterBasedPrediction() -> {ex.Message}...");
+                battle_result = null;
             }
 
             return battle_result;
         }
 
         /// <summary>
-        /// 
+        /// A high-level abstraction of prediction algorithm. It gets a random potential damage
+        /// from the triangular distribution. Like the <see cref="LanchesterBasedPrediction(TargetPolicy)"/>, it
+        /// does not consider the decreasing energy of the unit.
         /// </summary>
         /// <param name="target_policy"></param>
         /// <returns></returns>
-        public string StaticBasedPrediction(TargetPolicy target_policy)
+        public Tuple<string, UnitWorth> StaticBasedPrediction(TargetPolicy target_policy)
         {
-            string battle_result = "";
+            Tuple<string, UnitWorth> battle_result = null;
 
             try
             {
-                //TODO
-                Console.WriteLine("2");
-                Console.WriteLine("2");
-                Console.WriteLine("2");
+                var owned_units = _owned_units.GetDeepCopy();
+                var enemy_units = _enemy_units.GetDeepCopy();
+
+                switch(target_policy)
+                {
+                    case TargetPolicy.Random:
+                        //Set the targets for each army
+                        RandomBasedTargetPolicy(ref owned_units, enemy_units);
+                        RandomBasedTargetPolicy(ref enemy_units, owned_units);
+
+                        break;
+                    case TargetPolicy.Priority:
+                        PriorityBasedTargetPolicy(ref owned_units, enemy_units);
+                        PriorityBasedTargetPolicy(ref enemy_units, owned_units);
+
+                        break;
+                    case TargetPolicy.Resource:
+                        ResourceBasedTargetPolicy(ref owned_units, enemy_units);
+                        ResourceBasedTargetPolicy(ref enemy_units, owned_units);
+
+                        break;
+                }
+
+                //Compute the time it takes to kill each other
+                var timetokill_enemyarmy = new StaticVariables(enemy_units, owned_units);
+                var timetokill_ownedarmy = new StaticVariables(owned_units, enemy_units);
+
+                //Get the starting health of army
+                var ownedarmy_totalhealth = owned_units.Sum(unit => unit.Current_Health);
+                var enemyarmy_totalhealth = enemy_units.Sum(unit => unit.Current_Health);
+
+                //While there is time to kill, keep attacking enemy army
+                for (var current_time = timetokill_enemyarmy.GlobalTimerToKill_FocusedArmy; current_time > 0; current_time--)
+                    enemyarmy_totalhealth -= owned_units.GetARandomDamage();
+
+                //While there is time to kill, keep attacking owned army
+                for (var current_time = timetokill_ownedarmy.GlobalTimerToKill_FocusedArmy; current_time > 0; current_time--)
+                    ownedarmy_totalhealth -= enemy_units.GetARandomDamage();
+
+                if (ownedarmy_totalhealth > enemyarmy_totalhealth)
+                {
+                    //Greedily perform knapsack problem
+                    var survived = new List<Unit>();
+                    var owned = owned_units.GetEnumerator();
+
+                    for (double health = 0; owned.MoveNext();)
+                    {
+                        if (health + owned.Current.Current_Health < ownedarmy_totalhealth)
+                        {
+                            health += owned.Current.Current_Health;
+                            survived.Add(owned.Current);
+                        }
+                    }
+
+                    var result = survived.ToArmy();
+                    battle_result = new Tuple<string, UnitWorth>(result.ToString(), result.GetValueOfArmy());
+                }
+                else if (ownedarmy_totalhealth == enemyarmy_totalhealth)
+                    battle_result = new Tuple<string, UnitWorth>(String.Empty, default(UnitWorth));
+                else if (ownedarmy_totalhealth < enemyarmy_totalhealth)
+                {
+                    var survived = new List<Unit>();
+                    var enemy = enemy_units.GetEnumerator();
+
+                    //Greedily perform again a knapsack
+                    for (double health = 0; enemy.MoveNext();)
+                    {
+                        if (health + enemy.Current.Current_Health < enemyarmy_totalhealth)
+                        {
+                            health += enemy.Current.Current_Health;
+                            survived.Add(enemy.Current);
+                        }
+                    }
+
+                    var result = survived.ToArmy();
+                    battle_result = new Tuple<string, UnitWorth>(result.ToString(), result.GetValueOfArmy());
+                }
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error in Model! Failed to predict battle using Static algorithm...");
-                Trace.WriteLine($@"Error in Model! Micromanagement -> StaticBasedPrediction(): \n\t{ex.Message}");
-
-                battle_result = "";
+                Console.WriteLine($@"StaticBasedPrediction() -> {ex.Message}...");
+                battle_result = null;
             }
 
             return battle_result;
         }
 
         /// <summary>
-        /// 
+        /// A high-level abstraction of prediction algorithm, but more detailed. Unlike <see cref="StaticBasedPrediction(TargetPolicy)"/>,
+        /// It considers the decreasing of energy of the unit and as well as the health of each unit
         /// </summary>
         /// <param name="target_policy"></param>
         /// <returns></returns>
-        public string DynamicBasedPrediction(TargetPolicy target_policy)
+        public Tuple<string, double> DynamicBasedPrediction(TargetPolicy target_policy)
         {
-            string battle_result = "";
+            Tuple<string, double> battle_result = null;
 
             try
             {
-                //TODO
-                Console.WriteLine("3");
-                Console.WriteLine("3");
-                Console.WriteLine("3");
+                var owned_units = _owned_units.GetDeepCopy();
+                var enemy_units = _enemy_units.GetDeepCopy();
+
+                
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error in Model! Failed to predict battle using Dynamic algorithm...");
-                Trace.WriteLine($@"Error in Model! Micromanagement -> DynamicBasedPrediction(): \n\t{ex.Message}");
-
-                battle_result = "";
+                Console.WriteLine($@"DynamicBasedPrediction() -> {ex.Message}...");
+                battle_result = null;
             }
 
             return battle_result;

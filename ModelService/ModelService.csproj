@@ -60,21 +60,23 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Definitions\Micromanagement.cs" />
-    <Compile Include="Definitions\Unit.cs" />
+    <Compile Include="Extensions\Army.cs" />
+    <Compile Include="Extensions\ICopyable.cs" />
+    <Compile Include="Extensions\IDefeatable.cs" />
+    <Compile Include="Extensions\IMessage.cs" />
+    <Compile Include="Extensions\Micromanagement.cs" />
+    <Compile Include="Extensions\Unit.cs" />
     <Compile Include="Macromanagement\Algorithm.cs" />
     <Compile Include="Macromanagement\Macromanagement.cs" />
     <Compile Include="Macromanagement\Policy.cs" />
     <Compile Include="Micromanagement\Algorithm.cs" />
     <Compile Include="Micromanagement\Micromanagement.cs" />
     <Compile Include="Micromanagement\Policy.cs" />
-    <Compile Include="Micromanagement\Types\CSVbasedArmy.cs" />
-    <Compile Include="Micromanagement\Types\CSVbasedUnit.cs" />
-    <Compile Include="Micromanagement\Types\GamebasedArmy.cs" />
-    <Compile Include="Micromanagement\Types\GamebasedUnit.cs" />
     <Compile Include="ModelRepositoryService.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\RepositoryService.cs" />
+    <Compile Include="Services\RService.cs" />
     <Compile Include="Types\Army.cs" />
     <Compile Include="Types\Coordinate.cs" />
     <Compile Include="Types\Player.cs" />

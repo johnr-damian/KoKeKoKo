@@ -48,4 +48,28 @@ namespace ModelService
             return _engine;
         }
     }
+
+    public static class REngineExtensions
+    {
+        /// <summary>
+        /// Returns the average of results of jaccard
+        /// </summary>
+        /// <param name="engine"></param>
+        /// <param name="data_source"></param>
+        /// <param name="data_result"></param>
+        /// <returns></returns>
+        public static double GetJaccardResult(this REngine engine, List<string> data_source, string data_result)
+        {
+            var results = new List<double>();
+
+            foreach(var source in data_source)
+            {
+                engine.Evaluate($@"simulation <- set({source})");
+                engine.Evaluate($@"actual <- set({data_result})");
+                results.Add(engine.Evaluate(@"set_similarity(simulation, actual, method=""Jaccard"")").AsNumeric().Single());
+            }
+
+            return results.Average();
+        }
+    }
 }

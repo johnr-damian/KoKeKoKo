@@ -134,7 +134,7 @@ namespace ModelService.Micromanagement
 #warning Wrong usage of percentages. We need to compute the survavibility based on worth, health, and distance
                 //70% for worth, 20% for health. Negative worth because less penalty if lower
                 var total_initial_value = ((-Unit.Values[array_focused_army[focused_iterator].Name].GetSummaryOfResource() * 70) + (array_focused_army[focused_iterator].Current_Health * .20));
-                weighted_focused_army.Add(array_focused_army[focused_iterator].Name, total_initial_value);
+                weighted_focused_army.Add(array_focused_army[focused_iterator].UniqueID, total_initial_value);
                 var minimum_distance = Double.MaxValue;
                 var targeted_enemy = -1;
 

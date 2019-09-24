@@ -385,18 +385,42 @@ namespace ModelService.Types
             double potential_air_damage = -1, potential_ground_damage = -1;
             double temporary_current_air_damage = unit.Current_Air_Damage, temporary_current_ground_damage = unit.Current_Ground_Damage;
 
-            switch(unit.Name)
+            switch (unit.Name)
             {
-                case "TERRAN_MARINE":
-                    //A skill that deals 100 damage
-                    if (unit.Current_Energy >= 200)
-                        potential_ground_damage += 100;
-                    //A skill that boosts damage
-                    if (unit.Current_Energy >= 300)
-                        temporary_current_ground_damage += (temporary_current_ground_damage * .03); //Adds a 3% boost damage to ground damage
+                case "TERRAN_MARINE": //stimpack considered
+                    potential_air_damage = temporary_current_air_damage + (0.50 * unit.Current_Air_Damage);
+                    potential_ground_damage = temporary_current_ground_damage + (0.50 * unit.Current_Ground_Damage);
+                    break;
+                case "TERRAN_MARAUDER": ///stimpack considered
+                    potential_air_damage = temporary_current_air_damage + (0.50 * unit.Current_Air_Damage);
+                    potential_ground_damage = temporary_current_ground_damage + (0.50 * unit.Current_Ground_Damage);
+                    break;
+                case "TERRAN_REAPER": //kd8 charge
+                    potential_ground_damage = temporary_current_ground_damage + 5;
+                    break;
+                case "TERRAN_GHOST": //nuke
+                    potential_air_damage = temporary_current_air_damage + 300;
+                    potential_ground_damage = temporary_current_ground_damage + 300;
+                    break;
+                //In case target is biological; very niche for terran matchups
+                //Nuke + ghost snipe considered
+                /*
+                if(unit.Current_Energy >= 50)
+                {
+                    potential_air_damage = temporary_current_air_damage + 300 + 170;
+                    potential_ground_damage = temporary_current_ground_damage + 300 + 170;
+                }
+                break;
+                */
+                case "TERRAN_CYCLONE": //lockon considered
+                    potential_air_damage = temporary_current_air_damage + 400;
+                    potential_ground_damage = temporary_current_ground_damage + 400;
+                    break;
+                case "TERRAN_BATTLECRUISER": //yamato cannon considered
+                    potential_air_damage = temporary_current_air_damage + 240;
+                    potential_ground_damage = temporary_current_ground_damage + 240;
                     break;
             }
-
             return new Tuple<double, double>(potential_air_damage, potential_ground_damage);
         }
 
@@ -415,19 +439,51 @@ namespace ModelService.Types
         /// </summary>
         /// <param name="unit"></param>
         /// <param name="skill_name"></param>
-        public static void UseSkillOrAbilities(this Unit unit, string skill_name)
+        public static void UseSkillOrAbilities(this Unit unit, string skill_name) //Only damage dealing/affecting skills considered
         {
             switch(unit.Name)
             {
                 case "TERRAN_MARINE":
-                    if (skill_name == "STIMPACK")
-                        unit.Activated_Skills.Add(skill_name, new UnitSkills(7, 10));
-                    //example of damage skill and uses energy
-                    else if(skill_name == "NUKE")
+                    if (skill_name == "EFFECT_STIM") //costs 10hp/sec 
+                        unit.Activated_Skills.Add(skill_name, new UnitSkills(11, 11));//Technically no cooldown but recasting refreshes duration (recasting after duration maximizes efficiency)
+                    break;
+                case "TERRAN_MARAUDER":
+                    if (skill_name == "EFFECT_STIM") //costs 20hp/sec 
+                        unit.Activated_Skills.Add(skill_name, new UnitSkills(11, 11)); //Technically no cooldown but recasting refreshes duration (recasting after duration maximizes efficiency)
+                    break;
+                case "TERRAN_REAPER":
+                    if (skill_name == "EFFECT_KD8CHARGE")
                     {
-                        unit.Target.Current_Health -= 1000;
-                        unit.Current_Energy -= 100;
-                        unit.Activated_Skills.Add(skill_name, new UnitSkills(1, 20));
+                        if (!Unit.Definitions[unit.Target.Name].IsFlying_Unit)
+                            unit.Target.Current_Health -= 5;
+                        unit.Activated_Skills.Add(skill_name, new UnitSkills(14, 0));
+                    }
+                    break;
+                case "TERRAN_GHOST":
+                    if (skill_name == "EFFECT_NUKECALLDOWN") //Needs to build a nuke first from Ghost academy
+                    {
+                        unit.Target.Current_Health -= 300;
+                        unit.Activated_Skills.Add(skill_name, new UnitSkills(14, 0));
+                    }
+                    else if (skill_name == "EFFECT_GHOSTSNIPE") //Target needs to be a biological unit and is also rarely used in TvT matchups
+                    {
+                        unit.Target.Current_Health -= 170;
+                        unit.Current_Energy -= 50;
+                        unit.Activated_Skills.Add(skill_name, new UnitSkills(1.43, 0)); //is a channeled spell but no cooldown; cooldown value here is channeling time; can't recast while channeling; channeling gets canceled when damaged
+                    }
+                    break;
+                case "TERRAN_CYCLONE":
+                    if (skill_name == "EFFECT_LOCKON")
+                    {
+                        unit.Target.Current_Health -= 400;
+                        unit.Activated_Skills.Add(skill_name, new UnitSkills(4.3, 14.3)); //Deals 400 damage over 14.3 seconds but has shorter cooldown; Note: cancelled if target goes out of range
+                    }
+                    break;
+                case "TERRAN_BATTLECRUISER":
+                    if (skill_name == "EFFECT_YAMATOGUN") //needs research from fusion core
+                    {
+                        unit.Target.Current_Health -= 240;
+                        unit.Activated_Skills.Add(skill_name, new UnitSkills(71, 2)); //Deals 240 damage over 2 seconds: really strong
                     }
                     break;
             }

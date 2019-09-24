@@ -46,7 +46,7 @@ namespace ModelService.Micromanagement
                         }
                         //Draw
                         else if (cardinality == lanchester_result.OwnedArmy_RelativeEffectiveness)
-                            battle_result = new Tuple<string, UnitWorth>(String.Empty, default(UnitWorth));
+                            battle_result = new Tuple<string, UnitWorth>(@"""""", default(UnitWorth));
                         //Enemy Army wins
                         else if (cardinality < lanchester_result.OwnedArmy_RelativeEffectiveness)
                         {
@@ -77,7 +77,7 @@ namespace ModelService.Micromanagement
                         }
                         //Draw
                         else if (cardinality == lanchester_result.OwnedArmy_RelativeEffectiveness)
-                            battle_result = new Tuple<string, UnitWorth>(String.Empty, default(UnitWorth));
+                            battle_result = new Tuple<string, UnitWorth>(@"""""", default(UnitWorth));
                         //Enemy Army wins
                         else if (cardinality < lanchester_result.OwnedArmy_RelativeEffectiveness)
                         {
@@ -108,7 +108,7 @@ namespace ModelService.Micromanagement
                         }
                         //Draw
                         else if (cardinality == lanchester_result.OwnedArmy_RelativeEffectiveness)
-                            battle_result = new Tuple<string, UnitWorth>(String.Empty, default(UnitWorth));
+                            battle_result = new Tuple<string, UnitWorth>(@"""""", default(UnitWorth));
                         //Enemy Army wins
                         else if (cardinality < lanchester_result.OwnedArmy_RelativeEffectiveness)
                         {
@@ -205,7 +205,7 @@ namespace ModelService.Micromanagement
                     battle_result = new Tuple<string, UnitWorth>(result.ToString(), result.GetValueOfArmy());
                 }
                 else if (ownedarmy_totalhealth == enemyarmy_totalhealth)
-                    battle_result = new Tuple<string, UnitWorth>(String.Empty, default(UnitWorth));
+                    battle_result = new Tuple<string, UnitWorth>(@"""""", default(UnitWorth));
                 else if (ownedarmy_totalhealth < enemyarmy_totalhealth)
                 {
                     var survived = new List<Unit>();
@@ -236,7 +236,8 @@ namespace ModelService.Micromanagement
 
         /// <summary>
         /// A high-level abstraction of prediction algorithm, but more detailed. Unlike <see cref="StaticBasedPrediction(TargetPolicy)"/>,
-        /// It considers the decreasing of energy of the unit and as well as the health of each unit
+        /// It considers the decreasing of energy of the unit and as well as the health of each unit. But at the cost of this,
+        /// it takes the longest to operate
         /// </summary>
         /// <param name="target_policy"></param>
         /// <returns></returns>
@@ -249,7 +250,34 @@ namespace ModelService.Micromanagement
                 var owned_units = _owned_units.GetDeepCopy();
                 var enemy_units = _enemy_units.GetDeepCopy();
 
-                
+                switch(target_policy)
+                {
+                    case TargetPolicy.Random:
+                        RandomBasedTargetPolicy(ref owned_units, enemy_units);
+                        RandomBasedTargetPolicy(ref enemy_units, owned_units);
+
+                        break;
+                    case TargetPolicy.Priority:
+                        PriorityBasedTargetPolicy(ref owned_units, enemy_units);
+                        PriorityBasedTargetPolicy(ref enemy_units, owned_units);
+
+                        break;
+                    case TargetPolicy.Resource:
+                        ResourceBasedTargetPolicy(ref owned_units, enemy_units);
+                        ResourceBasedTargetPolicy(ref enemy_units, owned_units);
+
+                        break;
+                }
+
+                //No Retargeting, infinite loop
+                //We need to update the target while taking note who survive
+                while(Army.CanStillKillEachOther(ref owned_units, ref enemy_units))
+                {
+                    foreach (var unit in owned_units)
+                        unit.AttackTarget();
+                    foreach (var unit in enemy_units)
+                        unit.AttackTarget();
+                }
             }
             catch (Exception ex)
             {

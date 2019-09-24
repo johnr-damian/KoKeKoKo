@@ -146,6 +146,7 @@ namespace ModelService.Types
     /// </summary>
     public partial class Unit
     {
+        private static Random _shoulduseskill;
         private static Timer Duration_Timer;
         private static Dictionary<int, UnitSkills> Duration_Logger;
         private static int Duration_Tracker;
@@ -251,6 +252,7 @@ namespace ModelService.Types
         /// </summary>
         static Unit()
         {
+            _shoulduseskill = new Random(DateTime.Now.Second);
             Duration_Timer = new Timer(DecrementSkillsDuration, new AutoResetEvent(false), 0, 1000);
             Duration_Logger = new Dictionary<int, UnitSkills>();
             Duration_Tracker = -1;
@@ -294,6 +296,12 @@ namespace ModelService.Types
 
             return current_skill_key;
         }
+
+        /// <summary>
+        /// Returns a random double 
+        /// </summary>
+        /// <returns></returns>
+        public static double GetARandomPercentage() => _shoulduseskill.NextDouble();
     }
 
     /// <summary>
@@ -391,7 +399,7 @@ namespace ModelService.Types
                     potential_air_damage = temporary_current_air_damage + (0.50 * unit.Current_Air_Damage);
                     potential_ground_damage = temporary_current_ground_damage + (0.50 * unit.Current_Ground_Damage);
                     break;
-                case "TERRAN_MARAUDER": ///stimpack considered
+                case "TERRAN_MARAUDER": //stimpack considered
                     potential_air_damage = temporary_current_air_damage + (0.50 * unit.Current_Air_Damage);
                     potential_ground_damage = temporary_current_ground_damage + (0.50 * unit.Current_Ground_Damage);
                     break;
@@ -489,19 +497,40 @@ namespace ModelService.Types
             }
         }
 
-        public static void DestroyTarget(this Unit unit)
-        {
-            
-        }
-
         /// <summary>
         /// Deals a constant damage to the opposing unit using
         /// <see cref="Unit.Current_Ground_Damage"/> or <see cref="Unit.Current_Air_Damage"/>
         /// </summary>
         /// <param name="unit"></param>
-        public static bool AttackTarget(this Unit unit, double damage_to_deal)
+        public static void AttackTarget(this Unit unit)
         {
-            throw new NotImplementedException();
+            if((!unit.IsOpposingDefeated) && (!unit.IsDefeated))
+            {
+                var current_percentage = Unit.GetARandomPercentage();
+
+                switch (unit.Name)
+                {
+                    case "TERRAN_MARINE":
+                        if (current_percentage < .20)
+                        {
+                            unit.Target.Current_Health -= unit.Current_Ground_Damage;
+                        }
+                        else if ((current_percentage < .40) && (current_percentage >= .20))
+                        {
+                            unit.UseSkillOrAbilities("EFFECT_STIM");
+                        }
+                        else if ((current_percentage < .60) && (current_percentage >= .40))
+                        {
+                            //Other stuff if there is, else normalize the percentages like
+                            //for this case, if terran_marine have two only to attack target then
+                            //make it 50 50
+                            unit.Target.Current_Health -= unit.Current_Ground_Damage;
+                        }
+                        else
+                            unit.Target.Current_Health -= unit.Current_Ground_Damage;
+                        break;
+                }
+            }
         }
     }
 }

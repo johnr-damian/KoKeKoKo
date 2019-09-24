@@ -71,12 +71,20 @@ namespace ModelService
                     //// threads.ForEach(thread => thread.Join());
                     // //Add macro threads
 
-                    battles[0].GetMicromanagementAccuracyReport(10);
-                    battles[1].GetMicromanagementAccuracyReport(10);
-                    battles[2].GetMicromanagementAccuracyReport(10);
-                    battles[3].GetMicromanagementAccuracyReport(10);
-                    battles[4].GetMicromanagementAccuracyReport(10);
+#if DEBUG
+                    var result = battles[1].GetMicromanagementAccuracyReport(10);
+                    Console.WriteLine($@"Lanchester - Random: {result[0] * 100}%");
+                    Console.WriteLine($@"Lanchester - Priority: {result[1] * 100}%");
+                    Console.WriteLine($@"Lanchester - Resource: {result[2] * 100}%");
+                    Console.WriteLine($@"Static - Random: {result[3] * 100}%");
+                    Console.WriteLine($@"Static - Priority: {result[4] * 100}%");
+                    Console.WriteLine($@"Static - Resource: {result[5] * 100}%");
+                    //Console.WriteLine($@"Dynamic - Random: {result[6] * 100}%");
+                    //Console.WriteLine($@"Dynamic - Priority: {result[7] * 100}%");
+                    //Console.WriteLine($@"Dynamic - Resource: {result[8] * 100}%");
+#else
 
+#endif
                     Console.WriteLine("Micromanagement Result: ");
                     Console.WriteLine("Macromanagement Result: ");
                     Console.ReadLine();

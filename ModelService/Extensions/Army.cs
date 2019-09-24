@@ -24,6 +24,38 @@ namespace ModelService.Types
         /// </summary>
         /// <returns></returns>
         public double GetARandomDamage() => (_damagegenerator.NextDouble() * ((Maximum_Damage - Minimum_Damage) + Minimum_Damage));
+
+        /// <summary>
+        /// If there is still a unit alive in both army
+        /// </summary>
+        /// <param name="owned_units"></param>
+        /// <param name="enemy_units"></param>
+        /// <returns></returns>
+        public static bool CanStillKillEachOther(ref Army owned_units, ref Army enemy_units)
+        {
+            bool is_owned_army_alive = false, is_enemy_army_alive = false;
+
+            //There is still a living unit in owned army
+            foreach (var own_unit in owned_units)
+            {
+                if (!own_unit.IsDefeated) //someone is still alive
+                {
+                    is_owned_army_alive = true;
+                    break;
+                }
+            }
+
+            foreach (var enemy_unit in enemy_units)
+            {
+                if (!enemy_unit.IsDefeated) //someone is still alive
+                {
+                    is_enemy_army_alive = true;
+                    break;
+                }
+            }
+
+            return (is_owned_army_alive && is_enemy_army_alive);
+        }
     }
 
     public static class ArmyExtensions
@@ -49,7 +81,5 @@ namespace ModelService.Types
             //Mean = ((2 * minimum) + maximum) / 3
             return (((2 * minimum_potential_army_damage) + maximum_potential_army_damage) / 3);
         }
-
-
     }
 }

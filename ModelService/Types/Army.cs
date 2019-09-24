@@ -1,15 +1,14 @@
-﻿using ModelService.Types;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace ModelService.Micromanagement
+namespace ModelService.Types
 {
     /// <summary>
     /// A collection of <see cref="Unit"/>
     /// </summary>
-    public class Army : IEnumerable<Unit>, ICopyable<Army>, IMessage
+    public partial class Army : IEnumerable<Unit>, ICopyable<Army>, IMessage
     {
         #region Private Fields
         /// <summary>

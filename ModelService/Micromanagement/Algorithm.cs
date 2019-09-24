@@ -141,9 +141,9 @@ namespace ModelService.Micromanagement
         /// </summary>
         /// <param name="target_policy"></param>
         /// <returns></returns>
-        public Tuple<string, double> StaticBasedPrediction(TargetPolicy target_policy)
+        public Tuple<string, UnitWorth> StaticBasedPrediction(TargetPolicy target_policy)
         {
-            Tuple<string, double> battle_result = null;
+            Tuple<string, UnitWorth> battle_result = null;
 
             try
             {
@@ -153,14 +153,76 @@ namespace ModelService.Micromanagement
                 switch(target_policy)
                 {
                     case TargetPolicy.Random:
+                        //Set the targets for each army
+                        RandomBasedTargetPolicy(ref owned_units, enemy_units);
+                        RandomBasedTargetPolicy(ref enemy_units, owned_units);
 
                         break;
                     case TargetPolicy.Priority:
+                        PriorityBasedTargetPolicy(ref owned_units, enemy_units);
+                        PriorityBasedTargetPolicy(ref enemy_units, owned_units);
 
                         break;
                     case TargetPolicy.Resource:
+                        ResourceBasedTargetPolicy(ref owned_units, enemy_units);
+                        ResourceBasedTargetPolicy(ref enemy_units, owned_units);
 
                         break;
+                }
+
+                //Compute the time it takes to kill each other
+                var timetokill_enemyarmy = new StaticVariables(enemy_units, owned_units);
+                var timetokill_ownedarmy = new StaticVariables(owned_units, enemy_units);
+
+                //Get the starting health of army
+                var ownedarmy_totalhealth = owned_units.Sum(unit => unit.Current_Health);
+                var enemyarmy_totalhealth = enemy_units.Sum(unit => unit.Current_Health);
+
+                //While there is time to kill, keep attacking enemy army
+                for (var current_time = timetokill_enemyarmy.GlobalTimerToKill_FocusedArmy; current_time > 0; current_time--)
+                    enemyarmy_totalhealth -= owned_units.GetARandomDamage();
+
+                //While there is time to kill, keep attacking owned army
+                for (var current_time = timetokill_ownedarmy.GlobalTimerToKill_FocusedArmy; current_time > 0; current_time--)
+                    ownedarmy_totalhealth -= enemy_units.GetARandomDamage();
+
+                if (ownedarmy_totalhealth > enemyarmy_totalhealth)
+                {
+                    //Greedily perform knapsack problem
+                    var survived = new List<Unit>();
+                    var owned = owned_units.GetEnumerator();
+
+                    for (double health = 0; owned.MoveNext();)
+                    {
+                        if (health + owned.Current.Current_Health < ownedarmy_totalhealth)
+                        {
+                            health += owned.Current.Current_Health;
+                            survived.Add(owned.Current);
+                        }
+                    }
+
+                    var result = survived.ToArmy();
+                    battle_result = new Tuple<string, UnitWorth>(result.ToString(), result.GetValueOfArmy());
+                }
+                else if (ownedarmy_totalhealth == enemyarmy_totalhealth)
+                    battle_result = new Tuple<string, UnitWorth>(String.Empty, default(UnitWorth));
+                else if (ownedarmy_totalhealth < enemyarmy_totalhealth)
+                {
+                    var survived = new List<Unit>();
+                    var enemy = enemy_units.GetEnumerator();
+
+                    //Greedily perform again a knapsack
+                    for (double health = 0; enemy.MoveNext();)
+                    {
+                        if (health + enemy.Current.Current_Health < enemyarmy_totalhealth)
+                        {
+                            health += enemy.Current.Current_Health;
+                            survived.Add(enemy.Current);
+                        }
+                    }
+
+                    var result = survived.ToArmy();
+                    battle_result = new Tuple<string, UnitWorth>(result.ToString(), result.GetValueOfArmy());
                 }
             }
             catch (Exception ex)

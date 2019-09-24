@@ -8,7 +8,7 @@ using ModelService.Types;
 namespace ModelService.Micromanagement
 {
     /// <summary>
-    /// 
+    /// Variables for lanchester algorithm
     /// </summary>
     public struct LanchesterVariables
     {
@@ -112,6 +112,65 @@ namespace ModelService.Micromanagement
             //Compute the relative effectiveness of eenmy army
             //known as Rb = Sqrt(beta / alpha)
             EnemyArmy_RelativeEffectiveness = Math.Sqrt(EnemyArmy_CombatEffectiveness / OwnedArmy_CombatEffectiveness);
+        }
+    }
+
+    /// <summary>
+    /// Variables for static based algorithm
+    /// </summary>
+    public struct StaticVariables
+    {
+        /// <summary>
+        /// The time it takes to kill the focused army
+        /// </summary>
+        /// <remarks>
+        /// Math.Max(<see cref="TimeToKill_AirUnits"/>, <see cref="TimeToKill_GroundUnits"/>)
+        /// </remarks>
+        public double GlobalTimerToKill_FocusedArmy { get; set; }
+
+        /// <summary>
+        /// The time it takes to kill the air units of focused army
+        /// </summary>
+        /// <remarks>
+        /// Tair(A, B) = HPair(A) / (DPFair(B) + DPFboth(B))
+        /// </remarks>
+        public double TimeToKill_AirUnits { get; set; }
+
+        /// <summary>
+        /// The time it takes to kill the ground units of focused army
+        /// </summary>
+        /// <remarks>
+        /// Tground(A, B) = HPground(A) / (DPFground(B) + DPFboth(B))
+        /// </remarks>
+        public double TimeToKill_GroundUnits { get; set; }
+
+        /// <summary>
+        /// The basic variables for Static based algorithm
+        /// </summary>
+        /// <param name="focused_army"></param>
+        /// <param name="opposed_army"></param>
+        public StaticVariables(Army focused_army, Army opposed_army)
+        {
+            //Compute the sum of health of air units
+            var focusedarmy_air_totalhealth = focused_army.Where(unit => Unit.Definitions[unit.Name].IsFlying_Unit).Sum(unit => unit.Current_Health);
+
+            //Compute the sum of health of ground units
+            var focusedarmy_ground_totalhealth = focused_army.Where(unit => !Unit.Definitions[unit.Name].IsFlying_Unit).Sum(unit => unit.Current_Health);
+
+            //Compute the potential damage of enemyarmy to air units
+            var opposedarmy_air_meandamage = opposed_army.GetLanchesterMeanTriangularAirDamage();
+
+            //Compute the potential damage of enemyarmy to ground units
+            var opposedarmy_ground_meandamage = opposed_army.GetLanchesterMeanTriangularGroundDamage();
+
+            //Compute the time to kill air units of focused army
+            TimeToKill_AirUnits = (focusedarmy_air_totalhealth / (opposedarmy_air_meandamage + (opposedarmy_air_meandamage + opposedarmy_ground_meandamage)));
+
+            //Compute the time to kill ground units of focused army
+            TimeToKill_GroundUnits = (focusedarmy_ground_totalhealth / (opposedarmy_ground_meandamage + (opposedarmy_air_meandamage + opposedarmy_ground_meandamage)));
+
+            //Get the global timer to kill the opposing army
+            GlobalTimerToKill_FocusedArmy = Math.Max(TimeToKill_AirUnits, TimeToKill_GroundUnits);
         }
     }
 }

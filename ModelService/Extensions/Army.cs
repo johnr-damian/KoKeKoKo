@@ -8,6 +8,24 @@ using System.Threading.Tasks;
 
 namespace ModelService.Types
 {
+    public partial class Army
+    {
+        private static Random _damagegenerator;
+        private double Minimum_Damage { get; set; } = default(double);
+        private double Maximum_Damage { get; set; } = default(double);
+
+        static Army()
+        {
+            _damagegenerator = new Random();
+        }
+
+        /// <summary>
+        /// Returns a random damage between the potential minimum damage of army and maximum potential damage of army
+        /// </summary>
+        /// <returns></returns>
+        public double GetARandomDamage() => (_damagegenerator.NextDouble() * ((Maximum_Damage - Minimum_Damage) + Minimum_Damage));
+    }
+
     public static class ArmyExtensions
     {
         public static Army ToArmy(this IEnumerable<Unit> units) => new Army(units);
@@ -31,5 +49,7 @@ namespace ModelService.Types
             //Mean = ((2 * minimum) + maximum) / 3
             return (((2 * minimum_potential_army_damage) + maximum_potential_army_damage) / 3);
         }
+
+
     }
 }

@@ -172,7 +172,7 @@ namespace ModelService.Types
             ["TERRAN_THORAP"] = new UnitDefinitions(400, 0, 65.9, 23.4, 1, false),
             ["TERRAN_AUTOTURRET"] = new UnitDefinitions(150, 0, 31.58, 31.58, 1, false),
             //Air Units
-            ["TERRAN_VIKINGASSAULT"] = new UnitDefinitions(135, 0, 16.8, 0, 0, true),
+            ["TERRAN_VIKINGASSAULT"] = new UnitDefinitions(135, 0, 16.8, 0, 0, false),
             ["TERRAN_VIKINGFIGHTER"] = new UnitDefinitions(135, 0, 0, 14, 0, true),
             ["TERRAN_MEDIVAC"] = new UnitDefinitions(150, 200, 0, 0, 1, true), //50/200
             ["TERRAN_LIBERATORAG"] = new UnitDefinitions(180, 0, 65.8, 0, 0, true),
@@ -434,12 +434,74 @@ namespace ModelService.Types
 
         public static double GetMaximumPotentialAirDamage(this Unit unit)
         {
-            return 0;
+            double potential_air_damage = -1;
+            double temporary_current_air_damage = unit.Current_Air_Damage;
+
+            switch (unit.Name)
+            {
+                case "TERRAN_MARINE": //stimpack considered
+                    potential_air_damage = temporary_current_air_damage + (0.50 * unit.Current_Air_Damage);
+                    break;
+                case "TERRAN_GHOST": //nuke
+                    potential_air_damage = temporary_current_air_damage + 300;
+                    break;
+                //In case target is biological; very niche for terran matchups
+                //Nuke + ghost snipe considered
+                /*
+                if(unit.Current_Energy >= 50)
+                {
+                    potential_air_damage = temporary_current_air_damage + 300 + 170;
+                    potential_ground_damage = temporary_current_ground_damage + 300 + 170;
+                }
+                break;
+                */
+                case "TERRAN_CYCLONE": //lockon considered
+                    potential_air_damage = temporary_current_air_damage + 400;
+                    break;
+                case "TERRAN_BATTLECRUISER": //yamato cannon considered
+                    potential_air_damage = temporary_current_air_damage + 240;
+                    break;
+            }
+            return potential_air_damage;
         }
 
         public static double GetMaximumPotentialGroundDamage(this Unit unit)
         {
-            return 0;
+            double potential_ground_damage = -1;
+            double temporary_current_ground_damage = unit.Current_Ground_Damage;
+
+            switch (unit.Name)
+            {
+                case "TERRAN_MARINE": //stimpack considered
+                    potential_ground_damage = temporary_current_ground_damage + (0.50 * unit.Current_Ground_Damage);
+                    break;
+                case "TERRAN_MARAUDER": //stimpack considered
+                    potential_ground_damage = temporary_current_ground_damage + (0.50 * unit.Current_Ground_Damage);
+                    break;
+                case "TERRAN_REAPER": //kd8 charge
+                    potential_ground_damage = temporary_current_ground_damage + 5;
+                    break;
+                case "TERRAN_GHOST": //nuke
+                    potential_ground_damage = temporary_current_ground_damage + 300;
+                    break;
+                //In case target is biological; very niche for terran matchups
+                //Nuke + ghost snipe considered
+                /*
+                if(unit.Current_Energy >= 50)
+                {
+                    potential_air_damage = temporary_current_air_damage + 300 + 170;
+                    potential_ground_damage = temporary_current_ground_damage + 300 + 170;
+                }
+                break;
+                */
+                case "TERRAN_CYCLONE": //lockon considered
+                    potential_ground_damage = temporary_current_ground_damage + 400;
+                    break;
+                case "TERRAN_BATTLECRUISER": //yamato cannon considered
+                    potential_ground_damage = temporary_current_ground_damage + 240;
+                    break;
+            }
+            return  potential_ground_damage;
         }
 
         /// <summary>
@@ -453,11 +515,18 @@ namespace ModelService.Types
             {
                 case "TERRAN_MARINE":
                     if (skill_name == "EFFECT_STIM") //costs 10hp/sec 
+                    {
+                        unit.Current_Ground_Damage = unit.Current_Ground_Damage + (unit.Current_Ground_Damage * 50);
+                        unit.Current_Air_Damage = unit.Current_Air_Damage + (unit.Current_Air_Damage * .50);
                         unit.Activated_Skills.Add(skill_name, new UnitSkills(11, 11));//Technically no cooldown but recasting refreshes duration (recasting after duration maximizes efficiency)
+                    }
                     break;
                 case "TERRAN_MARAUDER":
                     if (skill_name == "EFFECT_STIM") //costs 20hp/sec 
+                    {
+                        unit.Current_Ground_Damage = unit.Current_Ground_Damage + (unit.Current_Ground_Damage * 50);
                         unit.Activated_Skills.Add(skill_name, new UnitSkills(11, 11)); //Technically no cooldown but recasting refreshes duration (recasting after duration maximizes efficiency)
+                    }
                     break;
                 case "TERRAN_REAPER":
                     if (skill_name == "EFFECT_KD8CHARGE")
@@ -502,33 +571,150 @@ namespace ModelService.Types
         /// <see cref="Unit.Current_Ground_Damage"/> or <see cref="Unit.Current_Air_Damage"/>
         /// </summary>
         /// <param name="unit"></param>
-        public static void AttackTarget(this Unit unit)
+        public static void AttackTarget(this Unit unit) //Added the transformed version of units as separate cases
         {
             if((!unit.IsOpposingDefeated) && (!unit.IsDefeated))
             {
                 var current_percentage = Unit.GetARandomPercentage();
-
-                switch (unit.Name)
+                //Some units not added but are commented with the reason why they are ommited
+                switch (unit.Name) //For units with auto attack only the current percentage will not be used
                 {
+                    //Barracks Units
                     case "TERRAN_MARINE":
-                        if (current_percentage < .20)
+                        if (current_percentage <= .50)
                         {
-                            unit.Target.Current_Health -= unit.Current_Ground_Damage;
-                        }
-                        else if ((current_percentage < .40) && (current_percentage >= .20))
-                        {
-                            unit.UseSkillOrAbilities("EFFECT_STIM");
-                        }
-                        else if ((current_percentage < .60) && (current_percentage >= .40))
-                        {
-                            //Other stuff if there is, else normalize the percentages like
-                            //for this case, if terran_marine have two only to attack target then
-                            //make it 50 50
-                            unit.Target.Current_Health -= unit.Current_Ground_Damage;
+                            if (!Unit.Definitions[unit.Target.Name].IsFlying_Unit)
+                                unit.Target.Current_Health -= unit.Current_Ground_Damage;
+                            else
+                                unit.Target.Current_Health -= unit.Current_Air_Damage;
                         }
                         else
+                            unit.UseSkillOrAbilities("EFFECT_STIM");
+                        break;
+                    case "TERRAN_MARAUDER":
+                        if (current_percentage <= .50)
+                        {
+                            if (!Unit.Definitions[unit.Target.Name].IsFlying_Unit)
+                                unit.Target.Current_Health -= unit.Current_Ground_Damage;
+                        }
+                        else
+                            unit.UseSkillOrAbilities("EFFECT_STIM");
+                        break;
+                    case "TERRAN_REAPER":
+                        if (current_percentage <= .50)
+                        {
+                            if (!Unit.Definitions[unit.Target.Name].IsFlying_Unit)
+                                unit.Target.Current_Health -= unit.Current_Ground_Damage;
+                        }
+                        else
+                            unit.UseSkillOrAbilities("EFFECT_KD8CHARGE");
+                        break;
+                    case "TERRAM_GHOST":
+                        if (current_percentage <= .33)
+                        {
+                            if (!Unit.Definitions[unit.Target.Name].IsFlying_Unit)
+                                unit.Target.Current_Health -= unit.Current_Ground_Damage;
+                            else
+                                unit.Target.Current_Health -= unit.Current_Air_Damage;
+                        }
+                        else if (current_percentage >= .34 && current_percentage <= .66)
+                            unit.UseSkillOrAbilities("EFFECT_NUKECALLDOWN");
+                        else
+                            unit.UseSkillOrAbilities("EFFECT_GHOSTSNIPE");
+                        break;
+                    //Factory units
+                    case "TERRAN_HELLION":
+                        if (!Unit.Definitions[unit.Target.Name].IsFlying_Unit)
                             unit.Target.Current_Health -= unit.Current_Ground_Damage;
                         break;
+                    case "TERRAN_HELLIONTANK":
+                        if (!Unit.Definitions[unit.Target.Name].IsFlying_Unit)
+                            unit.Target.Current_Health -= unit.Current_Ground_Damage;
+                        break;
+                    case "TERRAN_SIEGETANK":
+                        if (!Unit.Definitions[unit.Target.Name].IsFlying_Unit)
+                            unit.Target.Current_Health -= unit.Current_Ground_Damage;
+                        break;
+                    case "TERRAN_SIEGETANKSIEGED":
+                        if (!Unit.Definitions[unit.Target.Name].IsFlying_Unit)
+                            unit.Target.Current_Health -= unit.Current_Ground_Damage;
+                        break;
+                    case "TERRAN_CYCLONE":
+                        if (current_percentage <= .50)
+                        {
+                            if (!Unit.Definitions[unit.Target.Name].IsFlying_Unit)
+                                unit.Target.Current_Health -= unit.Current_Ground_Damage;
+                            else
+                                unit.Target.Current_Health -= unit.Current_Air_Damage;
+                        }
+                        else
+                            unit.UseSkillOrAbilities("EFFECT_LOCKON");
+                        break;
+                    case "TERRAN_WIDOWMINE":
+                        if (!Unit.Definitions[unit.Target.Name].IsFlying_Unit)
+                            unit.Target.Current_Health -= unit.Current_Ground_Damage;
+                        else
+                            unit.Target.Current_Health -= unit.Current_Air_Damage;
+                        break;
+                    case "TERRAN_WIDOWMINEBURROWED":
+                        if (!Unit.Definitions[unit.Target.Name].IsFlying_Unit)
+                            unit.Target.Current_Health -= unit.Current_Ground_Damage;
+                        else
+                            unit.Target.Current_Health -= unit.Current_Air_Damage;
+                        break;
+                    case "TERRAN_THOR":
+                        if (!Unit.Definitions[unit.Target.Name].IsFlying_Unit)
+                            unit.Target.Current_Health -= unit.Current_Ground_Damage;
+                        else
+                            unit.Target.Current_Health -= unit.Current_Air_Damage;
+                        break;
+                    case "TERRAN_THORAP":
+                        if (!Unit.Definitions[unit.Target.Name].IsFlying_Unit)
+                            unit.Target.Current_Health -= unit.Current_Ground_Damage;
+                        else
+                            unit.Target.Current_Health -= unit.Current_Air_Damage;
+                        break;
+                    //Starport Units
+                    case "TERRAN_VIKINGFIGHTER":
+                        if (Unit.Definitions[unit.Target.Name].IsFlying_Unit)
+                            unit.Target.Current_Health -= unit.Current_Air_Damage;
+                        break;
+                    case "TERRAN_VIKINGASSAULT":
+                        if (!Unit.Definitions[unit.Target.Name].IsFlying_Unit)
+                            unit.Target.Current_Health -= unit.Current_Ground_Damage;
+                        break;
+                    //case "TERAN_MEDIVAC" does not deal damage currently ommited heal property not yet considered and energy requiremens for healing
+                    case "TERRAN_LIBERATOR":
+                        if (Unit.Definitions[unit.Target.Name].IsFlying_Unit)
+                            unit.Target.Current_Health -= unit.Current_Air_Damage;
+                        break;
+                    case "TERRAN_LIBERATORAG":
+                        if (!Unit.Definitions[unit.Target.Name].IsFlying_Unit)
+                            unit.Target.Current_Health -= unit.Current_Ground_Damage;
+                        break;
+                    //case "TERRAN_RAVEN" doesn't deal damage directly summons an auto turret for damage and other skills are for utility
+                    case "TERRAN_AUTOTURRET":
+                        if (!Unit.Definitions[unit.Target.Name].IsFlying_Unit)
+                            unit.Target.Current_Health -= unit.Current_Ground_Damage;
+                        else
+                            unit.Target.Current_Health -= unit.Current_Air_Damage;
+                        break;
+                    case "TERRAN_BANSHEE":
+                        if (!Unit.Definitions[unit.Target.Name].IsFlying_Unit)
+                            unit.Target.Current_Health -= unit.Current_Ground_Damage;
+                        break;
+                    case "TERRAN_BATTLECRUISER":
+                        if (current_percentage <= .50)
+                        {
+                            if (!Unit.Definitions[unit.Target.Name].IsFlying_Unit)
+                                unit.Target.Current_Health -= unit.Current_Ground_Damage;
+                            else
+                                unit.Target.Current_Health -= unit.Current_Air_Damage;
+                        }
+                        else
+                            unit.UseSkillOrAbilities("EFFECT_YAMATOGUN");
+                        break;
+                    
                 }
             }
         }

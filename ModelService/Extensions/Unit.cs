@@ -381,57 +381,6 @@ namespace ModelService.Types
             return (Unit.Definitions[unit.Target.Name].IsFlying_Unit ? Actual_Air_Damage : Actual_Ground_Damage);
         }
 
-        /// <summary>
-        /// The Potential maximum damage is the upper limit for triangular distribution. It is the 
-        /// sum of current damage (meaning there is probability there is buff) + possible actions that
-        /// can deal additional damage to enemy
-        /// </summary>
-        /// <param name="unit"></param>
-        /// <returns></returns>
-        public static Tuple<double, double> GetPotentialUnitDamage(this Unit unit)
-        {
-            double potential_air_damage = -1, potential_ground_damage = -1;
-            double temporary_current_air_damage = unit.Current_Air_Damage, temporary_current_ground_damage = unit.Current_Ground_Damage;
-
-            switch (unit.Name)
-            {
-                case "TERRAN_MARINE": //stimpack considered
-                    potential_air_damage = temporary_current_air_damage + (0.50 * unit.Current_Air_Damage);
-                    potential_ground_damage = temporary_current_ground_damage + (0.50 * unit.Current_Ground_Damage);
-                    break;
-                case "TERRAN_MARAUDER": //stimpack considered
-                    potential_air_damage = temporary_current_air_damage + (0.50 * unit.Current_Air_Damage);
-                    potential_ground_damage = temporary_current_ground_damage + (0.50 * unit.Current_Ground_Damage);
-                    break;
-                case "TERRAN_REAPER": //kd8 charge
-                    potential_ground_damage = temporary_current_ground_damage + 5;
-                    break;
-                case "TERRAN_GHOST": //nuke
-                    potential_air_damage = temporary_current_air_damage + 300;
-                    potential_ground_damage = temporary_current_ground_damage + 300;
-                    break;
-                //In case target is biological; very niche for terran matchups
-                //Nuke + ghost snipe considered
-                /*
-                if(unit.Current_Energy >= 50)
-                {
-                    potential_air_damage = temporary_current_air_damage + 300 + 170;
-                    potential_ground_damage = temporary_current_ground_damage + 300 + 170;
-                }
-                break;
-                */
-                case "TERRAN_CYCLONE": //lockon considered
-                    potential_air_damage = temporary_current_air_damage + 400;
-                    potential_ground_damage = temporary_current_ground_damage + 400;
-                    break;
-                case "TERRAN_BATTLECRUISER": //yamato cannon considered
-                    potential_air_damage = temporary_current_air_damage + 240;
-                    potential_ground_damage = temporary_current_ground_damage + 240;
-                    break;
-            }
-            return new Tuple<double, double>(potential_air_damage, potential_ground_damage);
-        }
-
         public static double GetMaximumPotentialAirDamage(this Unit unit)
         {
             double potential_air_damage = -1;
@@ -713,8 +662,7 @@ namespace ModelService.Types
                         }
                         else
                             unit.UseSkillOrAbilities("EFFECT_YAMATOGUN");
-                        break;
-                    
+                        break;                    
                 }
             }
         }

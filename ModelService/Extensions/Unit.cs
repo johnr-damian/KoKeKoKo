@@ -70,22 +70,22 @@ namespace ModelService.Types
         /// <summary>
         /// The priority of this unit to be destroyed
         /// </summary>
-        public int Priority { get; set; }
+        public double Priority { get; set; }
 
         /// <summary>
         /// The mineral cost of creating this unit
         /// </summary>
-        public int Mineral { get; set; }
+        public double Mineral { get; set; }
 
         /// <summary>
         /// The vespene cost of creating this unit
         /// </summary>
-        public int Vespene { get; set; }
+        public double Vespene { get; set; }
 
         /// <summary>
         /// The supply cost of this unit
         /// </summary>
-        public int Supply { get; set; }
+        public double Supply { get; set; }
 
         /// <summary>
         /// The basic worth of a unit
@@ -94,7 +94,7 @@ namespace ModelService.Types
         /// <param name="mineral"></param>
         /// <param name="vespene"></param>
         /// <param name="supply"></param>
-        public UnitWorth(int priority, int mineral, int vespene, int supply)
+        public UnitWorth(double priority, double mineral, double vespene, double supply)
         {
             Priority = priority;
             Mineral = mineral;

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ModelService.Types
 {
-    public partial class Player
+    public partial class Player : ICopyable<Player>, IMessage, IDefeatable
     {
         private double total_supply;
 
@@ -37,5 +37,23 @@ namespace ModelService.Types
 
         public Army Current_army { get; set; }
 
+        public bool IsDefeated => throw new NotImplementedException();
+
+        public bool IsOpposingDefeated => throw new NotImplementedException();
+
+        public string CreateMessage()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Player GetDeepCopy()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Player GetShallowCopy()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

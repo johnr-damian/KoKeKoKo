@@ -83,6 +83,7 @@
     <Compile Include="Types\Coordinate.cs" />
     <Compile Include="Types\Node.cs" />
     <Compile Include="Types\Player.cs" />
+    <Compile Include="Types\Tree.cs" />
     <Compile Include="Types\Unit.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -1,128 +1,89 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace ModelService.Types
 {
     /// <summary>
-    /// Holds the current observation on the player
+    /// Holds the current observation and simulated future based on observation
     /// </summary>
-    public class Node
+    public abstract class Node
     {
         /// <summary>
-        /// Stores the information related to the agent. This includes the
-        /// action chosen by the algorithm
+        /// The times of this node has been simulated
         /// </summary>
-        public Player Agent { get; set; } = default(Player);
+        private int Simulated_Runs { get; set; } = default(int);
 
         /// <summary>
-        /// Stores the information related to the enemy. This includes the
-        /// action chosen by the algorithm
+        /// The times of this node's <see cref="Player"/> has won
         /// </summary>
-        public Player Enemy { get; set; } = default(Player);
+        private int Simulated_Wins { get; set; } = default(int);
+
+        /// <summary>
+        /// The possible actions that can be simulated
+        /// </summary>
+        private Queue<string> Possible_Actions { get; set; } = default(Queue<string>);
+
+        /// <summary>
+        /// Stores the information related to the AI agent
+        /// </summary>
+        public Agent Player { get; private set; } = default(Agent);
+
+        /// <summary>
+        /// Stores the information related to the enemy agent
+        /// </summary>
+        public Agent Enemy { get; private set; } = default(Agent);
 
         /// <summary>
         /// The parent node of this node
         /// </summary>
-        public Node Parent { get; protected set; } = default(Node);
+        public Node Parent { get; private set; } = default(Node);
 
         /// <summary>
         /// The children of this node
         /// </summary>
-        public List<Node> Children { get; protected set; } = default(List<Node>);
+        public List<Node> Children { get; private set; } = default(List<Node>);
 
         /// <summary>
-        /// The chosen child using <see cref="Select"/>
+        /// The current node selected by the highest simulated value
         /// </summary>
-        public Node Chosen_Node { get; protected set; } = default(Node);
+        public Node Chosen_Child { get; private set; } = default(Node);
 
         /// <summary>
-        /// The worth of this node
-        /// </summary>
-        private double Current_Value { get; set; } = default(double);
-
-        /// <summary>
-        /// The number of runs this node had performed
-        /// </summary>
-        private double Runs { get; set; } = default(double);
-
-        /// <summary>
-        /// Checks if there are children of this node. Returns true if it
-        /// has children, else if it does not have
+        /// Checks if there are children for this node
         /// </summary>
         public bool IsExpanded
         {
             get { return (Children.Count != 0); }
         }
 
-        public string Chosen_Action { get; protected set; } = default(string);
-
-        public Node(Node parent, Player agent, Player enemy)
+        /// <summary>
+        /// Stores the simulated information of both <see cref="Agent"/>
+        /// </summary>
+        /// <param name="parent"></param>
+        /// <param name="player"></param>
+        /// <param name="enemy"></param>
+        /// <param name="possible_actions"></param>
+        public Node(Node parent, Agent player, Agent enemy, params string[] possible_actions)
         {
             Parent = parent;
-            Agent = agent;
+            Player = player;
             Enemy = enemy;
+            Children = new List<Node>();
+            Chosen_Child = null;
+            Possible_Actions = new Queue<string>(possible_actions);
         }
 
-        public Node(Node parent, Player agent, Player enemy, string action)
-        : this(parent, agent, enemy)
-        {
-            Chosen_Action = action;
-        }
+        public abstract Node Select();
+
+        protected abstract void Expand();
+
+        protected abstract void Simulate();
+
+        protected abstract void Backpropagate();
 
         /// <summary>
-        /// Selects a node based on the policy
-        /// </summary>
-        public void Select()
-        {
-            Node chosen = null;
-            double highest_value = Double.MinValue;
-
-            foreach(var node in Children)
-            {
-                var temp_highest_value = node.GetValueOfNode();
-                if(temp_highest_value > highest_value)
-                {
-                    highest_value = temp_highest_value;
-                    chosen = node;
-                }
-            }
-
-            Chosen_Node = chosen;
-        }
-
-        /// <summary>
-        /// Based on the available actions of player.
-        /// Create a node using that action
-        /// </summary>
-        public void Expand()
-        {
-            var possible_actions = Agent.Available_Actions.Split(',');
-            foreach (var action in possible_actions)
-                Children.Add(new Node(this, Agent.GetDeepCopy(), Enemy.GetDeepCopy(), action));
-        }
-
-        public void Simulation()
-        {
-            //Do stuff
-            Current_Value = new Random().Next();
-        }
-
-        /// <summary>
-        /// Keep backpropagating until root
-        /// </summary>
-        private void Backpropagate()
-        {
-            Runs++;
-            Parent?.Backpropagate();
-        }
-
-        /// <summary>
-        /// The UCT value of this node
+        /// Returns the chosen action by calling <see cref="Agent.CreateMessage"/>
         /// </summary>
         /// <returns></returns>
-        private double GetValueOfNode() => ((Current_Value / Runs) + (Math.Sqrt((2 * Math.Log(Parent.Runs)) / Runs)));
+        public override string ToString() => Chosen_Child.Player.CreateMessage();
     }
 }

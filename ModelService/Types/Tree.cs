@@ -1,39 +1,31 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ModelService.Types
 {
     public abstract class Tree
     {
-        public Node Current_Node { get; protected set; } = default(Node);
+        private string _raw_information = default(string);
 
-        public List<string> Action_Log { get; set; } = default(List<string>);
+        private bool _shouldkeeprunning = default(bool);
 
-        public Tree(Player Agent, Player Enemy)
+        private Node Failsafe_Node = default(Node);
+
+        private Node Current_Node = default(Node);
+
+        public Tree(string raw_information)
         {
-            Current_Node = new Node(null, Agent, Enemy);
-            Action_Log = new List<string>();
+            _raw_information = raw_information;
+            _shouldkeeprunning = true;
         }
 
-        public void BuildTree()
-        {
-            var countdown = DateTime.Now;
-
-            //While not 30 seconds have passed
-            while(countdown.Subtract(DateTime.Now).TotalSeconds >= 30)
-            {
-                //Not expanded
-                if(!Current_Node.IsExpanded)
-                {
-                    Current_Node.Expand();
-                }
-
-                Current_Node.Select(); //??
-            }
-
-        }
+        /// <summary>
+        /// Builds the tree and continuously sends a node for action
+        /// </summary>
+        /// <remarks>
+        /// Equivalent to BuildTree function
+        /// </remarks>
+        /// <returns></returns>
+        public abstract IEnumerable<string> GenerateAction();
     }
 }

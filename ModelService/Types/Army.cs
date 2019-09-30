@@ -135,14 +135,14 @@ namespace ModelService.Types
         /// Returns the total worth of this army
         /// </summary>
         /// <returns></returns>
-        public UnitWorth GetValueOfArmy()
+        public CostWorth GetValueOfArmy()
         {
             var priority_worth = _units.Sum(unit => Unit.Values[unit.Name].Priority);
             var mineral_worth = _units.Sum(unit => Unit.Values[unit.Name].Mineral);
             var vespene_worth = _units.Sum(unit => Unit.Values[unit.Name].Vespene);
             var supply_worth = _units.Sum(unit => Unit.Values[unit.Name].Supply);
 
-            return new UnitWorth(priority_worth, mineral_worth, vespene_worth, supply_worth);
+            return new CostWorth(priority_worth, mineral_worth, vespene_worth, supply_worth);
         }
 
         /// <summary>

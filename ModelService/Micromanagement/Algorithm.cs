@@ -15,9 +15,9 @@ namespace ModelService.Micromanagement
         /// </summary>
         /// <param name="target_policy"></param>
         /// <returns>The winner's army can be owner or enemy. But the value will always be the owner</returns>
-        public Tuple<string, UnitWorth> LanchesterBasedPrediction(TargetPolicy target_policy)
+        public Tuple<string, CostWorth> LanchesterBasedPrediction(TargetPolicy target_policy)
         {
-            Tuple<string, UnitWorth> battle_result = null;
+            Tuple<string, CostWorth> battle_result = null;
 
             try
             {
@@ -42,11 +42,11 @@ namespace ModelService.Micromanagement
 
                             //Get the surviving units and create the battle result
                             var surviving_units = owned_units.Take(surviving_owned_units).ToArmy();
-                            battle_result = new Tuple<string, UnitWorth>(surviving_units.ToString(), surviving_units.GetValueOfArmy());
+                            battle_result = new Tuple<string, CostWorth>(surviving_units.ToString(), surviving_units.GetValueOfArmy());
                         }
                         //Draw
                         else if (cardinality == lanchester_result.OwnedArmy_RelativeEffectiveness)
-                            battle_result = new Tuple<string, UnitWorth>(@"""""", default(UnitWorth));
+                            battle_result = new Tuple<string, CostWorth>(@"""""", default(CostWorth));
                         //Enemy Army wins
                         else if (cardinality < lanchester_result.OwnedArmy_RelativeEffectiveness)
                         {
@@ -58,7 +58,7 @@ namespace ModelService.Micromanagement
 
                             //Get the surviving units and create the battle result
                             var surviving_units = enemy_units.Take(surviving_enemy_units).ToArmy();
-                            battle_result = new Tuple<string, UnitWorth>(surviving_units.ToString(), surviving_units.GetValueOfArmy().GetComplementOfValue());
+                            battle_result = new Tuple<string, CostWorth>(surviving_units.ToString(), CostWorth.GetComplementOfCostWorth(surviving_units.GetValueOfArmy()));
                         }
                         break;
                     case TargetPolicy.Priority:
@@ -73,11 +73,11 @@ namespace ModelService.Micromanagement
 
                             //Get the surviving units and create the battle result
                             var surviving_units = owned_units.Take(surviving_owned_units).ToArmy();
-                            battle_result = new Tuple<string, UnitWorth>(surviving_units.ToString(), surviving_units.GetValueOfArmy());
+                            battle_result = new Tuple<string, CostWorth>(surviving_units.ToString(), surviving_units.GetValueOfArmy());
                         }
                         //Draw
                         else if (cardinality == lanchester_result.OwnedArmy_RelativeEffectiveness)
-                            battle_result = new Tuple<string, UnitWorth>(@"""""", default(UnitWorth));
+                            battle_result = new Tuple<string, CostWorth>(@"""""", default(CostWorth));
                         //Enemy Army wins
                         else if (cardinality < lanchester_result.OwnedArmy_RelativeEffectiveness)
                         {
@@ -89,7 +89,7 @@ namespace ModelService.Micromanagement
 
                             //Get the surviving units and create the battle result
                             var surviving_units = enemy_units.Take(surviving_enemy_units).ToArmy();
-                            battle_result = new Tuple<string, UnitWorth>(surviving_units.ToString(), surviving_units.GetValueOfArmy().GetComplementOfValue());
+                            battle_result = new Tuple<string, CostWorth>(surviving_units.ToString(), CostWorth.GetComplementOfCostWorth(surviving_units.GetValueOfArmy()));
                         }
                         break;
                     case TargetPolicy.Resource:
@@ -104,11 +104,11 @@ namespace ModelService.Micromanagement
 
                             //Get the surviving units and create the battle result
                             var surviving_units = owned_units.Take(surviving_owned_units).ToArmy();
-                            battle_result = new Tuple<string, UnitWorth>(surviving_units.ToString(), surviving_units.GetValueOfArmy());
+                            battle_result = new Tuple<string, CostWorth>(surviving_units.ToString(), surviving_units.GetValueOfArmy());
                         }
                         //Draw
                         else if (cardinality == lanchester_result.OwnedArmy_RelativeEffectiveness)
-                            battle_result = new Tuple<string, UnitWorth>(@"""""", default(UnitWorth));
+                            battle_result = new Tuple<string, CostWorth>(@"""""", default(CostWorth));
                         //Enemy Army wins
                         else if (cardinality < lanchester_result.OwnedArmy_RelativeEffectiveness)
                         {
@@ -120,7 +120,7 @@ namespace ModelService.Micromanagement
 
                             //Get the surviving units and create the battle result
                             var surviving_units = enemy_units.Take(surviving_enemy_units).ToArmy();
-                            battle_result = new Tuple<string, UnitWorth>(surviving_units.ToString(), surviving_units.GetValueOfArmy().GetComplementOfValue());
+                            battle_result = new Tuple<string, CostWorth>(surviving_units.ToString(), CostWorth.GetComplementOfCostWorth(surviving_units.GetValueOfArmy()));
                         }
                         break;
                 }
@@ -141,9 +141,9 @@ namespace ModelService.Micromanagement
         /// </summary>
         /// <param name="target_policy"></param>
         /// <returns></returns>
-        public Tuple<string, UnitWorth> StaticBasedPrediction(TargetPolicy target_policy)
+        public Tuple<string, CostWorth> StaticBasedPrediction(TargetPolicy target_policy)
         {
-            Tuple<string, UnitWorth> battle_result = null;
+            Tuple<string, CostWorth> battle_result = null;
 
             try
             {
@@ -202,10 +202,10 @@ namespace ModelService.Micromanagement
                     }
 
                     var result = survived.ToArmy();
-                    battle_result = new Tuple<string, UnitWorth>(result.ToString(), result.GetValueOfArmy());
+                    battle_result = new Tuple<string, CostWorth>(result.ToString(), result.GetValueOfArmy());
                 }
                 else if (ownedarmy_totalhealth == enemyarmy_totalhealth)
-                    battle_result = new Tuple<string, UnitWorth>(@"""""", default(UnitWorth));
+                    battle_result = new Tuple<string, CostWorth>(@"""""", default(CostWorth));
                 else if (ownedarmy_totalhealth < enemyarmy_totalhealth)
                 {
                     var survived = new List<Unit>();
@@ -222,7 +222,7 @@ namespace ModelService.Micromanagement
                     }
 
                     var result = survived.ToArmy();
-                    battle_result = new Tuple<string, UnitWorth>(result.ToString(), result.GetValueOfArmy());
+                    battle_result = new Tuple<string, CostWorth>(result.ToString(), result.GetValueOfArmy());
                 }
             }
             catch (Exception ex)

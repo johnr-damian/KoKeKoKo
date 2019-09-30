@@ -10,8 +10,8 @@ namespace ModelService.Macromanagement
     public partial class Macromanagement
     {
         private static Random _generator = null;
-        private Player _owned_player = null;
-        private Player _enemy_player = null;
+        private Agent _owned_player = null;
+        private Agent _enemy_player = null;
 
         static Macromanagement()
         {

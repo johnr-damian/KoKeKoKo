@@ -62,69 +62,6 @@ namespace ModelService.Types
         }
     }
 
-    /// <summary>
-    /// A struct that hold the worth of a unit
-    /// </summary>
-    public struct UnitWorth
-    {
-        /// <summary>
-        /// The priority of this unit to be destroyed
-        /// </summary>
-        public double Priority { get; set; }
-
-        /// <summary>
-        /// The mineral cost of creating this unit
-        /// </summary>
-        public double Mineral { get; set; }
-
-        /// <summary>
-        /// The vespene cost of creating this unit
-        /// </summary>
-        public double Vespene { get; set; }
-
-        /// <summary>
-        /// The supply cost of this unit
-        /// </summary>
-        public double Supply { get; set; }
-
-        /// <summary>
-        /// The basic worth of a unit
-        /// </summary>
-        /// <param name="priority"></param>
-        /// <param name="mineral"></param>
-        /// <param name="vespene"></param>
-        /// <param name="supply"></param>
-        public UnitWorth(double priority, double mineral, double vespene, double supply)
-        {
-            Priority = priority;
-            Mineral = mineral;
-            Vespene = vespene;
-            Supply = supply;
-        }
-
-        /// <summary>
-        /// Returns the <see cref="Army.GetValueOfArmy"/> but the values are negative
-        /// to represent that these values are what have been lost in a battle
-        /// </summary>
-        /// <returns></returns>
-        public UnitWorth GetComplementOfValue() => new UnitWorth(-Priority, -Mineral, -Vespene, -Supply);
-
-        /// <summary>
-        /// Returns the sum of mineral, vespene, and supply cost with 34%, 34%, and 32% weight respectively
-        /// </summary>
-        /// <returns></returns>
-        public double GetSummaryOfResource() => ((Mineral * .34) + (Vespene * .34) + (Supply * .32));
-
-        /// <summary>
-        /// Returns the sum of mineral, vespene, and supply cost with supplied weight
-        /// </summary>
-        /// <param name="mineral_weight"></param>
-        /// <param name="vespene_weight"></param>
-        /// <param name="supply_weight"></param>
-        /// <returns></returns>
-        public double GetSummaryOfResource(double mineral_weight, double vespene_weight, double supply_weight) => ((Mineral * mineral_weight) + (Vespene * vespene_weight) + (Supply * supply_weight));
-    }
-
     public struct UnitSkills
     {
         public double Cooldown { get; set; }
@@ -202,49 +139,49 @@ namespace ModelService.Types
         /// <summary>
         /// The base values for a unit
         /// </summary>
-        public static Dictionary<string, UnitWorth> Values = new Dictionary<string, UnitWorth>()
+        public static Dictionary<string, CostWorth> Values = new Dictionary<string, CostWorth>()
         {
             //Ground Units
-            ["TERRAN_WIDOWMINE"] = new UnitWorth(19, 75, 25, 2),
-            ["TERRAN_SCV"] = new UnitWorth(20, 50, 0, 1),
-            ["TERRAN_MARINE"] = new UnitWorth(20, 50, 0, 1),
-            ["TERRAN_MARAUDER"] = new UnitWorth(20, 100, 25, 2),
-            ["TERRAN_REAPER"] = new UnitWorth(20, 50, 50, 1),
-            ["TERRAN_GHOST"] = new UnitWorth(20, 150, 125, 2),
-            ["TERRAN_HELLION"] = new UnitWorth(20, 100, 0, 2),
-            ["TERRAN_HELLIONTANK"] = new UnitWorth(20, 100, 0, 2),
-            ["TERRAN_SIEGETANK"] = new UnitWorth(20, 150, 125, 3),
-            ["TERRAN_SIEGETANKSEIGED"] = new UnitWorth(20, 150, 125, 3),
-            ["TERRAN_CYCLONE"] = new UnitWorth(20, 150, 100, 3),
-            ["TERRAN_THOR"] = new UnitWorth(20, 300, 200, 6),
-            ["TERRAN_THORAP"] = new UnitWorth(20, 300, 200, 6),
-            ["TERRAN_AUTOTURRET"] = new UnitWorth(20, 0, 0, 0),
+            ["TERRAN_WIDOWMINE"] = new CostWorth(19, 75, 25, 2),
+            ["TERRAN_SCV"] = new CostWorth(20, 50, 0, 1),
+            ["TERRAN_MARINE"] = new CostWorth(20, 50, 0, 1),
+            ["TERRAN_MARAUDER"] = new CostWorth(20, 100, 25, 2),
+            ["TERRAN_REAPER"] = new CostWorth(20, 50, 50, 1),
+            ["TERRAN_GHOST"] = new CostWorth(20, 150, 125, 2),
+            ["TERRAN_HELLION"] = new CostWorth(20, 100, 0, 2),
+            ["TERRAN_HELLIONTANK"] = new CostWorth(20, 100, 0, 2),
+            ["TERRAN_SIEGETANK"] = new CostWorth(20, 150, 125, 3),
+            ["TERRAN_SIEGETANKSEIGED"] = new CostWorth(20, 150, 125, 3),
+            ["TERRAN_CYCLONE"] = new CostWorth(20, 150, 100, 3),
+            ["TERRAN_THOR"] = new CostWorth(20, 300, 200, 6),
+            ["TERRAN_THORAP"] = new CostWorth(20, 300, 200, 6),
+            ["TERRAN_AUTOTURRET"] = new CostWorth(20, 0, 0, 0),
             //Air Units
-            ["TERRAN_VIKINGASSAULT"] = new UnitWorth(20, 150, 75, 2),
-            ["TERRAN_VIKINGFIGHTER"] = new UnitWorth(20, 150, 75, 2),
-            ["TERRAN_MEDIVAC"] = new UnitWorth(20, 100, 100, 2),
-            ["TERRAN_LIBERATORAG"] = new UnitWorth(20, 150, 150, 3),
-            ["TERRAN_LIBERATOR"] = new UnitWorth(20, 150, 150, 3),
-            ["TERRAN_RAVEN"] = new UnitWorth(20, 100, 200, 2),
-            ["TERRAN_BANSHEE"] = new UnitWorth(20, 150, 100, 3),
-            ["TERRAN_BATTLECRUISERr"] = new UnitWorth(20, 400, 300, 6),
+            ["TERRAN_VIKINGASSAULT"] = new CostWorth(20, 150, 75, 2),
+            ["TERRAN_VIKINGFIGHTER"] = new CostWorth(20, 150, 75, 2),
+            ["TERRAN_MEDIVAC"] = new CostWorth(20, 100, 100, 2),
+            ["TERRAN_LIBERATORAG"] = new CostWorth(20, 150, 150, 3),
+            ["TERRAN_LIBERATOR"] = new CostWorth(20, 150, 150, 3),
+            ["TERRAN_RAVEN"] = new CostWorth(20, 100, 200, 2),
+            ["TERRAN_BANSHEE"] = new CostWorth(20, 150, 100, 3),
+            ["TERRAN_BATTLECRUISERr"] = new CostWorth(20, 400, 300, 6),
             //Buildings
-            ["TERRAN_PLANETARYFORTRESS"] = new UnitWorth(20, 550, 150, 0),
-            ["TERRAN_BUNKER"] = new UnitWorth(20, 100, 0, 0),
-            ["TERRAN_MISSILETURRET"] = new UnitWorth(19, 100, 0, 0),
-            ["TERRAN_COMMANDCENTER"] = new UnitWorth(11, 400, 0, 0),
-            ["TERRAN_ORBITALCOMMAND"] = new UnitWorth(11, 550, 0, 0),
-            ["TERRAN_SUPPLYDEPOT"] = new UnitWorth(11, 100, 0, 0),
-            ["TERRAN_REFINERY"] = new UnitWorth(11, 75, 0, 0),
-            ["TERRAN_BARRACKS"] = new UnitWorth(11, 150, 0, 0),
-            ["TERRAN_ENGINEERINGBAY"] = new UnitWorth(11, 125, 0, 0),
-            ["TERRAN_BUNKER"] = new UnitWorth(11, 100, 0, 0),
-            ["TERRAN_SENSORTOWER"] = new UnitWorth(11, 125, 100, 0),
-            ["TERRAN_FACTORY"] = new UnitWorth(11, 150, 100, 0),
-            ["TERRAN_GHOSTACADEMY"] = new UnitWorth(11, 150, 100, 0),
-            ["TERRAN_STARPORT"] = new UnitWorth(11, 150, 100, 0),
-            ["TERRAN_unit.Target.Current_ArmorY"] = new UnitWorth(11, 150, 100, 0),
-            ["TERRAN_FUSIONCORE"] = new UnitWorth(11, 150, 150, 0)
+            ["TERRAN_PLANETARYFORTRESS"] = new CostWorth(20, 550, 150, 0),
+            ["TERRAN_BUNKER"] = new CostWorth(20, 100, 0, 0),
+            ["TERRAN_MISSILETURRET"] = new CostWorth(19, 100, 0, 0),
+            ["TERRAN_COMMANDCENTER"] = new CostWorth(11, 400, 0, 0),
+            ["TERRAN_ORBITALCOMMAND"] = new CostWorth(11, 550, 0, 0),
+            ["TERRAN_SUPPLYDEPOT"] = new CostWorth(11, 100, 0, 0),
+            ["TERRAN_REFINERY"] = new CostWorth(11, 75, 0, 0),
+            ["TERRAN_BARRACKS"] = new CostWorth(11, 150, 0, 0),
+            ["TERRAN_ENGINEERINGBAY"] = new CostWorth(11, 125, 0, 0),
+            ["TERRAN_BUNKER"] = new CostWorth(11, 100, 0, 0),
+            ["TERRAN_SENSORTOWER"] = new CostWorth(11, 125, 100, 0),
+            ["TERRAN_FACTORY"] = new CostWorth(11, 150, 100, 0),
+            ["TERRAN_GHOSTACADEMY"] = new CostWorth(11, 150, 100, 0),
+            ["TERRAN_STARPORT"] = new CostWorth(11, 150, 100, 0),
+            ["TERRAN_unit.Target.Current_ArmorY"] = new CostWorth(11, 150, 100, 0),
+            ["TERRAN_FUSIONCORE"] = new CostWorth(11, 150, 150, 0)
         };
 
         /// <summary>

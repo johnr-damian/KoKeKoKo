@@ -34,7 +34,9 @@ namespace ModelService
                     //Prepare the packages
                     //Sets Package
                     _engine.Evaluate(@"if(""sets"" %in% rownames(installed.packages()) == FALSE) { install.packages(""sets"") }");
+                    _engine.Evaluate(@"if(""pomdp"" %in% rownames(installed.packages()) == FALSE) { install.packages(""pomdp"") }");
                     _engine.Evaluate(@"library(""sets"")");
+                    _engine.Evaluate(@"library(""pomdp"")");
                     //POMDP Package
                     //... TODO
                 }
@@ -69,7 +71,30 @@ namespace ModelService
                 results.Add(engine.Evaluate(@"set_similarity(simulation, actual, method=""Jaccard"")").AsNumeric().Single());
             }
 
-            return results.Average();
+            return engine.GetStandardDeviation(results);
+        }
+
+        public static double POMDPSimulate(this REngine engine, params string[] parameters)
+        {
+            double result = 0;
+
+
+
+            return result;
+        }
+
+        public static double MCTSSimulate(this REngine engine, params string[] parameters)
+        {
+            double result = 0;
+
+            return result;
+        }
+
+        public static double GetStandardDeviation(this REngine engine, List<double> results)
+        {
+            var mean = results.Average();
+
+            return results.Average(element => Math.Pow(element - mean, 2));
         }
     }
 }

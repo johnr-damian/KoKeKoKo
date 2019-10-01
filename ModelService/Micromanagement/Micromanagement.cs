@@ -57,9 +57,12 @@ namespace ModelService.Micromanagement
             var dynamicbased_resource_results = new List<string>();
 
             //Perform Simulations
-            #if DEBUG
+#if DEBUG
+            for (int simulated = 0; simulated < number_of_simulations; simulated++)
                 lanchester_random_results.Add(LanchesterBasedPrediction(TargetPolicy.Random).Item1);
+            for (int simulated = 0; simulated < number_of_simulations; simulated++)
                 lanchester_priority_results.Add(LanchesterBasedPrediction(TargetPolicy.Priority).Item1);
+            for (int simulated = 0; simulated < number_of_simulations; simulated++)
                 lanchester_resource_results.Add(LanchesterBasedPrediction(TargetPolicy.Resource).Item1);
 
                 staticbased_random_results.Add(StaticBasedPrediction(TargetPolicy.Random).Item1);

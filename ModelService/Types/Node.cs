@@ -62,14 +62,19 @@ namespace ModelService.Types
         /// <param name="player"></param>
         /// <param name="enemy"></param>
         /// <param name="possible_actions"></param>
-        public Node(Node parent, Agent player, Agent enemy, params string[] possible_actions)
+        public Node(Node parent, Agent player, Agent enemy)
         {
             Parent = parent;
             Player = player;
             Enemy = enemy;
             Children = new List<Node>();
             Chosen_Child = null;
-            Possible_Actions = new Queue<string>(possible_actions);
+            Possible_Actions = new Queue<string>();
+        }
+
+        private void GeneratePossibleActions()
+        {
+
         }
 
         public abstract Node Select();

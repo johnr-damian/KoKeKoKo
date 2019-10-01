@@ -9,8 +9,8 @@ namespace ModelService.Macromanagement.Types
 {
     public class POMDPNode : Node
     {
-        public POMDPNode(Node parent, Agent player, Agent enemy, params string[] possible_actions) 
-            : base(parent, player, enemy, possible_actions) { }
+        public POMDPNode(Node parent, Agent player, Agent enemy) 
+            : base(parent, player, enemy) { }
 
         public override Node Select()
         {

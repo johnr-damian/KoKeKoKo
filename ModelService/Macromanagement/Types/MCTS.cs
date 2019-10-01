@@ -9,8 +9,8 @@ namespace ModelService.Macromanagement.Types
 {
     public class MCTSNode : Node
     {
-        public MCTSNode(Node parent, Agent player, Agent enemy, params string[] possible_actions) 
-            : base(parent, player, enemy, possible_actions) { }
+        public MCTSNode(Node parent, Agent player, Agent enemy) 
+            : base(parent, player, enemy) { }
 
         public override Node Select()
         {

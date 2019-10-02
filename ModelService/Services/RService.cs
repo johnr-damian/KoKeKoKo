@@ -53,6 +53,8 @@ namespace ModelService
 
     public static class REngineExtensions
     {
+        private static Random randomGenerator = default(Random);
+
         /// <summary>
         /// Returns the average of results of jaccard
         /// </summary>
@@ -95,6 +97,14 @@ namespace ModelService
             var mean = results.Average();
 
             return results.Average(element => Math.Pow(element - mean, 2));
+        }
+
+        public static Random GetRandomGenerator()
+        {
+            if (randomGenerator == null)
+                randomGenerator = new Random();
+
+            return randomGenerator;
         }
     }
 }

@@ -6,7 +6,7 @@ namespace ModelService.Types
 {
     /// <summary>
     /// A class for parsed unit that holds basic information with basic methods.
-    /// AS such, this class only holds methods for initializations, getting and setting of values
+    /// As such, this class only holds methods for initializations and getting of values
     /// </summary>
     public partial class Unit : IDefeatable, ICopyable<Unit>
     {
@@ -178,9 +178,12 @@ namespace ModelService.Types
         public Unit(long timestamp, string owner, string unique_id, string name, Coordinate coordinate, params string[] buffs)
             : this(timestamp, owner, unique_id, name, coordinate.X, coordinate.Y, buffs) { }
 
+        #region Methods for Applying Relevant Properties
         /// <summary>
         /// Use to apply the applicable permanent buffs to this unit that
-        /// affects the original values of this unit
+        /// affects the original values of this unit.
+        /// 
+        /// 
         /// </summary>
         private void ApplyApplicableUpgrades()
         {
@@ -543,6 +546,123 @@ namespace ModelService.Types
                 }
             }
         }
+
+        /// <summary>
+        /// Used to apply the armor of the target for the <see cref="Current_Air_Damage"/>
+        /// of this unit
+        /// </summary>
+        /// <returns></returns>
+        private double ApplyArmorToCurrentAirDamage() => ApplyArmorToCurrentAirDamage(Current_Air_Damage);
+
+        /// <summary>
+        /// Used to apply the armor of the target for the given  
+        /// current air damage of this unit
+        /// </summary>
+        /// <returns></returns>
+        private double ApplyArmorToCurrentAirDamage(double current_air_damage)
+        {
+            double true_airdamage = 0;
+
+            try
+            {
+                switch (Name)
+                {
+                    case "TERRAN_MARINE": true_airdamage = (current_air_damage - (1.6 * Target.Current_Armor)); break;
+
+                    case "TERRAN_WIDOWMINE": true_airdamage = (current_air_damage - Target.Current_Armor); break;
+
+                    case "TERRAN_GHOST": true_airdamage = (current_air_damage - (0.93 * Target.Current_Armor)); break;
+
+                    case "TERRAN_CYCLONE": true_airdamage = (current_air_damage - (1.26 * Target.Current_Armor)); break;
+
+                    case "TERRAN_THOR": true_airdamage = (current_air_damage - (1.87 * Target.Current_Armor)); break;
+
+                    case "TERRAN_THORAP": true_airdamage = (current_air_damage - (0.59 * Target.Current_Armor)); break;
+
+                    case "TERRAN_AUTOTURRET": true_airdamage = (current_air_damage - (1.76 * Target.Current_Armor)); break;
+
+                    case "TERRAN_VIKINGFIGHTER": true_airdamage = (current_air_damage - (1.4 * Target.Current_Armor)); break;
+
+                    case "TERRAN_LIBERATOR": true_airdamage = (current_air_damage - (1.4 * Target.Current_Armor)); break;
+
+                    case "TERRAN_BATTLECRUISER": true_airdamage = (current_air_damage - (6.2 * Target.Current_Armor)); break;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($@"ApplyArmorToCurrentAirDamage() -> {ex.Message}");
+                true_airdamage = current_air_damage;
+            }
+
+            return true_airdamage;
+        }
+
+        /// <summary>
+        /// Used to apply the armor of the target for the <see cref="Current_Ground_Damage"/>
+        /// of this unit
+        /// </summary>
+        /// <returns></returns>
+        private double ApplyArmorToCurrentGroundDamage() => ApplyArmorToCurrentGroundDamage(Current_Ground_Damage);
+
+        /// <summary>
+        /// Used to apply the armor of the target for the given
+        /// current ground damage of this unit
+        /// </summary>
+        /// <returns></returns>
+        private double ApplyArmorToCurrentGroundDamage(double current_ground_damage)
+        {
+            double true_grounddamage = 0;
+
+            try
+            {
+                switch (Name)
+                {
+                    case "TERRAN_MARINE": true_grounddamage = (current_ground_damage - (1.6 * Target.Current_Armor)); break;
+
+                    case "TERRAN_WIDOWMINE": true_grounddamage = (current_ground_damage - Target.Current_Armor); break;
+
+                    case "TERRAN_SCV": true_grounddamage = (current_ground_damage - (0.93 * Target.Current_Armor)); break;
+
+                    case "TERRAN_REAPER": true_grounddamage = (current_ground_damage - (2.5 * Target.Current_Armor)); break;
+
+                    case "TERRAN_MARAUDER": true_grounddamage = (current_ground_damage - (0.93 * Target.Current_Armor)); break;
+
+                    case "TERRAN_GHOST": true_grounddamage = (current_ground_damage - (0.93 * Target.Current_Armor)); break;
+
+                    case "TERRAN_HELLION": true_grounddamage = (current_ground_damage - (0.56 * Target.Current_Armor)); break;
+
+                    case "TERRAN_SIEGETANK": true_grounddamage = (current_ground_damage - (1.35 * Target.Current_Armor)); break;
+
+                    case "TERRAN_SIEGETANKSIEGED": true_grounddamage = (current_ground_damage - (0.47 * Target.Current_Armor)); break;
+
+                    case "TERRAN_CYCLONE": true_grounddamage = (current_ground_damage - (1.26 * Target.Current_Armor)); break;
+
+                    case "TERRAN_HELLIONTANK": true_grounddamage = (current_ground_damage - (0.71 * Target.Current_Armor)); break;
+
+                    case "TERRAN_THOR": true_grounddamage = (current_ground_damage - (2.16 * Target.Current_Armor)); break;
+
+                    case "TERRAN_THORAP": true_grounddamage = (current_ground_damage - (2.16 * Target.Current_Armor)); break;
+
+                    case "TERRAN_AUTOTURRET": true_grounddamage = (current_ground_damage - (1.76 * Target.Current_Armor)); break;
+
+                    case "TERRAN_VIKINGASSAULT": true_grounddamage = (current_ground_damage - (1.4 * Target.Current_Armor)); break;
+
+                    case "TERRAN_LIBERATORAG": true_grounddamage = (current_ground_damage - (0.81 * Target.Current_Armor)); break;
+
+                    case "TERRAN_BANSHEE": true_grounddamage = (current_ground_damage - (2.25 * Target.Current_Armor)); break;
+
+                    case "TERRAN_BATTLECRUISER": true_grounddamage = (current_ground_damage - (6.2 * Target.Current_Armor)); break;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($@"ApplyArmorToCurrentGroundDamage() -> {ex.Message}");
+                true_grounddamage = current_ground_damage;
+            }
+
+            return true_grounddamage;
+        } 
+        #endregion
 
         #region Methods for Target
         /// <summary>

@@ -42,7 +42,7 @@ namespace ModelService
                         battles.Add(new Micromanagement.Micromanagement(new Army(m.Item3), new Army(m.Item4), new Army(m.Item5)));
 
 #if DEBUG
-                    var result = battles[1].GetMicromanagementAccuracyReport(10);
+                    var result = battles[3].GetMicromanagementAccuracyReport(10);
                     Console.WriteLine($@"Lanchester - Random: {result[0] * 100}%");
                     Console.WriteLine($@"Lanchester - Priority: {result[1] * 100}%");
                     Console.WriteLine($@"Lanchester - Resource: {result[2] * 100}%");

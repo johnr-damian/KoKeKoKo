@@ -35,8 +35,10 @@ namespace ModelService
                     //Sets Package
                     _engine.Evaluate(@"if(""sets"" %in% rownames(installed.packages()) == FALSE) { install.packages(""sets"") }");
                     _engine.Evaluate(@"if(""pomdp"" %in% rownames(installed.packages()) == FALSE) { install.packages(""pomdp"") }");
+                    _engine.Evaluate(@"if(""triangle"" %in% rownames(installed.packages()) == FALSE) { install.packages(""triangle"") }");
                     _engine.Evaluate(@"library(""sets"")");
                     _engine.Evaluate(@"library(""pomdp"")");
+                    _engine.Evaluate(@"library(""triangle"")");
                     //POMDP Package
                     //... TODO
                 }
@@ -106,5 +108,7 @@ namespace ModelService
 
             return randomGenerator;
         }
+
+        public static double GetTriangularRandomNumber(this REngine engine, int count, double min, double max, double mode) => engine.Evaluate($@"rtriangle({count}, {min}, {max}, {mode})").AsNumeric().Sum();
     }
 }

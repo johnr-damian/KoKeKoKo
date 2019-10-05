@@ -8,169 +8,423 @@ using ModelService.Types;
 namespace ModelService.Micromanagement
 {
     /// <summary>
-    /// Variables for lanchester algorithm
+    /// The result of combat between two armies using the Lanchester formula
     /// </summary>
-    public struct LanchesterVariables
+    public struct LanchesterCombatResult
     {
+        #region Combat Properties
         /// <summary>
-        /// The alpha in the lanchester formula
+        /// The number of units of owned army
         /// </summary>
-        /// <remarks>
-        /// a
-        /// </remarks>
-        public double OwnedArmy_CombatEffectiveness { get; set; }
+        private int OwnedArmy_Count { get; set; }
 
         /// <summary>
-        /// The beta in the lanchester formula
+        /// The number of units of enemy army
         /// </summary>
-        /// <remarks>
-        /// B
-        /// </remarks>
-        public double EnemyArmy_CombatEffectiveness { get; set; }
+        private int EnemyArmy_Count { get; set; }
 
         /// <summary>
-        /// The expected damage that can deal by owned army to enemy army
+        /// The alpha variable in the Lanchester formula
         /// </summary>
         /// <remarks>
-        /// DPF(A, B)
+        /// alpha = DPF(B, A) / HP(A)
         /// </remarks>
-        public double OwnedArmyToEnemyArmy_EffectivePotentialDamage { get; set; }
+        private double OwnedArmy_CombatEffectiveness { get; set; }
 
         /// <summary>
-        /// The expected damage that can deal by enemy army to owned army
+        /// The beta variable in the Lanchester formula
         /// </summary>
         /// <remarks>
-        /// DPF(B, A)
+        /// beta = DPF(A, B) / HP(B)
         /// </remarks>
-        public double EnemyArmyToOwnedArmy_EffectivePotentialDamage { get; set; }
+        private double EnemyArmy_CombatEffectiveness { get; set; }
 
         /// <summary>
-        /// The relative combat effectiveness of owned army to enemy army
+        /// The Ra variable in the Lanchester formula
         /// </summary>
         /// <remarks>
-        /// Ra
+        /// Ra = Sqrt(alpha / beta)
         /// </remarks>
-        public double OwnedArmy_RelativeEffectiveness { get; set; }
+        private double OwnedArmy_RelativeCombatEffectiveness { get; set; }
 
         /// <summary>
-        /// The relative combat effectiveness of enemy army to owned army
+        /// The Rb variable in the Lanchester formula
         /// </summary>
         /// <remarks>
-        /// Rb
+        /// Rb = Sqrt(beta / alpha)
         /// </remarks>
-        public double EnemyArmy_RelativeEffectiveness { get; set; }
+        private double EnemyArmy_RelativeCombatEffectiveness { get; set; }
 
         /// <summary>
-        /// The basic variables needed for the computation of lanchester equation
+        /// The DPF(A, B) in the Lanchester formula. It is the expected damage 
+        /// that can deal by the owned army towards to enemy army
+        /// </summary>
+        /// <remarks>
+        /// DPF(A, B) = (((DPFa(A) * HPa(B)) + (DPFg(A) * HPg(B))) / (HPa(B) + HPg(B)))
+        /// </remarks>
+        private double OwnedArmy_EffectivePotentialDamage { get; set; }
+
+        /// <summary>
+        /// The DPF(B, A) in the Lanchester formula. It is the expected damage
+        /// that can deal by the enemy army towards to owned army
+        /// </summary>
+        /// <remarks>
+        /// DPF(B, A) = (((DPFa(B) * HPa(A)) + (DPFg(B) * HPg(A))) / (HPa(A) + HPg(A)))
+        /// </remarks>
+        private double EnemyArmy_EffectivePotentialDamage { get; set; }
+        #endregion
+
+        /// <summary>
+        /// Computes combat results of both army using the Lanchester formula
         /// </summary>
         /// <param name="owned_army"></param>
         /// <param name="enemy_army"></param>
-        public LanchesterVariables(Army owned_army, Army enemy_army)
+        public LanchesterCombatResult(Army owned_army, Army enemy_army)
         {
+            //Get the cardinality of both army
+            OwnedArmy_Count = owned_army.Count();
+            EnemyArmy_Count = enemy_army.Count();
+
             //Compute the mean health of both army
             var ownedarmy_meanhealth = owned_army.Average(unit => unit.Current_Health);
+            if (Double.IsNaN(ownedarmy_meanhealth) || Double.IsInfinity(ownedarmy_meanhealth))
+                ownedarmy_meanhealth = 0;
             var enemyarmy_meanhealth = enemy_army.Average(unit => unit.Current_Health);
+            if (Double.IsNaN(enemyarmy_meanhealth) || Double.IsInfinity(enemyarmy_meanhealth))
+                enemyarmy_meanhealth = 0;
 
-            //Compute the total health of air units from both army
-            var ownedarmy_air_totalhealth = owned_army.Sum(unit => unit.Current_Health);
-            var enemyarmy_air_totalhealth = enemy_army.Sum(unit => unit.Current_Health);
+            //Compute the total health of both army's air units
+            var ownedarmy_airtotalhealth = owned_army.Where(unit => Unit.Definitions[unit.Name].IsFlying_Unit).Sum(unit => unit.Current_Health);
+            if (Double.IsNaN(ownedarmy_airtotalhealth) || Double.IsInfinity(ownedarmy_airtotalhealth))
+                ownedarmy_airtotalhealth = 0;
+            var enemyarmy_airtotalhealth = enemy_army.Where(unit => Unit.Definitions[unit.Name].IsFlying_Unit).Sum(unit => unit.Current_Health);
+            if (Double.IsNaN(enemyarmy_airtotalhealth) || Double.IsInfinity(enemyarmy_airtotalhealth))
+                enemyarmy_airtotalhealth = 0;
 
-            //Compute the total health of ground units from both army
-            var ownedarmy_ground_totalhealth = owned_army.Sum(unit => unit.Current_Health);
-            var enemyarmy_ground_totalhealth = enemy_army.Sum(unit => unit.Current_Health);
-        
-            //Compute the mean of effective potential damage of air units from both army
-            var ownedarmy_air_meandamage = owned_army.GetLanchesterMeanTriangularAirDamage();
-            var enemyarmy_air_meandamage = enemy_army.GetLanchesterMeanTriangularAirDamage();
+            //Compute the total health of both army's ground units
+            var ownedarmy_groundtotalhealth = owned_army.Where(unit => !Unit.Definitions[unit.Name].IsFlying_Unit).Sum(unit => unit.Current_Health);
+            if (Double.IsNaN(ownedarmy_groundtotalhealth) || Double.IsInfinity(ownedarmy_groundtotalhealth))
+                ownedarmy_groundtotalhealth = 0;
+            var enemyarmy_groundtotalhealth = enemy_army.Where(unit => !Unit.Definitions[unit.Name].IsFlying_Unit).Sum(unit => unit.Current_Health);
+            if (Double.IsNaN(enemyarmy_groundtotalhealth) || Double.IsInfinity(enemyarmy_groundtotalhealth))
+                enemyarmy_groundtotalhealth = 0;
 
-            //Compute the mean of effective potential damage of ground units from both army
-            var ownedarmy_ground_meandamage = owned_army.GetLanchesterMeanTriangularGroundDamage();
-            var enemyarmy_ground_meandamage = enemy_army.GetLanchesterMeanTriangularGroundDamage();
+            //Compute the potential mean damage of both army's air units
+            var ownedarmy_airminimumpotential = owned_army.Where(unit => Unit.Definitions[unit.Name].IsFlying_Unit).Sum(unit => Unit.GetMinimumPotentialAirDamage(unit));
+            if (Double.IsNaN(ownedarmy_airminimumpotential) || Double.IsInfinity(ownedarmy_airminimumpotential))
+                ownedarmy_airminimumpotential = 0;
+            var ownedarmy_airmaximumpotential = owned_army.Where(unit => Unit.Definitions[unit.Name].IsFlying_Unit).Sum(unit => Unit.GetMaximumPotentialAirDamage(unit));
+            if (Double.IsNaN(ownedarmy_airmaximumpotential) || Double.IsInfinity(ownedarmy_airmaximumpotential))
+                ownedarmy_airmaximumpotential = 0;
+            var ownedarmy_airmeandamage = (((2 * ownedarmy_airminimumpotential) + ownedarmy_airmaximumpotential) / 3);
+            if (Double.IsNaN(ownedarmy_airmeandamage) || Double.IsInfinity(ownedarmy_airmeandamage))
+                ownedarmy_airmeandamage = 0;
+            var enemyarmy_airminimumpotential = enemy_army.Where(unit => Unit.Definitions[unit.Name].IsFlying_Unit).Sum(unit => Unit.GetMinimumPotentialAirDamage(unit));
+            if (Double.IsNaN(enemyarmy_airminimumpotential) || Double.IsInfinity(enemyarmy_airminimumpotential))
+                enemyarmy_airminimumpotential = 0;
+            var enemyarmy_airmaximumpotential = enemy_army.Where(unit => Unit.Definitions[unit.Name].IsFlying_Unit).Sum(unit => Unit.GetMaximumPotentialAirDamage(unit));
+            if (Double.IsNaN(enemyarmy_airmaximumpotential) || Double.IsInfinity(enemyarmy_airmaximumpotential))
+                enemyarmy_airmaximumpotential = 0;
+            var enemyarmy_airmeandamage = (((2 * enemyarmy_airminimumpotential) + enemyarmy_airmaximumpotential) / 3);
+            if (Double.IsNaN(enemyarmy_airmeandamage) || Double.IsInfinity(enemyarmy_airmeandamage))
+                enemyarmy_airmeandamage = 0;
 
-            //Compute the OwnedArmyToEnemyArmy_EffectivePotentialDamage
-            //known as DPF(A, B) = (((DPFa(A) * HPa(B)) + (DPFg(A) * HPg(B))) / (HPa(B) + HPg(B)))
-            OwnedArmyToEnemyArmy_EffectivePotentialDamage = (((ownedarmy_air_meandamage * enemyarmy_air_totalhealth) + (ownedarmy_ground_meandamage * enemyarmy_ground_totalhealth)) / (enemyarmy_air_totalhealth + enemyarmy_ground_totalhealth));
+            //Compute the potential mean damage of both army's ground units
+            var ownedarmy_groundminimumpotential = owned_army.Where(unit => !Unit.Definitions[unit.Name].IsFlying_Unit).Sum(unit => Unit.GetMinimumPotentialGroundDamage(unit));
+            if (Double.IsNaN(ownedarmy_groundminimumpotential) || Double.IsInfinity(ownedarmy_groundminimumpotential))
+                ownedarmy_groundminimumpotential = 0;
+            var ownedarmy_groundmaximumpotential = owned_army.Where(unit => !Unit.Definitions[unit.Name].IsFlying_Unit).Sum(unit => Unit.GetMaximumPotentialGroundDamage(unit));
+            if (Double.IsNaN(ownedarmy_groundmaximumpotential) || Double.IsInfinity(ownedarmy_groundmaximumpotential))
+                ownedarmy_groundmaximumpotential = 0;
+            var ownedarmy_groundmeandamage = (((2 * ownedarmy_groundminimumpotential) + ownedarmy_groundmaximumpotential) / 3);
+            if (Double.IsNaN(ownedarmy_groundmeandamage) || Double.IsInfinity(ownedarmy_groundmeandamage))
+                ownedarmy_groundmeandamage = 0;
+            var enemyarmy_groundminimumpotential = enemy_army.Where(unit => !Unit.Definitions[unit.Name].IsFlying_Unit).Sum(unit => Unit.GetMinimumPotentialGroundDamage(unit));
+            if (Double.IsNaN(enemyarmy_groundminimumpotential) || Double.IsInfinity(enemyarmy_groundminimumpotential))
+                enemyarmy_groundminimumpotential = 0;
+            var enemyarmy_groundmaximumpotential = enemy_army.Where(unit => !Unit.Definitions[unit.Name].IsFlying_Unit).Sum(unit => Unit.GetMaximumPotentialGroundDamage(unit));
+            if (Double.IsNaN(enemyarmy_groundmaximumpotential) || Double.IsInfinity(enemyarmy_groundmaximumpotential))
+                enemyarmy_groundmaximumpotential = 0;
+            var enemyarmy_groundmeandamage = (((2 * enemyarmy_groundminimumpotential) + enemyarmy_groundmaximumpotential) / 3);
+            if (Double.IsNaN(enemyarmy_groundmeandamage) || Double.IsInfinity(enemyarmy_groundmeandamage))
+                enemyarmy_groundmeandamage = 0;
 
-            //Compute the EnemyArmyToOwnedArmy_EffectivePotentialDamage
-            //known as DPF(B, A) = (((DPFa(B) * HPa(A)) + (DPFg(B) * HPg(A))) / (HPa(A) + HPg(A)))
-            EnemyArmyToOwnedArmy_EffectivePotentialDamage = (((enemyarmy_air_meandamage * ownedarmy_air_totalhealth) + (enemyarmy_ground_meandamage * ownedarmy_ground_totalhealth)) / (ownedarmy_air_totalhealth + ownedarmy_ground_totalhealth));
+            //Compute the effective potential damage of both army
+            OwnedArmy_EffectivePotentialDamage = (((ownedarmy_airmeandamage * enemyarmy_airtotalhealth) + (ownedarmy_groundmeandamage * enemyarmy_groundtotalhealth)) / (enemyarmy_airtotalhealth + enemyarmy_groundtotalhealth));
+            if (Double.IsNaN(OwnedArmy_EffectivePotentialDamage) || Double.IsInfinity(OwnedArmy_EffectivePotentialDamage))
+                OwnedArmy_EffectivePotentialDamage = 0;
+            EnemyArmy_EffectivePotentialDamage = (((enemyarmy_airmeandamage * ownedarmy_airtotalhealth) + (enemyarmy_groundmeandamage * ownedarmy_groundtotalhealth)) / (ownedarmy_airtotalhealth + ownedarmy_groundtotalhealth));
+            if (Double.IsNaN(EnemyArmy_EffectivePotentialDamage) || Double.IsInfinity(EnemyArmy_EffectivePotentialDamage))
+                EnemyArmy_EffectivePotentialDamage = 0;
 
-            //Can now compute the effectiveness
-            //Compute the combat effectiveness of own army
-            //known as alpha = DPF(B, A) / HP(A)
-            OwnedArmy_CombatEffectiveness = EnemyArmyToOwnedArmy_EffectivePotentialDamage / ownedarmy_meanhealth;
+            //Compute the combat effectiveness of both army
+            OwnedArmy_CombatEffectiveness = (EnemyArmy_EffectivePotentialDamage / ownedarmy_meanhealth);
+            if (Double.IsNaN(OwnedArmy_CombatEffectiveness) || Double.IsInfinity(OwnedArmy_CombatEffectiveness))
+                OwnedArmy_CombatEffectiveness = 0;
+            EnemyArmy_CombatEffectiveness = (OwnedArmy_EffectivePotentialDamage / enemyarmy_meanhealth);
+            if (Double.IsNaN(EnemyArmy_CombatEffectiveness) || Double.IsInfinity(EnemyArmy_CombatEffectiveness))
+                EnemyArmy_CombatEffectiveness = 0;
 
-            //Compute the combat effectiveness of enemy army
-            //known as beta = DPF(A, B) / HP(B)
-            EnemyArmy_CombatEffectiveness = OwnedArmyToEnemyArmy_EffectivePotentialDamage / enemyarmy_meanhealth;
+            //Compute the relative combat effectiveness of both army
+            OwnedArmy_RelativeCombatEffectiveness = Math.Sqrt(OwnedArmy_CombatEffectiveness / EnemyArmy_CombatEffectiveness);
+            if (Double.IsNaN(OwnedArmy_RelativeCombatEffectiveness) || Double.IsInfinity(OwnedArmy_RelativeCombatEffectiveness))
+                OwnedArmy_RelativeCombatEffectiveness = 0;
+            EnemyArmy_RelativeCombatEffectiveness = Math.Sqrt(EnemyArmy_CombatEffectiveness / OwnedArmy_CombatEffectiveness);
+            if (Double.IsNaN(EnemyArmy_RelativeCombatEffectiveness) || Double.IsInfinity(EnemyArmy_RelativeCombatEffectiveness))
+                EnemyArmy_RelativeCombatEffectiveness = 0;
+        }
 
-            //Can now compute the relative effectiveness
-            //Compute the relative effectiveness of own army
-            //known as Ra = Sqrt(alpha / beta)
-            OwnedArmy_RelativeEffectiveness = Math.Sqrt(OwnedArmy_CombatEffectiveness / EnemyArmy_CombatEffectiveness);
+        /// <summary>
+        /// The winner in combat between the two army
+        /// </summary>
+        public enum CombatWinner
+        {
+            /// <summary>
+            /// The army controlled by KoKeKoKo won
+            /// </summary>
+            Owned_Army,
 
-            //Compute the relative effectiveness of eenmy army
-            //known as Rb = Sqrt(beta / alpha)
-            EnemyArmy_RelativeEffectiveness = Math.Sqrt(EnemyArmy_CombatEffectiveness / OwnedArmy_CombatEffectiveness);
+            /// <summary>
+            /// Both army resulted to lost
+            /// </summary>
+            Draw,
+
+            /// <summary>
+            /// The army controlled by the opposing agent won
+            /// </summary>
+            Enemy_Army
+        }
+
+        /// <summary>
+        /// Checks the <see cref="LanchesterCombatResult.OwnedArmy_RelativeCombatEffectiveness"/>
+        /// and returns which army won in the combat
+        /// </summary>
+        /// <param name="combat_result"></param>
+        /// <returns></returns>
+        public static CombatWinner GetCombatWinner(LanchesterCombatResult combat_result)
+        {
+            CombatWinner combat_winner = CombatWinner.Draw;
+
+            try
+            {
+                var relative_cardinality = (combat_result.OwnedArmy_Count / combat_result.EnemyArmy_Count);
+
+                //Owned Army Loss
+                if (relative_cardinality < combat_result.OwnedArmy_RelativeCombatEffectiveness)
+                    combat_winner = CombatWinner.Enemy_Army;
+                //Owned Army Won
+                else if (relative_cardinality > combat_result.OwnedArmy_RelativeCombatEffectiveness)
+                    combat_winner = CombatWinner.Owned_Army;
+                //Draw
+                else
+                    combat_winner = CombatWinner.Draw;
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine($@"GetCombatWinner() -> {ex.Message}");
+                combat_winner = CombatWinner.Draw;
+            }
+
+            return combat_winner;
+        }
+
+        /// <summary>
+        /// Gets the surviving units of the army that won the combat
+        /// </summary>
+        /// <param name="combat_result"></param>
+        /// <param name="combat_winner"></param>
+        /// <returns></returns>
+        public static int GetSurvivingUnits(LanchesterCombatResult combat_result, CombatWinner combat_winner)
+        {
+            double surviving_units = 0;
+
+            try
+            {
+                switch(combat_winner)
+                {
+                    case CombatWinner.Owned_Army:
+                        surviving_units = Math.Sqrt(Math.Pow(combat_result.OwnedArmy_Count, 2) - ((combat_result.OwnedArmy_CombatEffectiveness / combat_result.EnemyArmy_CombatEffectiveness) * Math.Pow(combat_result.EnemyArmy_Count, 2)));
+                        break;
+                    case CombatWinner.Draw:
+                        surviving_units = 0;
+                        break;
+                    case CombatWinner.Enemy_Army:
+                        surviving_units = Math.Sqrt(Math.Pow(combat_result.EnemyArmy_Count, 2) - ((combat_result.EnemyArmy_CombatEffectiveness / combat_result.OwnedArmy_CombatEffectiveness) * Math.Pow(combat_result.OwnedArmy_Count, 2)));
+                        break;
+                }
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine($@"GetSurvivingUnits() -> {ex.Message}");
+                surviving_units = 0;
+            }
+
+            return Convert.ToInt32(surviving_units);
         }
     }
 
     /// <summary>
-    /// Variables for static based algorithm
+    /// The result of combat between two armies using the Static formula
     /// </summary>
-    public struct StaticVariables
+    public struct StaticCombatResult
     {
+        #region Combat Properties
         /// <summary>
-        /// The time it takes to kill the focused army
+        /// The t(B, A) in the Static formula. It is the expected time to destroy
+        /// the enemy army by computing MAX(tair(B, A), tground(B, A)).
         /// </summary>
-        /// <remarks>
-        /// Math.Max(<see cref="TimeToKill_AirUnits"/>, <see cref="TimeToKill_GroundUnits"/>)
-        /// </remarks>
-        public double GlobalTimerToKill_FocusedArmy { get; set; }
+        private double OwnedArmy_TimeToKillEnemyArmy { get; set; }
 
         /// <summary>
-        /// The time it takes to kill the air units of focused army
+        /// The t(A, B) in the Static formula. It is the expected time to destroy
+        /// the owned army by computing MAX(tair(A, B), tground(A, B)).
         /// </summary>
-        /// <remarks>
-        /// Tair(A, B) = HPair(A) / (DPFair(B) + DPFboth(B))
-        /// </remarks>
-        public double TimeToKill_AirUnits { get; set; }
+        private double EnemyArmy_TimeToKillOwnedArmy { get; set; }
 
         /// <summary>
-        /// The time it takes to kill the ground units of focused army
+        /// The allotted time for combat. It is computed by
+        /// MIN(<see cref="OwnedArmy_TimeToKillEnemyArmy"/>, <see cref="EnemyArmy_TimeToKillOwnedArmy"/>).
         /// </summary>
-        /// <remarks>
-        /// Tground(A, B) = HPground(A) / (DPFground(B) + DPFboth(B))
-        /// </remarks>
-        public double TimeToKill_GroundUnits { get; set; }
+        private double TimeToKill { get; set; } 
+        #endregion
 
         /// <summary>
-        /// The basic variables for Static based algorithm
+        /// Computes the time-related properties for combat using the Static formula
         /// </summary>
-        /// <param name="focused_army"></param>
-        /// <param name="opposed_army"></param>
-        public StaticVariables(Army focused_army, Army opposed_army)
+        /// <param name="owned_army"></param>
+        /// <param name="enemy_army"></param>
+        public StaticCombatResult(Army owned_army, Army enemy_army)
         {
-            //Compute the sum of health of air units
-            var focusedarmy_air_totalhealth = focused_army.Where(unit => Unit.Definitions[unit.Name].IsFlying_Unit).Sum(unit => unit.Current_Health);
+            //Compute the total health of both army's air units
+            var ownedarmy_airtotalhealth = owned_army.Where(unit => Unit.Definitions[unit.Name].IsFlying_Unit).Sum(unit => unit.Current_Health);
+            if (Double.IsNaN(ownedarmy_airtotalhealth) || Double.IsInfinity(ownedarmy_airtotalhealth))
+                ownedarmy_airtotalhealth = 0;
+            var enemyarmy_airtotalhealth = enemy_army.Where(unit => Unit.Definitions[unit.Name].IsFlying_Unit).Sum(unit => unit.Current_Health);
+            if (Double.IsNaN(enemyarmy_airtotalhealth) || Double.IsInfinity(enemyarmy_airtotalhealth))
+                enemyarmy_airtotalhealth = 0;
 
-            //Compute the sum of health of ground units
-            var focusedarmy_ground_totalhealth = focused_army.Where(unit => !Unit.Definitions[unit.Name].IsFlying_Unit).Sum(unit => unit.Current_Health);
+            //Compute the total health of both army's ground units
+            var ownedarmy_groundtotalhealth = owned_army.Where(unit => !Unit.Definitions[unit.Name].IsFlying_Unit).Sum(unit => unit.Current_Health);
+            if (Double.IsNaN(ownedarmy_groundtotalhealth) || Double.IsInfinity(ownedarmy_groundtotalhealth))
+                ownedarmy_groundtotalhealth = 0;
+            var enemyarmy_groundtotalhealth = enemy_army.Where(unit => !Unit.Definitions[unit.Name].IsFlying_Unit).Sum(unit => unit.Current_Health);
+            if (Double.IsNaN(enemyarmy_groundtotalhealth) || Double.IsInfinity(enemyarmy_groundtotalhealth))
+                enemyarmy_groundtotalhealth = 0;
 
-            //Compute the potential damage of enemyarmy to air units
-            var opposedarmy_air_meandamage = opposed_army.GetLanchesterMeanTriangularAirDamage();
+            //Compute the potential mean damage of both army's air units
+            var ownedarmy_airminimumpotential = owned_army.Where(unit => Unit.Definitions[unit.Name].IsFlying_Unit).Sum(unit => Unit.GetMinimumPotentialAirDamage(unit));
+            if (Double.IsNaN(ownedarmy_airminimumpotential) || Double.IsInfinity(ownedarmy_airminimumpotential))
+                ownedarmy_airminimumpotential = 0;
+            var ownedarmy_airmaximumpotential = owned_army.Where(unit => Unit.Definitions[unit.Name].IsFlying_Unit).Sum(unit => Unit.GetMaximumPotentialAirDamage(unit));
+            if (Double.IsNaN(ownedarmy_airmaximumpotential) || Double.IsInfinity(ownedarmy_airmaximumpotential))
+                ownedarmy_airmaximumpotential = 0;
+            var ownedarmy_airmeandamage = (((2 * ownedarmy_airminimumpotential) + ownedarmy_airmaximumpotential) / 3);
+            if (Double.IsNaN(ownedarmy_airmeandamage) || Double.IsInfinity(ownedarmy_airmeandamage))
+                ownedarmy_airmeandamage = 0;
+            var enemyarmy_airminimumpotential = enemy_army.Where(unit => Unit.Definitions[unit.Name].IsFlying_Unit).Sum(unit => Unit.GetMinimumPotentialAirDamage(unit));
+            if (Double.IsNaN(enemyarmy_airminimumpotential) || Double.IsInfinity(enemyarmy_airminimumpotential))
+                enemyarmy_airminimumpotential = 0;
+            var enemyarmy_airmaximumpotential = enemy_army.Where(unit => Unit.Definitions[unit.Name].IsFlying_Unit).Sum(unit => Unit.GetMaximumPotentialAirDamage(unit));
+            if (Double.IsNaN(enemyarmy_airmaximumpotential) || Double.IsInfinity(enemyarmy_airmaximumpotential))
+                enemyarmy_airmaximumpotential = 0;
+            var enemyarmy_airmeandamage = (((2 * enemyarmy_airminimumpotential) + enemyarmy_airmaximumpotential) / 3);
+            if (Double.IsNaN(enemyarmy_airmeandamage) || Double.IsInfinity(enemyarmy_airmeandamage))
+                enemyarmy_airmeandamage = 0;
 
-            //Compute the potential damage of enemyarmy to ground units
-            var opposedarmy_ground_meandamage = opposed_army.GetLanchesterMeanTriangularGroundDamage();
+            //Compute the potential mean damage of both army's ground units
+            var ownedarmy_groundminimumpotential = owned_army.Where(unit => !Unit.Definitions[unit.Name].IsFlying_Unit).Sum(unit => Unit.GetMinimumPotentialGroundDamage(unit));
+            if (Double.IsNaN(ownedarmy_groundminimumpotential) || Double.IsInfinity(ownedarmy_groundminimumpotential))
+                ownedarmy_groundminimumpotential = 0;
+            var ownedarmy_groundmaximumpotential = owned_army.Where(unit => !Unit.Definitions[unit.Name].IsFlying_Unit).Sum(unit => Unit.GetMaximumPotentialGroundDamage(unit));
+            if (Double.IsNaN(ownedarmy_groundmaximumpotential) || Double.IsInfinity(ownedarmy_groundmaximumpotential))
+                ownedarmy_groundmaximumpotential = 0;
+            var ownedarmy_groundmeandamage = (((2 * ownedarmy_groundminimumpotential) + ownedarmy_groundmaximumpotential) / 3);
+            if (Double.IsNaN(ownedarmy_groundmeandamage) || Double.IsInfinity(ownedarmy_groundmeandamage))
+                ownedarmy_groundmeandamage = 0;
+            var enemyarmy_groundminimumpotential = enemy_army.Where(unit => !Unit.Definitions[unit.Name].IsFlying_Unit).Sum(unit => Unit.GetMinimumPotentialGroundDamage(unit));
+            if (Double.IsNaN(enemyarmy_groundminimumpotential) || Double.IsInfinity(enemyarmy_groundminimumpotential))
+                enemyarmy_groundminimumpotential = 0;
+            var enemyarmy_groundmaximumpotential = enemy_army.Where(unit => !Unit.Definitions[unit.Name].IsFlying_Unit).Sum(unit => Unit.GetMaximumPotentialGroundDamage(unit));
+            if (Double.IsNaN(enemyarmy_groundmaximumpotential) || Double.IsInfinity(enemyarmy_groundmaximumpotential))
+                enemyarmy_groundmaximumpotential = 0;
+            var enemyarmy_groundmeandamage = (((2 * enemyarmy_groundminimumpotential) + enemyarmy_groundmaximumpotential) / 3);
+            if (Double.IsNaN(enemyarmy_groundmeandamage) || Double.IsInfinity(enemyarmy_groundmeandamage))
+                enemyarmy_groundmeandamage = 0;
 
-            //Compute the time to kill air units of focused army
-            TimeToKill_AirUnits = (focusedarmy_air_totalhealth / (opposedarmy_air_meandamage + (opposedarmy_air_meandamage + opposedarmy_ground_meandamage)));
+            //Compute the aggregated air mean damage of both army
+            var ownedarmy_aggregatedairminimumpotential = owned_army.Sum(unit => Unit.GetMinimumPotentialAirDamage(unit));
+            if (Double.IsNaN(ownedarmy_aggregatedairminimumpotential) || Double.IsInfinity(ownedarmy_aggregatedairminimumpotential))
+                ownedarmy_aggregatedairminimumpotential = 0;
+            var ownedarmy_aggregatedairmaximumpotential = owned_army.Sum(unit => Unit.GetMaximumPotentialAirDamage(unit));
+            if (Double.IsNaN(ownedarmy_aggregatedairmaximumpotential) || Double.IsInfinity(ownedarmy_aggregatedairmaximumpotential))
+                ownedarmy_aggregatedairmaximumpotential = 0;
+            var ownedarmy_aggreatedairmeandamage = (((2 * ownedarmy_aggregatedairminimumpotential) + ownedarmy_aggregatedairmaximumpotential) / 3);
+            if (Double.IsNaN(ownedarmy_aggreatedairmeandamage) || Double.IsInfinity(ownedarmy_aggreatedairmeandamage))
+                ownedarmy_aggreatedairmeandamage = 0;
+            var enemyarmy_aggregatedairminimumpotential = enemy_army.Sum(unit => Unit.GetMinimumPotentialAirDamage(unit));
+            if (Double.IsNaN(enemyarmy_aggregatedairminimumpotential) || Double.IsInfinity(enemyarmy_aggregatedairminimumpotential))
+                enemyarmy_aggregatedairminimumpotential = 0;
+            var enemyarmy_aggregatedairmaximumpotential = enemy_army.Sum(unit => Unit.GetMaximumPotentialAirDamage(unit));
+            if (Double.IsNaN(enemyarmy_aggregatedairmaximumpotential) || Double.IsInfinity(enemyarmy_aggregatedairmaximumpotential))
+                enemyarmy_aggregatedairmaximumpotential = 0;
+            var enemyarmy_aggreatedairmeandamage = (((2 * enemyarmy_aggregatedairminimumpotential) + enemyarmy_aggregatedairmaximumpotential) / 3);
+            if (Double.IsNaN(enemyarmy_aggreatedairmeandamage) || Double.IsInfinity(enemyarmy_aggreatedairmeandamage))
+                enemyarmy_aggreatedairmeandamage = 0;
 
-            //Compute the time to kill ground units of focused army
-            TimeToKill_GroundUnits = (focusedarmy_ground_totalhealth / (opposedarmy_ground_meandamage + (opposedarmy_air_meandamage + opposedarmy_ground_meandamage)));
+            //Compute the aggregated ground mean damage of both army
+            var ownedarmy_aggregatedgroundminimumpotential = owned_army.Sum(unit => Unit.GetMinimumPotentialGroundDamage(unit));
+            if (Double.IsNaN(ownedarmy_aggregatedgroundminimumpotential) || Double.IsInfinity(ownedarmy_aggregatedgroundminimumpotential))
+                ownedarmy_aggregatedgroundminimumpotential = 0;
+            var ownedarmy_aggregatedgroundmaximumpotential = owned_army.Sum(unit => Unit.GetMaximumPotentialGroundDamage(unit));
+            if (Double.IsNaN(ownedarmy_aggregatedgroundmaximumpotential) || Double.IsInfinity(ownedarmy_aggregatedgroundmaximumpotential))
+                ownedarmy_aggregatedgroundmaximumpotential = 0;
+            var ownedarmy_aggregatedgroundmeandamage = (((2 * ownedarmy_aggregatedgroundminimumpotential) + ownedarmy_aggregatedgroundmaximumpotential) / 3);
+            if (Double.IsNaN(ownedarmy_aggregatedgroundmeandamage) || Double.IsInfinity(ownedarmy_aggregatedgroundmeandamage))
+                ownedarmy_aggregatedgroundmeandamage = 0;
+            var enemyarmy_aggregatedgroundminimumpotential = enemy_army.Sum(unit => Unit.GetMinimumPotentialGroundDamage(unit));
+            if (Double.IsNaN(enemyarmy_aggregatedgroundminimumpotential) || Double.IsInfinity(enemyarmy_aggregatedgroundminimumpotential))
+                enemyarmy_aggregatedgroundminimumpotential = 0;
+            var enemyarmy_aggregatedgroundmaximumpotential = enemy_army.Sum(unit => Unit.GetMaximumPotentialGroundDamage(unit));
+            if (Double.IsNaN(enemyarmy_aggregatedgroundmaximumpotential) || Double.IsInfinity(enemyarmy_aggregatedgroundmaximumpotential))
+                enemyarmy_aggregatedgroundmaximumpotential = 0;
+            var enemyarmy_aggregatedgroundmeandamage = (((2 * enemyarmy_aggregatedgroundminimumpotential) + enemyarmy_aggregatedgroundmaximumpotential) / 3);
+            if (Double.IsNaN(enemyarmy_aggregatedgroundmeandamage) || Double.IsInfinity(enemyarmy_aggregatedgroundmeandamage))
+                enemyarmy_aggregatedgroundmeandamage = 0;
 
-            //Get the global timer to kill the opposing army
-            GlobalTimerToKill_FocusedArmy = Math.Max(TimeToKill_AirUnits, TimeToKill_GroundUnits);
+            //Compute the time to kill air units of both army
+            var ownedarmy_timetokillairunits = (enemyarmy_airtotalhealth / (ownedarmy_airmeandamage + ownedarmy_aggreatedairmeandamage));
+            if (Double.IsNaN(ownedarmy_timetokillairunits) || Double.IsInfinity(ownedarmy_timetokillairunits))
+                ownedarmy_timetokillairunits = 0;
+            var enemyarmy_timetokillairunits = (ownedarmy_airtotalhealth / (enemyarmy_airmeandamage + enemyarmy_aggreatedairmeandamage));
+            if (Double.IsNaN(enemyarmy_timetokillairunits) || Double.IsInfinity(enemyarmy_timetokillairunits))
+                enemyarmy_timetokillairunits = 0;
+
+            //Compute the time to kill ground units of both army
+            var ownedarmy_timetokillgroundunits = (enemyarmy_groundtotalhealth / (ownedarmy_groundmeandamage + ownedarmy_aggregatedgroundmeandamage));
+            if (Double.IsNaN(ownedarmy_timetokillgroundunits) || Double.IsInfinity(ownedarmy_timetokillgroundunits))
+                ownedarmy_timetokillgroundunits = 0;
+            var enemyarmy_timetokillgroundunits = (ownedarmy_groundtotalhealth / (enemyarmy_groundmeandamage + enemyarmy_aggregatedgroundmeandamage));
+            if (Double.IsNaN(enemyarmy_timetokillgroundunits) || Double.IsInfinity(enemyarmy_timetokillgroundunits))
+                enemyarmy_timetokillgroundunits = 0;
+
+            //Compute the time to kill the army
+            OwnedArmy_TimeToKillEnemyArmy = Math.Max(ownedarmy_timetokillairunits, ownedarmy_timetokillgroundunits);
+            EnemyArmy_TimeToKillOwnedArmy = Math.Max(enemyarmy_timetokillairunits, enemyarmy_timetokillgroundunits);
+
+            //Compute the global time for combat
+            TimeToKill = Math.Min(OwnedArmy_TimeToKillEnemyArmy, EnemyArmy_TimeToKillOwnedArmy);
         }
+
+        /// <summary>
+        /// Returns the combat time
+        /// </summary>
+        /// <param name="combat_result"></param>
+        /// <returns></returns>
+        public static int GetCombatTime(StaticCombatResult combat_result) => Convert.ToInt32(combat_result.TimeToKill);
+    }
+
+    public struct DynamicCombatResult
+    {
+
     }
 }

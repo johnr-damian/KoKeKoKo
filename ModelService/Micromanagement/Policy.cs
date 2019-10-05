@@ -13,7 +13,7 @@ namespace ModelService.Micromanagement
         ///     army. If the current unit can target the given random enemy unit, it will be the set target
         ///     regardless of health, damage/energy, worth, and distance. It also disregards that multiple
         ///     units could target the same unit. In the case that the current enemy unit cannot be targeted, 
-        ///     an offset is added until it reaches the same enemy unit, resulting to having no target at all
+        ///     an offset is added until it reaches the same enemy unit, resulting to having no target at all.
         /// </para>
         /// <para>
         ///     This method only affects '<paramref name="focused_army"/>', which means that this is
@@ -71,7 +71,7 @@ namespace ModelService.Micromanagement
         /// </para>
         /// <para>
         ///     This method only affects '<paramref name="focused_army"/>', which means that this is 
-        ///     the only one to have targets at the end of the policy
+        ///     the only one to have targets at the end of the policy.
         /// </para>
         /// </summary>
         /// <remarks>

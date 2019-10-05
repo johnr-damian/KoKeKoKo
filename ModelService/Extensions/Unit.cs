@@ -239,6 +239,56 @@ namespace ModelService.Types
         /// </summary>
         /// <returns></returns>
         public static double GetARandomPercentage() => _shoulduseskill.NextDouble();
+
+        /// <summary>
+        /// Returns either the <see cref="GetMinimumPotentialAirDamage(Unit)"/>, or the 
+        /// <see cref="GetMinimumPotentialGroundDamage(Unit)"/> depending on the current
+        /// target of this unit whether it is a flying unit or not.
+        /// </summary>
+        /// <param name="unit"></param>
+        /// <returns></returns>
+        public static double GetMinimumPotentialDamage(Unit unit) => ((Unit.Definitions[unit.Target.Name].IsFlying_Unit) ? GetMinimumPotentialAirDamage(unit) : GetMinimumPotentialGroundDamage(unit));
+
+        /// <summary>
+        /// Returns the <see cref="ApplyArmorToCurrentAirDamage()"/> that depends on the 
+        /// current target's <see cref="Name"/> of this unit
+        /// </summary>
+        /// <param name="unit"></param>
+        /// <returns></returns>
+        public static double GetMinimumPotentialAirDamage(Unit unit) => unit.ApplyArmorToCurrentAirDamage();
+
+        /// <summary>
+        /// Returns the <see cref="ApplyArmorToCurrentGroundDamage()"/> that depends on the
+        /// current target's <see cref="Name"/> of this unit
+        /// </summary>
+        /// <param name="unit"></param>
+        /// <returns></returns>
+        public static double GetMinimumPotentialGroundDamage(Unit unit) => unit.ApplyArmorToCurrentGroundDamage();
+
+        /// <summary>
+        /// Returns either the <see cref="GetMaximumPotentialAirDamage(Unit)"/>, or the
+        /// <see cref="GetMaximumPotentialGroundDamage(Unit)"/> depending on the current
+        /// target of this unit whether it is a flying unit or not.
+        /// </summary>
+        /// <param name="unit"></param>
+        /// <returns></returns>
+        public static double GetMaximumPotentialDamage(Unit unit) => ((Unit.Definitions[unit.Target.Name].IsFlying_Unit) ? Unit.GetMaximumPotentialAirDamage(unit) : Unit.GetMaximumPotentialGroundDamage(unit));
+
+        /// <summary>
+        /// Returns the <see cref="UnitExtensions.GetMaximumPotentialAirDamage(Unit)"/> applied with
+        /// <see cref="ApplyArmorToCurrentAirDamage(double)"/> depending the current target's <see cref="Name"/>
+        /// </summary>
+        /// <param name="unit"></param>
+        /// <returns></returns>
+        public static double GetMaximumPotentialAirDamage(Unit unit) => unit.ApplyArmorToCurrentAirDamage(unit.GetMaximumPotentialAirDamage());
+
+        /// <summary>
+        /// Returns the <see cref="UnitExtensions.GetMaximumPotentialGroundDamage(Unit)"/> applied with
+        /// <see cref="ApplyArmorToCurrentGroundDamage(double)"/> depending the current target's <see cref="Name"/>
+        /// </summary>
+        /// <param name="unit"></param>
+        /// <returns></returns>
+        public static double GetMaximumPotentialGroundDamage(Unit unit) => unit.ApplyArmorToCurrentGroundDamage(unit.GetMaximumPotentialGroundDamage());
     }
 
     /// <summary>
@@ -247,77 +297,6 @@ namespace ModelService.Types
     /// </summary>
     public static class UnitExtensions
     {
-        private static double ApplyArmorToDamage(this Unit unit)
-        {
-            double Actual_Ground_Damage = 0, Actual_Air_Damage = 0;
-            if (unit.Name == "TERRAN_MARINE")
-            {
-                Actual_Ground_Damage = unit.Current_Ground_Damage - (1.6 * unit.Target.Current_Armor);
-                Actual_Air_Damage = unit.Current_Air_Damage - (1.6 * unit.Target.Current_Armor);
-            }
-            else if (unit.Name == "TERRAN_WIDOWMINE")
-            {
-                Actual_Ground_Damage = unit.Current_Ground_Damage - (1 * unit.Target.Current_Armor);
-                Actual_Air_Damage = unit.Current_Air_Damage - (1 * unit.Target.Current_Armor);
-            }
-            else if (unit.Name == "TERRAN_SCV")
-                Actual_Ground_Damage = unit.Current_Ground_Damage - (0.93 * unit.Target.Current_Armor);
-            else if (unit.Name == "TERRAN_REAPER")
-                Actual_Ground_Damage = unit.Current_Ground_Damage - (2.5 * unit.Target.Current_Armor);
-            else if (unit.Name == "TERRAN_MARAUDER")
-                Actual_Ground_Damage = unit.Current_Ground_Damage - (0.93 * unit.Target.Current_Armor);
-            else if (unit.Name == "TERRAN_GHOST")
-            {
-                Actual_Ground_Damage = unit.Current_Ground_Damage - (0.93 * unit.Target.Current_Armor);
-                Actual_Air_Damage = unit.Current_Air_Damage - (0.93 * unit.Target.Current_Armor);
-            }
-            else if (unit.Name == "TERRAN_HELLION")
-                Actual_Ground_Damage = unit.Current_Ground_Damage - (0.56 * unit.Target.Current_Armor);
-            else if (unit.Name == "TERRAN_SIEGETANK")
-                Actual_Ground_Damage = unit.Current_Ground_Damage - (1.35 * unit.Target.Current_Armor);
-            else if (unit.Name == "TERRAN_SIEGETANKSIEGED")
-                Actual_Ground_Damage = unit.Current_Ground_Damage - (0.47 * unit.Target.Current_Armor);
-            else if (unit.Name == "TERRAN_CYCLONE")
-            {
-                Actual_Ground_Damage = unit.Current_Ground_Damage - (1.26 * unit.Target.Current_Armor);
-                Actual_Air_Damage = unit.Current_Air_Damage - (1.26 * unit.Target.Current_Armor);
-            }
-            else if (unit.Name == "TERRAN_HELLIONTANK")
-                Actual_Ground_Damage = unit.Current_Ground_Damage - (0.71 * unit.Target.Current_Armor);
-            else if (unit.Name == "TERRAN_THOR")
-            {
-                Actual_Ground_Damage = unit.Current_Ground_Damage - (2.16 * unit.Target.Current_Armor);
-                Actual_Air_Damage = unit.Current_Air_Damage - (1.87 * unit.Target.Current_Armor);
-            }
-            else if (unit.Name == "TERRAN_THORAP")
-            {
-                Actual_Ground_Damage = unit.Current_Ground_Damage - (2.16 * unit.Target.Current_Armor);
-                Actual_Air_Damage = unit.Current_Air_Damage - (0.59 * unit.Target.Current_Armor);
-            }
-            else if (unit.Name == "TERRAN_AUTOTURRET")
-            {
-                Actual_Ground_Damage = unit.Current_Ground_Damage - (1.76 * unit.Target.Current_Armor);
-                Actual_Air_Damage = unit.Current_Air_Damage - (1.76 * unit.Target.Current_Armor);
-            }
-            else if (unit.Name == "TERRAN_VIKINGASSAULT")
-                Actual_Ground_Damage = unit.Current_Ground_Damage - (1.4 * unit.Target.Current_Armor);
-            else if (unit.Name == "TERRAN_VIKINGFIGHTER")
-                Actual_Air_Damage = unit.Current_Air_Damage - (1.4 * unit.Target.Current_Armor);
-            else if (unit.Name == "TERRAN_LIBERATOR")
-                Actual_Air_Damage = unit.Current_Air_Damage - (1.4 * unit.Target.Current_Armor);
-            else if (unit.Name == "TERRAN_LIBERATORAG")
-                Actual_Ground_Damage = unit.Current_Ground_Damage - (0.81 * unit.Target.Current_Armor);
-            else if (unit.Name == "TERRAN_BANSHEE")
-                Actual_Ground_Damage = unit.Current_Ground_Damage - (2.25 * unit.Target.Current_Armor);
-            else if (unit.Name == "TERRAN_BATTLECRUISER")
-            {
-                Actual_Ground_Damage = unit.Current_Ground_Damage - (6.2 * unit.Target.Current_Armor);
-                Actual_Air_Damage = unit.Current_Air_Damage - (6.2 * unit.Target.Current_Armor);
-            }
-
-            return (Unit.Definitions[unit.Target.Name].IsFlying_Unit ? Actual_Air_Damage : Actual_Ground_Damage);
-        }
-
         public static double GetMaximumPotentialAirDamage(this Unit unit)
         {
             double potential_air_damage = -1;
@@ -603,5 +582,13 @@ namespace ModelService.Types
                 }
             }
         }
+
+        /// <summary>
+        /// Deals a simple damage by <paramref name="dealt_damage"/> to the
+        /// current target of this unit
+        /// </summary>
+        /// <param name="unit"></param>
+        /// <param name="dealt_damage"></param>
+        public static void SimpleAttackToTarget(this Unit unit, double dealt_damage) => unit.Target.Current_Health -= dealt_damage;
     }
 }

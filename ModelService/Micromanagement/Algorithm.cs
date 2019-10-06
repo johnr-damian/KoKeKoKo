@@ -218,8 +218,98 @@ namespace ModelService.Micromanagement
                 var combat_time = StaticCombatResult.GetCombatTime(combat_result);
 
                 //Let both armies attack each other
-                owned_units.DealSimpleDamageToTarget(combat_time);
-                enemy_units.DealSimpleDamageToTarget(combat_time);
+                owned_units.DealDamageToTarget(combat_time);
+                enemy_units.DealDamageToTarget(combat_time);
+
+                //Get the surviving units of the winner
+                var survived_owned_units = owned_units.Where(unit => !unit.IsDefeated).ToArmy();
+                var survived_enemy_units = enemy_units.Where(unit => !unit.IsDefeated).ToArmy();
+                //Owned Army Loss
+                if (survived_owned_units.Count() < survived_enemy_units.Count())
+                    battle_result = new Tuple<string, CostWorth>(survived_enemy_units.ToString(), CostWorth.GetComplementOfCostWorth(survived_enemy_units.GetValueOfArmy()));
+                //Owned Army Won
+                else if (survived_owned_units.Count() > survived_enemy_units.Count())
+                    battle_result = new Tuple<string, CostWorth>(survived_owned_units.ToString(), survived_owned_units.GetValueOfArmy());
+                //Draw
+                else
+                    battle_result = new Tuple<string, CostWorth>(@"""""", default(CostWorth));
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine($@"StaticBasedPrediction() -> {ex.Message}");
+                battle_result = null;
+            }
+
+            return battle_result;
+        }
+
+        public Tuple<string, CostWorth> DynamicBasedPrediction(TargetPolicy target_policy)
+        {
+            Tuple<string, CostWorth> battle_result = null;
+
+            try
+            {
+                //Create a copy of units
+                var owned_units = _owned_units.GetDeepCopy();
+                var enemy_units = _enemy_units.GetDeepCopy();
+
+                //Set the targets for each army
+                //This will get the true damage of unit, and a target to be attacked
+                switch(target_policy)
+                {
+                    case TargetPolicy.Random:
+                        RandomBasedTargetPolicy(ref owned_units, enemy_units);
+                        RandomBasedTargetPolicy(ref enemy_units, owned_units);
+                        break;
+                    case TargetPolicy.Priority:
+                        PriorityBasedTargetPolicy(ref owned_units, enemy_units);
+                        PriorityBasedTargetPolicy(ref enemy_units, owned_units);
+                        break;
+                    case TargetPolicy.Resource:
+                        ResourceBasedTargetPolicy(ref owned_units, enemy_units);
+                        ResourceBasedTargetPolicy(ref enemy_units, owned_units);
+                        break;
+                }
+
+                //Compute the battle output, then let both armies attack each other
+                var combat_result = new DynamicCombatResult(owned_units, enemy_units);
+                do
+                {
+                    var combat_time = DynamicCombatResult.GetCombatTime(combat_result);
+                    for (int time_to_kill = 0; time_to_kill < combat_time; time_to_kill++)
+                    {
+                        var ability_probability = REngineExtensions.GetRandomGenerator().NextDouble();
+                        owned_units.DealDamageToTarget(ability_probability);
+                        enemy_units.DealDamageToTarget(ability_probability);
+                    }
+
+                    //Get the surviving units of both army
+                    owned_units = owned_units.Where(unit => !unit.IsDefeated).ToArmy();
+                    enemy_units = enemy_units.Where(unit => !unit.IsDefeated).ToArmy();
+
+                    //Re-set the targets for each army
+                    //Prevents dead-lock and null target, gets true damage, and a target to be attacked
+                    switch (target_policy)
+                    {
+                        case TargetPolicy.Random:
+                            RandomBasedTargetPolicy(ref owned_units, enemy_units);
+                            RandomBasedTargetPolicy(ref enemy_units, owned_units);
+                            break;
+                        case TargetPolicy.Priority:
+                            PriorityBasedTargetPolicy(ref owned_units, enemy_units);
+                            PriorityBasedTargetPolicy(ref owned_units, enemy_units);
+                            break;
+                        case TargetPolicy.Resource:
+                            ResourceBasedTargetPolicy(ref owned_units, enemy_units);
+                            ResourceBasedTargetPolicy(ref enemy_units, owned_units);
+                            break;
+                    }
+                }
+                while (DynamicCombatResult.IsCombatContinuable(owned_units, enemy_units));
+                {
+                    //Re-compute the battle output, then let both armies attack again each other
+                    combat_result = new DynamicCombatResult(owned_units, enemy_units);
+                }
 
                 //Get the surviving units of the winner
                 var survived_owned_units = owned_units.Where(unit => !unit.IsDefeated).ToArmy();
@@ -234,61 +324,7 @@ namespace ModelService.Micromanagement
             }
             catch(Exception ex)
             {
-                Console.WriteLine($@"StaticBasedPrediction() -> {ex.Message}");
-                battle_result = null;
-            }
-
-            return battle_result;
-        }
-
-        /// <summary>
-        /// A high-level abstraction of prediction algorithm, but more detailed. Unlike <see cref="StaticBasedPrediction(TargetPolicy)"/>,
-        /// It considers the decreasing of energy of the unit and as well as the health of each unit. But at the cost of this,
-        /// it takes the longest to operate
-        /// </summary>
-        /// <param name="target_policy"></param>
-        /// <returns></returns>
-        public Tuple<string, double> DynamicBasedPrediction(TargetPolicy target_policy)
-        {
-            Tuple<string, double> battle_result = null;
-
-            try
-            {
-                var owned_units = _owned_units.GetDeepCopy();
-                var enemy_units = _enemy_units.GetDeepCopy();
-
-                switch(target_policy)
-                {
-                    case TargetPolicy.Random:
-                        RandomBasedTargetPolicy(ref owned_units, enemy_units);
-                        RandomBasedTargetPolicy(ref enemy_units, owned_units);
-
-                        break;
-                    case TargetPolicy.Priority:
-                        PriorityBasedTargetPolicy(ref owned_units, enemy_units);
-                        PriorityBasedTargetPolicy(ref enemy_units, owned_units);
-
-                        break;
-                    case TargetPolicy.Resource:
-                        ResourceBasedTargetPolicy(ref owned_units, enemy_units);
-                        ResourceBasedTargetPolicy(ref enemy_units, owned_units);
-
-                        break;
-                }
-
-                //No Retargeting, infinite loop
-                //We need to update the target while taking note who survive
-                while(Army.CanStillKillEachOther(ref owned_units, ref enemy_units))
-                {
-                    foreach (var unit in owned_units)
-                        unit.AttackTarget();
-                    foreach (var unit in enemy_units)
-                        unit.AttackTarget();
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($@"DynamicBasedPrediction() -> {ex.Message}...");
+                Console.WriteLine($@"DynamicBasedPrediction() -> {ex.Message}");
                 battle_result = null;
             }
 

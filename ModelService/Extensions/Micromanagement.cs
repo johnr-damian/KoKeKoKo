@@ -420,11 +420,144 @@ namespace ModelService.Micromanagement
         /// </summary>
         /// <param name="combat_result"></param>
         /// <returns></returns>
-        public static int GetCombatTime(StaticCombatResult combat_result) => Convert.ToInt32(combat_result.TimeToKill);
+        public static int GetCombatTime(StaticCombatResult combat_result) => Convert.ToInt32(Math.Ceiling(combat_result.TimeToKill));
     }
 
+    /// <summary>
+    /// The result of combat between two armies using the Dynamic formula
+    /// </summary>
     public struct DynamicCombatResult
     {
+        #region Combat Properties
+        /// <summary>
+        /// The TIMEToKillUnit(B, A, DPF) in the Dynamic formula. It is the expected
+        /// time to destroy the target for each unit of owned army
+        /// </summary>
+        private Dictionary<string, double> OwnedArmy_TimeToKillEnemyArmy { get; set; }
 
+        /// <summary>
+        /// The TIMEToKillUnit(A, B, DPF) in the Dynamic formula. It is the expected
+        /// time to destroy the target for each unit of enemy army.
+        /// </summary>
+        private Dictionary<string, double> EnemyArmy_TimeToKillOwnedArmy { get; set; }
+
+        /// <summary>
+        /// The allotted time for combat. It is computed by 
+        /// MIN(MAX(<see cref="OwnedArmy_TimeToKillEnemyArmy"/>, MAX(<see cref="EnemyArmy_TimeToKillOwnedArmy"/>).
+        /// </summary>
+        private double TimeToKill { get; set; } 
+        #endregion
+
+        /// <summary>
+        /// Computes the time-related properties for combat using the Dynamic formula
+        /// </summary>
+        /// <param name="owned_army"></param>
+        /// <param name="enemy_army"></param>
+        public DynamicCombatResult(Army owned_army, Army enemy_army)
+        {
+            //Compute the time to kill for each unit's target of both army
+            OwnedArmy_TimeToKillEnemyArmy = new Dictionary<string, double>();
+            for(var enumerator = owned_army.GetEnumerator(); enumerator.MoveNext();)
+            {
+                //Compute the potential mean damage to target
+                var potentialmeandamage = (((2 * Unit.GetMinimumPotentialDamage(enumerator.Current)) + Unit.GetMaximumPotentialDamage(enumerator.Current)) / 3);
+
+                //Compute the time to kill target
+                var timetokill = enumerator.Current.Target.Current_Health / potentialmeandamage;
+
+                //Store the time
+                OwnedArmy_TimeToKillEnemyArmy.Add(enumerator.Current.UniqueID, timetokill);
+            }
+            EnemyArmy_TimeToKillOwnedArmy = new Dictionary<string, double>();
+            for(var enumerator = enemy_army.GetEnumerator(); enumerator.MoveNext();)
+            {
+                //Compute the potential mean damage to target
+                var potentialmeandamage = (((2 * Unit.GetMinimumPotentialDamage(enumerator.Current)) + Unit.GetMaximumPotentialDamage(enumerator.Current)) / 3);
+
+                //Compute the time to kill target
+                var timetokill = enumerator.Current.Target.Current_Health / potentialmeandamage;
+
+                //Store the time
+                EnemyArmy_TimeToKillOwnedArmy.Add(enumerator.Current.UniqueID, timetokill);
+            }
+
+            //Get the max time to kill a unit of both army
+            var ownedarmy_maxtimetokillenemyunit = OwnedArmy_TimeToKillEnemyArmy.Max(unit => unit.Value);
+            var enemyarmy_maxtimetokillenemyunit = EnemyArmy_TimeToKillOwnedArmy.Max(unit => unit.Value);
+
+            //Compute the global time for combat
+            TimeToKill = Math.Min(ownedarmy_maxtimetokillenemyunit, enemyarmy_maxtimetokillenemyunit);
+        }
+
+        /// <summary>
+        /// Returns the combat time
+        /// </summary>
+        /// <param name="combat_result"></param>
+        /// <returns></returns>
+        public static int GetCombatTime(DynamicCombatResult combat_result) => Convert.ToInt32(Math.Ceiling(combat_result.TimeToKill));
+
+        /// <summary>
+        /// Returns true if either one of the army's health is less than 0, or there are
+        /// no more units in each army that can target each other
+        /// </summary>
+        /// <param name="owned_units"></param>
+        /// <param name="enemy_units"></param>
+        /// <returns></returns>
+        public static bool IsCombatContinuable(Army owned_units, Army enemy_units)
+        {
+            bool is_damageable = ((owned_units.Sum(unit => unit.Current_Health) > 0) && (enemy_units.Sum(unit => unit.Current_Health) > 0));
+            bool is_targetable = false;
+
+            try
+            {
+                //If there are units still alive in both army
+                if(is_damageable)
+                {
+                    bool ownedarmy_targetable = false, enemyarmy_targetable = false;
+
+                    //Units that have no targets and still alive
+                    var owned_units_notargets = owned_units.Where(unit => (unit.IsOpposingDefeated && !unit.IsDefeated));
+                    var enemy_units_notargets = enemy_units.Where(unit => (unit.IsOpposingDefeated && !unit.IsDefeated));
+
+                    //Check if there are still targetable in both army
+                    foreach(var no_target_units in owned_units_notargets)
+                    {
+                        foreach(var alive_units in enemy_units_notargets)
+                        {
+                            //There is still a targetable in enemy army
+                            if(no_target_units.CanTarget(alive_units))
+                            {
+                                enemyarmy_targetable = true;
+                                break;
+                            }
+                        }
+                        
+                    }
+                    foreach(var no_target_units in enemy_units_notargets)
+                    {
+                        foreach(var alive_units in owned_units_notargets)
+                        {
+                            //There is still a targetable in owned army
+                            if(no_target_units.CanTarget(alive_units))
+                            {
+                                ownedarmy_targetable = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    //If one of the army still have units that can be targeted,
+                    //the combat will continue
+                    is_targetable = (ownedarmy_targetable || enemyarmy_targetable);
+                }
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine($@"IsCombatContinuable() -> {ex.Message}");
+                is_targetable = false;
+            }
+
+            return (is_damageable && is_targetable);
+        }
     }
 }

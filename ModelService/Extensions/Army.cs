@@ -8,56 +8,6 @@ using System.Threading.Tasks;
 
 namespace ModelService.Types
 {
-    public partial class Army
-    {
-        private static Random _damagegenerator;
-        private double Minimum_Damage { get; set; } = default(double);
-        private double Maximum_Damage { get; set; } = default(double);
-
-        static Army()
-        {
-            _damagegenerator = new Random();
-        }
-
-        /// <summary>
-        /// Returns a random damage between the potential minimum damage of army and maximum potential damage of army
-        /// </summary>
-        /// <returns></returns>
-        public double GetARandomDamage() => (_damagegenerator.NextDouble() * ((Maximum_Damage - Minimum_Damage) + Minimum_Damage));
-
-        /// <summary>
-        /// If there is still a unit alive in both army
-        /// </summary>
-        /// <param name="owned_units"></param>
-        /// <param name="enemy_units"></param>
-        /// <returns></returns>
-        public static bool CanStillKillEachOther(ref Army owned_units, ref Army enemy_units)
-        {
-            bool is_owned_army_alive = false, is_enemy_army_alive = false;
-
-            //There is still a living unit in owned army
-            foreach (var own_unit in owned_units)
-            {
-                if (!own_unit.IsDefeated) //someone is still alive
-                {
-                    is_owned_army_alive = true;
-                    break;
-                }
-            }
-
-            foreach (var enemy_unit in enemy_units)
-            {
-                if (!enemy_unit.IsDefeated) //someone is still alive
-                {
-                    is_enemy_army_alive = true;
-                    break;
-                }
-            }
-
-            return (is_owned_army_alive && is_enemy_army_alive);
-        }
-    }
-
     public static class ArmyExtensions
     {
         public static Army ToArmy(this IEnumerable<Unit> units) => new Army(units);
@@ -171,7 +121,7 @@ namespace ModelService.Types
         /// <summary>
         /// <para>
         ///     This method deals an aggregated damage to the <see cref="Unit.Target"/> of each 
-        ///     unit in the army. This aggregated damage is randomly generated using <see cref="REngineExtensions.GetTriangularRandomNumber(int, double, double, double)"/>.
+        ///     unit in the army. This aggregated damage is randomly generated using <see cref="REngineExtensions.GetTriangularRandomNumber(RDotNet.REngine, int, double, double, double)"/>
         ///     The damage that can be dealt is between the <see cref="Unit.GetMinimumPotentialDamage(Unit)"/> and the
         ///     <see cref="Unit.GetMaximumPotentialDamage(Unit)"/> that depends on the type of the current target of unit.
         ///     It is aggregated because it sums a number of times the generated random damage based 
@@ -185,7 +135,7 @@ namespace ModelService.Types
         /// </summary>
         /// <param name="units"></param>
         /// <param name="time_to_kill"></param>
-        public static void DealSimpleDamageToTarget(this IEnumerable<Unit> units, int time_to_kill)
+        public static void DealDamageToTarget(this IEnumerable<Unit> units, int time_to_kill)
         {
             for(var enumerator = units.GetEnumerator(); enumerator.MoveNext();)
             {
@@ -193,6 +143,19 @@ namespace ModelService.Types
                 var damage_to_deal = ModelRepositoryService.GetREngine().GetTriangularRandomNumber(time_to_kill, minimum_and_mode, Unit.GetMaximumPotentialDamage(enumerator.Current), minimum_and_mode);
                 enumerator.Current.SimpleAttackToTarget(damage_to_deal);
             }
+        }
+
+        /// <summary>
+        /// <para>
+        ///     
+        /// </para>
+        /// </summary>
+        /// <param name="units"></param>
+        /// <param name="ability_probability"></param>
+        public static void DealDamageToTarget(this IEnumerable<Unit> units, double ability_probability)
+        {
+            for (var enumerator = units.GetEnumerator(); enumerator.MoveNext();)
+                enumerator.Current.ComplexAttackToTarget(ability_probability);
         }
     }
 }

@@ -590,5 +590,10 @@ namespace ModelService.Types
         /// <param name="unit"></param>
         /// <param name="dealt_damage"></param>
         public static void SimpleAttackToTarget(this Unit unit, double dealt_damage) => unit.Target.Current_Health -= dealt_damage;
+
+        public static void ComplexAttackToTarget(this Unit unit, double ability_probability)
+        {
+
+        }
     }
 }

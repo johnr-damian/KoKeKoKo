@@ -49,9 +49,9 @@ namespace ModelService
                     Console.WriteLine($@"Static - Random: {result[3] * 100}%");
                     Console.WriteLine($@"Static - Priority: {result[4] * 100}%");
                     Console.WriteLine($@"Static - Resource: {result[5] * 100}%");
-                    //Console.WriteLine($@"Dynamic - Random: {result[6] * 100}%");
-                    //Console.WriteLine($@"Dynamic - Priority: {result[7] * 100}%");
-                    //Console.WriteLine($@"Dynamic - Resource: {result[8] * 100}%");
+                    Console.WriteLine($@"Dynamic - Random: {result[6] * 100}%");
+                    Console.WriteLine($@"Dynamic - Priority: {result[7] * 100}%");
+                    Console.WriteLine($@"Dynamic - Resource: {result[8] * 100}%");
 #else
 
 #endif

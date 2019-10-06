@@ -40,7 +40,7 @@ namespace ModelService
         /// prebattle player 1 army, prebattle player 2 army, postbattle result
         /// </summary>
         /// <returns></returns>
-        public List<Tuple<string, string, string, string, string>> ReadArmyRepository()
+        public List<Tuple<string, string, string, string, string>> ReadArmiesRepository()
         {
             var armyrepository = new List<Tuple<string, string, string, string, string>>();
 
@@ -141,6 +141,11 @@ namespace ModelService
             }
 
             return armyrepository;
+        }
+
+        public List<Tuple<string, string, string, string>> ReadResourcesRepository()
+        {
+
         }
     }
 }

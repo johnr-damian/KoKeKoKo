@@ -33,7 +33,7 @@ namespace ModelService
                     Console.WriteLine("ModelService has started in standalone mode!");
                     Console.WriteLine("Getting Micromanagement accuracy report...");
 
-                    var micro = modelrepositoryservice.ReadArmyRepository();
+                    var micro = modelrepositoryservice.ReadArmiesRepository();
 
                     var battles = new List<Micromanagement.Micromanagement>();
                     var battles_result = new List<List<double>>();
@@ -42,7 +42,18 @@ namespace ModelService
                         battles.Add(new Micromanagement.Micromanagement(new Army(m.Item3), new Army(m.Item4), new Army(m.Item5)));
 
 #if DEBUG
-                    var result = battles[3].GetMicromanagementAccuracyReport(10);
+                    var results_raw = new List<List<double>>();
+                    foreach (var battle in battles)
+                        results_raw.Add(battle.GetMicromanagementAccuracyReport(1));
+                    var result = new List<double>();
+                    for(int result_iterator = 0; result_iterator < 9; result_iterator++)
+                    {
+                        var aggregated_result = new List<double>();
+                        foreach (var result_raw in results_raw)
+                            aggregated_result.Add(result_raw[result_iterator]);
+
+                        result.Add(REngineExtensions.GetStandardDeviation(aggregated_result));
+                    }
                     Console.WriteLine($@"Lanchester - Random: {result[0] * 100}%");
                     Console.WriteLine($@"Lanchester - Priority: {result[1] * 100}%");
                     Console.WriteLine($@"Lanchester - Resource: {result[2] * 100}%");

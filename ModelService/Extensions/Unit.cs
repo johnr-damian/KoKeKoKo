@@ -369,11 +369,6 @@ namespace ModelService.Types
             return  potential_ground_damage;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="unit"></param>
-        /// <param name="skill_name"></param>
         public static void UseSkillOrAbilities(this Unit unit, string skill_name) //Only damage dealing/affecting skills considered
         {
             switch(unit.Name)
@@ -381,6 +376,8 @@ namespace ModelService.Types
                 case "TERRAN_MARINE":
                     if (skill_name == "EFFECT_STIM") //costs 10hp/sec 
                     {
+                        if (unit.Activated_Skills.ContainsKey(skill_name))
+                            break;
                         unit.Current_Ground_Damage = unit.Current_Ground_Damage + (unit.Current_Ground_Damage * 50);
                         unit.Current_Air_Damage = unit.Current_Air_Damage + (unit.Current_Air_Damage * .50);
                         unit.Activated_Skills.Add(skill_name, new UnitSkills(11, 11));//Technically no cooldown but recasting refreshes duration (recasting after duration maximizes efficiency)
@@ -389,6 +386,8 @@ namespace ModelService.Types
                 case "TERRAN_MARAUDER":
                     if (skill_name == "EFFECT_STIM") //costs 20hp/sec 
                     {
+                        if (unit.Activated_Skills.ContainsKey(skill_name))
+                            break;
                         unit.Current_Ground_Damage = unit.Current_Ground_Damage + (unit.Current_Ground_Damage * 50);
                         unit.Activated_Skills.Add(skill_name, new UnitSkills(11, 11)); //Technically no cooldown but recasting refreshes duration (recasting after duration maximizes efficiency)
                     }
@@ -396,6 +395,8 @@ namespace ModelService.Types
                 case "TERRAN_REAPER":
                     if (skill_name == "EFFECT_KD8CHARGE")
                     {
+                        if (unit.Activated_Skills.ContainsKey(skill_name))
+                            break;
                         if (!Unit.Definitions[unit.Target.Name].IsFlying_Unit)
                             unit.Target.Current_Health -= 5;
                         unit.Activated_Skills.Add(skill_name, new UnitSkills(14, 0));
@@ -404,11 +405,15 @@ namespace ModelService.Types
                 case "TERRAN_GHOST":
                     if (skill_name == "EFFECT_NUKECALLDOWN") //Needs to build a nuke first from Ghost academy
                     {
+                        if (unit.Activated_Skills.ContainsKey(skill_name))
+                            break;
                         unit.Target.Current_Health -= 300;
                         unit.Activated_Skills.Add(skill_name, new UnitSkills(14, 0));
                     }
                     else if (skill_name == "EFFECT_GHOSTSNIPE") //Target needs to be a biological unit and is also rarely used in TvT matchups
                     {
+                        if (unit.Activated_Skills.ContainsKey(skill_name))
+                            break;
                         unit.Target.Current_Health -= 170;
                         unit.Current_Energy -= 50;
                         unit.Activated_Skills.Add(skill_name, new UnitSkills(1.43, 0)); //is a channeled spell but no cooldown; cooldown value here is channeling time; can't recast while channeling; channeling gets canceled when damaged
@@ -417,6 +422,8 @@ namespace ModelService.Types
                 case "TERRAN_CYCLONE":
                     if (skill_name == "EFFECT_LOCKON")
                     {
+                        if (unit.Activated_Skills.ContainsKey(skill_name))
+                            break;
                         unit.Target.Current_Health -= 400;
                         unit.Activated_Skills.Add(skill_name, new UnitSkills(4.3, 14.3)); //Deals 400 damage over 14.3 seconds but has shorter cooldown; Note: cancelled if target goes out of range
                     }
@@ -424,162 +431,12 @@ namespace ModelService.Types
                 case "TERRAN_BATTLECRUISER":
                     if (skill_name == "EFFECT_YAMATOGUN") //needs research from fusion core
                     {
+                        if (unit.Activated_Skills.ContainsKey(skill_name))
+                            break;
                         unit.Target.Current_Health -= 240;
                         unit.Activated_Skills.Add(skill_name, new UnitSkills(71, 2)); //Deals 240 damage over 2 seconds: really strong
                     }
                     break;
-            }
-        }
-
-        /// <summary>
-        /// Deals a constant damage to the opposing unit using
-        /// <see cref="Unit.Current_Ground_Damage"/> or <see cref="Unit.Current_Air_Damage"/>
-        /// </summary>
-        /// <param name="unit"></param>
-        public static void AttackTarget(this Unit unit) //Added the transformed version of units as separate cases
-        {
-            if((!unit.IsOpposingDefeated) && (!unit.IsDefeated))
-            {
-                var current_percentage = Unit.GetARandomPercentage();
-                //Some units not added but are commented with the reason why they are ommited
-                switch (unit.Name) //For units with auto attack only the current percentage will not be used
-                {
-                    //Barracks Units
-                    case "TERRAN_MARINE":
-                        if (current_percentage <= .50)
-                        {
-                            if (!Unit.Definitions[unit.Target.Name].IsFlying_Unit)
-                                unit.Target.Current_Health -= unit.Current_Ground_Damage;
-                            else
-                                unit.Target.Current_Health -= unit.Current_Air_Damage;
-                        }
-                        else
-                            unit.UseSkillOrAbilities("EFFECT_STIM");
-                        break;
-                    case "TERRAN_MARAUDER":
-                        if (current_percentage <= .50)
-                        {
-                            if (!Unit.Definitions[unit.Target.Name].IsFlying_Unit)
-                                unit.Target.Current_Health -= unit.Current_Ground_Damage;
-                        }
-                        else
-                            unit.UseSkillOrAbilities("EFFECT_STIM");
-                        break;
-                    case "TERRAN_REAPER":
-                        if (current_percentage <= .50)
-                        {
-                            if (!Unit.Definitions[unit.Target.Name].IsFlying_Unit)
-                                unit.Target.Current_Health -= unit.Current_Ground_Damage;
-                        }
-                        else
-                            unit.UseSkillOrAbilities("EFFECT_KD8CHARGE");
-                        break;
-                    case "TERRAM_GHOST":
-                        if (current_percentage <= .33)
-                        {
-                            if (!Unit.Definitions[unit.Target.Name].IsFlying_Unit)
-                                unit.Target.Current_Health -= unit.Current_Ground_Damage;
-                            else
-                                unit.Target.Current_Health -= unit.Current_Air_Damage;
-                        }
-                        else if (current_percentage >= .34 && current_percentage <= .66)
-                            unit.UseSkillOrAbilities("EFFECT_NUKECALLDOWN");
-                        else
-                            unit.UseSkillOrAbilities("EFFECT_GHOSTSNIPE");
-                        break;
-                    //Factory units
-                    case "TERRAN_HELLION":
-                        if (!Unit.Definitions[unit.Target.Name].IsFlying_Unit)
-                            unit.Target.Current_Health -= unit.Current_Ground_Damage;
-                        break;
-                    case "TERRAN_HELLIONTANK":
-                        if (!Unit.Definitions[unit.Target.Name].IsFlying_Unit)
-                            unit.Target.Current_Health -= unit.Current_Ground_Damage;
-                        break;
-                    case "TERRAN_SIEGETANK":
-                        if (!Unit.Definitions[unit.Target.Name].IsFlying_Unit)
-                            unit.Target.Current_Health -= unit.Current_Ground_Damage;
-                        break;
-                    case "TERRAN_SIEGETANKSIEGED":
-                        if (!Unit.Definitions[unit.Target.Name].IsFlying_Unit)
-                            unit.Target.Current_Health -= unit.Current_Ground_Damage;
-                        break;
-                    case "TERRAN_CYCLONE":
-                        if (current_percentage <= .50)
-                        {
-                            if (!Unit.Definitions[unit.Target.Name].IsFlying_Unit)
-                                unit.Target.Current_Health -= unit.Current_Ground_Damage;
-                            else
-                                unit.Target.Current_Health -= unit.Current_Air_Damage;
-                        }
-                        else
-                            unit.UseSkillOrAbilities("EFFECT_LOCKON");
-                        break;
-                    case "TERRAN_WIDOWMINE":
-                        if (!Unit.Definitions[unit.Target.Name].IsFlying_Unit)
-                            unit.Target.Current_Health -= unit.Current_Ground_Damage;
-                        else
-                            unit.Target.Current_Health -= unit.Current_Air_Damage;
-                        break;
-                    case "TERRAN_WIDOWMINEBURROWED":
-                        if (!Unit.Definitions[unit.Target.Name].IsFlying_Unit)
-                            unit.Target.Current_Health -= unit.Current_Ground_Damage;
-                        else
-                            unit.Target.Current_Health -= unit.Current_Air_Damage;
-                        break;
-                    case "TERRAN_THOR":
-                        if (!Unit.Definitions[unit.Target.Name].IsFlying_Unit)
-                            unit.Target.Current_Health -= unit.Current_Ground_Damage;
-                        else
-                            unit.Target.Current_Health -= unit.Current_Air_Damage;
-                        break;
-                    case "TERRAN_THORAP":
-                        if (!Unit.Definitions[unit.Target.Name].IsFlying_Unit)
-                            unit.Target.Current_Health -= unit.Current_Ground_Damage;
-                        else
-                            unit.Target.Current_Health -= unit.Current_Air_Damage;
-                        break;
-                    //Starport Units
-                    case "TERRAN_VIKINGFIGHTER":
-                        if (Unit.Definitions[unit.Target.Name].IsFlying_Unit)
-                            unit.Target.Current_Health -= unit.Current_Air_Damage;
-                        break;
-                    case "TERRAN_VIKINGASSAULT":
-                        if (!Unit.Definitions[unit.Target.Name].IsFlying_Unit)
-                            unit.Target.Current_Health -= unit.Current_Ground_Damage;
-                        break;
-                    //case "TERAN_MEDIVAC" does not deal damage currently ommited heal property not yet considered and energy requiremens for healing
-                    case "TERRAN_LIBERATOR":
-                        if (Unit.Definitions[unit.Target.Name].IsFlying_Unit)
-                            unit.Target.Current_Health -= unit.Current_Air_Damage;
-                        break;
-                    case "TERRAN_LIBERATORAG":
-                        if (!Unit.Definitions[unit.Target.Name].IsFlying_Unit)
-                            unit.Target.Current_Health -= unit.Current_Ground_Damage;
-                        break;
-                    //case "TERRAN_RAVEN" doesn't deal damage directly summons an auto turret for damage and other skills are for utility
-                    case "TERRAN_AUTOTURRET":
-                        if (!Unit.Definitions[unit.Target.Name].IsFlying_Unit)
-                            unit.Target.Current_Health -= unit.Current_Ground_Damage;
-                        else
-                            unit.Target.Current_Health -= unit.Current_Air_Damage;
-                        break;
-                    case "TERRAN_BANSHEE":
-                        if (!Unit.Definitions[unit.Target.Name].IsFlying_Unit)
-                            unit.Target.Current_Health -= unit.Current_Ground_Damage;
-                        break;
-                    case "TERRAN_BATTLECRUISER":
-                        if (current_percentage <= .50)
-                        {
-                            if (!Unit.Definitions[unit.Target.Name].IsFlying_Unit)
-                                unit.Target.Current_Health -= unit.Current_Ground_Damage;
-                            else
-                                unit.Target.Current_Health -= unit.Current_Air_Damage;
-                        }
-                        else
-                            unit.UseSkillOrAbilities("EFFECT_YAMATOGUN");
-                        break;                    
-                }
             }
         }
 
@@ -591,9 +448,94 @@ namespace ModelService.Types
         /// <param name="dealt_damage"></param>
         public static void SimpleAttackToTarget(this Unit unit, double dealt_damage) => unit.Target.Current_Health -= dealt_damage;
 
+        /// <summary>
+        /// Deals <see cref="Unit.GetMinimumPotentialDamage(Unit)"/> to the current target 
+        /// of unit. In some cases, instead of attacking, it will use a skill depending
+        /// on the probability given in <paramref name="ability_probability"/>
+        /// </summary>
+        /// <param name="unit"></param>
+        /// <param name="ability_probability"></param>
         public static void ComplexAttackToTarget(this Unit unit, double ability_probability)
         {
+            if((!unit.IsDefeated) && (!unit.IsOpposingDefeated))
+            {
+                switch(unit.Name)
+                {
+                    //Barrack Units
+                    case "TERRAN_MARINE":
+                        if (ability_probability <= 0.50)
+                            unit.Target.Current_Health -= Unit.GetMinimumPotentialDamage(unit);
+                        else
+                            unit.UseSkillOrAbilities("EFFECT_STIM");
+                        break;
+                    case "TERRAN_MARAUDER":
+                        if (ability_probability <= 0.50)
+                            unit.Target.Current_Health -= Unit.GetMinimumPotentialDamage(unit);
+                        else
+                            unit.UseSkillOrAbilities("EFFECT_STIM");
+                        break;
+                    case "TERRAN_REAPER":
+                        if (ability_probability <= 0.50)
+                            unit.Target.Current_Health -= Unit.GetMinimumPotentialDamage(unit);
+                        else
+                            unit.UseSkillOrAbilities("EFFECT_KD8CHARGE");
+                        break;
+                    case "TERRAN_GHOST":
+                        if (ability_probability <= 0.33)
+                            unit.Target.Current_Health -= Unit.GetMinimumPotentialDamage(unit);
+                        else if ((ability_probability >= 0.34) && (ability_probability <= 0.66))
+                            unit.UseSkillOrAbilities("EFFECT_NUKECALLDOWN");
+                        else
+                            unit.UseSkillOrAbilities("EFFECT_GHOSTSNIPE");
+                        break;
+                    //Factory Units
+                    case "TERRAN_HELLION": unit.Target.Current_Health -= Unit.GetMinimumPotentialDamage(unit); break;
 
+                    case "TERRAN_HELLIONTANK": unit.Target.Current_Health -= Unit.GetMinimumPotentialDamage(unit); break;
+
+                    case "TERRAN_SIEGETANK": unit.Target.Current_Health -= Unit.GetMinimumPotentialDamage(unit); break;
+
+                    case "TERRAN_SIEGETANKSIEGED": unit.Target.Current_Health -= Unit.GetMinimumPotentialDamage(unit); break;
+
+                    case "TERRAN_CYCLONE":
+                        if (ability_probability <= 0.50)
+                            unit.Target.Current_Health -= Unit.GetMinimumPotentialDamage(unit);
+                        else
+                            unit.UseSkillOrAbilities("EFFECT_LOCKON");
+                        break;
+                    case "TERRAN_WIDOWMINE": unit.Target.Current_Health -= Unit.GetMinimumPotentialDamage(unit); break;
+
+                    case "TERRAN_WIDOWMINEBURROWED": unit.Target.Current_Health -= Unit.GetMinimumPotentialDamage(unit); break;
+
+                    case "TERRAN_THOR": unit.Target.Current_Health -= Unit.GetMinimumPotentialDamage(unit); break;
+
+                    case "TERRAN_THORAP": unit.Target.Current_Health -= Unit.GetMinimumPotentialDamage(unit); break;
+                    
+                    //Starport Units
+                    case "TERRAN_VIKINGFIGHTER": unit.Target.Current_Health -= Unit.GetMinimumPotentialDamage(unit); break;
+
+                    case "TERRAN_VIKINGASSAULT": unit.Target.Current_Health -= Unit.GetMinimumPotentialDamage(unit); break;
+
+                    //case "TERAN_MEDIVAC" does not deal damage currently ommited heal property not yet considered and energy requiremens for healing
+
+                    case "TERRAN_LIBERATOR": unit.Target.Current_Health -= Unit.GetMinimumPotentialDamage(unit); break;
+
+                    case "TERRAN_LIBERATORAG": unit.Target.Current_Health -= Unit.GetMinimumPotentialDamage(unit); break;
+
+                    //case "TERRAN_RAVEN" doesn't deal damage directly summons an auto turret for damage and other skills are for utility
+
+                    case "TERRAN_AUTOTURRET": unit.Target.Current_Health -= Unit.GetMinimumPotentialDamage(unit); break;
+
+                    case "TERRAN_BANSHEE": unit.Target.Current_Health -= Unit.GetMinimumPotentialDamage(unit); break;
+
+                    case "TERRAN_BATTLECRUISER":
+                        if (ability_probability <= 0.50)
+                            unit.Target.Current_Health -= Unit.GetMinimumPotentialDamage(unit);
+                        else
+                            unit.UseSkillOrAbilities("EFFECT_YAMATOGUN");
+                        break;
+                }
+            }
         }
     }
 }

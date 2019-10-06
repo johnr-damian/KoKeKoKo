@@ -273,10 +273,10 @@ namespace ModelService.Micromanagement
 
                 //Compute the battle output, then let both armies attack each other
                 var combat_result = new DynamicCombatResult(owned_units, enemy_units);
-                do
+                while(DynamicCombatResult.IsCombatContinuable(owned_units, enemy_units))
                 {
                     var combat_time = DynamicCombatResult.GetCombatTime(combat_result);
-                    for (int time_to_kill = 0; time_to_kill < combat_time; time_to_kill++)
+                    for(int time_to_kill = 0; time_to_kill < combat_time; time_to_kill++)
                     {
                         var ability_probability = REngineExtensions.GetRandomGenerator().NextDouble();
                         owned_units.DealDamageToTarget(ability_probability);
@@ -287,8 +287,12 @@ namespace ModelService.Micromanagement
                     owned_units = owned_units.Where(unit => !unit.IsDefeated).ToArmy();
                     enemy_units = enemy_units.Where(unit => !unit.IsDefeated).ToArmy();
 
-                    //Re-set the targets for each army
-                    //Prevents dead-lock and null target, gets true damage, and a target to be attacked
+                    //Check if the battle can be continued
+                    if (!DynamicCombatResult.IsCombatContinuable(owned_units, enemy_units))
+                        break;
+
+                    //Re-set the targets for each army to prevent
+                    //a dead-lock and null target, and to get the true damage a target to attack
                     switch (target_policy)
                     {
                         case TargetPolicy.Random:
@@ -297,17 +301,15 @@ namespace ModelService.Micromanagement
                             break;
                         case TargetPolicy.Priority:
                             PriorityBasedTargetPolicy(ref owned_units, enemy_units);
-                            PriorityBasedTargetPolicy(ref owned_units, enemy_units);
+                            PriorityBasedTargetPolicy(ref enemy_units, owned_units);
                             break;
                         case TargetPolicy.Resource:
                             ResourceBasedTargetPolicy(ref owned_units, enemy_units);
                             ResourceBasedTargetPolicy(ref enemy_units, owned_units);
                             break;
                     }
-                }
-                while (DynamicCombatResult.IsCombatContinuable(owned_units, enemy_units));
-                {
-                    //Re-compute the battle output, then let both armies attack again each other
+
+                    //Recompute the battle output, then let them fight again
                     combat_result = new DynamicCombatResult(owned_units, enemy_units);
                 }
 

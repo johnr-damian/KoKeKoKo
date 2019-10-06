@@ -69,9 +69,9 @@ namespace ModelService.Micromanagement
                 staticbased_priority_results.Add(StaticBasedPrediction(TargetPolicy.Priority).Item1);
                 staticbased_resource_results.Add(StaticBasedPrediction(TargetPolicy.Resource).Item1);
 
-                //dynamicbased_random_results.Add(DynamicBasedPrediction(TargetPolicy.Random).Item1);
-                //dynamicbased_priority_results.Add(DynamicBasedPrediction(TargetPolicy.Priority).Item1);
-                //dynamicbased_resource_results.Add(DynamicBasedPrediction(TargetPolicy.Resource).Item1);
+            dynamicbased_random_results.Add(DynamicBasedPrediction(TargetPolicy.Random).Item1);
+            dynamicbased_priority_results.Add(DynamicBasedPrediction(TargetPolicy.Priority).Item1);
+            dynamicbased_resource_results.Add(DynamicBasedPrediction(TargetPolicy.Resource).Item1);
 #else
                 for (int simulated = 0; simulated < number_of_simulations; simulated++)
                     lanchester_random_results.Add(LanchesterBasedPrediction(TargetPolicy.Random).Item1);

@@ -75,7 +75,7 @@ namespace ModelService
                 results.Add(engine.Evaluate(@"set_similarity(simulation, actual, method=""Jaccard"")").AsNumeric().Single());
             }
 
-            return engine.GetStandardDeviation(results);
+            return results.Average();
         }
 
         public static double POMDPSimulate(this REngine engine, params string[] parameters)
@@ -94,7 +94,7 @@ namespace ModelService
             return result;
         }
 
-        public static double GetStandardDeviation(this REngine engine, List<double> results)
+        public static double GetStandardDeviation(List<double> results)
         {
             var mean = results.Average();
 

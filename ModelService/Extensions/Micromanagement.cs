@@ -515,36 +515,45 @@ namespace ModelService.Micromanagement
                 {
                     bool ownedarmy_targetable = false, enemyarmy_targetable = false;
 
-                    //Units that have no targets and still alive
-                    var owned_units_notargets = owned_units.Where(unit => (unit.IsOpposingDefeated && !unit.IsDefeated));
-                    var enemy_units_notargets = enemy_units.Where(unit => (unit.IsOpposingDefeated && !unit.IsDefeated));
+                    //Units in both army that is still and have no targets
+                    //by no targets, either their target is dead and have no replacement, or
+                    //they have no target at all since the beginning
+                    var ownedarmy_notargetunits = owned_units.Where(unit => (unit.IsOpposingDefeated && !unit.IsDefeated));
+                    var enemyarmy_notargetunits = enemy_units.Where(unit => (unit.IsOpposingDefeated && !unit.IsDefeated));
 
-                    //Check if there are still targetable in both army
-                    foreach(var no_target_units in owned_units_notargets)
+                    //In both army, there are still alive units that have no target.
+                    //If a unit still have a target in either of the army, such that it suffice the condition
+                    //(1 > 0) && (0 > 0), (0 > 0) && (1 > 0), or (0 > 0) && (0 > 0), the battle will continue
+                    if ((ownedarmy_notargetunits.Count() > 0) && (enemyarmy_notargetunits.Count() > 0))
                     {
-                        foreach(var alive_units in enemy_units_notargets)
+                        foreach (var idle_unit in ownedarmy_notargetunits)
                         {
-                            //There is still a targetable in enemy army
-                            if(no_target_units.CanTarget(alive_units))
+                            foreach (var alive_unit in enemyarmy_notargetunits)
                             {
-                                enemyarmy_targetable = true;
-                                break;
+                                //There is still a targetable unit in enemy army
+                                if (idle_unit.CanTarget(alive_unit))
+                                {
+                                    enemyarmy_targetable = true;
+                                    break;
+                                }
                             }
                         }
-                        
-                    }
-                    foreach(var no_target_units in enemy_units_notargets)
-                    {
-                        foreach(var alive_units in owned_units_notargets)
+
+                        foreach (var idle_unit in enemyarmy_notargetunits)
                         {
-                            //There is still a targetable in owned army
-                            if(no_target_units.CanTarget(alive_units))
+                            foreach (var alive_unit in ownedarmy_notargetunits)
                             {
-                                ownedarmy_targetable = true;
-                                break;
+                                //There is still a targetable unit in owned army
+                                if (idle_unit.CanTarget(alive_unit))
+                                {
+                                    ownedarmy_targetable = true;
+                                    break;
+                                }
                             }
                         }
                     }
+                    else
+                        ownedarmy_targetable = enemyarmy_targetable = true;
 
                     //If one of the army still have units that can be targeted,
                     //the combat will continue

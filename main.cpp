@@ -371,14 +371,15 @@ namespace KoKeKoKo
 							
 							//Send the current state of the agent
 							//Macro details
+							//don't forget gameloop, combine supply
+							message += std::to_string(current_observation->GetGameLoop()) + ","; //Gameloop
 							message += std::to_string(current_observation->GetPlayerID()) + ","; //Player ID
 							message += std::to_string(current_observation->GetMinerals()) + ","; //Minerals
 							message += std::to_string(current_observation->GetVespene()) + ","; //Vespene
-							message += std::to_string(current_observation->GetFoodArmy()) + ","; //Supply Cost used by Army
-							message += std::to_string(current_observation->GetFoodWorkers()) + ","; //Supply Cost used by Workers
+							message += std::to_string(current_observation->GetFoodUsed()) + ","; //Supply
 							message += std::to_string(CountOf(UNIT_TYPEID::TERRAN_SCV)); //No. of Workers
 							for (const auto& upgrade : current_observation->GetUpgrades())
-								message += ("," + upgrade.to_string());
+								message += ("," + upgrade.to_string()); //Upgrades
 							message += ":Macromanagement~Micromanagement(Self):";
 
 							//Self Army details

@@ -33,41 +33,51 @@ namespace ModelService
                     Console.WriteLine("ModelService has started in standalone mode!");
                     Console.WriteLine("Getting Micromanagement accuracy report...");
 
-                    var micro = modelrepositoryservice.ReadArmiesRepository();
+                    //Variables to store the input
+                    var micromanagement = ModelRepositoryService.ReadArmiesRepository();
+                    var macromanagement_resources = ModelRepositoryService.ReadResourcesRepository();
+                    var macromanagement_commands = ModelRepositoryService.ReadCommandsRepository();
 
-                    var battles = new List<Micromanagement.Micromanagement>();
-                    var battles_result = new List<List<double>>();
-                    var threads = new List<Thread>();
-                    foreach (var m in micro)
-                        battles.Add(new Micromanagement.Micromanagement(new Army(m.Item3), new Army(m.Item4), new Army(m.Item5)));
+                    //Variables to store the output
+                    var micromanagement_battles = new List<Micromanagement.Micromanagement>();
+                    var relationedmicromacro = ModelRepositoryService.RelateMicroToMacro(macromanagement_resources, micromanagement);
+                    foreach (var micromanagement_battle in relationedmicromacro)
+                        micromanagement_battles.Add(new Micromanagement.Micromanagement(new Army(micromanagement_battle.Item3), new Army(micromanagement_battle.Item4), new Army(micromanagement_battle.Item5))
+                        {
+                            Rank = micromanagement_battle.Item1,
+                            Filename = micromanagement_battle.Item2
+                        });
+                    var macromanagement_battles = new List<Macromanagement.Macromanagement>();
 
-#if DEBUG
-                    var results_raw = new List<List<double>>();
-                    foreach (var battle in battles)
-                        results_raw.Add(battle.GetMicromanagementAccuracyReport(1));
-                    var result = new List<double>();
-                    for(int result_iterator = 0; result_iterator < 9; result_iterator++)
+                    //Group the micromanagement battles by their rank
+                    var perrank_micromanagement = micromanagement_battles.GroupBy(rank => rank.Rank).ToDictionary(key => key.Key, value => value.ToList());
+                    //For every micromanagement battle per rank, do the prediction and store it
+                    var perrankresult_micromanagement = perrank_micromanagement.ToDictionary(key => key.Key, value =>
                     {
-                        var aggregated_result = new List<double>();
-                        foreach (var result_raw in results_raw)
-                            aggregated_result.Add(result_raw[result_iterator]);
+                        var micromanagement_battleresults = new List<List<double>>();
 
-                        result.Add(REngineExtensions.GetStandardDeviation(aggregated_result));
+                        foreach (var micromanagement_battleresult in value.Value)
+                            micromanagement_battleresults.Add(micromanagement_battleresult.GetMicromanagementAccuracyReport(1));
+
+                        return micromanagement_battleresults;
+                    });
+                    //Get the final result per algorithm+policy per rank
+                    var micromanagement_accuracyreports = perrankresult_micromanagement.ToDictionary(key => key.Key, value => Micromanagement.Micromanagement.GetMicromanagementAccuracyReport(value.Value));
+                    //Print the results per rank
+                    foreach(var accuracy_report in micromanagement_accuracyreports)
+                    {
+                        Console.WriteLine($@"Lanchester-Random: {accuracy_report.Value[0] * 100}%");
+                        Console.WriteLine($@"Lanchester-Priority: {accuracy_report.Value[1] * 100}%");
+                        Console.WriteLine($@"Lanchester-Resource: {accuracy_report.Value[2] * 100}%");
+                        Console.WriteLine($@"Static-Random: {accuracy_report.Value[3] * 100}%");
+                        Console.WriteLine($@"Static-Priority: {accuracy_report.Value[4] * 100}%");
+                        Console.WriteLine($@"Static-Resource: {accuracy_report.Value[5] * 100}%");
+                        Console.WriteLine($@"Dynamic-Random: {accuracy_report.Value[6] * 100}%");
+                        Console.WriteLine($@"Dynamic-Priority: {accuracy_report.Value[7] * 100}%");
+                        Console.WriteLine($@"Dynamic-Resource: {accuracy_report.Value[8] * 100}%");
                     }
-                    Console.WriteLine($@"Lanchester - Random: {result[0] * 100}%");
-                    Console.WriteLine($@"Lanchester - Priority: {result[1] * 100}%");
-                    Console.WriteLine($@"Lanchester - Resource: {result[2] * 100}%");
-                    Console.WriteLine($@"Static - Random: {result[3] * 100}%");
-                    Console.WriteLine($@"Static - Priority: {result[4] * 100}%");
-                    Console.WriteLine($@"Static - Resource: {result[5] * 100}%");
-                    Console.WriteLine($@"Dynamic - Random: {result[6] * 100}%");
-                    Console.WriteLine($@"Dynamic - Priority: {result[7] * 100}%");
-                    Console.WriteLine($@"Dynamic - Resource: {result[8] * 100}%");
-#else
 
-#endif
-                    Console.WriteLine("Micromanagement Result: ");
-                    Console.WriteLine("Macromanagement Result: ");
+                    Console.WriteLine("Finished performing accuracy reports! Please enter to continue...");
                     Console.ReadLine();
                 }
                 else

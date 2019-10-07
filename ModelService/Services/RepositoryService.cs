@@ -15,7 +15,7 @@ namespace ModelService
         /// </summary>
         /// <param name="repository_name">The folder and the filename of the repository</param>
         /// <returns></returns>
-        private string[] ReadRepository(string repository_name)
+        private static string[] ReadRepository(string repository_name)
         {
             string[] content = null;
             string path = Path.GetFullPath(@"..\..\..\Documents");
@@ -26,7 +26,7 @@ namespace ModelService
             }
             catch (Exception ex)
             {
-                Console.WriteLine($@"ReadRepository()->{ex.Message}...");
+                Console.WriteLine($@"ReadRepository() -> {ex.Message}...");
                 content = null;
             }
 
@@ -40,16 +40,16 @@ namespace ModelService
         /// prebattle player 1 army, prebattle player 2 army, postbattle result
         /// </summary>
         /// <returns></returns>
-        public List<Tuple<string, string, string, string, string>> ReadArmiesRepository()
+        public static List<Tuple<string, string, string, string, string>> ReadArmiesRepository()
         {
             var armyrepository = new List<Tuple<string, string, string, string, string>>();
 
             try
             {
 #if DEBUG
-                var raw_armyrepository = ReadRepository(@"Debugging\ArmiesRepository.csv");
+                var raw_armyrepository = ReadRepository(@"Training\ArmiesRepository.csv");
 #elif TRACE
-                    var raw_armyrepository = ReadRepository(@"Testing\ArmiesRepository.csv");
+                var raw_armyrepository = ReadRepository(@"Testing\ArmiesRepository.csv");
 #endif
 
                 if (raw_armyrepository.Length > 0)
@@ -136,16 +136,215 @@ namespace ModelService
             }
             catch (Exception ex)
             {
-                Console.WriteLine($@"ReadArmyRepository()->{ex.Message}...");
+                Console.WriteLine($@"ReadArmyRepository() -> {ex.Message}...");
                 armyrepository.Clear();
             }
 
             return armyrepository;
         }
 
-        public List<Tuple<string, string, string, string>> ReadResourcesRepository()
+        /// <summary>
+        /// Parses the army repository and returns a list of set of resources information
+        /// The resources information contains as follow: current rank, current replay filename,
+        /// resources of player 1, resources of player 2
+        /// </summary>
+        /// <returns></returns>
+        public static List<Tuple<string, string, string, string>> ReadResourcesRepository()
         {
+            var resourcerepository = new List<Tuple<string, string, string, string>>();
 
+            try
+            {
+#if DEBUG
+                var raw_resourcerepository = ReadRepository(@"Debugging\ResourcesRepository.csv");
+#elif TRACE
+                var raw_resourcerepository = ReadRepository(@"Testing\ResourcesRepository.csv");
+#endif
+
+                if(raw_resourcerepository.Length > 0)
+                {
+                    bool content_readyforstorage = false;
+                    int current_linepointer = -1, content_pointer = -1, offset_pointer = -1;
+                    string current_rank = "", current_replayfilename = "";
+
+                    while(++current_linepointer < raw_resourcerepository.Length)
+                    {
+                        var current_linecontent = raw_resourcerepository[current_linepointer].Split(',');
+
+                        if(current_linecontent.Length == 1)
+                        {
+                            //If the current line is rank
+                            if (_ranks.Contains(current_linecontent[0]))
+                                //Take note of the current rank
+                                current_rank = current_linecontent[0];
+                            //The current line is a replay filename
+                            else
+                            {
+                                //The previous replay file has ended
+                                if(content_readyforstorage)
+                                {
+                                    //Check if the previous line is a rank
+                                    offset_pointer = (_ranks.Contains(raw_resourcerepository[current_linepointer - 1])) ? 1 : 0;
+
+                                    //Get the last line of content, the number of elements to take
+                                    var contentcardinal = ((current_linepointer - offset_pointer) - content_pointer);
+                                    //Get the content, and seperate the two player's information
+                                    var content = raw_resourcerepository.Skip(content_pointer).Take(contentcardinal).GroupBy(line => line.Split(',')[1]).ToDictionary(key => key.Key, value =>
+                                    {
+                                        var resources = value.ToList();
+                                        var parsed_resources = new List<string>();
+
+                                        //While getting the content, parsed the resources and convert
+                                        //it to 15 seconds, to save space and to match the bot
+                                        for (int iterator = 0, resource_count = (resources.Count - 1); iterator < resource_count; iterator += 2)
+                                        {
+                                            var first_content = resources[iterator].Split(',');
+                                            var second_content = resources[iterator + 1].Split(',');
+
+                                            double timestamp = ((Convert.ToDouble(first_content[0]) + Convert.ToDouble(second_content[0])) / 2);
+                                            double minerals = ((Convert.ToDouble(first_content[2]) + Convert.ToDouble(second_content[2])) / 2);
+                                            double vespenes = ((Convert.ToDouble(first_content[3]) + Convert.ToDouble(second_content[3])) / 2);
+                                            double supply = ((Convert.ToDouble(first_content[4]) + Convert.ToDouble(second_content[4])) / 2);
+                                            int worker = ((Convert.ToInt32(first_content[5]) + Convert.ToInt32(second_content[5])) / 2);
+                                            string upgrades = "";
+                                            if (second_content.Length > 6)
+                                                upgrades = ("," + String.Join(",", second_content.Skip(6)));
+
+                                            parsed_resources.Add(String.Format($@"{timestamp},{first_content[1]},{minerals},{vespenes},{supply},{worker}{upgrades}"));
+                                        }
+
+                                        return parsed_resources;
+                                    }).ToList();
+
+                                    //Store the parsed information
+                                    resourcerepository.Add(new Tuple<string, string, string, string>(current_rank, current_replayfilename, String.Join("\n", content[0].Value), String.Join("\n", content[1].Value)));
+                                    content_readyforstorage = false;
+                                }
+
+                                //It is a new replay file
+                                if(!content_readyforstorage)
+                                {
+                                    content_pointer = current_linepointer + 1; //The start of the content
+                                    current_replayfilename = current_linecontent[0]; //The filename of the current replay file
+                                    content_readyforstorage = true;
+                                }
+                            }
+                        }
+                    }
+
+                    //There is a residue content
+                    if(content_readyforstorage)
+                    {
+                        //Check if the previous line is a rank
+                        offset_pointer = (_ranks.Contains(raw_resourcerepository[current_linepointer - 1])) ? 1 : 0;
+
+                        //Get the last line of content, the number of elements to take
+                        var contentcardinal = ((current_linepointer - offset_pointer) - content_pointer);
+                        //Get the content, and seperate the two player's information
+                        var content = raw_resourcerepository.Skip(content_pointer).Take(contentcardinal).GroupBy(line => line.Split(',')[1]).ToDictionary(key => key.Key, value =>
+                        {
+                            var resources = value.ToList();
+                            var parsed_resources = new List<string>();
+
+                            //While getting the content, parsed the resources and convert
+                            //it to 15 seconds, to save space and to match the bot
+                            for (int iterator = 0, resource_count = (resources.Count - 1); iterator < resource_count; iterator += 2)
+                            {
+                                var first_content = resources[iterator].Split(',');
+                                var second_content = resources[iterator + 1].Split(',');
+
+                                double timestamp = ((Convert.ToDouble(first_content[0]) + Convert.ToDouble(second_content[0])) / 2);
+                                double minerals = ((Convert.ToDouble(first_content[2]) + Convert.ToDouble(second_content[2])) / 2);
+                                double vespenes = ((Convert.ToDouble(first_content[3]) + Convert.ToDouble(second_content[3])) / 2);
+                                double supply = ((Convert.ToDouble(first_content[4]) + Convert.ToDouble(second_content[4])) / 2);
+                                int worker = ((Convert.ToInt32(first_content[5]) + Convert.ToInt32(second_content[5])) / 2);
+                                string upgrades = "";
+                                if (second_content.Length > 6)
+                                    upgrades = ("," + String.Join(",", second_content.Skip(6)));
+
+                                parsed_resources.Add(String.Format($@"{timestamp},{first_content[1]},{minerals},{vespenes},{supply},{worker}{upgrades}"));
+                            }
+
+                            return parsed_resources;
+                        }).ToList();
+
+                        //Store the parsed information
+                        resourcerepository.Add(new Tuple<string, string, string, string>(current_rank, current_replayfilename, String.Join("\n", content[0].Value), String.Join("\n", content[1].Value)));
+                        content_readyforstorage = false;
+                    }
+                }
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine($@"ReadResourcesRepository() -> {ex.Message}");
+                resourcerepository.Clear();
+            }
+
+            return resourcerepository;
+        }
+
+        public static List<Tuple<string, string, string, string>> ReadCommandsRepository()
+        {
+            var commandsrepository = new List<Tuple<string, string, string, string>>();
+
+            try
+            {
+
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine($@"ReadCommandsRepository() -> {ex.Message}");
+                commandsrepository.Clear();
+            }
+
+            return commandsrepository;
+        }
+
+        public static List<Tuple<string, string, string, string, string>> RelateMicroToMacro(List<Tuple<string, string, string, string>> macromanagement_resources, List<Tuple<string, string, string, string, string>> micromanagement)
+        {
+            var micromacroresult = new List<Tuple<string, string, string, string, string>>();
+
+            try
+            {
+                //Get the relationship between the micro and macro
+                //by their origin replay filename
+                var micromacrorelation = (from macro in macromanagement_resources
+                                  join micro in micromanagement on macro.Item2 equals micro.Item2 where macro.Item1 == micro.Item1
+                                  select (new Tuple<string, string, string, string, string, string, string>(macro.Item3, macro.Item4, micro.Item3, micro.Item4, micro.Item5, micro.Item1, micro.Item2)));
+
+                foreach(var micromacro in micromacrorelation)
+                {
+                    var owned_units_resources = micromacro.Item1.Split('\n').Last().Split(',');
+                    var enemy_units_resources = micromacro.Item2.Split('\n').Last().Split(',');
+                    string owned_units_upgrades = "", enemy_units_upgrades = "", owned_units = "", enemy_units = "";
+
+                    if (owned_units_resources.Length > 6)
+                        owned_units_upgrades = "," + String.Join("\n", owned_units_resources.Skip(6));
+                    if (enemy_units_resources.Length > 6)
+                        enemy_units_upgrades = "," + String.Join("\n", enemy_units_resources.Skip(6));
+
+                    var raw_owned_units = micromacro.Item3.Split('\n');
+                    var raw_enemy_units = micromacro.Item4.Split('\n');
+
+                    if (owned_units_upgrades != "")
+                        owned_units = String.Join("\n", raw_owned_units.Select(unit => String.Concat(unit, owned_units_upgrades)));
+                    else
+                        owned_units = micromacro.Item3;
+                    if (enemy_units_upgrades != "")
+                        enemy_units = String.Join("\n", raw_enemy_units.Select(unit => String.Concat(unit, enemy_units_upgrades)));
+                    else
+                        enemy_units = micromacro.Item4;
+
+                    micromacroresult.Add(new Tuple<string, string, string, string, string>(micromacro.Item6, micromacro.Item7, owned_units, enemy_units, micromacro.Item5));
+                }
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine($@"RelateMicroToMacro() -> {ex.Message}");
+                micromacroresult.Clear();
+            }
+
+            return micromacroresult;
         }
     }
 }

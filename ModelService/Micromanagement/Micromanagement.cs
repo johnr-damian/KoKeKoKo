@@ -9,15 +9,13 @@ namespace ModelService.Micromanagement
     /// </summary>
     public partial class Micromanagement
     {
-        private static Random _random_generator = null;
         private Army _owned_units = null;
         private Army _enemy_units = null;
         private Army _postbattle = null;
 
-        static Micromanagement()
-        {
-            _random_generator = new Random();
-        }
+        public string Rank { get; set; } = default(string);
+
+        public string Filename { get; set; } = default(string);
 
         /// <summary>
         /// A csv-based micromanagement. Represents a battle from a game observation
@@ -57,73 +55,26 @@ namespace ModelService.Micromanagement
             var dynamicbased_resource_results = new List<string>();
 
             //Perform Simulations
-#if DEBUG
             for (int simulated = 0; simulated < number_of_simulations; simulated++)
                 lanchester_random_results.Add(LanchesterBasedPrediction(TargetPolicy.Random).Item1);
             for (int simulated = 0; simulated < number_of_simulations; simulated++)
                 lanchester_priority_results.Add(LanchesterBasedPrediction(TargetPolicy.Priority).Item1);
             for (int simulated = 0; simulated < number_of_simulations; simulated++)
                 lanchester_resource_results.Add(LanchesterBasedPrediction(TargetPolicy.Resource).Item1);
-
+            for (int simulated = 0; simulated < number_of_simulations; simulated++)
                 staticbased_random_results.Add(StaticBasedPrediction(TargetPolicy.Random).Item1);
+            for (int simulated = 0; simulated < number_of_simulations; simulated++)
                 staticbased_priority_results.Add(StaticBasedPrediction(TargetPolicy.Priority).Item1);
+            for (int simulated = 0; simulated < number_of_simulations; simulated++)
                 staticbased_resource_results.Add(StaticBasedPrediction(TargetPolicy.Resource).Item1);
-
-            dynamicbased_random_results.Add(DynamicBasedPrediction(TargetPolicy.Random).Item1);
-            dynamicbased_priority_results.Add(DynamicBasedPrediction(TargetPolicy.Priority).Item1);
-            dynamicbased_resource_results.Add(DynamicBasedPrediction(TargetPolicy.Resource).Item1);
-#else
-                for (int simulated = 0; simulated < number_of_simulations; simulated++)
-                    lanchester_random_results.Add(LanchesterBasedPrediction(TargetPolicy.Random).Item1);
-                for (int simulated = 0; simulated < number_of_simulations; simulated++)
-                    lanchester_priority_results.Add(LanchesterBasedPrediction(TargetPolicy.Priority).Item1);
-                for (int simulated = 0; simulated < number_of_simulations; simulated++)
-                    lanchester_resource_results.Add(LanchesterBasedPrediction(TargetPolicy.Resource).Item1);
-
-                for (int simulated = 0; simulated < number_of_simulations; simulated++)
-                    staticbased_random_results.Add(StaticBasedPrediction(TargetPolicy.Random).Item1);
-                for (int simulated = 0; simulated < number_of_simulations; simulated++)
-                    staticbased_priority_results.Add(StaticBasedPrediction(TargetPolicy.Priority).Item1);
-                for (int simulated = 0; simulated < number_of_simulations; simulated++)
-                    staticbased_resource_results.Add(StaticBasedPrediction(TargetPolicy.Resource).Item1);
-
-                for (int simulated = 0; simulated < number_of_simulations; simulated++)
-                    dynamicbased_random_results.Add(DynamicBasedPrediction(TargetPolicy.Random).Item1);
-                for (int simulated = 0; simulated < number_of_simulations; simulated++)
-                    dynamicbased_priority_results.Add(DynamicBasedPrediction(TargetPolicy.Priority).Item1);
-                for (int simulated = 0; simulated < number_of_simulations; simulated++)
-                    dynamicbased_resource_results.Add(DynamicBasedPrediction(TargetPolicy.Resource).Item1);
-#endif
+            for (int simulated = 0; simulated < number_of_simulations; simulated++)
+                dynamicbased_random_results.Add(DynamicBasedPrediction(TargetPolicy.Random).Item1);
+            for (int simulated = 0; simulated < number_of_simulations; simulated++)
+                dynamicbased_priority_results.Add(DynamicBasedPrediction(TargetPolicy.Priority).Item1);
+            for (int simulated = 0; simulated < number_of_simulations; simulated++)
+                dynamicbased_resource_results.Add(DynamicBasedPrediction(TargetPolicy.Resource).Item1);
 
             //Perform Jaccard Operations
-#if DEBUG
-            Console.WriteLine($@"Lanchester-Random Accuracy: {ModelRepositoryService.GetREngine().GetJaccardResult(lanchester_random_results, _postbattle.ToString())}");
-            Console.WriteLine($@"Lanchester-Priority Accuracy: {ModelRepositoryService.GetREngine().GetJaccardResult(lanchester_priority_results, _postbattle.ToString())}");
-            Console.WriteLine($@"Lanchester-Resource Accuracy: {ModelRepositoryService.GetREngine().GetJaccardResult(lanchester_resource_results, _postbattle.ToString())}");
-            Console.ReadLine();
-
-            Console.WriteLine($@"Static-Random Accuracy: {ModelRepositoryService.GetREngine().GetJaccardResult(staticbased_random_results, _postbattle.ToString())}");
-            Console.WriteLine($@"Static-Priority Accuracy: {ModelRepositoryService.GetREngine().GetJaccardResult(staticbased_priority_results, _postbattle.ToString())}");
-            Console.WriteLine($@"Static-Resource Accuracy: {ModelRepositoryService.GetREngine().GetJaccardResult(staticbased_resource_results, _postbattle.ToString())}");
-            Console.ReadLine();
-
-            overall_results.Add(ModelRepositoryService.GetREngine().GetJaccardResult(lanchester_random_results, _postbattle.ToString()));
-            overall_results.Add(ModelRepositoryService.GetREngine().GetJaccardResult(lanchester_priority_results, _postbattle.ToString()));
-            overall_results.Add(ModelRepositoryService.GetREngine().GetJaccardResult(lanchester_resource_results, _postbattle.ToString()));
-
-            overall_results.Add(ModelRepositoryService.GetREngine().GetJaccardResult(staticbased_random_results, _postbattle.ToString()));
-            overall_results.Add(ModelRepositoryService.GetREngine().GetJaccardResult(staticbased_priority_results, _postbattle.ToString()));
-            overall_results.Add(ModelRepositoryService.GetREngine().GetJaccardResult(staticbased_resource_results, _postbattle.ToString()));
-
-            Console.WriteLine($@"Dynamic-Random Accuracy: {ModelRepositoryService.GetREngine().GetJaccardResult(dynamicbased_random_results, _postbattle.ToString())}");
-            Console.WriteLine($@"Dynamic-Priority Accuracy: {ModelRepositoryService.GetREngine().GetJaccardResult(dynamicbased_priority_results, _postbattle.ToString())}");
-            Console.WriteLine($@"Dynamic-Resource Accuracy: {ModelRepositoryService.GetREngine().GetJaccardResult(dynamicbased_resource_results, _postbattle.ToString())}");
-            Console.ReadLine();
-
-            overall_results.Add(ModelRepositoryService.GetREngine().GetJaccardResult(dynamicbased_random_results, _postbattle.ToString()));
-            overall_results.Add(ModelRepositoryService.GetREngine().GetJaccardResult(dynamicbased_priority_results, _postbattle.ToString()));
-            overall_results.Add(ModelRepositoryService.GetREngine().GetJaccardResult(dynamicbased_resource_results, _postbattle.ToString()));
-#else
             overall_results.Add(ModelRepositoryService.GetREngine().GetJaccardResult(lanchester_random_results, _postbattle.ToString()));
             overall_results.Add(ModelRepositoryService.GetREngine().GetJaccardResult(lanchester_priority_results, _postbattle.ToString()));
             overall_results.Add(ModelRepositoryService.GetREngine().GetJaccardResult(lanchester_resource_results, _postbattle.ToString()));
@@ -135,10 +86,37 @@ namespace ModelService.Micromanagement
             overall_results.Add(ModelRepositoryService.GetREngine().GetJaccardResult(dynamicbased_random_results, _postbattle.ToString()));
             overall_results.Add(ModelRepositoryService.GetREngine().GetJaccardResult(dynamicbased_priority_results, _postbattle.ToString()));
             overall_results.Add(ModelRepositoryService.GetREngine().GetJaccardResult(dynamicbased_resource_results, _postbattle.ToString()));
-#endif
 
             return overall_results;
         }
+
+        public static List<double> GetMicromanagementAccuracyReport(List<List<double>> combat_results)
+        {
+            var accuracy_results = new List<double>();
+
+            try
+            {
+                //Get the results of each algorithm+policy across the multiple files
+                for (int algorithmpolicy = 0; algorithmpolicy < 9; algorithmpolicy++)
+                {
+                    var results = new List<double>();
+                    foreach (var combat_result in combat_results)
+                        results.Add(combat_result[algorithmpolicy]);
+
+                    //Get the standard deviation of results
+                    accuracy_results.Add(REngineExtensions.GetStandardDeviation(results));
+                }
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine($@"GetMicromanagementAccuracyReport() -> {ex.Message}");
+                accuracy_results.Clear();
+            }
+
+            return accuracy_results;
+        }
+
+
     }
 
     /// <summary>

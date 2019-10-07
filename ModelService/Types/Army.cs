@@ -42,7 +42,7 @@ namespace ModelService.Types
 
                     if (unit_details.Length > 1)
                     {
-                        var buffs = (unit_details.Length > 5) ? unit_details.Skip(5) : Enumerable.Empty<string>();
+                        var buffs = (unit_details.Length > 6) ? unit_details.Skip(6) : Enumerable.Empty<string>();
                         _units[iterator] = new Unit(Convert.ToInt64(unit_details[0]), unit_details[1], unit_details[2], unit_details[3], Convert.ToDouble(unit_details[4]), Convert.ToDouble(unit_details[5]), buffs.ToArray());
                     }
                     //An empty string

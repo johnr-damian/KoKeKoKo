@@ -31,7 +31,7 @@ namespace ModelService
         /// <summary>
         /// The different ranks in StarCraft 2
         /// </summary>
-        private List<string> _ranks = new List<string>()
+        private static List<string> _ranks = new List<string>()
         {
             "Bronze",
             "Silver",

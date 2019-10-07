@@ -243,6 +243,53 @@ namespace ModelService.Micromanagement
             return battle_result;
         }
 
+        /// <summary>
+        /// <para>
+        ///     Dynamic-based Prediction Algorithm is the last high abstraction prediction algorithm for this model.
+        ///     Unlike the previous prediction algorithms, this method focuses more on details of the combat. Instead
+        ///     of looking at the initial constant damage, or a noised damage, it randomizes between whether the unit
+        ///     will attack or use its skill. Because of this, it is now able to consider that damage is not constant,
+        ///     damage and skill are not executed at once, some skills have cooldown and duration, and some skills does not
+        ///     deal damage, but something that affects other properties of unit. While it is still bounded by time
+        ///     like <see cref="StaticBasedPrediction(TargetPolicy)"/>, it does not need to stop when the time ran out, but
+        ///     it stops when there are no more units that can attack each other. Lastly, like the other mentioned algorithms,
+        ///     this considers that some units cannot target other units, and that the dealt damage is reduced by the armor.
+        /// </para>
+        /// <para>
+        ///     This method returns a string of survived units from the winning army, but the cost worth of doing battle
+        ///     is always relative to the player. As such, if the opposing army won, the cost worth returned is negative since
+        ///     it represents as a loss.
+        /// </para>
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        ///     Unlike other algorithms, it does not look at the army as a whole, but on a per unit basis.
+        ///     The probable running time is around O(n^3)
+        /// </para>
+        /// <para>
+        ///     In summary, it only take part the time-related aspect of Static-based prediction, and proceeds
+        ///     to let the army fight each other in a detailed manner. By detailed manner, a unit can attack
+        ///     normally its target, or use a skill if it is researched during that time. It considers and
+        ///     does not consider the following:
+        ///     Considers:
+        ///     <list type="bullet">
+        ///         <item>Current/Decreasing Health and Energy</item>
+        ///         <item>True Current Damage (Damage is applied with Armor)</item>
+        ///         <item>Restrictions in targeting unit</item>
+        ///         <item>Skills that deals damage, boost damage, and other that affects Health and Energy</item>
+        ///         <item>Time-related properties to battle</item>
+        ///         <item>Skills with cooldown and duration</item>
+        ///     </list>
+        ///     Does not Consider:
+        ///     <list type="bullet">
+        ///         <item>AoE Damage / Chaining Damage</item>
+        ///         <item>Transforming Units</item>
+        ///         <item>Damage with bonus to target type</item>
+        ///     </list>
+        /// </para>
+        /// </remarks>
+        /// <param name="target_policy"></param>
+        /// <returns></returns>
         public Tuple<string, CostWorth> DynamicBasedPrediction(TargetPolicy target_policy)
         {
             Tuple<string, CostWorth> battle_result = null;

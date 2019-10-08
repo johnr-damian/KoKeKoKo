@@ -48,6 +48,8 @@ namespace ModelService
                             Filename = micromanagement_battle.Item2
                         });
                     var macromanagement_battles = new List<Macromanagement.Macromanagement>();
+                    var relationedmacromacro = ModelRepositoryService.RelateMacroToMacro(macromanagement_resources, macromanagement_commands);
+
 
                     //Group the micromanagement battles by their rank
                     var perrank_micromanagement = micromanagement_battles.GroupBy(rank => rank.Rank).ToDictionary(key => key.Key, value => value.ToList());

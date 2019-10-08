@@ -157,7 +157,7 @@ namespace ModelService.Types
             ["TERRAN_HELLION"] = new CostWorth(20, 100, 0, 2),
             ["TERRAN_HELLIONTANK"] = new CostWorth(20, 100, 0, 2),
             ["TERRAN_SIEGETANK"] = new CostWorth(20, 150, 125, 3),
-            ["TERRAN_SIEGETANKSEIGED"] = new CostWorth(20, 150, 125, 3),
+            ["TERRAN_SIEGETANKSIEGED"] = new CostWorth(20, 150, 125, 3),
             ["TERRAN_CYCLONE"] = new CostWorth(20, 150, 100, 3),
             ["TERRAN_THOR"] = new CostWorth(20, 300, 200, 6),
             ["TERRAN_THORAP"] = new CostWorth(20, 300, 200, 6),

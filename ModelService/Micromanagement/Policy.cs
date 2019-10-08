@@ -152,6 +152,10 @@ namespace ModelService.Micromanagement
                     //Check if the current enemy can be targeted
                     if(focused_enumerator.Current.CanTarget(array_opposed_army[opposed_iterator.Current.Key]))
                     {
+                        //Check if the current enemy has already been previously targeted 
+                        if (Unit.GetTargetsOfUnit(focused_enumerator.Current).Contains(array_opposed_army[opposed_iterator.Current.Key].UniqueID))
+                            continue;
+
                         //Set the target immediately
                         focused_enumerator.Current.SetTarget(array_opposed_army[opposed_iterator.Current.Key]);
                         break;

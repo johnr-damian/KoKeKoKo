@@ -243,13 +243,13 @@ namespace ModelService.Micromanagement
                 switch(combat_winner)
                 {
                     case CombatWinner.Owned_Army:
-                        surviving_units = Math.Sqrt(Math.Pow(combat_result.OwnedArmy_Count, 2) - ((combat_result.OwnedArmy_CombatEffectiveness / combat_result.EnemyArmy_CombatEffectiveness) * Math.Pow(combat_result.EnemyArmy_Count, 2)));
+                        surviving_units = Math.Sqrt(Math.Abs(Math.Pow(combat_result.OwnedArmy_Count, 2) - ((combat_result.OwnedArmy_CombatEffectiveness / combat_result.EnemyArmy_CombatEffectiveness) * Math.Pow(combat_result.EnemyArmy_Count, 2))));
                         break;
                     case CombatWinner.Draw:
                         surviving_units = 0;
                         break;
                     case CombatWinner.Enemy_Army:
-                        surviving_units = Math.Sqrt(Math.Pow(combat_result.EnemyArmy_Count, 2) - ((combat_result.EnemyArmy_CombatEffectiveness / combat_result.OwnedArmy_CombatEffectiveness) * Math.Pow(combat_result.OwnedArmy_Count, 2)));
+                        surviving_units = Math.Sqrt(Math.Abs(Math.Pow(combat_result.EnemyArmy_Count, 2) - ((combat_result.EnemyArmy_CombatEffectiveness / combat_result.OwnedArmy_CombatEffectiveness) * Math.Pow(combat_result.OwnedArmy_Count, 2))));
                         break;
                 }
             }
@@ -459,26 +459,36 @@ namespace ModelService.Micromanagement
             OwnedArmy_TimeToKillEnemyArmy = new Dictionary<string, double>();
             for(var enumerator = owned_army.GetEnumerator(); enumerator.MoveNext();)
             {
-                //Compute the potential mean damage to target
-                var potentialmeandamage = (((2 * Unit.GetMinimumPotentialDamage(enumerator.Current)) + Unit.GetMaximumPotentialDamage(enumerator.Current)) / 3);
+                if (enumerator.Current.Target != null)
+                {
+                    //Compute the potential mean damage to target
+                    var potentialmeandamage = (((2 * Unit.GetMinimumPotentialDamage(enumerator.Current)) + Unit.GetMaximumPotentialDamage(enumerator.Current)) / 3);
 
-                //Compute the time to kill target
-                var timetokill = enumerator.Current.Target.Current_Health / potentialmeandamage;
+                    //Compute the time to kill target
+                    var timetokill = enumerator.Current.Target.Current_Health / potentialmeandamage;
 
-                //Store the time
-                OwnedArmy_TimeToKillEnemyArmy.Add(enumerator.Current.UniqueID, timetokill);
+                    //Store the time
+                    OwnedArmy_TimeToKillEnemyArmy.Add(enumerator.Current.UniqueID, timetokill);
+                }
+                else
+                    OwnedArmy_TimeToKillEnemyArmy.Add(enumerator.Current.UniqueID, 0);
             }
             EnemyArmy_TimeToKillOwnedArmy = new Dictionary<string, double>();
             for(var enumerator = enemy_army.GetEnumerator(); enumerator.MoveNext();)
             {
-                //Compute the potential mean damage to target
-                var potentialmeandamage = (((2 * Unit.GetMinimumPotentialDamage(enumerator.Current)) + Unit.GetMaximumPotentialDamage(enumerator.Current)) / 3);
+                if (enumerator.Current.Target != null)
+                {
+                    //Compute the potential mean damage to target
+                    var potentialmeandamage = (((2 * Unit.GetMinimumPotentialDamage(enumerator.Current)) + Unit.GetMaximumPotentialDamage(enumerator.Current)) / 3);
 
-                //Compute the time to kill target
-                var timetokill = enumerator.Current.Target.Current_Health / potentialmeandamage;
+                    //Compute the time to kill target
+                    var timetokill = enumerator.Current.Target.Current_Health / potentialmeandamage;
 
-                //Store the time
-                EnemyArmy_TimeToKillOwnedArmy.Add(enumerator.Current.UniqueID, timetokill);
+                    //Store the time
+                    EnemyArmy_TimeToKillOwnedArmy.Add(enumerator.Current.UniqueID, timetokill);
+                }
+                else
+                    EnemyArmy_TimeToKillOwnedArmy.Add(enumerator.Current.UniqueID, 0);
             }
 
             //Get the max time to kill a unit of both army

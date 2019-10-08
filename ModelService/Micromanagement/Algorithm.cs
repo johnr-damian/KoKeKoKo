@@ -335,7 +335,7 @@ namespace ModelService.Micromanagement
                     enemy_units = enemy_units.Where(unit => !unit.IsDefeated).ToArmy();
 
                     //Check if the battle can be continued
-                    if (!DynamicCombatResult.IsCombatContinuable(owned_units, enemy_units))
+                    if (!DynamicCombatResult.IsCombatContinuable(owned_units, enemy_units) || (combat_time == 0))
                         break;
 
                     //Re-set the targets for each army to prevent

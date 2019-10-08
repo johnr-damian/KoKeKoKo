@@ -74,7 +74,7 @@ namespace ModelService.Types
             //Create a list units with their worth being destroyed
             for (int iterator = 0; iterator < array_units.Count; iterator++)
                 //The value of a unit is 20% of distance and 80% of priority worth
-                units_value.Add(iterator, ((array_units[iterator].Position.GetDistance(array_units[iterator].Target.Position) * 0.20) + (Unit.Values[array_units[iterator].Name].Priority * 0.80)));
+                units_value.Add(iterator, ((array_units[iterator].Position.GetDistance((array_units[iterator].Target == null)? default(Coordinate) : array_units[iterator].Target.Position) * 0.20) + (Unit.Values[array_units[iterator].Name].Priority * 0.80)));
 
             //Sort by ascending order
             var enumerator_taken_units = units_value.OrderBy(unit_value => unit_value.Value).Take(count);
@@ -139,6 +139,8 @@ namespace ModelService.Types
         {
             for(var enumerator = units.GetEnumerator(); enumerator.MoveNext();)
             {
+                if (enumerator.Current.Target == null)
+                    continue;
                 double minimum_and_mode = Unit.GetMinimumPotentialDamage(enumerator.Current);
                 var damage_to_deal = ModelRepositoryService.GetREngine().GetTriangularRandomNumber(time_to_kill, minimum_and_mode, Unit.GetMaximumPotentialDamage(enumerator.Current), minimum_and_mode);
                 enumerator.Current.SimpleAttackToTarget(damage_to_deal);

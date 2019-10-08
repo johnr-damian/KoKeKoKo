@@ -94,7 +94,8 @@ namespace ModelService.Types
         public static Dictionary<string, UnitDefinitions> Definitions = new Dictionary<string, UnitDefinitions>()
         {
             //Ground Units
-            ["TERRAN_WIDOWMINE"] = new UnitDefinitions(90, 0, 125, 125, 0, false),
+            ["TERRAN_WIDOWMINE"] = new UnitDefinitions(90, 0, 0, 0, 0, false),
+            ["TERRAN_WIDOWMINEBURROWED"] = new UnitDefinitions(90, 0, 125, 125, 0, false),
             ["TERRAN_SCV"] = new UnitDefinitions(45, 0, 4.67, 0, 0, false),
             ["TERRAN_MARINE"] = new UnitDefinitions(45, 0, 9.8, 9.8, 0, false),
             ["TERRAN_MARAUDER"] = new UnitDefinitions(125, 0, 9.3, 0, 1, false),
@@ -117,6 +118,10 @@ namespace ModelService.Types
             ["TERRAN_RAVEN"] = new UnitDefinitions(140, 200, 0, 0, 1, true), //50(+25)/200
             ["TERRAN_BANSHEE"] = new UnitDefinitions(140, 200, 27, 0, 0, true),
             ["TERRAN_BATTLECRUISER"] = new UnitDefinitions(550, 200, 49.8, 31.1, 3, true),
+            //Summoned Units
+            ["TERRAN_MULE"] = new UnitDefinitions(60, 0, 0, 0, 0, false),
+            ["TERRAN_AUTOTURRET"] = new UnitDefinitions(150, 0, 31.58, 31.58, 1, false), //considered a buidling
+            ["TERRAN_NUKE"] = new UnitDefinitions(0, 0, 300, 300, 0, false),
             //Buildings
             ["TERRAN_PLANETARYFORTRESS"] = new UnitDefinitions(1500, 0, 28, 0, 3, false),
             ["TERRAN_BUNKER"] = new UnitDefinitions(400, 0, 0, 0, 1, false),
@@ -132,7 +137,7 @@ namespace ModelService.Types
             ["TERRAN_FACTORY"] = new UnitDefinitions(1250, 0, 0, 0, 1, false),
             ["TERRAN_GHOSTACADEMY"] = new UnitDefinitions(1250, 0, 0, 0, 1, false),
             ["TERRAN_STARPORT"] = new UnitDefinitions(1300, 0, 0, 0, 1, false),
-            ["TERRAN_unit.Target.Current_ArmorY"] = new UnitDefinitions(750, 0, 0, 0, 1, false),
+            ["TERRAN_ARMORY"] = new UnitDefinitions(750, 0, 0, 0, 1, false),
             ["TERRAN_FUSIONCORE"] = new UnitDefinitions(750, 0, 0, 0, 1, false)
         };
 
@@ -143,6 +148,7 @@ namespace ModelService.Types
         {
             //Ground Units
             ["TERRAN_WIDOWMINE"] = new CostWorth(19, 75, 25, 2),
+            ["TERRAN_WIDOWMINEBURROWED"] = new CostWorth(20, 75, 25, 2),
             ["TERRAN_SCV"] = new CostWorth(20, 50, 0, 1),
             ["TERRAN_MARINE"] = new CostWorth(20, 50, 0, 1),
             ["TERRAN_MARAUDER"] = new CostWorth(20, 100, 25, 2),
@@ -165,6 +171,10 @@ namespace ModelService.Types
             ["TERRAN_RAVEN"] = new CostWorth(20, 100, 200, 2),
             ["TERRAN_BANSHEE"] = new CostWorth(20, 150, 100, 3),
             ["TERRAN_BATTLECRUISERr"] = new CostWorth(20, 400, 300, 6),
+            //Summoned Units
+            ["TERRAN_MULE"] = new CostWorth(20, 0, 0, 0),
+            ["TERRAN_AUTOTURRET"] = new CostWorth(20, 0, 0, 0), //considered a buidling
+            ["TERRAN_NUKE"] = new CostWorth(0, 100, 100, 0),
             //Buildings
             ["TERRAN_PLANETARYFORTRESS"] = new CostWorth(20, 550, 150, 0),
             ["TERRAN_BUNKER"] = new CostWorth(20, 100, 0, 0),
@@ -180,7 +190,7 @@ namespace ModelService.Types
             ["TERRAN_FACTORY"] = new CostWorth(11, 150, 100, 0),
             ["TERRAN_GHOSTACADEMY"] = new CostWorth(11, 150, 100, 0),
             ["TERRAN_STARPORT"] = new CostWorth(11, 150, 100, 0),
-            ["TERRAN_unit.Target.Current_ArmorY"] = new CostWorth(11, 150, 100, 0),
+            ["TERRAN_ARMORY"] = new CostWorth(11, 150, 100, 0),
             ["TERRAN_FUSIONCORE"] = new CostWorth(11, 150, 150, 0)
         };
 
@@ -463,13 +473,13 @@ namespace ModelService.Types
                 {
                     //Barrack Units
                     case "TERRAN_MARINE":
-                        if (ability_probability <= 0.50)
+                        if (ability_probability <= 0.50 || !unit.Buffs.Contains("RESEARCH_STIMPACK"))
                             unit.Target.Current_Health -= Unit.GetMinimumPotentialDamage(unit);
                         else
                             unit.UseSkillOrAbilities("EFFECT_STIM");
                         break;
                     case "TERRAN_MARAUDER":
-                        if (ability_probability <= 0.50)
+                        if (ability_probability <= 0.50 || !unit.Buffs.Contains("RESEARCH_STIMPACK"))
                             unit.Target.Current_Health -= Unit.GetMinimumPotentialDamage(unit);
                         else
                             unit.UseSkillOrAbilities("EFFECT_STIM");
@@ -481,11 +491,12 @@ namespace ModelService.Types
                             unit.UseSkillOrAbilities("EFFECT_KD8CHARGE");
                         break;
                     case "TERRAN_GHOST":
-                        if (ability_probability <= 0.33)
+                        if (ability_probability <= 0.33 || (ability_probability <= 50 && !unit.Buffs.Contains("BUILD_NUKE")))
                             unit.Target.Current_Health -= Unit.GetMinimumPotentialDamage(unit);
                         else if ((ability_probability >= 0.34) && (ability_probability <= 0.66))
                             unit.UseSkillOrAbilities("EFFECT_NUKECALLDOWN");
-                        else
+                        else if ((ability_probability >= 0.67 && (unit.Target.Name == "TERRAN_SCV" || unit.Target.Name == "TERRAN_MARINE" || unit.Target.Name == "TERRAN_MARAUDER" || unit.Target.Name == "TERRAN_REAPER" || unit.Target.Name == "TERRAN_GHOST"))
+                               ||(ability_probability >= 51 && (unit.Target.Name == "TERRAN_SCV" || unit.Target.Name == "TERRAN_MARINE" || unit.Target.Name == "TERRAN_MARAUDER" || unit.Target.Name == "TERRAN_REAPER" || unit.Target.Name == "TERRAN_GHOST") && !unit.Buffs.Contains("BUILD_NUKE")))
                             unit.UseSkillOrAbilities("EFFECT_GHOSTSNIPE");
                         break;
                     //Factory Units
@@ -529,7 +540,7 @@ namespace ModelService.Types
                     case "TERRAN_BANSHEE": unit.Target.Current_Health -= Unit.GetMinimumPotentialDamage(unit); break;
 
                     case "TERRAN_BATTLECRUISER":
-                        if (ability_probability <= 0.50)
+                        if (ability_probability <= 0.50 || !unit.Buffs.Contains("BATTLECRUISERENABLESPECIALIZATIONS"))
                             unit.Target.Current_Health -= Unit.GetMinimumPotentialDamage(unit);
                         else
                             unit.UseSkillOrAbilities("EFFECT_YAMATOGUN");

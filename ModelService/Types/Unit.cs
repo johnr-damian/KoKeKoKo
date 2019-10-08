@@ -139,30 +139,38 @@ namespace ModelService.Types
         /// <param name="buffs"></param>
         public Unit(long timestamp, string owner, string unique_id, string name, double x, double y, params string[] buffs)
         {
-            //Private field initializations
-            Current_Target = -1;
-            Targets = new List<Unit>();
+            try
+            {
+                //Private field initializations
+                Current_Target = -1;
+                Targets = new List<Unit>();
 
-            //Initialize the fields from source
-            Timestamp = timestamp;
-            Owner = owner;
-            UniqueID = unique_id;
-            Name = name;
-            Position = new Coordinate(x, y);
-            Buffs = new List<string>(buffs);
+                //Initialize the fields from source
+                Timestamp = timestamp;
+                Owner = owner;
+                UniqueID = unique_id;
+                Name = name;
+                Position = new Coordinate(x, y);
+                Buffs = new List<string>(buffs);
 
-            //Initialize the from simulation
-            if (Name == null)
-                return;
-            Current_Health = Health = Definitions[Name].Health;
-            Current_Energy = Energy = Definitions[Name].Energy;
-            Current_Ground_Damage = Ground_Damage = Definitions[Name].Ground_Damage;
-            Current_Air_Damage = Air_Damage = Definitions[Name].Air_Damage;
-            Current_Armor = Armor = Definitions[Name].Armor;
-            Activated_Skills = new Dictionary<string, UnitSkills>();
+                //Initialize the from simulation
+                if (Name == null)
+                    return;
+                Current_Health = Health = Definitions[Name].Health;
+                Current_Energy = Energy = Definitions[Name].Energy;
+                Current_Ground_Damage = Ground_Damage = Definitions[Name].Ground_Damage;
+                Current_Air_Damage = Air_Damage = Definitions[Name].Air_Damage;
+                Current_Armor = Armor = Definitions[Name].Armor;
+                Activated_Skills = new Dictionary<string, UnitSkills>();
 
-            //Apply the applicable new values from permanent buffs
-            ApplyApplicableUpgrades();
+                //Apply the applicable new values from permanent buffs
+                ApplyApplicableUpgrades();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                Console.WriteLine($@"Unit [{Name}]-> {ex.Message}");
+                throw new Exception("Unit from Army Repository not found in Unit Dictionaries");
+            }
         }
 
         /// <summary>

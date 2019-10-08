@@ -132,7 +132,9 @@ namespace ModelService.Types
             ["TERRAN_BUNKER"] = new UnitDefinitions(400, 0, 0, 0, 1, false),
             ["TERRAN_MISSILETURRET"] = new UnitDefinitions(250, 0, 0, 39.3, 1, false),
             ["TERRAN_COMMANDCENTER"] = new UnitDefinitions(1500, 0, 0, 0, 1, false),
+            ["CommandCenter"] = new UnitDefinitions(1500, 0, 0, 0, 1, false),
             ["TERRAN_ORBITALCOMMAND"] = new UnitDefinitions(1500, 200, 0, 0, 1, false), //50/200
+            ["OrbitalCommand"] = new UnitDefinitions(1500, 200, 0, 0, 1, false), //50/200
             ["TERRAN_SUPPLYDEPOT"] = new UnitDefinitions(400, 0, 0, 0, 1, false),
             ["TERRAN_REFINERY"] = new UnitDefinitions(500, 0, 0, 0, 1, false),
             ["TERRAN_BARRACKS"] = new UnitDefinitions(1000, 0, 0, 0, 1, false),
@@ -190,7 +192,9 @@ namespace ModelService.Types
             ["TERRAN_BUNKER"] = new CostWorth(20, 100, 0, 0),
             ["TERRAN_MISSILETURRET"] = new CostWorth(19, 100, 0, 0),
             ["TERRAN_COMMANDCENTER"] = new CostWorth(11, 400, 0, 0),
+            ["CommandCenter"] = new CostWorth(11, 400, 0, 0),
             ["TERRAN_ORBITALCOMMAND"] = new CostWorth(11, 550, 0, 0),
+            ["OrbitalCommand"] = new CostWorth(11, 550, 0, 0),
             ["TERRAN_SUPPLYDEPOT"] = new CostWorth(11, 100, 0, 0),
             ["TERRAN_REFINERY"] = new CostWorth(11, 75, 0, 0),
             ["TERRAN_BARRACKS"] = new CostWorth(11, 150, 0, 0),

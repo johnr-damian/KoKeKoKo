@@ -289,7 +289,76 @@ namespace ModelService
 
             try
             {
+#if DEBUG
+                var raw_commandsrepository = ReadRepository(@"Training\CommandsRepository.csv");
+#elif TRACE
+                var raw_commandsrepository = ReadRepository(@"Testing\CommandsRepository.csv");
+#endif
 
+                if(raw_commandsrepository.Length > 0)
+                {
+                    bool content_readyforstorage = false;
+                    int current_linepointer = -1, content_pointer = -1, offset_pointer = -1;
+                    string current_rank = "", current_replayfilename = "";
+
+                    while(++current_linepointer < raw_commandsrepository.Length)
+                    {
+                        var current_linecontent = raw_commandsrepository[current_linepointer].Split(',');
+
+                        if(current_linecontent.Length == 1)
+                        {
+                            //If the current line is rank
+                            if (_ranks.Contains(current_linecontent[0]))
+                                //Take note of the current rank
+                                current_rank = current_linecontent[0];
+                            //The current line is a replay filename
+                            else
+                            {
+                                //The previous replay file has ended
+                                if(content_readyforstorage)
+                                {
+                                    //Check if the previous line is a rank
+                                    offset_pointer = (_ranks.Contains(raw_commandsrepository[current_linepointer - 1])) ? 1 : 0;
+
+                                    //Get the last line of content, the number of elements to take
+                                    var contentcardinal = ((current_linepointer - offset_pointer) - content_pointer);
+                                    //Get the content, and seperate the two player's information
+                                    var content = raw_commandsrepository.Skip(content_pointer).Take(contentcardinal).GroupBy(line => line.Split(',')[1]).ToDictionary(key => key.Key, value => value.ToList()).ToList();
+
+                                    //Store the parsed information
+                                    commandsrepository.Add(new Tuple<string, string, string, string>(current_rank, current_replayfilename, String.Join("\n", content[0].Value), String.Join("\n", content[1].Value)));
+                                    content_readyforstorage = false;
+                                }
+
+                                //It is a new replay file
+                                if(!content_readyforstorage)
+                                {
+                                    content_pointer = current_linepointer + 1; //The start of the content
+                                    current_replayfilename = current_linecontent[0]; //The filename of the current replay file
+                                    content_readyforstorage = true;
+
+                                }
+                            }
+                        }
+                    }
+
+                    //There is a residue content
+                    //The previous replay file has ended
+                    if (content_readyforstorage)
+                    {
+                        //Check if the previous line is a rank
+                        offset_pointer = (_ranks.Contains(raw_commandsrepository[current_linepointer - 1])) ? 1 : 0;
+
+                        //Get the last line of content, the number of elements to take
+                        var contentcardinal = ((current_linepointer - offset_pointer) - content_pointer);
+                        //Get the content, and seperate the two player's information
+                        var content = raw_commandsrepository.Skip(content_pointer).Take(contentcardinal).GroupBy(line => line.Split(',')[1]).ToDictionary(key => key.Key, value => value.ToList()).ToList();
+
+                        //Store the parsed information
+                        commandsrepository.Add(new Tuple<string, string, string, string>(current_rank, current_replayfilename, String.Join("\n", content[0].Value), String.Join("\n", content[1].Value)));
+                        content_readyforstorage = false;
+                    }
+                }
             }
             catch(Exception ex)
             {

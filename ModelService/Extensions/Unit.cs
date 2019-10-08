@@ -176,7 +176,7 @@ namespace ModelService.Types
             ["TERRAN_LIBERATOR"] = new CostWorth(20, 150, 150, 3),
             ["TERRAN_RAVEN"] = new CostWorth(20, 100, 200, 2),
             ["TERRAN_BANSHEE"] = new CostWorth(20, 150, 100, 3),
-            ["TERRAN_BATTLECRUISERr"] = new CostWorth(20, 400, 300, 6),
+            ["TERRAN_BATTLECRUISER"] = new CostWorth(20, 400, 300, 6),
             //Summoned Units
             ["TERRAN_MULE"] = new CostWorth(20, 0, 0, 0),
             ["TERRAN_AUTOTURRET"] = new CostWorth(20, 0, 0, 0), //considered a buidling

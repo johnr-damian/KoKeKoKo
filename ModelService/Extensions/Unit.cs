@@ -101,7 +101,6 @@ namespace ModelService.Types
             ["TERRAN_MARAUDER"] = new UnitDefinitions(125, 0, 9.3, 0, 1, false),
             ["TERRAN_REAPER"] = new UnitDefinitions(60, 0, 10.1, 0, 0, false),
             ["TERRAN_GHOST"] = new UnitDefinitions(100, 200, 9.3, 9.3, 0, false), //75/200
-            [" TERRAN_GHOST"] = new UnitDefinitions(100, 200, 9.3, 9.3, 0, false), //75/200
             ["TERRAN_HELLION"] = new UnitDefinitions(90, 0, 4.48, 0, 0, false),
             ["TERRAN_HELLIONTANK"] = new UnitDefinitions(135, 0, 12.6, 0, 0, false),
             ["TERRAN_SIEGETANK"] = new UnitDefinitions(175, 0, 20.27, 0, 1, false),
@@ -123,10 +122,8 @@ namespace ModelService.Types
             ["TERRAN_MULE"] = new UnitDefinitions(60, 0, 0, 0, 0, false),
             ["TERRAN_AUTOTURRET"] = new UnitDefinitions(150, 0, 31.58, 31.58, 1, false), //considered a buidling
             ["TERRAN_POINTDEFENSEDRONE"] = new UnitDefinitions(50, 0, 0, 0, 0, false), //considered a buidling //intercepts certain projectiles
-            ["TERRAN_TERRAN_POINTDEFENSEDRONE"] = new UnitDefinitions(50, 0, 0, 0, 0, false), //considered a buidling //intercepts certain projectiles
             ["TERRAN_NUKE"] = new UnitDefinitions(0, 0, 300, 300, 0, false),
             ["TERRAN_KD8CHARGE"] = new UnitDefinitions(0, 0, 5, 0, 0, false),
-            ["TERRAN_KD8Charge"] = new UnitDefinitions(0, 0, 5, 0, 0, false),
             //Buildings
             ["TERRAN_PLANETARYFORTRESS"] = new UnitDefinitions(1500, 0, 28, 0, 3, false),
             ["TERRAN_BUNKER"] = new UnitDefinitions(400, 0, 0, 0, 1, false),
@@ -159,7 +156,6 @@ namespace ModelService.Types
             ["TERRAN_MARAUDER"] = new CostWorth(20, 100, 25, 2),
             ["TERRAN_REAPER"] = new CostWorth(20, 50, 50, 1),
             ["TERRAN_GHOST"] = new CostWorth(20, 150, 125, 2),
-            [" TERRAN_GHOST"] = new CostWorth(20, 150, 125, 2),
             ["TERRAN_HELLION"] = new CostWorth(20, 100, 0, 2),
             ["TERRAN_HELLIONTANK"] = new CostWorth(20, 100, 0, 2),
             ["TERRAN_SIEGETANK"] = new CostWorth(20, 150, 125, 3),
@@ -181,7 +177,6 @@ namespace ModelService.Types
             ["TERRAN_MULE"] = new CostWorth(20, 0, 0, 0),
             ["TERRAN_AUTOTURRET"] = new CostWorth(20, 0, 0, 0), //considered a buidling
             ["TERRAN_POINTDEFENSEDRONE"] = new CostWorth(20, 0, 0, 0), //considered a buidling
-            ["TERRAN_TERRAN_POINTDEFENSEDRONE"] = new CostWorth(20, 0, 0, 0), //considered a buidling
             ["TERRAN_NUKE"] = new CostWorth(0, 100, 100, 0),
             ["TERRAN_KD8CHARGE"] = new CostWorth(0, 0, 0, 0),
             ["TERRAN_KD8Charge"] = new CostWorth(0, 0, 0, 0),

@@ -401,9 +401,9 @@ namespace ModelService
                     string owned_units_upgrades = "", enemy_units_upgrades = "", owned_units = "", enemy_units = "";
 
                     if (owned_units_resources.Length > 6)
-                        owned_units_upgrades = "," + String.Join("\n", owned_units_resources.Skip(6));
+                        owned_units_upgrades = "," + String.Join(",", owned_units_resources.Skip(6));
                     if (enemy_units_resources.Length > 6)
-                        enemy_units_upgrades = "," + String.Join("\n", enemy_units_resources.Skip(6));
+                        enemy_units_upgrades = "," + String.Join(",", enemy_units_resources.Skip(6));
 
                     var raw_owned_units = micromacro.Item3.Split('\n');
                     var raw_enemy_units = micromacro.Item4.Split('\n');

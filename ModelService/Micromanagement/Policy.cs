@@ -1,4 +1,5 @@
 ﻿using ModelService.Types;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -30,30 +31,39 @@ namespace ModelService.Micromanagement
         /// <param name="opposed_army"></param>
         private void RandomBasedTargetPolicy(ref Army focused_army, Army opposed_army)
         {
-            var array_opposed_army = opposed_army.ToArray();
-            for(var focused_enumerator = focused_army.GetEnumerator(); focused_enumerator.MoveNext();)
+            try
             {
-                int selected_enemy = REngineExtensions.GetRandomGenerator().Next(0, array_opposed_army.Length), offset = 0;
-
-                //Continue to increase the offset if the current selected enemy cannot be targeted
-                //Stop if we return back to the original enemy unit
-                for(bool started = true; true; offset++, started = false)
+                var array_opposed_army = opposed_army.ToArray();
+                for (var focused_enumerator = focused_army.GetEnumerator(); focused_enumerator.MoveNext();)
                 {
-                    int offsetted_index = ((offset + selected_enemy) % array_opposed_army.Length);
+                    int selected_enemy = REngineExtensions.GetRandomGenerator().Next(0, array_opposed_army.Length), offset = 0;
 
-                    //Check if offsetted index is the same as the original enemy unit
-                    //and that this is the second time, not when it started
-                    if (!started && (offsetted_index == selected_enemy))
-                        break;
-
-                    //Check if the current unit can target the given enemy unit
-                    if(focused_enumerator.Current.CanTarget(array_opposed_army[offsetted_index]))
+                    //Continue to increase the offset if the current selected enemy cannot be targeted
+                    //Stop if we return back to the original enemy unit
+                    for (bool started = true; true; offset++, started = false)
                     {
-                        //Set the target since it can be targeted
-                        focused_enumerator.Current.SetTarget(array_opposed_army[offsetted_index]);
-                        break;
+                        int offsetted_index = ((offset + selected_enemy) % array_opposed_army.Length);
+
+                        //Check if offsetted index is the same as the original enemy unit
+                        //and that this is the second time, not when it started
+                        if (!started && (offsetted_index == selected_enemy))
+                            break;
+
+                        //Check if the current unit can target the given enemy unit
+                        if (focused_enumerator.Current.CanTarget(array_opposed_army[offsetted_index]))
+                        {
+                            //Set the target since it can be targeted
+                            focused_enumerator.Current.SetTarget(array_opposed_army[offsetted_index]);
+                            break;
+                        }
                     }
                 }
+            }
+            catch (ArgumentNullException ex)
+            {
+                Console.WriteLine($@"RandomBasedTargetPolicy() [{focused_army.ToString()}\n{opposed_army.ToString()}] -> {ex.Message}");
+                System.Diagnostics.Debugger.Break();
+                throw new Exception("");
             }
         }
 
@@ -83,30 +93,39 @@ namespace ModelService.Micromanagement
         /// <param name="opposed_army"></param>
         private void PriorityBasedTargetPolicy(ref Army focused_army, Army opposed_army)
         {
-            var array_opposed_army = opposed_army.ToArray();
-            for(var focused_enumerator = focused_army.GetEnumerator(); focused_enumerator.MoveNext();)
+            try
             {
-                //Create a dictionary to store their weighted value
-                var enemies_weightedvalue = new Dictionary<int, double>();
-                for (int opposed_iterator = 0; opposed_iterator < array_opposed_army.Length; opposed_iterator++)
-                    //The value of an enemy unit is 20% of their distance from current unit plus
-                    //80% of their priority worth when they are destroyed
-                    enemies_weightedvalue.Add(opposed_iterator, ((focused_enumerator.Current.Position.GetDistance(array_opposed_army[opposed_iterator].Position) * 0.20) + (Unit.Values[array_opposed_army[opposed_iterator].Name].Priority) * 0.80));
-
-                //Sort the dictionary by descending value
-                var enumerator_opposed_army = enemies_weightedvalue.OrderByDescending(enemy_value => enemy_value.Value);
-
-                //Go through the list of enemies and select the highest one
-                for(var opposed_iterator = enumerator_opposed_army.GetEnumerator(); opposed_iterator.MoveNext();)
+                var array_opposed_army = opposed_army.ToArray();
+                for (var focused_enumerator = focused_army.GetEnumerator(); focused_enumerator.MoveNext();)
                 {
-                    //Check if the current enemy can be targeted
-                    if(focused_enumerator.Current.CanTarget(array_opposed_army[opposed_iterator.Current.Key]))
+                    //Create a dictionary to store their weighted value
+                    var enemies_weightedvalue = new Dictionary<int, double>();
+                    for (int opposed_iterator = 0; opposed_iterator < array_opposed_army.Length; opposed_iterator++)
+                        //The value of an enemy unit is 20% of their distance from current unit plus
+                        //80% of their priority worth when they are destroyed
+                        enemies_weightedvalue.Add(opposed_iterator, ((focused_enumerator.Current.Position.GetDistance(array_opposed_army[opposed_iterator].Position) * 0.20) + (Unit.Values[array_opposed_army[opposed_iterator].Name].Priority) * 0.80));
+
+                    //Sort the dictionary by descending value
+                    var enumerator_opposed_army = enemies_weightedvalue.OrderByDescending(enemy_value => enemy_value.Value);
+
+                    //Go through the list of enemies and select the highest one
+                    for (var opposed_iterator = enumerator_opposed_army.GetEnumerator(); opposed_iterator.MoveNext();)
                     {
-                        //Set the target immediately
-                        focused_enumerator.Current.SetTarget(array_opposed_army[opposed_iterator.Current.Key]);
-                        break;
+                        //Check if the current enemy can be targeted
+                        if (focused_enumerator.Current.CanTarget(array_opposed_army[opposed_iterator.Current.Key]))
+                        {
+                            //Set the target immediately
+                            focused_enumerator.Current.SetTarget(array_opposed_army[opposed_iterator.Current.Key]);
+                            break;
+                        }
                     }
                 }
+            }
+            catch (ArgumentNullException ex)
+            {
+                Console.WriteLine($@"RandomBasedTargetPolicy() [{focused_army.ToString()}\n{opposed_army.ToString()}] -> {ex.Message}");
+                System.Diagnostics.Debugger.Break();
+                throw new Exception("");
             }
         }
 
@@ -134,29 +153,42 @@ namespace ModelService.Micromanagement
         /// <param name="opposed_army"></param>
         private void ResourceBasedTargetPolicy(ref Army focused_army, Army opposed_army)
         {
-            var array_opposed_army = opposed_army.ToArray();
-            for(var focused_enumerator = focused_army.GetEnumerator(); focused_enumerator.MoveNext();)
+            try
             {
-                //Create a dictionary to store their weighted value
-                var enemies_weightedvalue = new Dictionary<int, double>();
-                for (int opposed_iterator = 0; opposed_iterator < array_opposed_army.Length; opposed_iterator++)
-                    //The value of an enemy unit is 33.5% of mineral worth, 33.5% of vespene worth, 33% of supply worth
-                    enemies_weightedvalue.Add(opposed_iterator, Unit.Values[array_opposed_army[opposed_iterator].Name].GetTotalWorth(0, 0.335, 0.335, 0.33));
-
-                //Sort the dictionary by descending value
-                var enumerator_opposed_army = enemies_weightedvalue.OrderByDescending(enemy_value => enemy_value.Value);
-
-                //Go through the list of enemies and select the highest one
-                for(var opposed_iterator = enumerator_opposed_army.GetEnumerator(); opposed_iterator.MoveNext();)
+                var array_opposed_army = opposed_army.ToArray();
+                for (var focused_enumerator = focused_army.GetEnumerator(); focused_enumerator.MoveNext();)
                 {
-                    //Check if the current enemy can be targeted
-                    if(focused_enumerator.Current.CanTarget(array_opposed_army[opposed_iterator.Current.Key]))
+                    //Create a dictionary to store their weighted value
+                    var enemies_weightedvalue = new Dictionary<int, double>();
+                    for (int opposed_iterator = 0; opposed_iterator < array_opposed_army.Length; opposed_iterator++)
+                        //The value of an enemy unit is 33.5% of mineral worth, 33.5% of vespene worth, 33% of supply worth
+                        enemies_weightedvalue.Add(opposed_iterator, Unit.Values[array_opposed_army[opposed_iterator].Name].GetTotalWorth(0, 0.335, 0.335, 0.33));
+
+                    //Sort the dictionary by descending value
+                    var enumerator_opposed_army = enemies_weightedvalue.OrderByDescending(enemy_value => enemy_value.Value);
+
+                    //Go through the list of enemies and select the highest one
+                    for (var opposed_iterator = enumerator_opposed_army.GetEnumerator(); opposed_iterator.MoveNext();)
                     {
-                        //Set the target immediately
-                        focused_enumerator.Current.SetTarget(array_opposed_army[opposed_iterator.Current.Key]);
-                        break;
+                        //Check if the current enemy can be targeted
+                        if (focused_enumerator.Current.CanTarget(array_opposed_army[opposed_iterator.Current.Key]))
+                        {
+                            //Check if the current enemy has already been previously targeted 
+                            if (Unit.GetTargetsOfUnit(focused_enumerator.Current).Contains(array_opposed_army[opposed_iterator.Current.Key].UniqueID))
+                                continue;
+
+                            //Set the target immediately
+                            focused_enumerator.Current.SetTarget(array_opposed_army[opposed_iterator.Current.Key]);
+                            break;
+                        }
                     }
                 }
+            }
+            catch (ArgumentNullException ex)
+            {
+                Console.WriteLine($@"RandomBasedTargetPolicy() [{focused_army.ToString()}\n{opposed_army.ToString()}] -> {ex.Message}");
+                System.Diagnostics.Debugger.Break();
+                throw new Exception("");
             }
         }
     }

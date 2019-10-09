@@ -29,31 +29,42 @@ namespace ModelService.Types
         /// <param name="raw_units"></param>
         public Army(string raw_units)
         {
-            _raw_units = raw_units;
-            var parsed_units = raw_units.Split('\n');
-
-            if (parsed_units.Length > 0)
+            try
             {
-                _units = new Unit[parsed_units.Length];
+                _raw_units = raw_units;
+                var parsed_units = raw_units.Split('\n');
 
-                for(int iterator = 0; iterator < parsed_units.Length; iterator++)
+                if (parsed_units.Length > 0)
                 {
-                    var unit_details = parsed_units[iterator].Split(',');
+                    _units = new Unit[parsed_units.Length];
 
-                    if (unit_details.Length > 1)
+                    for (int iterator = 0; iterator < parsed_units.Length; iterator++)
                     {
-                        var buffs = (unit_details.Length > 6) ? unit_details.Skip(6) : Enumerable.Empty<string>();
-                        _units[iterator] = new Unit(Convert.ToInt64(unit_details[0]), unit_details[1], unit_details[2], unit_details[3], Convert.ToDouble(unit_details[4]), Convert.ToDouble(unit_details[5]), buffs.ToArray());
+                        var unit_details = parsed_units[iterator].Split(',');
+
+                        if (unit_details.Length > 1)
+                        {
+                            var buffs = (unit_details.Length > 6) ? unit_details.Skip(6) : Enumerable.Empty<string>();
+                            //if (unit_details[2] == "[6A00017]")
+                            //    System.Diagnostics.Debugger.Break();
+                            _units[iterator] = new Unit(Convert.ToInt64(unit_details[0]), unit_details[1], unit_details[2], unit_details[3], Convert.ToDouble(unit_details[4]), Convert.ToDouble(unit_details[5]), buffs.ToArray());
+                        }
+                        //An empty string
+                        else if (unit_details.Length == 1)
+                            _units[iterator] = new Unit(default(long), default(string), String.Empty, default(string), default(Coordinate));
+                        else
+                            throw new ArgumentOutOfRangeException("The units have no details to be parsed...");
                     }
-                    //An empty string
-                    else if (unit_details.Length == 1)
-                        _units[iterator] = new Unit(default(long), default(string), String.Empty, default(string), default(Coordinate));
-                    else
-                        throw new ArgumentOutOfRangeException("The units have no details to be parsed...");
                 }
+                else
+                    throw new ArgumentOutOfRangeException("There are no units to be parsed...");
             }
-            else
-                throw new ArgumentOutOfRangeException("There are no units to be parsed...");
+            catch (FormatException ex)
+            {
+                System.Diagnostics.Debugger.Break();
+                Console.WriteLine($@"Army [Unit[] {_units.Length}] -> {ex.Message}");
+                throw new Exception("Raw information for Army have an invalid set of information");                
+            }
         }
 
         /// <summary>

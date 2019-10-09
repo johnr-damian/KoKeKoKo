@@ -283,6 +283,12 @@ namespace ModelService
             return resourcerepository;
         }
 
+        /// <summary>
+        /// Parses the commands repository and returns a list of set of commands information
+        /// The commands information contains as follow: current rank, current replay filename, 
+        /// commands of player 1, commands of player 2
+        /// </summary>
+        /// <returns></returns>
         public static List<Tuple<string, string, string, string>> ReadCommandsRepository()
         {
             var commandsrepository = new List<Tuple<string, string, string, string>>();
@@ -369,6 +375,13 @@ namespace ModelService
             return commandsrepository;
         }
 
+        /// <summary>
+        /// Relates the <see cref="ReadArmiesRepository"/> and the <see cref="ReadResourcesRepository"/>.
+        /// It relates the upgrades done by the playerto be applied in the battles of the player.
+        /// </summary>
+        /// <param name="macromanagement_resources"></param>
+        /// <param name="micromanagement"></param>
+        /// <returns></returns>
         public static List<Tuple<string, string, string, string, string>> RelateMicroToMacro(List<Tuple<string, string, string, string>> macromanagement_resources, List<Tuple<string, string, string, string, string>> micromanagement)
         {
             var micromacroresult = new List<Tuple<string, string, string, string, string>>();
@@ -414,6 +427,33 @@ namespace ModelService
             }
 
             return micromacroresult;
+        }
+
+        public static List<Tuple<string, string, string, string>> RelateMacroToMacro(List<Tuple<string, string, string, string>> macromanagement_resources, List<Tuple<string, string, string, string>> macromanagement_commands)
+        {
+            var macromacroresult = new List<Tuple<string, string, string, string>>();
+
+            try
+            {
+                //Get the relationship between the macro_resources and macro_commands
+                //by their origin replay filename
+                var macromacrorelation = (from macro_resources in macromanagement_resources
+                                          join macro_commands in macromanagement_commands on macro_resources.Item2 equals macro_commands.Item2
+                                          where macro_resources.Item1 == macro_commands.Item1
+                                          select (new Tuple<string, string, string, string, string, string>(macro_resources.Item1, macro_resources.Item2, macro_resources.Item3, macro_resources.Item4, macro_commands.Item3, macro_commands.Item4)));
+
+                foreach(var macromacro in macromacrorelation)
+                {
+                    
+                }
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine($@"RelateMacroToMacro() -> {ex.Message}");
+                macromacroresult.Clear();
+            }
+
+            return macromacroresult;
         }
     }
 }

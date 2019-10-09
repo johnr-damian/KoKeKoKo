@@ -128,6 +128,12 @@ namespace ModelService.Micromanagement
                         break;
                 }                
             }
+            catch(ArgumentNullException ex)
+            {
+                Console.WriteLine($@"LanchesterBasedPrediction() [{target_policy.ToString()}] -> {ex.Message}");
+                System.Diagnostics.Debugger.Break();
+                throw new Exception("");
+            }
             catch(Exception ex)
             {
                 Console.WriteLine($@"LanchesterBasedPrediction() -> {ex.Message}");
@@ -234,7 +240,13 @@ namespace ModelService.Micromanagement
                 else
                     battle_result = new Tuple<string, CostWorth>(@"""""", default(CostWorth));
             }
-            catch(Exception ex)
+            catch (ArgumentNullException ex)
+            {
+                Console.WriteLine($@"StaticBasedPrediction() [{target_policy.ToString()}] -> {ex.Message}");
+                System.Diagnostics.Debugger.Break();
+                throw new Exception("");
+            }
+            catch (Exception ex)
             {
                 Console.WriteLine($@"StaticBasedPrediction() -> {ex.Message}");
                 battle_result = null;
@@ -371,7 +383,13 @@ namespace ModelService.Micromanagement
                 else
                     battle_result = new Tuple<string, CostWorth>(@"""""", default(CostWorth));
             }
-            catch(Exception ex)
+            catch (ArgumentNullException ex)
+            {
+                Console.WriteLine($@"DynamicBasedPrediction() [{target_policy.ToString()}] -> {ex.Message}");
+                System.Diagnostics.Debugger.Break();
+                throw new Exception("");
+            }
+            catch (Exception ex)
             {
                 Console.WriteLine($@"DynamicBasedPrediction() -> {ex.Message}");
                 battle_result = null;

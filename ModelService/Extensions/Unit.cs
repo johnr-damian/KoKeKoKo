@@ -179,7 +179,6 @@ namespace ModelService.Types
             ["TERRAN_POINTDEFENSEDRONE"] = new CostWorth(20, 0, 0, 0), //considered a buidling
             ["TERRAN_NUKE"] = new CostWorth(0, 100, 100, 0),
             ["TERRAN_KD8CHARGE"] = new CostWorth(0, 0, 0, 0),
-            ["TERRAN_KD8Charge"] = new CostWorth(0, 0, 0, 0),
             //Buildings
             ["TERRAN_PLANETARYFORTRESS"] = new CostWorth(20, 550, 150, 0),
             ["TERRAN_BUNKER"] = new CostWorth(20, 100, 0, 0),

@@ -168,8 +168,14 @@ namespace ModelService.Types
             }
             catch (KeyNotFoundException ex)
             {
-                Console.WriteLine($@"Unit [{Name}]-> {ex.Message}");
+                Console.WriteLine($@"Unit [{Name}] -> {ex.Message}");
+                System.Diagnostics.Debugger.Break();
                 throw new Exception("Unit from Army Repository not found in Unit Dictionaries");
+            }
+            catch(FormatException ex)
+            {
+                Console.WriteLine($@"Unit [{Name}] -> {ex.Message}");
+                throw new Exception("Unit from Army Repository have invalid set of information");
             }
         }
 

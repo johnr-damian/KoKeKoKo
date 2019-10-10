@@ -156,7 +156,7 @@ namespace ModelService
             try
             {
 #if DEBUG
-                var raw_resourcerepository = ReadRepository(@"Training\ResourcesRepository.csv");
+                var raw_resourcerepository = ReadRepository(@"Testing\ResourcesRepository.csv");
 #elif TRACE
                 var raw_resourcerepository = ReadRepository(@"Testing\ResourcesRepository.csv");
 #endif

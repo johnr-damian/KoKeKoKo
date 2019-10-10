@@ -579,6 +579,9 @@ namespace ModelService.Types
 
             try
             {
+                if (IsOpposingDefeated)
+                    return current_air_damage;
+
                 switch (Name)
                 {
                     case "TERRAN_MARINE": true_airdamage = (current_air_damage - (1.6 * Target.Current_Armor)); break;
@@ -629,6 +632,9 @@ namespace ModelService.Types
 
             try
             {
+                if (IsOpposingDefeated)
+                    return current_ground_damage;
+
                 switch (Name)
                 {
                     case "TERRAN_MARINE": true_grounddamage = (current_ground_damage - (1.6 * Target.Current_Armor)); break;

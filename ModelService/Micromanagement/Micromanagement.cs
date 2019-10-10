@@ -57,6 +57,8 @@ namespace ModelService.Micromanagement
             //Perform Simulations
             try
             {
+                Console.WriteLine($@"Simulating the battle of {Filename}...");
+
                 for (int simulated = 0; simulated < number_of_simulations; simulated++)
                     lanchester_random_results.Add(LanchesterBasedPrediction(TargetPolicy.Random).Item1);
                 for (int simulated = 0; simulated < number_of_simulations; simulated++)

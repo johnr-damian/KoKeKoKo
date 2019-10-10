@@ -36,14 +36,31 @@ namespace ModelService.Types
         /// <returns></returns>
         public static Army RandomlyTake(this IEnumerable<Unit> units, int count)
         {
-            var taken_units = units.ToList();
-            for(int remover = 0; remover < count; remover++)
+            //var taken_units = units.ToList();
+            //for(int remover = 0; remover < count; remover++)
+            //{
+            //    try
+            //    {
+            //        var removed_unit = REngineExtensions.GetRandomGenerator().Next(0, taken_units.Count);
+            //        taken_units.RemoveAt(removed_unit);
+            //    }
+            //    catch (ArgumentOutOfRangeException ex)
+            //    {
+            //        Console.WriteLine($@"RandomlyTake() [{count}] -> {ex.Message}");
+            //        taken_units.RemoveAt(0);
+            //    }
+            //}
+
+            var taken_units = units.ToArray();
+            for(int shuffler = 0; shuffler < taken_units.Length; shuffler++)
             {
-                var removed_unit = REngineExtensions.GetRandomGenerator().Next(0, taken_units.Count);
-                taken_units.RemoveAt(removed_unit);
+                int shuffled_unit = REngineExtensions.GetRandomGenerator().Next(0, (taken_units.Length - shuffler));
+                var shuffled_element = taken_units[shuffled_unit];
+                taken_units[shuffled_unit] = taken_units[shuffler];
+                taken_units[shuffler] = shuffled_element;
             }
 
-            return taken_units.ToArmy();
+            return taken_units.Take(count).ToArmy();
         }
 
         /// <summary>

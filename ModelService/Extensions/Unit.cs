@@ -475,6 +475,8 @@ namespace ModelService.Types
             {
                 switch(unit.Name)
                 {
+                    //Starting Unit
+                    case "TERRAN_SCV": unit.Target.Current_Health -= Unit.GetMinimumPotentialDamage(unit); break;
                     //Barrack Units
                     case "TERRAN_MARINE":
                         if (ability_probability <= 0.50 || !unit.Buffs.Contains("RESEARCH_STIMPACK"))
@@ -539,8 +541,6 @@ namespace ModelService.Types
 
                     //case "TERRAN_RAVEN" doesn't deal damage directly summons an auto turret for damage and other skills are for utility
 
-                    case "TERRAN_AUTOTURRET": unit.Target.Current_Health -= Unit.GetMinimumPotentialDamage(unit); break;
-
                     case "TERRAN_BANSHEE": unit.Target.Current_Health -= Unit.GetMinimumPotentialDamage(unit); break;
 
                     case "TERRAN_BATTLECRUISER":
@@ -549,6 +549,20 @@ namespace ModelService.Types
                         else
                             unit.UseSkillOrAbilities("EFFECT_YAMATOGUN");
                         break;
+                    //Summoned Units
+                    case "TERRAN_MULE": unit.Target.Current_Health -= Unit.GetMinimumPotentialDamage(unit); break;
+
+                    case "TERRAN_AUTOTURRET": unit.Target.Current_Health -= Unit.GetMinimumPotentialDamage(unit); break;
+
+                    case "TERRAN_POINTDEFENSEDRONE": unit.Target.Current_Health -= Unit.GetMinimumPotentialDamage(unit); break;
+
+                    case "TERRAN_NUKE": unit.Target.Current_Health -= Unit.GetMinimumPotentialDamage(unit); break;
+
+                    case "TERRAN_KD8CHARGE": unit.Target.Current_Health -= Unit.GetMinimumPotentialDamage(unit); break;
+
+                    //Building Units
+                    case "TERRAN_PLANETARYFORTRESS": unit.Target.Current_Health -= Unit.GetMinimumPotentialDamage(unit); break;
+
                 }
             }
         }

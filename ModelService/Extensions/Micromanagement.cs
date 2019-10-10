@@ -466,6 +466,8 @@ namespace ModelService.Micromanagement
 
                     //Compute the time to kill target
                     var timetokill = enumerator.Current.Target.Current_Health / potentialmeandamage;
+                    if (Double.IsNaN(timetokill) || Double.IsInfinity(timetokill))
+                        timetokill = 0;
 
                     //Store the time
                     OwnedArmy_TimeToKillEnemyArmy.Add(enumerator.Current.UniqueID, timetokill);
@@ -483,6 +485,8 @@ namespace ModelService.Micromanagement
 
                     //Compute the time to kill target
                     var timetokill = enumerator.Current.Target.Current_Health / potentialmeandamage;
+                    if (Double.IsNaN(timetokill) || Double.IsInfinity(timetokill))
+                        timetokill = 0;
 
                     //Store the time
                     EnemyArmy_TimeToKillOwnedArmy.Add(enumerator.Current.UniqueID, timetokill);

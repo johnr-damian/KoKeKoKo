@@ -49,6 +49,8 @@ namespace ModelService
                         });
                     var macromanagement_battles = new List<Macromanagement.Macromanagement>();
                     var relationedmacromacro = ModelRepositoryService.RelateMacroToMacro(macromanagement_resources, macromanagement_commands);
+                    foreach (var macromanagement_battle in relationedmacromacro)
+                        Console.WriteLine(macromanagement_battle.Item2);
 
 
                     //Group the micromanagement battles by their rank

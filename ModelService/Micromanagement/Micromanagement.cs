@@ -18,7 +18,7 @@ namespace ModelService.Micromanagement
         public string Filename { get; set; } = default(string);
 
         /// <summary>
-        /// A csv-based micromanagement. Represents a battle from a game observation
+        /// A csv-based micromanagement. Represents a battle from a file
         /// </summary>
         /// <param name="owned_units"></param>
         /// <param name="enemy_units"></param>

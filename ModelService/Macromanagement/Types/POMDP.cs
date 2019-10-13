@@ -35,13 +35,24 @@ namespace ModelService.Macromanagement.Types
 
     public class POMDP : Tree
     {
-        public POMDP(string raw_information) : base(raw_information)
-        {
-        }
+        public POMDP(string raw_information) 
+            : base(raw_information) { }
 
         public override IEnumerable<string> GenerateAction()
         {
-            throw new NotImplementedException();
+            try
+            {
+                if(Current_Node == null)
+                {
+                    
+                }
+            }
+            catch(Exception ex)
+            {
+
+            }
+
+            return null;
         }
     }
 }

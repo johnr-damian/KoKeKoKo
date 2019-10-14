@@ -16,6 +16,14 @@ namespace ModelService.Types
         /// </summary>
         private string _raw_information = default(string);
 
+        private string _owned_player_rawinformation = default(string);
+
+        private string _owned_player_rawunits = default(string);
+
+        private string _enemy_player_rawinformation = default(string);
+
+        private string _enemy_player_rawunits = default(string);
+
         /// <summary>
         /// The current game loop based on the observation
         /// </summary>
@@ -118,6 +126,16 @@ namespace ModelService.Types
             }
             else
                 throw new ArgumentOutOfRangeException("There are no information to be parsed...");
+        }
+
+        public Agent(string owned_player_information, string owned_units, string enemy_player_infromation, string enemy_units)
+        {
+            _owned_player_rawinformation = owned_player_information;
+            _owned_player_rawunits = owned_units;
+            _enemy_player_rawinformation = enemy_player_infromation;
+            _enemy_player_rawunits = enemy_units;
+
+
         }
 
         /// <summary>

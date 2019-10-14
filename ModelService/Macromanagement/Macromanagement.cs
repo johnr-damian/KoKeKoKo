@@ -12,6 +12,10 @@ namespace ModelService.Macromanagement
         private Agent _owned_player = null;
         private Agent _enemy_player = null;
 
+        public string Rank { get; set; } = default(string);
+
+        public string Filename { get; set; } = default(string);
+
         /// <summary>
         /// A csv-based macromanagement. Represents a battle from a file
         /// </summary>

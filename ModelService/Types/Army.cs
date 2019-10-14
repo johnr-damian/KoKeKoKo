@@ -61,7 +61,6 @@ namespace ModelService.Types
             }
             catch (FormatException ex)
             {
-                System.Diagnostics.Debugger.Break();
                 Console.WriteLine($@"Army [Unit[] {_units.Length}] -> {ex.Message}");
                 throw new Exception("Raw information for Army have an invalid set of information");                
             }

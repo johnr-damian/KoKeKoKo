@@ -524,5 +524,80 @@ namespace ModelService
 
             return macromacroresult;
         }
+
+        public class Pair<A, B>
+        {
+            public A Item1 { get; set; } = default(A);
+
+            public B Item2 { get; set; } = default(B);
+        }
+
+
+        public static Dictionary<string, Dictionary<string, Pair<double, List<Types.CostWorth>>>> GenerateProbabilitiesAndWorthMatrix(List<Tuple<string, string, string, string>> macromacro)
+        {
+            var probabilitiesworthresult = new Dictionary<string, Dictionary<string, Pair<double, List<Types.CostWorth>>>>();
+
+            try
+            {
+                for(int iterator = 0; iterator < macromacro.Count; iterator++)
+                {
+                    var current_player = macromacro[iterator].Item3.Split('\n');
+
+                    var preempt_command = current_player[0].Split(',');
+
+                    //The first command done by the player is not yet in probability matrix
+                    if (!probabilitiesworthresult.ContainsKey(preempt_command[3]))
+                    {
+                        probabilitiesworthresult.Add(preempt_command[3], new Dictionary<string, Pair<double, List<Types.CostWorth>>>());
+
+                        //The first command does not yet have itself as the next command
+                        if(!probabilitiesworthresult[preempt_command[3]].ContainsKey(preempt_command[3]))
+                        {
+                            //Add a first count
+                            probabilitiesworthresult[preempt_command[3]].Add(preempt_command[3], new Pair<double, List<Types.CostWorth>>() {
+                                Item1 = 1,
+                                Item2 = new List<Types.CostWorth>()
+                            });
+
+                            probabilitiesworthresult[preempt_command[3]][preempt_command[3]].Item2.Add(new Types.CostWorth(Convert.ToInt32(preempt_command[8]), Convert.ToDouble(preempt_command[5]), Convert.ToDouble(preempt_command[6]), Convert.ToInt32(preempt_command[7])));
+                        }
+                    }
+
+                    for(int builder = 0, count = (current_player.Length - 1); builder < count; builder++)
+                    {
+                        var current_command = current_player[builder].Split(',');
+                        var next_command = current_player[builder + 1].Split(',');
+
+                        //If the current command does not exist yet
+                        if (!probabilitiesworthresult.ContainsKey(current_command[3]))
+                            probabilitiesworthresult.Add(current_command[3], new Dictionary<string, Pair<double, List<Types.CostWorth>>>());
+
+                        //If the next command does not exist yet
+                        if (!probabilitiesworthresult[current_command[3]].ContainsKey(next_command[3]))
+                            probabilitiesworthresult[current_command[3]].Add(next_command[3], new Pair<double, List<Types.CostWorth>>()
+                            {
+                                Item1 = 1,
+                                Item2 = new List<Types.CostWorth>()
+                                {
+                                    new Types.CostWorth(Convert.ToInt32(current_command[8]), Convert.ToDouble(current_command[5]), Convert.ToDouble(current_command[6]), Convert.ToInt32(current_command[7]))
+                                }
+                            });
+                        else
+                        {
+                            probabilitiesworthresult[current_command[3]][next_command[3]].Item1++;
+                            probabilitiesworthresult[current_command[3]][next_command[3]].Item2.Add(new Types.CostWorth(Convert.ToInt32(current_command[8]), Convert.ToDouble(current_command[5]), Convert.ToDouble(current_command[6]), Convert.ToInt32(current_command[7])));
+                        }
+
+                    }
+                }
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine($@"GenerateProbabilitiesAndWorthMatrix() -> {ex.Message}");
+                probabilitiesworthresult.Clear();
+            }
+
+            return probabilitiesworthresult;
+        }
     }
 }

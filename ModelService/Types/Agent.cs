@@ -102,40 +102,21 @@ namespace ModelService.Types
         /// <param name="raw_information"></param>
         public Agent(string raw_information)
         {
-            _raw_information = raw_information;
-            var parsed_information = raw_information.Split(':');
-
-            if (parsed_information.Length > 0)
+            try
             {
-                //Get the macromanagement information
-                var macromanagement_information = parsed_information[0].Split(',');
-                Timestamp = Convert.ToInt64(macromanagement_information[0]);
-                Owner = macromanagement_information[1];
-                Minerals = Convert.ToDouble(macromanagement_information[2]);
-                Vespene = Convert.ToDouble(macromanagement_information[3]);
-                Supply = Convert.ToInt32(macromanagement_information[4]);
-                Workers = Convert.ToInt32(macromanagement_information[5]);
-                Upgrades = new List<string>(macromanagement_information.Skip(5));
-                //Get the micromanagement information
-                Units = new Army(parsed_information[1]);
-                Known_Enemy = new Army(parsed_information[2]);
+                _raw_information = raw_information;
+                var parsed_information = raw_information.Split('\n');
 
-                //Get the worth of this player
-                var micro_worth = Units.GetValueOfArmy();
-                Worth = new CostWorth(micro_worth.Priority, Minerals + micro_worth.Mineral, Vespene + micro_worth.Vespene, Supply);
+                if(parsed_information.Length > 0)
+                {
+
+                }
             }
-            else
-                throw new ArgumentOutOfRangeException("There are no information to be parsed...");
-        }
-
-        public Agent(string owned_player_information, string owned_units, string enemy_player_infromation, string enemy_units)
-        {
-            _owned_player_rawinformation = owned_player_information;
-            _owned_player_rawunits = owned_units;
-            _enemy_player_rawinformation = enemy_player_infromation;
-            _enemy_player_rawunits = enemy_units;
-
-
+            catch(FormatException ex)
+            {
+                Console.WriteLine($@"Agent -> {ex.Message}");
+                throw new Exception("Raw information for Agent have an invalid set of information");
+            }
         }
 
         /// <summary>

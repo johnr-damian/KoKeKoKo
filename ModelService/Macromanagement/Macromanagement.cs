@@ -27,6 +27,11 @@ namespace ModelService.Macromanagement
             _enemy_player = enemy_player;
         }
 
+        public Macromanagement()
+        {
+
+        }
+
         /// <summary>
         /// A gameplay-based macromanagement. Represents a battle from a game observation
         /// </summary>
@@ -40,5 +45,11 @@ namespace ModelService.Macromanagement
 
             return overall_results;
         }
+    }
+
+    public enum AIAlgorithm
+    {
+        POMDP,
+        MCTS
     }
 }

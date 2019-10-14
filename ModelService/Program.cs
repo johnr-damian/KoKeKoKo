@@ -50,7 +50,11 @@ namespace ModelService
                     var macromanagement_battles = new List<Macromanagement.Macromanagement>();
                     var relationedmacromacro = ModelRepositoryService.RelateMacroToMacro(macromanagement_resources, macromanagement_commands);
                     foreach (var macromanagement_battle in relationedmacromacro)
-                        Console.WriteLine(macromanagement_battle.Item2);
+                        macromanagement_battles.Add(new Macromanagement.Macromanagement()
+                        {
+                            Rank = macromanagement_battle.Item1,
+                            Filename = macromanagement_battle.Item2
+                        });
 
 
                     //Group the micromanagement battles by their rank
@@ -80,6 +84,20 @@ namespace ModelService
                         Console.WriteLine($@"Dynamic-Priority: {accuracy_report.Value[7] * 100}%");
                         Console.WriteLine($@"Dynamic-Resource: {accuracy_report.Value[8] * 100}%");
                     }
+                    //Group the macromanagement battles by their rank
+                    var perrank_macromanagement = macromanagement_battles.GroupBy(rank => rank.Rank).ToDictionary(key => key.Key, value => value.ToList());
+                    //For every macromanagement battle per rank, do the prediction and store it
+                    var perrankresult_macromanagement = perrank_macromanagement.ToDictionary(key => key.Key, value =>
+                    {
+                        var macromanagement_battleresults = new List<List<double>>();
+
+                        foreach (var macromanagement_battleresult in value.Value)
+                            macromanagement_battleresults.Add(macromanagement_battleresult.GetMacromanagementAccuracyReport(1));
+
+                        return macromanagement_battleresults;
+                    });
+                    //Get the final result per algorithm
+                    
 
                     Console.WriteLine("Finished performing accuracy reports! Please enter to continue...");
                     Console.ReadLine();

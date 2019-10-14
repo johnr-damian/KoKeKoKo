@@ -154,11 +154,96 @@ namespace ModelService.Types
         {
             switch(action)
             {
-                case "TRAINSCV":
+                //Barracks Units
+                case "TRAIN_SCV":
                     Worth = new CostWorth(Worth.Priority + Unit.Values["TERRAN_SCV"].Priority, Worth.Mineral + Unit.Values["TERRAN_SCV"].Mineral, Unit.Values["TERRAN_SCV"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_SCV"].Supply);
                     break;
-                case "GATHER_MINERAL":
-                    Worth = new CostWorth(Worth.Priority, Worth.Mineral + 10, Worth.Vespene, Worth.Supply);
+                case "TRAIN_MARINE":
+                    Worth = new CostWorth(Worth.Priority + Unit.Values["TERRAN_MARINE"].Priority, Worth.Mineral + Unit.Values["TERRAN_MARINE"].Mineral, Unit.Values["TERRAN_MARINE"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_MARINE"].Supply);
+                    break;
+                case "TRAIN_REAPER":
+                    Worth = new CostWorth(Worth.Priority + Unit.Values["TERRAN_REAPER"].Priority, Worth.Mineral + Unit.Values["TERRAN_REAPER"].Mineral, Unit.Values["TERRAN_REAPER"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_REAPER"].Supply);
+                    break;
+                case "TRAIN_MARAUDER":
+                    Worth = new CostWorth(Worth.Priority + Unit.Values["TERRAN_MARAUDER"].Priority, Worth.Mineral + Unit.Values["TERRAN_MARAUDER"].Mineral, Unit.Values["TERRAN_MARAUDER"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_MARAUDER"].Supply);
+                    break;
+                case "TRAIN_GHOST":
+                    Worth = new CostWorth(Worth.Priority + Unit.Values["TERRAN_GHOST"].Priority, Worth.Mineral + Unit.Values["TERRAN_GHOST"].Mineral, Unit.Values["TERRAN_GHOST"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_GHOST"].Supply);
+                    break;
+                //Factory Units
+                case "TRAIN_SIEGETANK":
+                    Worth = new CostWorth(Worth.Priority + Unit.Values["TERRAN_SIEGETANK"].Priority, Worth.Mineral + Unit.Values["TERRAN_SIEGETANK"].Mineral, Unit.Values["TERRAN_SIEGETANK"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_SIEGETANK"].Supply);
+                    break;
+                case "TRAIN_HELLION":
+                    Worth = new CostWorth(Worth.Priority + Unit.Values["TERRAN_HELLION"].Priority, Worth.Mineral + Unit.Values["TERRAN_HELLION"].Mineral, Unit.Values["TERRAN_HELLION"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_HELLION"].Supply);
+                    break;
+                case "TRAIN_HELLBAT":
+                    Worth = new CostWorth(Worth.Priority + Unit.Values["TERRAN_HELLBAT"].Priority, Worth.Mineral + Unit.Values["TERRAN_HELLBAT"].Mineral, Unit.Values["TERRAN_HELLBAT"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_HELLBAT"].Supply);
+                    break;
+                case "TRAIN_CYCLONE":
+                    Worth = new CostWorth(Worth.Priority + Unit.Values["TERRAN_CYCLONE"].Priority, Worth.Mineral + Unit.Values["TERRAN_CYCLONE"].Mineral, Unit.Values["TERRAN_CYCLONE"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_CYCLONE"].Supply);
+                    break;
+                case "TRAIN_WIDOWMINE":
+                    Worth = new CostWorth(Worth.Priority + Unit.Values["TERRAN_WIDOWMINE"].Priority, Worth.Mineral + Unit.Values["TERRAN_WIDOWMINE"].Mineral, Unit.Values["TERRAN_WIDOWMINE"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_WIDOWMINE"].Supply);
+                    break;
+                case "TRAIN_THOR":
+                    Worth = new CostWorth(Worth.Priority + Unit.Values["TERRAN_THOR"].Priority, Worth.Mineral + Unit.Values["TERRAN_THOR"].Mineral, Unit.Values["TERRAN_THOR"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_THOR"].Supply);
+                    break;
+                //Starport Units
+                case "TRAIN_MEDIVAC":
+                    Worth = new CostWorth(Worth.Priority + Unit.Values["TERRAN_MEDIVAC"].Priority, Worth.Mineral + Unit.Values["TERRAN_MEDIVAC"].Mineral, Unit.Values["TERRAN_MEDIVAC"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_MEDIVAC"].Supply);
+                    break;
+                case "TRAIN_BANSHEE":
+                    Worth = new CostWorth(Worth.Priority + Unit.Values["TERRAN_BANSHEE"].Priority, Worth.Mineral + Unit.Values["TERRAN_BANSHEE"].Mineral, Unit.Values["TERRAN_BANSHEE"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_BANSHEE"].Supply);
+                    break;
+                case "TRAIN_RAVEN":
+                    Worth = new CostWorth(Worth.Priority + Unit.Values["TERRAN_RAVEN"].Priority, Worth.Mineral + Unit.Values["TERRAN_RAVEN"].Mineral, Unit.Values["TERRAN_RAVEN"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_RAVEN"].Supply);
+                    break;
+                case "TRAIN_VIKINGFIGHTER":
+                    Worth = new CostWorth(Worth.Priority + Unit.Values["TERRAN_VIKINGFIGHTER"].Priority, Worth.Mineral + Unit.Values["TERRAN_VIKINGFIGHTER"].Mineral, Unit.Values["TERRAN_VIKINGFIGHTER"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_VIKINGFIGHTER"].Supply);
+                    break;
+                case "TRAIN_LIBERATOR":
+                    Worth = new CostWorth(Worth.Priority + Unit.Values["TERRAN_LIBERATOR"].Priority, Worth.Mineral + Unit.Values["TERRAN_LIBERATOR"].Mineral, Unit.Values["TERRAN_LIBERATOR"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_LIBERATOR"].Supply);
+                    break;
+                case "TRAIN_BATTLECRUISER":
+                    Worth = new CostWorth(Worth.Priority + Unit.Values["TERRAN_LIBERATOR"].Priority, Worth.Mineral + Unit.Values["TERRAN_LIBERATOR"].Mineral, Unit.Values["TERRAN_LIBERATOR"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_LIBERATOR"].Supply);
+                    break;
+                //Build Commands
+                case "BUILD_COMMANDCENTER":
+                    Worth = new CostWorth(Worth.Priority + Unit.Values["TERRAN_COMMANDCENTER"].Priority, Worth.Mineral + Unit.Values["TERRAN_COMMANDCENTER"].Mineral, Unit.Values["TERRAN_COMMANDCENTER"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_COMMANDCENTER"].Supply);
+                    break;
+                case "BUILD_SUPPLYDEPOT":
+                    Worth = new CostWorth(Worth.Priority + Unit.Values["TERRAN_SUPPLYDEPOT"].Priority, Worth.Mineral + Unit.Values["TERRAN_SUPPLYDEPOT"].Mineral, Unit.Values["TERRAN_SUPPLYDEPOT"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_SUPPLYDEPOT"].Supply);
+                    break;
+                case "BUILD_REFINERY":
+                    Worth = new CostWorth(Worth.Priority + Unit.Values["TERRAN_REFINERY"].Priority, Worth.Mineral + Unit.Values["TERRAN_REFINERY"].Mineral, Unit.Values["TERRAN_REFINERY"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_REFINERY"].Supply);
+                    break;
+                case "BUILD_BARRACKS":
+                    Worth = new CostWorth(Worth.Priority + Unit.Values["TERRAN_BARRACKS"].Priority, Worth.Mineral + Unit.Values["TERRAN_BARRACKS"].Mineral, Unit.Values["TERRAN_BARRACKS"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_BARRACKS"].Supply);
+                    break;
+                case "BUILD_ENGINEERINGBAY":
+                    Worth = new CostWorth(Worth.Priority + Unit.Values["TERRAN_ENGINEERINGBAY"].Priority, Worth.Mineral + Unit.Values["TERRAN_ENGINEERINGBAY"].Mineral, Unit.Values["TERRAN_ENGINEERINGBAY"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_ENGINEERINGBAY"].Supply);
+                    break;
+                case "BUILD_BUNKER":
+                    Worth = new CostWorth(Worth.Priority + Unit.Values["TERRAN_BUNKER"].Priority, Worth.Mineral + Unit.Values["TERRAN_BUNKER"].Mineral, Unit.Values["TERRAN_BUNKER"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_BUNKER"].Supply);
+                    break;
+                case "BUILD_SENSORTOWER":
+                    Worth = new CostWorth(Worth.Priority + Unit.Values["TERRAN_SENSORTOWER"].Priority, Worth.Mineral + Unit.Values["TERRAN_SENSORTOWER"].Mineral, Unit.Values["TERRAN_SENSORTOWER"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_SENSORTOWER"].Supply);
+                    break;
+                case "BUILD_GHOSTACADEMY":
+                    Worth = new CostWorth(Worth.Priority + Unit.Values["TERRAN_GHOSTACADEMY"].Priority, Worth.Mineral + Unit.Values["TERRAN_GHOSTACADEMY"].Mineral, Unit.Values["TERRAN_GHOSTACADEMY"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_GHOSTACADEMY"].Supply);
+                    break;
+                case "BUILD_STARPORT":
+                    Worth = new CostWorth(Worth.Priority + Unit.Values["TERRAN_STARPORT"].Priority, Worth.Mineral + Unit.Values["TERRAN_STARPORT"].Mineral, Unit.Values["TERRAN_STARPORT"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_STARPORT"].Supply);
+                    break;
+                case "BUILD_ARMORY":
+                    Worth = new CostWorth(Worth.Priority + Unit.Values["TERRAN_ARMORY"].Priority, Worth.Mineral + Unit.Values["TERRAN_ARMORY"].Mineral, Unit.Values["TERRAN_ARMORY"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_ARMORY"].Supply);
+                    break;
+                case "BUILD_FUSIONCORE":
+                    Worth = new CostWorth(Worth.Priority + Unit.Values["TERRAN_FUSIONCORE"].Priority, Worth.Mineral + Unit.Values["TERRAN_FUSIONCORE"].Mineral, Unit.Values["TERRAN_FUSIONCORE"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_FUSIONCORE"].Supply);
+                    break;
+                case "HARVEST_RETURN": //Harvesting Minerals and Gas share the same command, Added values are based per trip
+                    Worth = new CostWorth(Worth.Priority, Worth.Mineral + 5, Worth.Vespene + 8, Worth.Supply);
                     break;
             }
 

@@ -26,6 +26,6 @@ namespace ModelService.Types
         /// Equivalent to BuildTree function
         /// </remarks>
         /// <returns></returns>
-        public abstract IEnumerable<string> GenerateAction();
+        public abstract IEnumerable<Tuple<string, CostWorth>> GenerateAction();
     }
 }

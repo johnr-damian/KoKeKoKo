@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace ModelService.Types
 {
@@ -10,17 +11,17 @@ namespace ModelService.Types
         /// <summary>
         /// The times of this node has been simulated
         /// </summary>
-        private int Simulated_Runs { get; set; } = default(int);
+        protected int Simulated_Runs { get; set; } = default(int);
 
         /// <summary>
         /// The times of this node's <see cref="Player"/> has won
         /// </summary>
-        private int Simulated_Wins { get; set; } = default(int);
+        protected int Simulated_Wins { get; set; } = default(int);
 
         /// <summary>
         /// The possible actions that can be simulated
         /// </summary>
-        private Queue<string> Possible_Actions { get; set; } = default(Queue<string>);
+        public Queue<string> Possible_Actions { get; set; } = default(Queue<string>);
 
         /// <summary>
         /// Stores the information related to the AI agent
@@ -55,6 +56,36 @@ namespace ModelService.Types
             get { return (Children.Count != 0); }
         }
 
+        public double UCT
+        {
+            get
+            {
+                double uct = 0;
+
+                try
+                {
+                    var total_worth = Player.Worth + new CostWorth(0, Player.Minerals, Player.Vespene, 0);
+                    var exploration = (total_worth.GetTotalWorth() / Simulated_Runs);
+                    var exploitation = Math.Sqrt((2 * Math.Log(Parent.Simulated_Runs)) / Simulated_Runs);
+
+                    if (Double.IsInfinity(exploration) || Double.IsNaN(exploration))
+                        exploration = 0;
+                    if (Double.IsInfinity(exploitation) || Double.IsNaN(exploitation))
+                        exploitation = 0;
+                    var current_uct = exploration + exploitation;
+
+                    uct = current_uct;
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debugger.Break();
+                    uct = -1;
+                }
+
+                return uct;
+            }
+        }
+
         /// <summary>
         /// Stores the simulated information of both <see cref="Agent"/>
         /// </summary>
@@ -72,11 +103,13 @@ namespace ModelService.Types
             Possible_Actions = new Queue<string>();
         }
 
-        private void GeneratePossibleActions()
+        protected void GeneratePossibleActions()
         {
             if (Player.Minerals >= 400 && Player.Vespene >= 300)
             {
                 var unitList = new List<string>();
+                //TODO no units
+                throw new NotImplementedException();
                 foreach (var unit in Player.Units)
                 {
                     if (!unitList.Contains(unit.Name))
@@ -1497,7 +1530,7 @@ namespace ModelService.Types
 
         protected abstract void Expand();
 
-        protected abstract void Simulate();
+        public abstract void Simulate();
 
         protected abstract void Backpropagate();
 

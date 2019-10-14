@@ -27,57 +27,57 @@ namespace ModelService.Types
         /// <summary>
         /// The current game loop based on the observation
         /// </summary>
-        public long Timestamp { get; private set; } = default(long);
+        public long Timestamp { get; set; } = default(long);
 
         /// <summary>
         /// The player/alliance who controls this agent
         /// </summary>
-        public string Owner { get; private set; } = default(string);
+        public string Owner { get; set; } = default(string);
 
         /// <summary>
         /// The current mineral of the agent
         /// </summary>
-        public double Minerals { get; private set; } = default(double);
+        public double Minerals { get; set; } = default(double);
 
         /// <summary>
         /// The current vespene of the agent
         /// </summary>
-        public double Vespene { get; private set; } = default(double);
+        public double Vespene { get; set; } = default(double);
 
         /// <summary>
         /// The current supply consumed by the agent
         /// </summary>
-        public int Supply { get; private set; } = default(int);
+        public int Supply { get; set; } = default(int);
 
         /// <summary>
         /// The current number of workers
         /// </summary>
-        public int Workers { get; private set; } = default(int);
+        public int Workers { get; set; } = default(int);
 
         /// <summary>
         /// The upgrades that have been researched
         /// </summary>
-        public List<string> Upgrades { get; private set; } = default(List<string>);
+        public List<string> Upgrades { get; set; } = default(List<string>);
 
         /// <summary>
         /// The current resources based on the observation
         /// </summary>
-        public CostWorth Worth { get; private set; } = default(CostWorth);
+        public CostWorth Worth { get; set; } = default(CostWorth);
 
         /// <summary>
         /// The units controlled by this agent
         /// </summary>
-        public Army Units { get; private set; } = default(Army);
+        public Army Units { get; set; } = default(Army);
 
         /// <summary>
         /// The units controlled by enemy that was discovered
         /// </summary>
-        public Army Known_Enemy { get; private set; } = default(Army);
+        public Army Known_Enemy { get; set; } = default(Army);
 
         /// <summary>
         /// The chosen action to be executed next game loop
         /// </summary>
-        public string Chosen_Action { get; private set; } = default(string);
+        public string Chosen_Action { get; set; } = default(string);
 
         /// <summary>
         /// The opposing agent
@@ -117,6 +117,11 @@ namespace ModelService.Types
                 Console.WriteLine($@"Agent -> {ex.Message}");
                 throw new Exception("Raw information for Agent have an invalid set of information");
             }
+        }
+
+        public Agent()
+        {
+            _raw_information = "";
         }
 
         /// <summary>
@@ -245,9 +250,6 @@ namespace ModelService.Types
                     Worth = new CostWorth(Worth.Priority, Worth.Mineral + 5, Worth.Vespene + 8, Worth.Supply);
                     break;
             }
-
-            //TODO
-            throw new NotImplementedException();
         }
     }
 }

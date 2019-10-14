@@ -43,6 +43,37 @@ namespace ModelService.Macromanagement
         {
             var overall_results = new List<double>();
 
+            var pomdp_results = new List<CostWorth>();
+            var mcts_results = new List<CostWorth>();
+
+            try
+            {
+                for(int simulated = 0; simulated < number_of_simulations; simulated++)
+                {
+                    foreach (var stuff in POMDP())
+                        pomdp_results.Add(stuff.Item2);
+                }
+
+                for(int simulated = 0; simulated < number_of_simulations; simulated++)
+                {
+
+                }
+            }
+            catch(ArgumentException ex)
+            {
+
+            }
+
+            //Perform Linear thingy operation
+            try
+            {
+
+            }
+            catch(ArgumentNullException ex)
+            {
+
+            }
+
             return overall_results;
         }
     }

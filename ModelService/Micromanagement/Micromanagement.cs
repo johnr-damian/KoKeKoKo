@@ -82,8 +82,7 @@ namespace ModelService.Micromanagement
             catch (ArgumentNullException ex)
             {
                 Console.WriteLine($@"GetMicromanagementAccuracyReport() [Simulation] -> {ex.Message}");
-                System.Diagnostics.Debugger.Break();
-                throw new Exception("");
+                throw new Exception(ex.Message);
             }
 
             //Perform Jaccard Operations
@@ -104,8 +103,7 @@ namespace ModelService.Micromanagement
             catch (ArgumentNullException ex)
             {
                 Console.WriteLine($@"GetMicromanagementAccuracyReport() [Jaccard] -> {ex.Message}");
-                System.Diagnostics.Debugger.Break();
-                throw new Exception("");
+                throw new Exception(ex.Message);
             }
 
             return overall_results;

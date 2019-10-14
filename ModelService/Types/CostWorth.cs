@@ -51,6 +51,11 @@
             Supply = supply;
         }
 
+        public static CostWorth operator+ (CostWorth a, CostWorth b)
+        {
+            return new CostWorth(a.Priority + b.Priority, a.Mineral + b.Mineral, a.Vespene + b.Vespene, a.Supply + b.Supply);
+        }
+
         /// <summary>
         /// Gets the complement value of a <see cref="CostWorth"/>. It 
         /// returns all properties in negative.

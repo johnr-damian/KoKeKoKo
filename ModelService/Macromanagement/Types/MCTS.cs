@@ -27,7 +27,7 @@ namespace ModelService.Macromanagement.Types
             throw new NotImplementedException();
         }
 
-        protected override void Simulate()
+        public override void Simulate()
         {
             throw new NotImplementedException();
         }
@@ -41,7 +41,7 @@ namespace ModelService.Macromanagement.Types
 
         public Node RootNode { get; set; }
 
-        public override IEnumerable<string> GenerateAction()
+        public override IEnumerable<Tuple<string, CostWorth>> GenerateAction()
         {
             throw new NotImplementedException();
         }

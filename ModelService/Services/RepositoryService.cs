@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ModelService.Types;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -598,6 +599,25 @@ namespace ModelService
             }
 
             return probabilitiesworthresult;
+        }
+
+        public static List<CostWorth> TestForEuclideanResult()
+        {
+            var results = new List<CostWorth>();
+            var resourcerepo = ReadResourcesRepository();
+
+            if(resourcerepo.Count > 0)
+            {
+                var test = resourcerepo[0].Item3.Split('\n');
+
+                foreach(var by15secs in test)
+                {
+                    var by15 = by15secs.Split(',');
+                    results.Add(new CostWorth(Convert.ToInt32(by15[5]), Convert.ToDouble(by15[2]), Convert.ToDouble(by15[3]), Convert.ToInt32(by15[4])));
+                }
+            }
+
+            return results;
         }
     }
 }

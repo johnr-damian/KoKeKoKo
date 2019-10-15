@@ -43,15 +43,17 @@ namespace ModelService.Macromanagement
         {
             var overall_results = new List<double>();
 
-            var pomdp_results = new List<CostWorth>();
+            var pomdp_results = new List<List<CostWorth>>();
             var mcts_results = new List<CostWorth>();
 
             try
             {
                 for(int simulated = 0; simulated < number_of_simulations; simulated++)
                 {
+                    pomdp_results.Add(new List<CostWorth>());
+
                     foreach (var stuff in POMDP())
-                        pomdp_results.Add(stuff.Item2);
+                        pomdp_results[0].Add(stuff.Item2);
                 }
 
                 for(int simulated = 0; simulated < number_of_simulations; simulated++)
@@ -73,6 +75,11 @@ namespace ModelService.Macromanagement
             {
 
             }
+
+            var basis = ModelRepositoryService.TestForEuclideanResult();
+            var test_result = ModelRepositoryService.GetREngine().GetEuclideanResult(basis, pomdp_results);
+
+            overall_results.Add(test_result);
 
             return overall_results;
         }

@@ -108,8 +108,6 @@ namespace ModelService.Types
             if (Player.Minerals >= 400 && Player.Vespene >= 300)
             {
                 var unitList = new List<string>();
-                //TODO no units
-                throw new NotImplementedException();
                 foreach (var unit in Player.Units)
                 {
                     if (!unitList.Contains(unit.Name))

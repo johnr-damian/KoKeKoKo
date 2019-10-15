@@ -1,4 +1,5 @@
-﻿using RDotNet;
+﻿using ModelService.Types;
+using RDotNet;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -73,6 +74,23 @@ namespace ModelService
                 engine.Evaluate($@"simulation <- set({source})");
                 engine.Evaluate($@"actual <- set({data_result})");
                 results.Add(engine.Evaluate(@"set_similarity(simulation, actual, method=""Jaccard"")").AsNumeric().Single());
+            }
+
+            return results.Average();
+        }
+
+        public static double GetEuclideanResult(this REngine engine, List<CostWorth> data_source, List<List<CostWorth>> data_result)
+        {
+            var parsed_source = String.Join(",", data_source.Select(costworth => costworth.GetTotalWorth()).Take(10));
+            var results = new List<double>();
+
+            foreach(var result in data_result)
+            {
+                var parsed_result = String.Join(",", result.Select(costworth => costworth.GetTotalWorth()));
+
+                engine.Evaluate($@"simulation <- c({parsed_result})");
+                engine.Evaluate($@"origin <- c({parsed_source})");
+                results.Add(engine.Evaluate($@"dist(rbind(origin, simulation))").AsNumeric().Single());
             }
 
             return results.Average();

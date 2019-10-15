@@ -135,7 +135,14 @@ namespace ModelService.Types
         /// as this agent
         /// </summary>
         /// <returns></returns>
-        public Agent GetDeepCopy() => new Agent(String.Copy(_raw_information));
+        public Agent GetDeepCopy()
+        {
+            var agent = new Agent(String.Copy(_raw_information));
+
+            agent.Units = Units.ToList().ToArmy();
+
+            return agent;
+        }
 
         /// <summary>
         /// Returns the <see cref="Chosen_Action"/> 

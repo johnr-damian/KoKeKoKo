@@ -5,13 +5,13 @@ namespace ModelService.Types
 {
     public abstract class Tree
     {
-        private string _raw_information = default(string);
+        protected string _raw_information = default(string);
 
-        private bool _shouldkeeprunning = default(bool);
+        protected bool _shouldkeeprunning = default(bool);
 
-        private Node Failsafe_Node = default(Node);
+        protected Node Failsafe_Node = default(Node);
 
-        private Node Current_Node = default(Node);
+        protected Node Current_Node = default(Node);
 
         public Tree(string raw_information)
         {
@@ -26,6 +26,6 @@ namespace ModelService.Types
         /// Equivalent to BuildTree function
         /// </remarks>
         /// <returns></returns>
-        public abstract IEnumerable<string> GenerateAction();
+        public abstract IEnumerable<Tuple<string, CostWorth>> GenerateAction();
     }
 }

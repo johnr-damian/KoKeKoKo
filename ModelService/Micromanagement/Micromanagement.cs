@@ -18,7 +18,7 @@ namespace ModelService.Micromanagement
         public string Filename { get; set; } = default(string);
 
         /// <summary>
-        /// A csv-based micromanagement. Represents a battle from a game observation
+        /// A csv-based micromanagement. Represents a battle from a file
         /// </summary>
         /// <param name="owned_units"></param>
         /// <param name="enemy_units"></param>
@@ -82,8 +82,7 @@ namespace ModelService.Micromanagement
             catch (ArgumentNullException ex)
             {
                 Console.WriteLine($@"GetMicromanagementAccuracyReport() [Simulation] -> {ex.Message}");
-                System.Diagnostics.Debugger.Break();
-                throw new Exception("");
+                throw new Exception(ex.Message);
             }
 
             //Perform Jaccard Operations
@@ -104,8 +103,7 @@ namespace ModelService.Micromanagement
             catch (ArgumentNullException ex)
             {
                 Console.WriteLine($@"GetMicromanagementAccuracyReport() [Jaccard] -> {ex.Message}");
-                System.Diagnostics.Debugger.Break();
-                throw new Exception("");
+                throw new Exception(ex.Message);
             }
 
             return overall_results;

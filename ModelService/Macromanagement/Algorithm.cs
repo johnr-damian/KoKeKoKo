@@ -1,5 +1,5 @@
 ﻿using ModelService.Macromanagement.Types;
-using ModelService.Types;
+using ModelService.ValueTypes;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -79,7 +79,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\ModelService.cs" />
     <Compile Include="Services\RepositoryService.cs" />
-    <Compile Include="Services\RService.cs" />
     <Compile Include="Types\Army.cs" />
     <Compile Include="Types\Coordinate.cs" />
     <Compile Include="Types\CostWorth.cs" />

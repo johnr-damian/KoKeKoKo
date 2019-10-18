@@ -55,9 +55,11 @@ namespace ModelService.Macromanagement.Types
         {
             GeneratePossibleActions();
             var actions = Possible_Actions.ToList();
-            var n_actions = REngineExtensions.GetRandomGenerator().Next(0, actions.Count);
-            var owned_action = REngineExtensions.GetRandomGenerator().Next(0, actions.Count);
-            var enemy_action = REngineExtensions.GetRandomGenerator().Next(0, actions.Count);
+            var random = Services.ModelRepositoryService.ModelService.GetModelService().RandomEngine;
+
+            var n_actions = random.Next(0, actions.Count);
+            var owned_action = random.Next(0, actions.Count);
+            var enemy_action = random.Next(0, actions.Count);
 
             for(int iterator = 0; iterator < n_actions; iterator++)
             {

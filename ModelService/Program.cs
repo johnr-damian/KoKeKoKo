@@ -97,7 +97,7 @@ namespace ModelService
                         return macromanagement_battleresults;
                     });
                     //Get the final result per algorithm
-                    
+
 
                     Console.WriteLine("Finished performing accuracy reports! Please enter to continue...");
                     Console.ReadLine();

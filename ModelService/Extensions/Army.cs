@@ -51,10 +51,12 @@ namespace ModelService.Types
             //    }
             //}
 
+            var random = Services.ModelRepositoryService.ModelService.GetModelService().RandomEngine;
+
             var taken_units = units.ToArray();
             for(int shuffler = 0; shuffler < taken_units.Length; shuffler++)
             {
-                int shuffled_unit = REngineExtensions.GetRandomGenerator().Next(0, (taken_units.Length - shuffler));
+                int shuffled_unit = random.Next(0, (taken_units.Length - shuffler));
                 var shuffled_element = taken_units[shuffled_unit];
                 taken_units[shuffled_unit] = taken_units[shuffler];
                 taken_units[shuffler] = shuffled_element;
@@ -154,12 +156,13 @@ namespace ModelService.Types
         /// <param name="time_to_kill"></param>
         public static void DealDamageToTarget(this IEnumerable<Unit> units, int time_to_kill)
         {
-            for(var enumerator = units.GetEnumerator(); enumerator.MoveNext();)
+            var random = Services.ModelRepositoryService.ModelService.GetModelService();
+            for (var enumerator = units.GetEnumerator(); enumerator.MoveNext();)
             {
                 if (enumerator.Current.Target == null)
                     continue;
                 double minimum_and_mode = Unit.GetMinimumPotentialDamage(enumerator.Current);
-                var damage_to_deal = ModelRepositoryService.GetREngine().GetTriangularRandomNumber(time_to_kill, minimum_and_mode, Unit.GetMaximumPotentialDamage(enumerator.Current), minimum_and_mode);
+                var damage_to_deal = random.GetTriangularRandom(time_to_kill, minimum_and_mode, Unit.GetMaximumPotentialDamage(enumerator.Current), minimum_and_mode).Sum();
                 enumerator.Current.SimpleAttackToTarget(damage_to_deal);
             }
         }

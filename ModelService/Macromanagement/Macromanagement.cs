@@ -77,9 +77,10 @@ namespace ModelService.Macromanagement
             }
 
             var basis = ModelRepositoryService.TestForEuclideanResult();
-            var test_result = ModelRepositoryService.GetREngine().GetEuclideanResult(basis, pomdp_results);
+            var random = Services.ModelRepositoryService.ModelService.GetModelService();
+            var test_result = random.GetEuclideanMetric(String.Join(",", basis.Select(b => b.GetTotalWorth())), pomdp_results.Select(result => String.Join(",", result.Select(r => r.GetTotalWorth()))));
 
-            overall_results.Add(test_result);
+            overall_results.Add(test_result.Average());
 
             return overall_results;
         }

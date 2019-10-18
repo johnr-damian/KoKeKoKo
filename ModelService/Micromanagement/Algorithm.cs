@@ -303,6 +303,7 @@ namespace ModelService.Micromanagement
         public Tuple<string, CostWorth> DynamicBasedPrediction(TargetPolicy target_policy)
         {
             Tuple<string, CostWorth> battle_result = null;
+            var random = Services.ModelRepositoryService.ModelService.GetModelService().RandomEngine;
 
             try
             {
@@ -335,7 +336,7 @@ namespace ModelService.Micromanagement
                     var combat_time = DynamicCombatResult.GetCombatTime(combat_result);
                     for(int time_to_kill = 0; time_to_kill < combat_time; time_to_kill++)
                     {
-                        var ability_probability = REngineExtensions.GetRandomGenerator().NextDouble();
+                        var ability_probability = random.NextDouble();
                         owned_units.DealDamageToTarget(ability_probability);
                         enemy_units.DealDamageToTarget(ability_probability);
                     }

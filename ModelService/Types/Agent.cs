@@ -97,6 +97,8 @@ namespace ModelService.Types
         /// </summary>
         public bool IsOpposingDefeated => (Target == null || Target.IsDefeated);
 
+        public DateTime EndTime { get; set; } = default(DateTime);
+
         /// <summary>
         /// Stores essential information about the agent
         /// </summary>
@@ -108,8 +110,31 @@ namespace ModelService.Types
                 _raw_information = raw_information;
                 var parsed_information = raw_information.Split('\n');
 
+                
+
+
                 if(parsed_information.Length > 0)
                 {
+                    EndTime = DateTime.Now.AddSeconds(Convert.ToInt32(parsed_information.Last().Split(',')[1]));
+                    Minerals = 50;
+                    Vespene = 0;
+                    Workers = 12;
+                    Units = new Army(new Unit[]
+                        {
+                            new Unit(0, "1", "1", "TERRAN_SCV", default(Coordinate), default(string)),
+                            new Unit(0, "1", "2", "TERRAN_SCV", default(Coordinate), default(string)),
+                            new Unit(0, "1", "3", "TERRAN_SCV", default(Coordinate), default(string)),
+                            new Unit(0, "1", "4", "TERRAN_SCV", default(Coordinate), default(string)),
+                            new Unit(0, "1", "5", "TERRAN_SCV", default(Coordinate), default(string)),
+                            new Unit(0, "1", "6", "TERRAN_SCV", default(Coordinate), default(string)),
+                            new Unit(0, "1", "7", "TERRAN_SCV", default(Coordinate), default(string)),
+                            new Unit(0, "1", "8", "TERRAN_SCV", default(Coordinate), default(string)),
+                            new Unit(0, "1", "9", "TERRAN_SCV", default(Coordinate), default(string)),
+                            new Unit(0, "1", "10", "TERRAN_SCV", default(Coordinate), default(string)),
+                            new Unit(0, "1", "11", "TERRAN_SCV", default(Coordinate), default(string)),
+                            new Unit(0, "1", "12", "TERRAN_SCV", default(Coordinate), default(string)),
+                            new Unit(0, "1", "12", "TERRAN_COMMANDCENTER", default(Coordinate), default(string))
+                        });
 
                 }
             }

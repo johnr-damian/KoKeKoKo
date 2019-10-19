@@ -50,53 +50,50 @@ namespace ModelService
                     var macromanagement_battles = new List<Macromanagement.Macromanagement>();
                     var relationedmacromacro = ModelRepositoryService.RelateMacroToMacro(macromanagement_resources, macromanagement_commands);
                     foreach (var macromanagement_battle in relationedmacromacro)
-                        macromanagement_battles.Add(new Macromanagement.Macromanagement()
-                        {
-                            Rank = macromanagement_battle.Item1,
-                            Filename = macromanagement_battle.Item2
-                        });
+                        macromanagement_battles.Add(new Macromanagement.Macromanagement(macromanagement_battle.Item1, macromanagement_battle.Item2, macromanagement_battle.Item3, macromanagement_battle.Item4));
 
+                    ////Group the micromanagement battles by their rank
+                    //var perrank_micromanagement = micromanagement_battles.GroupBy(rank => rank.Rank).ToDictionary(key => key.Key, value => value.ToList());
+                    ////For every micromanagement battle per rank, do the prediction and store it
+                    //var perrankresult_micromanagement = perrank_micromanagement.ToDictionary(key => key.Key, value =>
+                    //{
+                    //    var micromanagement_battleresults = new List<List<double>>();
 
-                    //Group the micromanagement battles by their rank
-                    var perrank_micromanagement = micromanagement_battles.GroupBy(rank => rank.Rank).ToDictionary(key => key.Key, value => value.ToList());
-                    //For every micromanagement battle per rank, do the prediction and store it
-                    var perrankresult_micromanagement = perrank_micromanagement.ToDictionary(key => key.Key, value =>
-                    {
-                        var micromanagement_battleresults = new List<List<double>>();
+                    //    foreach (var micromanagement_battleresult in value.Value)
+                    //        micromanagement_battleresults.Add(micromanagement_battleresult.GetMicromanagementAccuracyReport(1));
 
-                        foreach (var micromanagement_battleresult in value.Value)
-                            micromanagement_battleresults.Add(micromanagement_battleresult.GetMicromanagementAccuracyReport(1));
-
-                        return micromanagement_battleresults;
-                    });
-                    //Get the final result per algorithm+policy per rank
-                    var micromanagement_accuracyreports = perrankresult_micromanagement.ToDictionary(key => key.Key, value => Micromanagement.Micromanagement.GetMicromanagementAccuracyReport(value.Value));
-                    //Print the results per rank
-                    foreach (var accuracy_report in micromanagement_accuracyreports)
-                    {
-                        Console.WriteLine($@"Lanchester-Random: {accuracy_report.Value[0] * 100}%");
-                        Console.WriteLine($@"Lanchester-Priority: {accuracy_report.Value[1] * 100}%");
-                        Console.WriteLine($@"Lanchester-Resource: {accuracy_report.Value[2] * 100}%");
-                        Console.WriteLine($@"Static-Random: {accuracy_report.Value[3] * 100}%");
-                        Console.WriteLine($@"Static-Priority: {accuracy_report.Value[4] * 100}%");
-                        Console.WriteLine($@"Static-Resource: {accuracy_report.Value[5] * 100}%");
-                        Console.WriteLine($@"Dynamic-Random: {accuracy_report.Value[6] * 100}%");
-                        Console.WriteLine($@"Dynamic-Priority: {accuracy_report.Value[7] * 100}%");
-                        Console.WriteLine($@"Dynamic-Resource: {accuracy_report.Value[8] * 100}%");
-                    }
+                    //    return micromanagement_battleresults;
+                    //});
+                    ////Get the final result per algorithm+policy per rank
+                    //var micromanagement_accuracyreports = perrankresult_micromanagement.ToDictionary(key => key.Key, value => Micromanagement.Micromanagement.GetMicromanagementAccuracyReport(value.Value));
+                    ////Print the results per rank
+                    //foreach (var accuracy_report in micromanagement_accuracyreports)
+                    //{
+                    //    Console.WriteLine($@"Lanchester-Random: {accuracy_report.Value[0] * 100}%");
+                    //    Console.WriteLine($@"Lanchester-Priority: {accuracy_report.Value[1] * 100}%");
+                    //    Console.WriteLine($@"Lanchester-Resource: {accuracy_report.Value[2] * 100}%");
+                    //    Console.WriteLine($@"Static-Random: {accuracy_report.Value[3] * 100}%");
+                    //    Console.WriteLine($@"Static-Priority: {accuracy_report.Value[4] * 100}%");
+                    //    Console.WriteLine($@"Static-Resource: {accuracy_report.Value[5] * 100}%");
+                    //    Console.WriteLine($@"Dynamic-Random: {accuracy_report.Value[6] * 100}%");
+                    //    Console.WriteLine($@"Dynamic-Priority: {accuracy_report.Value[7] * 100}%");
+                    //    Console.WriteLine($@"Dynamic-Resource: {accuracy_report.Value[8] * 100}%");
+                    //}
                     //Group the macromanagement battles by their rank
-                    var perrank_macromanagement = macromanagement_battles.GroupBy(rank => rank.Rank).ToDictionary(key => key.Key, value => value.ToList());
+                    var perrank_macromanagement = macromanagement_battles.GroupBy(rank => rank.Rank).ToDictionary(key => key.Key, value => value.ToList()).Take(1);
                     //For every macromanagement battle per rank, do the prediction and store it
                     var perrankresult_macromanagement = perrank_macromanagement.ToDictionary(key => key.Key, value =>
                     {
                         var macromanagement_battleresults = new List<List<double>>();
 
                         foreach (var macromanagement_battleresult in value.Value)
-                            macromanagement_battleresults.Add(macromanagement_battleresult.GetMacromanagementAccuracyReport(1));
+                            macromanagement_battleresults.Add(macromanagement_battleresult.GetMacromanagementAccuracyReport(1, Macromanagement.Macromanagement.AIAlgorithm.MCTS));
 
                         return macromanagement_battleresults;
                     });
                     //Get the final result per algorithm
+                    foreach (var r in macromanagement_battles)
+                        Console.WriteLine(r.ToString());
 
 
                     Console.WriteLine("Finished performing accuracy reports! Please enter to continue...");

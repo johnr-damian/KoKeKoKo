@@ -66,11 +66,9 @@
     <Compile Include="Extensions\IMessage.cs" />
     <Compile Include="Extensions\Micromanagement.cs" />
     <Compile Include="Extensions\Unit.cs" />
-    <Compile Include="Macromanagement\Algorithm.cs" />
     <Compile Include="Macromanagement\Macromanagement.cs" />
-    <Compile Include="Macromanagement\Policy.cs" />
-    <Compile Include="Macromanagement\Types\MCTS.cs" />
-    <Compile Include="Macromanagement\Types\POMDP.cs" />
+    <Compile Include="Macromanagement\MCTSAlgorithm.cs" />
+    <Compile Include="Macromanagement\POMDPAlgorithm.cs" />
     <Compile Include="Micromanagement\Algorithm.cs" />
     <Compile Include="Micromanagement\Micromanagement.cs" />
     <Compile Include="Micromanagement\Policy.cs" />

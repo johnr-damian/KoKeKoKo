@@ -105,12 +105,18 @@ namespace ModelService.ValueTypes
         public static implicit operator double(CostWorth costworth) => costworth.GetTotalWorth();
 
         /// <summary>
-        /// Converts the current <see cref="Tuple{T1, T2, T3, T4}"/> into a <see cref="CostWorth"/>.
-        /// The values are taken orderly, as such it follows the constructor of <see cref="CostWorth"/> where
-        /// <see cref="Tuple{T1, T2, T3, T4}.Item1"/> is <see cref="Priority"/> and as follows.
+        /// Converts the current <see cref="CostWorth"/> to <see cref="Tuple{T1, T2, T3, T4}"/> with the same
+        /// order as the constructor of <see cref="CostWorth"/>
         /// </summary>
-        /// <param name="tuple"></param>
-        public static implicit operator CostWorth(Tuple<int, double, double, int> tuple) => new CostWorth(tuple.Item1, tuple.Item2, tuple.Item3, tuple.Item4);
+        /// <param name="costworth"></param>
+        public static implicit operator Tuple<int, double, double, int>(CostWorth costworth) => new Tuple<int, double, double, int>(costworth.Priority, costworth.Mineral, costworth.Vespene, costworth.Supply);
+
+        /// <summary>
+        /// Converts the current <see cref="CostWorth"/> to <see cref="Tuple{T1, T2, T3, T4}"/> with the 
+        /// same order as the constructor of <see cref="CostWorth"/> with the properties converted to string
+        /// </summary>
+        /// <param name="costworth"></param>
+        public static implicit operator Tuple<string, string, string, string>(CostWorth costworth) => new Tuple<string, string, string, string>(Convert.ToString(costworth.Priority), Convert.ToString(costworth.Mineral), Convert.ToString(costworth.Vespene), Convert.ToString(costworth.Supply));
 
         /// <summary>
         /// Converts the current <see cref="CostWorth"/> by calling then converting <see cref="GetTotalWorth()"/> to int
@@ -120,11 +126,20 @@ namespace ModelService.ValueTypes
         public static explicit operator int(CostWorth costworth) => Convert.ToInt32(costworth.GetTotalWorth());
 
         /// <summary>
-        /// Converts the current <see cref="CostWorth"/> to <see cref="Tuple{T1, T2, T3, T4}"/> with the same
-        /// order as the constructor of <see cref="CostWorth"/>
+        /// Converts the current <see cref="Tuple{T1, T2, T3, T4}"/> into a <see cref="CostWorth"/>.
+        /// The values are taken orderly, as such it follows the constructor of <see cref="CostWorth"/> where
+        /// <see cref="Tuple{T1, T2, T3, T4}.Item1"/> is <see cref="Priority"/> and as follows.
         /// </summary>
-        /// <param name="costworth"></param>
-        public static explicit operator Tuple<int, double, double, int>(CostWorth costworth) => new Tuple<int, double, double, int>(costworth.Priority, costworth.Mineral, costworth.Vespene, costworth.Supply);
+        /// <param name="tuple"></param>
+        public static explicit operator CostWorth(Tuple<int, double, double, int> tuple) => new CostWorth(tuple.Item1, tuple.Item2, tuple.Item3, tuple.Item4);
+
+        /// <summary>
+        /// Converts the current <see cref="Tuple{T1, T2, T3, T4}"/> into a <see cref="CostWorth"/>.
+        /// The values are taken orderly, as such it follows the constructor of <see cref="CostWorth"/> where
+        /// <see cref="Tuple{T1, T2, T3, T4}.Item1"/> is <see cref="Priority"/> then converted to its resepective type, and as follows.
+        /// </summary>
+        /// <param name="tuple"></param>
+        public static explicit operator CostWorth(Tuple<string, string, string, string> tuple) => new CostWorth(Convert.ToInt32(tuple.Item1), Convert.ToDouble(tuple.Item2), Convert.ToDouble(tuple.Item3), Convert.ToInt32(tuple.Item4));
         #endregion
 
         /// <summary>

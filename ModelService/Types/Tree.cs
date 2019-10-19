@@ -65,6 +65,20 @@ namespace ModelService.CollectionTypes
                 Current_Owned_Agent = owned_agent;
                 Current_Enemy_Agent = enemy_agent;
                 Children = new List<Node>();
+
+                if (Parent_Node == null)
+                    Current_Height = 0;
+                else
+                    UpdateHeight();
+            }
+
+            public void UpdateHeight()
+            {
+                Current_Height++;
+                if (Parent_Node != null)
+                {
+                    Parent_Node.UpdateHeight();
+                }
             }
 
             protected abstract IEnumerable<string> GeneratePotentialActions();
@@ -80,6 +94,16 @@ namespace ModelService.CollectionTypes
             public abstract void Backpropagate();
 
             public Tuple<string, ValueTypes.CostWorth> GetNodeInformation() => new Tuple<string, ValueTypes.CostWorth>(Current_Owned_Agent.Chosen_Action, Current_Owned_Agent.Worth);
+
+            public int Current_Height { get; set; } = default(int);
+
+            public int GetTrueHeight()
+            {
+                if (Parent_Node != null)
+                    return Parent_Node.GetTrueHeight() + 1;
+                else
+                    return 0;
+            }
         }
 
         public Tree(Types.Agent owned_agent, Types.Agent enemy_agent)

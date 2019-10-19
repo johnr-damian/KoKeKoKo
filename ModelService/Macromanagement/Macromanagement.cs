@@ -94,7 +94,11 @@ namespace ModelService.Macromanagement
                         end = Enemy_Agent.EndTime;
 
                     foreach (var result in Current_Tree.GeneratePredictedAction(end))
+                    {
+                        if (result == null)
+                            break;
                         pomdp_results[0].Add(result.Item2);
+                    }
                 }
             }
             catch(ArgumentException ex)

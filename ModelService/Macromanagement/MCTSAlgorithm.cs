@@ -33,23 +33,27 @@ namespace ModelService.Macromanagement
 
                 public override Node SelectAChildNode()
                 {
-                    if (!IsExpanded)
+                    if (!IsExpanded && (GetTrueHeight() != 3))
+                    {
                         ExpandCurrentNode();
 
-                    double bestuctnode = Double.MinValue;
-                    Node bestchildnode = default(MCTSNode);
-                    foreach (MCTSNode childnode in Children)
-                    {
-                        var current_uct = childnode.GetNodeUCTValue();
-                        if (current_uct > bestuctnode)
+                        double bestuctnode = Double.MinValue;
+                        Node bestchildnode = default(MCTSNode);
+                        foreach (MCTSNode childnode in Children)
                         {
-                            bestuctnode = current_uct;
-                            bestchildnode = childnode;
+                            var current_uct = childnode.GetNodeUCTValue();
+                            if (current_uct > bestuctnode)
+                            {
+                                bestuctnode = current_uct;
+                                bestchildnode = childnode;
+                            }
                         }
+
+                        Chosen_Child = bestchildnode;
+                        return Chosen_Child;
                     }
 
-                    Chosen_Child = bestchildnode;
-                    return Chosen_Child;
+                    return null;
                 }
 
                 public override void Backpropagate()
@@ -1551,6 +1555,9 @@ namespace ModelService.Macromanagement
                     {
                         //Get a child node that has the best move
                         var selected_node = Current_Node.SelectAChildNode();
+
+                        if (selected_node == null)
+                            break;
 
                         //Get the predicted action
                         predicted_action = selected_node.GetNodeInformation();

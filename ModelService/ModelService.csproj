@@ -80,7 +80,6 @@
     <Compile Include="Types\Army.cs" />
     <Compile Include="Types\Coordinate.cs" />
     <Compile Include="Types\CostWorth.cs" />
-    <Compile Include="Types\Node.cs" />
     <Compile Include="Types\Agent.cs" />
     <Compile Include="Types\Tree.cs" />
     <Compile Include="Types\Unit.cs" />

@@ -74,6 +74,52 @@ namespace ModelService.Types
 
         private void GeneratePossibleActions()
         {
+            var unitListGlobal = new List<string>();
+            foreach (var unit in Player.Units)
+            {
+                if (!unitListGlobal.Contains(unit.Name))
+                unitListGlobal.Add(unit.Name);
+            }
+            foreach (var unit in Player.Units)
+            {
+                switch (unit.Name)
+                {
+                    case "TERRAN_SCV":
+                    case "TERRAN_HELLION":
+                        Possible_Actions.Enqueue("MORPH_HELLBAT");
+                        break;
+                    case "TERRAN_HELLIONTANK":
+                        Possible_Actions.Enqueue("MORPH_HELLION");
+                        break;
+                    case "TERRAN_SIEGETANK":
+                        Possible_Actions.Enqueue("MORPH_SIEGEMODE");
+                        break;
+                    case "TERRAN_SIEGETANKSIEGED":
+                        Possible_Actions.Enqueue("MORPH_UNSIEGE");
+                        break;
+                    case "TERRAN_VIKINGASSAULT":
+                        Possible_Actions.Enqueue("MORPH_VIKINGFIGHTERMODE");
+                        break;
+                    case "TERRAN_VIKINGFIGHTER":
+                        Possible_Actions.Enqueue("MORPH_VIKINGASSAULTMODE");
+                        break;
+                    case "TERRAN_LIBERATOR":
+                        Possible_Actions.Enqueue("MORPH_LIBERATORAGMODE");
+                        break;
+                    case "TERRAN_LIBERATORAG":
+                        Possible_Actions.Enqueue("MORPH_LIBERATORAAMODE");
+                        break;
+                    case "TERRAN_RAVEN":
+                        Possible_Actions.Enqueue("EFFECT_AUTOTURRET");
+                        break;
+                    case "TERRAN_ORBITALCOMMAND":
+                        Possible_Actions.Enqueue("EFFECT_CALLDOWNMULE");
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
             if (Player.Minerals >= 400 && Player.Vespene >= 300)
             {
                 var unitList = new List<string>();
@@ -1464,34 +1510,6 @@ namespace ModelService.Types
                 if(unitList.Contains("TERRAN_STARPORT"))
                 Possible_Actions.Enqueue("TRAIN_RAVEN");
             }
-            var unitListGlobal = new List<string>();
-            foreach (var unit in Player.Units)
-            {
-                if (!unitListGlobal.Contains(unit.Name))
-                    unitListGlobal.Add(unit.Name);
-            }
-
-            if(unitListGlobal.Contains("TERRAN_HELLION"))
-                Possible_Actions.Enqueue("MORPH_HELLBAT");
-            if (unitListGlobal.Contains("TERRAN_HELLIONTANK"))
-                Possible_Actions.Enqueue("MORPH_HELLION");
-            if (unitListGlobal.Contains("TERRAN_SIEGETANK"))
-                Possible_Actions.Enqueue("MORPH_SIEGEMODE");
-            if (unitListGlobal.Contains("TERRAN_SIEGETANKSIEGED"))
-                Possible_Actions.Enqueue("MORPH_UNSIEGE");
-            if (unitListGlobal.Contains("TERRAN_VIKINGASSAULT"))
-                Possible_Actions.Enqueue("MORPH_VIKINGFIGHTERMODE");
-            if (unitListGlobal.Contains("TERRAN_VIKINGFIGHTER"))
-                Possible_Actions.Enqueue("MORPH_VIKINGASSAULTMODE");
-            if (unitListGlobal.Contains("TERRAN_LIBERATOR"))
-                Possible_Actions.Enqueue("MORPH_LIBERATORAGMODE");
-            if (unitListGlobal.Contains("TERRAN_LIBERATORAG"))
-                Possible_Actions.Enqueue("MORPH_LIBERATORAAMODE");
-            if (unitListGlobal.Contains("TERRAN_RAVEN"))
-                Possible_Actions.Enqueue("EFFECT_AUTOTURRET");
-            if (unitListGlobal.Contains("TERRAN_ORBITALCOMMAND"))
-                Possible_Actions.Enqueue("EFFECT_CALLDOWNMULE");
-        }
 
         public abstract Node Select();
 

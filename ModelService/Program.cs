@@ -49,7 +49,8 @@ namespace ModelService
                         });
                     var macromanagement_battles = new List<Macromanagement.Macromanagement>();
                     var relationedmacromacro = ModelRepositoryService.RelateMacroToMacro(macromanagement_resources, macromanagement_commands);
-                    foreach (var macromanagement_battle in relationedmacromacro)
+                    var relationedmicromacromacro = ModelRepositoryService.RelateMicroToMacroMacro(relationedmicromacro, relationedmacromacro);
+                    foreach (var macromanagement_battle in relationedmicromacromacro)
                         macromanagement_battles.Add(new Macromanagement.Macromanagement(macromanagement_battle.Item1, macromanagement_battle.Item2, macromanagement_battle.Item3, macromanagement_battle.Item4));
 
                     ////Group the micromanagement battles by their rank
@@ -80,7 +81,7 @@ namespace ModelService
                     //    Console.WriteLine($@"Dynamic-Resource: {accuracy_report.Value[8] * 100}%");
                     //}
                     //Group the macromanagement battles by their rank
-                    var perrank_macromanagement = macromanagement_battles.GroupBy(rank => rank.Rank).ToDictionary(key => key.Key, value => value.ToList()).Take(1);
+                    var perrank_macromanagement = macromanagement_battles.GroupBy(rank => rank.Rank).ToDictionary(key => key.Key, value => value.Take(1).ToList()).Take(1);
                     //For every macromanagement battle per rank, do the prediction and store it
                     var perrankresult_macromanagement = perrank_macromanagement.ToDictionary(key => key.Key, value =>
                     {
@@ -92,7 +93,7 @@ namespace ModelService
                         return macromanagement_battleresults;
                     });
                     //Get the final result per algorithm
-                    foreach (var r in macromanagement_battles)
+                    foreach (var r in macromanagement_battles.Take(1))
                         Console.WriteLine(r.ToString());
 
 

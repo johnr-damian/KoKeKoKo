@@ -169,6 +169,8 @@ namespace ModelService.Types
         /// <returns></returns>
         public Army GetDeepCopy() => new Army(String.Copy(_raw_units));
 
+        public Army GetMacroDeepCopy() => new Army(new List<Unit>(_units.Select(unit => unit.GetDeepCopy())));
+
         /// <summary>
         /// Returns a message-ready format that can be send to agent. The message format is:
         /// <para>

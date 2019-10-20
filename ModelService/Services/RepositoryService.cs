@@ -598,7 +598,101 @@ namespace ModelService
                 probabilitiesworthresult.Clear();
             }
 
-            return probabilitiesworthresult;
+            throw new NotImplementedException();
+            //return probabilitiesworthresult;
+        }
+
+        public static List<Tuple<string, string, string, string>> RelateMicroToMacroMacro(List<Tuple<string, string, string, string, string>> micromanagement, List<Tuple<string, string, string, string>> macromanagement)
+        {
+            var micromacromacroresult = new List<Tuple<string, string, string, string>>();
+
+            try
+            {
+                //Get the relationship between the macro_resource+commands and micromanagement
+                //by their origin replay filename
+                var micromacromacrorelation = (from macro in macromanagement
+                                               join micro in micromanagement on macro.Item2 equals micro.Item2
+                                               where macro.Item1 == micro.Item1
+                                               select (new Tuple<string, string, string, string, string, string>(macro.Item1, macro.Item2, macro.Item3, macro.Item4, micro.Item3, micro.Item4)));
+
+                foreach(var micromacromacro in micromacromacrorelation)
+                {
+                    var owned_resources = micromacromacro.Item3.Split('\n');
+                    var owned_units = micromacromacro.Item5.Split('\n');
+                    var enemy_resources = micromacromacro.Item4.Split('\n');
+                    var enemy_units = micromacromacro.Item6.Split('\n');
+
+                    var owned_relatedmicromacro = new List<string>();
+                    var enemy_relatedmicromacro = new List<string>();
+
+                    //Construct a database-like style. Relate the macro based on their time
+                    foreach(var owned_unit in owned_units)
+                    {
+                        var unit = owned_unit.Split(',');
+
+                        int unit_timestamp = Convert.ToInt32(unit[0]);
+                        foreach(var owned_resource in owned_resources)
+                        {
+                            var resource = owned_resource.Split(',');
+
+                            int resource_timestamp = Convert.ToInt32(resource[1]);
+                            if(unit_timestamp <= resource_timestamp)
+                            {
+                                string upgrades = "";
+                                if (resource.Length > 9)
+                                    upgrades = ("," + String.Join(",", resource.Skip(9)));
+
+                                string new_details = String.Format($@"{resource[0]},{resource[1]},{resource[2]},{resource[3]},{resource[4]}");
+                                var unit_worth = Types.Unit.Values[unit[3]];
+                                var resource_worth = new CostWorth(Convert.ToInt32(resource[8]), Convert.ToDouble(resource[5]), Convert.ToDouble(resource[6]), Convert.ToInt32(resource[7]));
+                                Tuple<string, string, string, string> new_worth = unit_worth + resource_worth;
+
+                                //Append the other stuff
+                                new_details += String.Format($@",{new_worth.Item2},{new_worth.Item3},{new_worth.Item4},{new_worth.Item1}{upgrades}");
+                                owned_relatedmicromacro.Add(new_details);
+                                break;
+                            }
+                        }
+                    }
+                    foreach(var enemy_unit in enemy_units)
+                    {
+                        var unit = enemy_unit.Split(',');
+
+                        int unit_timestamp = Convert.ToInt32(unit[0]);
+                        foreach(var enemy_resource in enemy_resources)
+                        {
+                            var resource = enemy_resource.Split(',');
+
+                            int resource_timestamp = Convert.ToInt32(resource[1]);
+                            if(unit_timestamp <= resource_timestamp)
+                            {
+                                string upgrades = "";
+                                if (resource.Length > 9)
+                                    upgrades = ("," + String.Join(",", resource.Skip(9)));
+
+                                string new_details = String.Format($@"{resource[0]},{resource[1]},{resource[2]},{resource[3]},{resource[4]}");
+                                var unit_worth = Types.Unit.Values[unit[3]];
+                                var resource_worth = new CostWorth(Convert.ToInt32(resource[8]), Convert.ToDouble(resource[5]), Convert.ToDouble(resource[6]), Convert.ToInt32(resource[7]));
+                                Tuple<string, string, string, string> new_worth = unit_worth + resource_worth;
+
+                                //Append the other stuff
+                                new_details += String.Format($@",{new_worth.Item2},{new_worth.Item3},{new_worth.Item4},{new_worth.Item1}{upgrades}");
+                                enemy_relatedmicromacro.Add(new_details);
+                                break;
+                            }
+                        }
+                    }
+
+                    micromacromacroresult.Add(new Tuple<string, string, string, string>(micromacromacro.Item1, micromacromacro.Item2, String.Join("\n", owned_relatedmicromacro), String.Join("\n", enemy_relatedmicromacro)));
+                }
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine($@"RelateMicroToMacroMacro() -> {ex.Message}");
+                micromacromacroresult.Clear();
+            }
+
+            return micromacromacroresult;
         }
 
         public static List<CostWorth> TestForEuclideanResult()

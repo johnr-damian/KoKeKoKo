@@ -58,10 +58,20 @@ namespace ModelService.Macromanagement
 
         public Macromanagement(string rank, string filename, string owned_agent, string enemy_agent)
         {
+            var time = DateTime.Now;
             Rank = rank;
             Filename = filename;
-            Owned_Agent = new Agent(owned_agent);
-            Enemy_Agent = new Agent(enemy_agent);
+            Owned_Agent = new Agent(owned_agent, time);
+            Enemy_Agent = new Agent(enemy_agent, time);
+        }
+
+        public override string ToString()
+        {
+            string stuff = "";
+            for (var node = Current_Tree.Root_Node; node.Chosen_Child != null; node = node.Chosen_Child)
+                stuff += String.Format($@"{node.GetNodeInformation().Item1},{Convert.ToDouble(node.GetNodeInformation().Item2)}") + Environment.NewLine;
+
+            return stuff;
         }
 
         public List<double> GetMacromanagementAccuracyReport(int number_of_simulations, AIAlgorithm algorithm)
@@ -69,7 +79,7 @@ namespace ModelService.Macromanagement
             var overall_results = new List<double>();
 
             var pomdp_results = new List<List<CostWorth>>();
-            var mcts_results = new List<CostWorth>();
+            var mcts_results = new List<List<CostWorth>>();
 
             switch (algorithm)
             {
@@ -85,7 +95,7 @@ namespace ModelService.Macromanagement
             {
                 for(int simulated = 0; simulated < number_of_simulations; simulated++)
                 {
-                    pomdp_results.Add(new List<CostWorth>());
+                    mcts_results.Add(new List<CostWorth>());
 
                     DateTime end;
                     if (Owned_Agent.EndTime > Enemy_Agent.EndTime)
@@ -97,7 +107,7 @@ namespace ModelService.Macromanagement
                     {
                         if (result == null)
                             break;
-                        pomdp_results[0].Add(result.Item2);
+                        mcts_results[0].Add(result.Item2);
                     }
                 }
             }
@@ -106,21 +116,21 @@ namespace ModelService.Macromanagement
 
             }
 
-            //Perform Linear thingy operation
+            var random = Services.ModelRepositoryService.ModelService.GetModelService();
+            //Perform Euclidean Operations
             try
             {
+                var owned_basis = String.Join(",", Owned_Agent.Basis.Select(basis => Convert.ToDouble(basis.Item3)));
+                var enemy_basis = String.Join(",", Enemy_Agent.Basis.Select(basis => Convert.ToDouble(basis.Item3)));
 
+                var owned_results_mcts = mcts_results.Select(result => String.Join(",", result.Select(costworth => Convert.ToDouble(costworth))));
+
+                overall_results.Add(random.GetEuclideanMetric(owned_basis, owned_results_mcts).Average());
             }
             catch(ArgumentNullException ex)
             {
 
             }
-
-            var basis = ModelRepositoryService.TestForEuclideanResult();
-            var random = Services.ModelRepositoryService.ModelService.GetModelService();
-            var test_result = random.GetEuclideanMetric(String.Join(",", basis.Select(b => b.GetTotalWorth())), pomdp_results.Select(result => String.Join(",", result.Select(r => r.GetTotalWorth()))));
-
-            overall_results.Add(test_result.Average());
 
             return overall_results;
         }

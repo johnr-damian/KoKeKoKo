@@ -12,14 +12,14 @@ namespace ModelService.CollectionTypes
         /// <summary>
         /// The root node of the AI tree
         /// </summary>
-        protected Node Root_Node { get; set; } = default(Node);
+        public Node Root_Node { get; protected set; } = default(Node);
 
         /// <summary>
         /// The current node of the AI tree
         /// </summary>
         protected Node Current_Node { get; set; } = default(Node);
 
-        protected abstract class Node
+        public abstract class Node
         {
             protected Types.Agent Current_Owned_Agent { get; set; } = default(Types.Agent);
 
@@ -27,7 +27,7 @@ namespace ModelService.CollectionTypes
 
             public Node Parent_Node { get; protected set; } = default(Node);
 
-            protected Node Chosen_Child { get; set; } = default(Node);
+            public Node Chosen_Child { get; protected set; } = default(Node);
 
             protected List<Node> Children { get; set; } = default(List<Node>);
 

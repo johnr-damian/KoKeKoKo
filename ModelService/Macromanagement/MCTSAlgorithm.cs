@@ -13,10 +13,17 @@ namespace ModelService.Macromanagement
     {
         public class MCTSAlgorithm : CollectionTypes.Tree
         {
+            public int Max_Depth { get; set; } = default(int);
+
             private class MCTSNode : Node
             {
-                public MCTSNode(Node parent_node, Agent owned_agent, Agent enemy_agent) 
-                    : base(parent_node, owned_agent, enemy_agent) { }
+                public int Max_Depth { get; set; } = default(int);
+
+                public MCTSNode(Node parent_node, Agent owned_agent, Agent enemy_agent, int max_depth) 
+                    : base(parent_node, owned_agent, enemy_agent)
+                {
+                    Max_Depth = max_depth;
+                }
 
                 public override double GetNodeUCTValue()
                 {
@@ -33,7 +40,7 @@ namespace ModelService.Macromanagement
 
                 public override Node SelectAChildNode()
                 {
-                    if (!IsExpanded && (GetTrueHeight() != 3))
+                    if (!IsExpanded && (GetTrueHeight() != Max_Depth))
                     {
                         ExpandCurrentNode();
 
@@ -83,7 +90,7 @@ namespace ModelService.Macromanagement
                     var n_actions = random.Next(0, actions.Count);
                     for(int iterator = 0; iterator < 3; iterator++)
                     {
-                        var child = new MCTSNode(this, Current_Owned_Agent.GetDeepCopy(), Current_Enemy_Agent.GetDeepCopy());
+                        var child = new MCTSNode(this, Current_Owned_Agent.GetDeepCopy(), Current_Enemy_Agent.GetDeepCopy(), Max_Depth);
                         var owned_action = actions[random.Next(0, actions.Count)];
                         var enemy_action = actions[random.Next(0, actions.Count)];
 
@@ -1536,7 +1543,8 @@ namespace ModelService.Macromanagement
             public MCTSAlgorithm(Agent owned_agent, Agent enemy_agent) 
                 : base(owned_agent, enemy_agent)
             {
-                Root_Node = new MCTSNode(null, owned_agent, enemy_agent);
+                Max_Depth = Math.Max(owned_agent.Potential_Depth, enemy_agent.Potential_Depth);
+                Root_Node = new MCTSNode(null, owned_agent, enemy_agent, Max_Depth);
                 Current_Node = Root_Node;
             }
 

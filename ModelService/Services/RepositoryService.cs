@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ModelService.ValueTypes;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -47,7 +48,7 @@ namespace ModelService
             try
             {
 #if DEBUG
-                var raw_armyrepository = ReadRepository(@"Debugging\ArmiesRepository.csv");
+                var raw_armyrepository = ReadRepository(@"Training\ArmiesRepository.csv");
 #elif TRACE
                 var raw_armyrepository = ReadRepository(@"Testing\ArmiesRepository.csv");
 #endif
@@ -156,7 +157,7 @@ namespace ModelService
             try
             {
 #if DEBUG
-                var raw_resourcerepository = ReadRepository(@"Testing\ResourcesRepository.csv");
+                var raw_resourcerepository = ReadRepository(@"Training\ResourcesRepository.csv");
 #elif TRACE
                 var raw_resourcerepository = ReadRepository(@"Testing\ResourcesRepository.csv");
 #endif
@@ -194,23 +195,24 @@ namespace ModelService
                                         var resources = value.ToList();
                                         var parsed_resources = new List<string>();
 
-                                        //While getting the content, parsed the resources and convert
-                                        //it to 15 seconds, to save space and to match the bot
-                                        for (int iterator = 0, resource_count = (resources.Count - 1); iterator < resource_count; iterator += 2)
+                                        //Convert the resources into 15seconds interval. This will align
+                                        //with the ingame time and save space and time to process
+                                        for (int iterator = 0, count = (resources.Count - 3); iterator < count; iterator += 3)
                                         {
-                                            var first_content = resources[iterator].Split(',');
-                                            var second_content = resources[iterator + 1].Split(',');
+                                            var firsthalf_content = resources[iterator].Split(',');
+                                            var secondhalf_content = resources[iterator + 1].Split(',');
 
-                                            double timestamp = ((Convert.ToDouble(first_content[0]) + Convert.ToDouble(second_content[0])) / 2);
-                                            double minerals = ((Convert.ToDouble(first_content[2]) + Convert.ToDouble(second_content[2])) / 2);
-                                            double vespenes = ((Convert.ToDouble(first_content[3]) + Convert.ToDouble(second_content[3])) / 2);
-                                            double supply = ((Convert.ToDouble(first_content[4]) + Convert.ToDouble(second_content[4])) / 2);
-                                            int worker = ((Convert.ToInt32(first_content[5]) + Convert.ToInt32(second_content[5])) / 2);
+                                            double timestamp = ((Convert.ToDouble(firsthalf_content[0]) + Convert.ToDouble(secondhalf_content[0])) / 2);
+                                            double minerals = ((Convert.ToDouble(firsthalf_content[2]) + Convert.ToDouble(secondhalf_content[2])) / 2);
+                                            double vespenes = ((Convert.ToDouble(firsthalf_content[3]) + Convert.ToDouble(secondhalf_content[3])) / 2);
+                                            int supply = Convert.ToInt32(secondhalf_content[4]);
+                                            int worker = Convert.ToInt32(secondhalf_content[5]);
                                             string upgrades = "";
-                                            if (second_content.Length > 6)
-                                                upgrades = ("," + String.Join(",", second_content.Skip(6)));
+                                            if (secondhalf_content.Length > 6)
+                                                upgrades = ("," + String.Join(",", secondhalf_content.Skip(6)));
 
-                                            parsed_resources.Add(String.Format($@"{timestamp},{first_content[1]},{minerals},{vespenes},{supply},{worker}{upgrades}"));
+                                            parsed_resources.Add(String.Format($@"{timestamp},{firsthalf_content[1]},{minerals},{vespenes},{supply},{worker}{upgrades}"));
+                                            parsed_resources.Add(resources[iterator + 2]);
                                         }
 
                                         return parsed_resources;
@@ -246,23 +248,24 @@ namespace ModelService
                             var resources = value.ToList();
                             var parsed_resources = new List<string>();
 
-                            //While getting the content, parsed the resources and convert
-                            //it to 15 seconds, to save space and to match the bot
-                            for (int iterator = 0, resource_count = (resources.Count - 1); iterator < resource_count; iterator += 2)
+                            //Convert the resources into 15seconds interval. This will align
+                            //with the ingame time and save space and time to process
+                            for(int iterator = 0, count = (resources.Count - 3); iterator < count; iterator += 3)
                             {
-                                var first_content = resources[iterator].Split(',');
-                                var second_content = resources[iterator + 1].Split(',');
+                                var firsthalf_content = resources[iterator].Split(',');
+                                var secondhalf_content = resources[iterator + 1].Split(',');
 
-                                double timestamp = ((Convert.ToDouble(first_content[0]) + Convert.ToDouble(second_content[0])) / 2);
-                                double minerals = ((Convert.ToDouble(first_content[2]) + Convert.ToDouble(second_content[2])) / 2);
-                                double vespenes = ((Convert.ToDouble(first_content[3]) + Convert.ToDouble(second_content[3])) / 2);
-                                double supply = ((Convert.ToDouble(first_content[4]) + Convert.ToDouble(second_content[4])) / 2);
-                                int worker = ((Convert.ToInt32(first_content[5]) + Convert.ToInt32(second_content[5])) / 2);
+                                double timestamp = ((Convert.ToDouble(firsthalf_content[0]) + Convert.ToDouble(secondhalf_content[0])) / 2);
+                                double minerals = ((Convert.ToDouble(firsthalf_content[2]) + Convert.ToDouble(secondhalf_content[2])) / 2);
+                                double vespenes = ((Convert.ToDouble(firsthalf_content[3]) + Convert.ToDouble(secondhalf_content[3])) / 2);
+                                int supply = Convert.ToInt32(secondhalf_content[4]);
+                                int worker = Convert.ToInt32(secondhalf_content[5]);
                                 string upgrades = "";
-                                if (second_content.Length > 6)
-                                    upgrades = ("," + String.Join(",", second_content.Skip(6)));
+                                if (secondhalf_content.Length > 6)
+                                    upgrades = ("," + String.Join(",", secondhalf_content.Skip(6)));
 
-                                parsed_resources.Add(String.Format($@"{timestamp},{first_content[1]},{minerals},{vespenes},{supply},{worker}{upgrades}"));
+                                parsed_resources.Add(String.Format($@"{timestamp},{firsthalf_content[1]},{minerals},{vespenes},{supply},{worker}{upgrades}"));
+                                parsed_resources.Add(resources[iterator + 2]);
                             }
 
                             return parsed_resources;
@@ -377,7 +380,7 @@ namespace ModelService
 
         /// <summary>
         /// Relates the <see cref="ReadArmiesRepository"/> and the <see cref="ReadResourcesRepository"/>.
-        /// It relates the upgrades done by the playerto be applied in the battles of the player.
+        /// It relates the upgrades done by the player to be applied in the battles of the player.
         /// </summary>
         /// <param name="macromanagement_resources"></param>
         /// <param name="micromanagement"></param>
@@ -429,6 +432,13 @@ namespace ModelService
             return micromacroresult;
         }
 
+        /// <summary>
+        /// Relates the <see cref="ReadResourcesRepository"/> and the <see cref="ReadCommandsRepository"/>.
+        /// It relates the commands done by the player to the time, resources, and upgrades done by the player
+        /// </summary>
+        /// <param name="macromanagement_resources"></param>
+        /// <param name="macromanagement_commands"></param>
+        /// <returns></returns>
         public static List<Tuple<string, string, string, string>> RelateMacroToMacro(List<Tuple<string, string, string, string>> macromanagement_resources, List<Tuple<string, string, string, string>> macromanagement_commands)
         {
             var macromacroresult = new List<Tuple<string, string, string, string>>();
@@ -444,7 +454,67 @@ namespace ModelService
 
                 foreach(var macromacro in macromacrorelation)
                 {
-                    
+                    var owned_resources = macromacro.Item3.Split('\n');
+                    var owned_commands = macromacro.Item5.Split('\n');
+                    var enemy_resources = macromacro.Item4.Split('\n');
+                    var enemy_commands = macromacro.Item6.Split('\n');
+
+                    var owned_relatedmacro = new List<string>();
+                    var enemy_relatedmacro = new List<string>();
+
+                    //Construct database-like style. Relate the command based on their time
+                    foreach(var owned_command in owned_commands)
+                    {
+                        var command = owned_command.Split(',');
+
+                        int command_timestamp = Convert.ToInt32(command[0]);
+                        foreach (var owned_resource in owned_resources)
+                        {
+                            var resource = owned_resource.Split(',');
+
+                            int resource_timestamp = Convert.ToInt32(resource[0]);
+                            if (command_timestamp <= resource_timestamp)
+                            {
+                                string upgrades = "";
+                                if (resource.Length > 6)
+                                    upgrades = ("," + String.Join(",", resource.Skip(6)));
+
+                                string new_details = String.Format($@"{command_timestamp},{resource_timestamp},{command[1]},{command[2]},{command[3]}");
+                                new_details += String.Format($@",{resource[2]},{resource[3]},{resource[4]},{resource[5]}{upgrades}");
+
+                                //Add the new related details
+                                owned_relatedmacro.Add(new_details);
+                                break;
+                            }
+                        }
+                    }
+                    foreach(var enemy_command in enemy_commands)
+                    {
+                        var command = enemy_command.Split(',');
+
+                        int command_timestamp = Convert.ToInt32(command[0]);
+                        foreach(var enemy_resource in enemy_resources)
+                        {
+                            var resource = enemy_resource.Split(',');
+
+                            int resource_timestamp = Convert.ToInt32(resource[0]);
+                            if(command_timestamp <= resource_timestamp)
+                            {
+                                string upgrades = "";
+                                if (resource.Length > 6)
+                                    upgrades = ("," + String.Join(",", resource.Skip(6)));
+
+                                string new_details = String.Format($@"{command_timestamp},{resource_timestamp},{command[1]},{command[2]},{command[3]}");
+                                new_details += String.Format($@",{resource[2]},{resource[3]},{resource[4]},{resource[5]}{upgrades}");
+
+                                //Add the new related details
+                                enemy_relatedmacro.Add(new_details);
+                                break;
+                            }
+                        }
+                    }
+
+                    macromacroresult.Add(new Tuple<string, string, string, string>(macromacro.Item1, macromacro.Item2, String.Join("\n", owned_relatedmacro), String.Join("\n", enemy_relatedmacro)));
                 }
             }
             catch(Exception ex)
@@ -454,6 +524,194 @@ namespace ModelService
             }
 
             return macromacroresult;
+        }
+
+        public class Pair<A, B>
+        {
+            public A Item1 { get; set; } = default(A);
+
+            public B Item2 { get; set; } = default(B);
+        }
+
+
+        public static Dictionary<string, Dictionary<string, Pair<double, List<CostWorth>>>> GenerateProbabilitiesAndWorthMatrix(List<Tuple<string, string, string, string>> macromacro)
+        {
+            var probabilitiesworthresult = new Dictionary<string, Dictionary<string, Pair<double, List<CostWorth>>>>();
+
+            try
+            {
+                for(int iterator = 0; iterator < macromacro.Count; iterator++)
+                {
+                    var current_player = macromacro[iterator].Item3.Split('\n');
+
+                    var preempt_command = current_player[0].Split(',');
+
+                    //The first command done by the player is not yet in probability matrix
+                    if (!probabilitiesworthresult.ContainsKey(preempt_command[3]))
+                    {
+                        probabilitiesworthresult.Add(preempt_command[3], new Dictionary<string, Pair<double, List<CostWorth>>>());
+
+                        //The first command does not yet have itself as the next command
+                        if(!probabilitiesworthresult[preempt_command[3]].ContainsKey(preempt_command[3]))
+                        {
+                            //Add a first count
+                            probabilitiesworthresult[preempt_command[3]].Add(preempt_command[3], new Pair<double, List<CostWorth>>() {
+                                Item1 = 1,
+                                Item2 = new List<CostWorth>()
+                            });
+
+                            probabilitiesworthresult[preempt_command[3]][preempt_command[3]].Item2.Add(new CostWorth(Convert.ToInt32(preempt_command[8]), Convert.ToDouble(preempt_command[5]), Convert.ToDouble(preempt_command[6]), Convert.ToInt32(preempt_command[7])));
+                        }
+                    }
+
+                    for(int builder = 0, count = (current_player.Length - 1); builder < count; builder++)
+                    {
+                        var current_command = current_player[builder].Split(',');
+                        var next_command = current_player[builder + 1].Split(',');
+
+                        //If the current command does not exist yet
+                        if (!probabilitiesworthresult.ContainsKey(current_command[3]))
+                            probabilitiesworthresult.Add(current_command[3], new Dictionary<string, Pair<double, List<CostWorth>>>());
+
+                        //If the next command does not exist yet
+                        if (!probabilitiesworthresult[current_command[3]].ContainsKey(next_command[3]))
+                            probabilitiesworthresult[current_command[3]].Add(next_command[3], new Pair<double, List<CostWorth>>()
+                            {
+                                Item1 = 1,
+                                Item2 = new List<CostWorth>()
+                                {
+                                    new CostWorth(Convert.ToInt32(current_command[8]), Convert.ToDouble(current_command[5]), Convert.ToDouble(current_command[6]), Convert.ToInt32(current_command[7]))
+                                }
+                            });
+                        else
+                        {
+                            probabilitiesworthresult[current_command[3]][next_command[3]].Item1++;
+                            probabilitiesworthresult[current_command[3]][next_command[3]].Item2.Add(new CostWorth(Convert.ToInt32(current_command[8]), Convert.ToDouble(current_command[5]), Convert.ToDouble(current_command[6]), Convert.ToInt32(current_command[7])));
+                        }
+
+                    }
+                }
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine($@"GenerateProbabilitiesAndWorthMatrix() -> {ex.Message}");
+                probabilitiesworthresult.Clear();
+            }
+
+            throw new NotImplementedException();
+            //return probabilitiesworthresult;
+        }
+
+        public static List<Tuple<string, string, string, string>> RelateMicroToMacroMacro(List<Tuple<string, string, string, string, string>> micromanagement, List<Tuple<string, string, string, string>> macromanagement)
+        {
+            var micromacromacroresult = new List<Tuple<string, string, string, string>>();
+
+            try
+            {
+                //Get the relationship between the macro_resource+commands and micromanagement
+                //by their origin replay filename
+                var micromacromacrorelation = (from macro in macromanagement
+                                               join micro in micromanagement on macro.Item2 equals micro.Item2
+                                               where macro.Item1 == micro.Item1
+                                               select (new Tuple<string, string, string, string, string, string>(macro.Item1, macro.Item2, macro.Item3, macro.Item4, micro.Item3, micro.Item4)));
+
+                foreach(var micromacromacro in micromacromacrorelation)
+                {
+                    var owned_resources = micromacromacro.Item3.Split('\n');
+                    var owned_units = micromacromacro.Item5.Split('\n');
+                    var enemy_resources = micromacromacro.Item4.Split('\n');
+                    var enemy_units = micromacromacro.Item6.Split('\n');
+
+                    var owned_relatedmicromacro = new List<string>();
+                    var enemy_relatedmicromacro = new List<string>();
+
+                    //Construct a database-like style. Relate the macro based on their time
+                    foreach(var owned_unit in owned_units)
+                    {
+                        var unit = owned_unit.Split(',');
+
+                        int unit_timestamp = Convert.ToInt32(unit[0]);
+                        foreach(var owned_resource in owned_resources)
+                        {
+                            var resource = owned_resource.Split(',');
+
+                            int resource_timestamp = Convert.ToInt32(resource[1]);
+                            if(unit_timestamp <= resource_timestamp)
+                            {
+                                string upgrades = "";
+                                if (resource.Length > 9)
+                                    upgrades = ("," + String.Join(",", resource.Skip(9)));
+
+                                string new_details = String.Format($@"{resource[0]},{resource[1]},{resource[2]},{resource[3]},{resource[4]}");
+                                var unit_worth = Types.Unit.Values[unit[3]];
+                                var resource_worth = new CostWorth(Convert.ToInt32(resource[8]), Convert.ToDouble(resource[5]), Convert.ToDouble(resource[6]), Convert.ToInt32(resource[7]));
+                                Tuple<string, string, string, string> new_worth = unit_worth + resource_worth;
+
+                                //Append the other stuff
+                                new_details += String.Format($@",{new_worth.Item2},{new_worth.Item3},{new_worth.Item4},{new_worth.Item1}{upgrades}");
+                                owned_relatedmicromacro.Add(new_details);
+                                break;
+                            }
+                        }
+                    }
+                    foreach(var enemy_unit in enemy_units)
+                    {
+                        var unit = enemy_unit.Split(',');
+
+                        int unit_timestamp = Convert.ToInt32(unit[0]);
+                        foreach(var enemy_resource in enemy_resources)
+                        {
+                            var resource = enemy_resource.Split(',');
+
+                            int resource_timestamp = Convert.ToInt32(resource[1]);
+                            if(unit_timestamp <= resource_timestamp)
+                            {
+                                string upgrades = "";
+                                if (resource.Length > 9)
+                                    upgrades = ("," + String.Join(",", resource.Skip(9)));
+
+                                string new_details = String.Format($@"{resource[0]},{resource[1]},{resource[2]},{resource[3]},{resource[4]}");
+                                var unit_worth = Types.Unit.Values[unit[3]];
+                                var resource_worth = new CostWorth(Convert.ToInt32(resource[8]), Convert.ToDouble(resource[5]), Convert.ToDouble(resource[6]), Convert.ToInt32(resource[7]));
+                                Tuple<string, string, string, string> new_worth = unit_worth + resource_worth;
+
+                                //Append the other stuff
+                                new_details += String.Format($@",{new_worth.Item2},{new_worth.Item3},{new_worth.Item4},{new_worth.Item1}{upgrades}");
+                                enemy_relatedmicromacro.Add(new_details);
+                                break;
+                            }
+                        }
+                    }
+
+                    micromacromacroresult.Add(new Tuple<string, string, string, string>(micromacromacro.Item1, micromacromacro.Item2, String.Join("\n", owned_relatedmicromacro), String.Join("\n", enemy_relatedmicromacro)));
+                }
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine($@"RelateMicroToMacroMacro() -> {ex.Message}");
+                micromacromacroresult.Clear();
+            }
+
+            return micromacromacroresult;
+        }
+
+        public static List<CostWorth> TestForEuclideanResult()
+        {
+            var results = new List<CostWorth>();
+            var resourcerepo = ReadResourcesRepository();
+
+            if(resourcerepo.Count > 0)
+            {
+                var test = resourcerepo[0].Item3.Split('\n');
+
+                foreach(var by15secs in test)
+                {
+                    var by15 = by15secs.Split(',');
+                    results.Add(new CostWorth(Convert.ToInt32(by15[5]), Convert.ToDouble(by15[2]), Convert.ToDouble(by15[3]), Convert.ToInt32(by15[4])));
+                }
+            }
+
+            return results;
         }
     }
 }

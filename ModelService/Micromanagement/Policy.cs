@@ -33,10 +33,11 @@ namespace ModelService.Micromanagement
         {
             try
             {
+                var random = Services.ModelRepositoryService.ModelService.GetModelService().RandomEngine;
                 var array_opposed_army = opposed_army.ToArray();
                 for (var focused_enumerator = focused_army.GetEnumerator(); focused_enumerator.MoveNext();)
                 {
-                    int selected_enemy = REngineExtensions.GetRandomGenerator().Next(0, array_opposed_army.Length), offset = 0;
+                    int selected_enemy = random.Next(0, array_opposed_army.Length), offset = 0;
 
                     //Continue to increase the offset if the current selected enemy cannot be targeted
                     //Stop if we return back to the original enemy unit

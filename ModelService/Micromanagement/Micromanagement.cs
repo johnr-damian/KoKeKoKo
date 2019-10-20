@@ -1,6 +1,7 @@
 ﻿using ModelService.Types;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ModelService.Micromanagement
 {
@@ -18,7 +19,7 @@ namespace ModelService.Micromanagement
         public string Filename { get; set; } = default(string);
 
         /// <summary>
-        /// A csv-based micromanagement. Represents a battle from a game observation
+        /// A csv-based micromanagement. Represents a battle from a file
         /// </summary>
         /// <param name="owned_units"></param>
         /// <param name="enemy_units"></param>
@@ -54,10 +55,13 @@ namespace ModelService.Micromanagement
             var dynamicbased_priority_results = new List<string>();
             var dynamicbased_resource_results = new List<string>();
 
+            var random = Services.ModelRepositoryService.ModelService.GetModelService();
+
             //Perform Simulations
             try
             {
                 Console.WriteLine($@"Simulating the battle of {Filename}...");
+                System.Diagnostics.Trace.WriteLine($@"Current replay file: {Rank}-{Filename}...");
 
                 for (int simulated = 0; simulated < number_of_simulations; simulated++)
                     lanchester_random_results.Add(LanchesterBasedPrediction(TargetPolicy.Random).Item1);
@@ -81,30 +85,28 @@ namespace ModelService.Micromanagement
             catch (ArgumentNullException ex)
             {
                 Console.WriteLine($@"GetMicromanagementAccuracyReport() [Simulation] -> {ex.Message}");
-                System.Diagnostics.Debugger.Break();
-                throw new Exception("");
+                throw new Exception(ex.Message);
             }
 
             //Perform Jaccard Operations
             try
             {
-                overall_results.Add(ModelRepositoryService.GetREngine().GetJaccardResult(lanchester_random_results, _postbattle.ToString()));
-                overall_results.Add(ModelRepositoryService.GetREngine().GetJaccardResult(lanchester_priority_results, _postbattle.ToString()));
-                overall_results.Add(ModelRepositoryService.GetREngine().GetJaccardResult(lanchester_resource_results, _postbattle.ToString()));
+                overall_results.Add(random.GetJaccardSimilarity(_postbattle.ToString(), lanchester_random_results).Average());
+                overall_results.Add(random.GetJaccardSimilarity(_postbattle.ToString(), lanchester_priority_results).Average());
+                overall_results.Add(random.GetJaccardSimilarity(_postbattle.ToString(), lanchester_resource_results).Average());
 
-                overall_results.Add(ModelRepositoryService.GetREngine().GetJaccardResult(staticbased_random_results, _postbattle.ToString()));
-                overall_results.Add(ModelRepositoryService.GetREngine().GetJaccardResult(staticbased_priority_results, _postbattle.ToString()));
-                overall_results.Add(ModelRepositoryService.GetREngine().GetJaccardResult(staticbased_resource_results, _postbattle.ToString()));
+                overall_results.Add(random.GetJaccardSimilarity(_postbattle.ToString(), staticbased_random_results).Average());
+                overall_results.Add(random.GetJaccardSimilarity(_postbattle.ToString(), staticbased_priority_results).Average());
+                overall_results.Add(random.GetJaccardSimilarity(_postbattle.ToString(), staticbased_resource_results).Average());
 
-                overall_results.Add(ModelRepositoryService.GetREngine().GetJaccardResult(dynamicbased_random_results, _postbattle.ToString()));
-                overall_results.Add(ModelRepositoryService.GetREngine().GetJaccardResult(dynamicbased_priority_results, _postbattle.ToString()));
-                overall_results.Add(ModelRepositoryService.GetREngine().GetJaccardResult(dynamicbased_resource_results, _postbattle.ToString()));
+                overall_results.Add(random.GetJaccardSimilarity(_postbattle.ToString(), dynamicbased_random_results).Average());
+                overall_results.Add(random.GetJaccardSimilarity(_postbattle.ToString(), dynamicbased_priority_results).Average());
+                overall_results.Add(random.GetJaccardSimilarity(_postbattle.ToString(), dynamicbased_resource_results).Average());
             }
             catch (ArgumentNullException ex)
             {
                 Console.WriteLine($@"GetMicromanagementAccuracyReport() [Jaccard] -> {ex.Message}");
-                System.Diagnostics.Debugger.Break();
-                throw new Exception("");
+                throw new Exception(ex.Message);
             }
 
             return overall_results;
@@ -113,6 +115,7 @@ namespace ModelService.Micromanagement
         public static List<double> GetMicromanagementAccuracyReport(List<List<double>> combat_results)
         {
             var accuracy_results = new List<double>();
+            var random = Services.ModelRepositoryService.ModelService.GetModelService();
 
             try
             {
@@ -124,7 +127,7 @@ namespace ModelService.Micromanagement
                         results.Add(combat_result[algorithmpolicy]);
 
                     //Get the standard deviation of results
-                    accuracy_results.Add(REngineExtensions.GetStandardDeviation(results));
+                    accuracy_results.Add(random.GetStandardDeviation(results));
                 }
             }
             catch(Exception ex)

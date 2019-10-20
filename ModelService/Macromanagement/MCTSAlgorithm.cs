@@ -102,7 +102,51 @@ namespace ModelService.Macromanagement
                 protected override IEnumerable<string> GeneratePotentialActions()
                 {
                     var Possible_Actions = new Queue<string>();
-
+                    var unitListGlobal = new List<string>();
+                    foreach (var unit in Current_Owned_Agent.Units)
+                    {
+                        if (!unitListGlobal.Contains(unit.Name))
+                            unitListGlobal.Add(unit.Name);
+                    }
+                    foreach (var unit in Current_Owned_Agent.Units)
+                    {
+                        switch (unit.Name)
+                        {
+                            case "TERRAN_SCV":
+                            case "TERRAN_HELLION":
+                                Possible_Actions.Enqueue("MORPH_HELLBAT");
+                                break;
+                            case "TERRAN_HELLIONTANK":
+                                Possible_Actions.Enqueue("MORPH_HELLION");
+                                break;
+                            case "TERRAN_SIEGETANK":
+                                Possible_Actions.Enqueue("MORPH_SIEGEMODE");
+                                break;
+                            case "TERRAN_SIEGETANKSIEGED":
+                                Possible_Actions.Enqueue("MORPH_UNSIEGE");
+                                break;
+                            case "TERRAN_VIKINGASSAULT":
+                                Possible_Actions.Enqueue("MORPH_VIKINGFIGHTERMODE");
+                                break;
+                            case "TERRAN_VIKINGFIGHTER":
+                                Possible_Actions.Enqueue("MORPH_VIKINGASSAULTMODE");
+                                break;
+                            case "TERRAN_LIBERATOR":
+                                Possible_Actions.Enqueue("MORPH_LIBERATORAGMODE");
+                                break;
+                            case "TERRAN_LIBERATORAG":
+                                Possible_Actions.Enqueue("MORPH_LIBERATORAAMODE");
+                                break;
+                            case "TERRAN_RAVEN":
+                                Possible_Actions.Enqueue("EFFECT_AUTOTURRET");
+                                break;
+                            case "TERRAN_ORBITALCOMMAND":
+                                Possible_Actions.Enqueue("EFFECT_CALLDOWNMULE");
+                                break;
+                            default:
+                                break;
+                        }
+                    }
                     if (Current_Owned_Agent.Minerals >= 400 && Current_Owned_Agent.Vespene >= 300)
                     {
                         var unitList = new List<string>();
@@ -1493,7 +1537,6 @@ namespace ModelService.Macromanagement
                         if (unitList.Contains("TERRAN_STARPORT"))
                             Possible_Actions.Enqueue("TRAIN_RAVEN");
                     }
-                    var unitListGlobal = new List<string>();
                     foreach (var unit in Current_Owned_Agent.Units)
                     {
                         if (!unitListGlobal.Contains(unit.Name))

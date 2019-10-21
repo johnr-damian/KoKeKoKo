@@ -127,8 +127,8 @@ namespace ModelService.Macromanagement
 
 
 
-            string owned_basis = String.Join(",", Owned_Agent.Basis.Select(basis => Convert.ToDouble(basis.Item3)));
-            var owned_results_mcts = mcts_results.Select(result => String.Join(",", result.Select(costworth => Convert.ToDouble(costworth))));
+            string owned_basis = String.Join(",", Owned_Agent.Basis.Select(basis => Convert.ToDouble(basis.Item3)).Take(5));
+            var owned_results_mcts = mcts_results.Select(result => String.Join(",", result.Select(costworth => Convert.ToDouble(costworth)))).Take(5);
 
             yield return random.GetEuclideanMetric(owned_basis, owned_results_mcts);
         }

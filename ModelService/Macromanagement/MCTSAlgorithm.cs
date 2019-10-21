@@ -719,6 +719,11 @@ namespace ModelService.Macromanagement
                         System.Diagnostics.Debugger.Break();
                         throw new Exception("An error occurred! Failed to simulate due to an unknown action...");
                     }
+                    catch(NullReferenceException ex)
+                    {
+                        System.Diagnostics.Debugger.Break();
+                        throw new Exception("An error occurred! Failed to simulate due to having no action...");
+                    }
                 }
             }
 
@@ -726,7 +731,7 @@ namespace ModelService.Macromanagement
                 : base(owned_agent, enemy_agent)
             {
                 Max_Depth = Math.Max(owned_agent.Potential_Depth, enemy_agent.Potential_Depth);
-                Root_Node = new MCTSNode(null, owned_agent, enemy_agent, Max_Depth);
+                Root_Node = new MCTSNode(null, owned_agent, enemy_agent, 10);
                 Current_Node = Root_Node;
             }
 

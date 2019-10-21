@@ -215,6 +215,14 @@ namespace ModelService.Services
                 }
 
             }
+
+            public void CreateLinePlot(string filename, params string[] results)
+            {
+                for (int uid = 0; uid < results.Length; uid++)
+                    REngine.Evaluate($@"Algorithm{uid} <- c({results[uid]})");
+
+                
+            }
         }
     }
 }

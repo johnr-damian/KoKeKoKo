@@ -74,10 +74,8 @@ namespace ModelService.Macromanagement
             return stuff;
         }
 
-        public List<double> GetMacromanagementAccuracyReport(int number_of_simulations, AIAlgorithm algorithm)
+        public IEnumerable<IEnumerable<double>> GetMacromanagementAccuracyReport(int number_of_simulations, AIAlgorithm algorithm)
         {
-            var overall_results = new List<double>();
-
             var pomdp_results = new List<List<CostWorth>>();
             var mcts_results = new List<List<CostWorth>>();
 
@@ -120,19 +118,60 @@ namespace ModelService.Macromanagement
             //Perform Euclidean Operations
             try
             {
-                var owned_basis = String.Join(",", Owned_Agent.Basis.Select(basis => Convert.ToDouble(basis.Item3)));
                 var enemy_basis = String.Join(",", Enemy_Agent.Basis.Select(basis => Convert.ToDouble(basis.Item3)));
-
-                var owned_results_mcts = mcts_results.Select(result => String.Join(",", result.Select(costworth => Convert.ToDouble(costworth))));
-
-                overall_results.Add(random.GetEuclideanMetric(owned_basis, owned_results_mcts).Average());
             }
             catch(ArgumentNullException ex)
             {
 
             }
 
-            return overall_results;
+
+
+            string owned_basis = String.Join(",", Owned_Agent.Basis.Select(basis => Convert.ToDouble(basis.Item3)));
+            var owned_results_mcts = mcts_results.Select(result => String.Join(",", result.Select(costworth => Convert.ToDouble(costworth))));
+
+            yield return random.GetEuclideanMetric(owned_basis, owned_results_mcts);
+        }
+
+        public static List<double> GetMacromanagementAccuracyReport(string rank, List<IEnumerable<IEnumerable<double>>> combat_results)
+        {
+            var random = Services.ModelRepositoryService.ModelService.GetModelService();
+
+            //For each filename, contains the average results of their algorithm policy
+            //This becomes per algorithm containing average results each filename
+            var accuracyresult_peralgorithmeachfilename = new List<List<double>>();
+
+            //The euclidean of each results
+            var accuracyreport = new List<double>();
+
+            try
+            {
+                //Get the average per algorithm of each filename
+                for(int algorithm = 0; algorithm < 1; algorithm++)
+                {
+                    accuracyresult_peralgorithmeachfilename.Add(new List<double>());
+
+                    foreach(var combat_result in combat_results)
+                    {
+                        var current_algorithm = combat_result.ToList();
+
+                        accuracyresult_peralgorithmeachfilename[algorithm].Add(current_algorithm[algorithm].Average());
+                    }
+                }
+
+                //Create Boxplot
+                var resultstring = accuracyresult_peralgorithmeachfilename.Select(result => String.Join(",", result));
+                random.CreateBoxPlot(rank, resultstring.ToArray());
+
+                for (int algorithm = 0; algorithm < 1; algorithm++)
+                    accuracyreport.Add(random.GetStandardDeviation(accuracyresult_peralgorithmeachfilename[algorithm]));
+            }
+            catch(Exception ex)
+            {
+
+            }
+
+            return accuracyreport;
         }
     }
 }

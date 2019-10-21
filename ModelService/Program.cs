@@ -82,11 +82,11 @@ namespace ModelService
                     //    Console.WriteLine();
                     //}
                     //Group the macromanagement battles by their rank
-                    var perrank_macromanagement = macromanagement_battles.GroupBy(rank => rank.Rank).ToDictionary(key => key.Key, value => value.Take(1).ToList()).Take(1);
+                    var perrank_macromanagement = macromanagement_battles.GroupBy(rank => rank.Rank).ToDictionary(key => key.Key, value => value.ToList()).Take(1);
                     //For every macromanagement battle per rank, do the prediction and store it
                     var perrankresult_macromanagement = perrank_macromanagement.ToDictionary(key => key.Key, value =>
                     {
-                        var macromanagement_battleresults = new List<List<double>>();
+                        var macromanagement_battleresults = new List<IEnumerable<IEnumerable<double>>>();
 
                         foreach (var macromanagement_battleresult in value.Value)
                             macromanagement_battleresults.Add(macromanagement_battleresult.GetMacromanagementAccuracyReport(1, Macromanagement.Macromanagement.AIAlgorithm.MCTS));
@@ -94,8 +94,13 @@ namespace ModelService
                         return macromanagement_battleresults;
                     });
                     //Get the final result per algorithm
-                    foreach (var r in macromanagement_battles.Take(1))
-                        Console.WriteLine(r.ToString());
+                    var macromanagement_accuracyreports = perrankresult_macromanagement.ToDictionary(key => key.Key, value => Macromanagement.Macromanagement.GetMacromanagementAccuracyReport(value.Key, value.Value));
+                    //Print the results per rank
+                    foreach(var accuracy_report in macromanagement_accuracyreports)
+                    {
+                        Console.WriteLine($@"Rank: {accuracy_report.Key}");
+                        Console.WriteLine($@"MCTS: {accuracy_report.Value[0] * 100}%");
+                    }
 
 
                     Console.WriteLine("Finished performing accuracy reports! Please enter to continue...");

@@ -41,8 +41,6 @@ namespace ModelService.Micromanagement
 
         public IEnumerable<IEnumerable<double>> GetMicromanagementAccuracyReport(int number_of_simulations)
         {
-            var overall_results = new List<double>();
-
             var lanchester_random_results = new List<string>();
             var lanchester_priority_results = new List<string>();
             var lanchester_resource_results = new List<string>();
@@ -101,35 +99,6 @@ namespace ModelService.Micromanagement
             var dynamic_priority_plot = random.GetJaccardSimilarity(_postbattle.ToString(), dynamicbased_priority_results);
             var dynamic_resource_plot = random.GetJaccardSimilarity(_postbattle.ToString(), dynamicbased_resource_results);
 
-            //try
-            //{
-                
-
-            //    //random.CreateBoxPlot(
-            //    //    String.Join(",", lanchester_random_plot), String.Join(",", lanchester_priority_plot), String.Join(",", lanchester_resource_plot),
-            //    //    String.Join(",", static_random_plot), String.Join(",", static_priority_plot), String.Join(",", static_resource_plot),
-            //    //    String.Join(",", dynamic_random_plot), String.Join(",", dynamic_priority_plot), String.Join(",", dynamic_resource_plot));
-
-            //    //overall_results.Add(lanchester_random_plot.Average());
-            //    //overall_results.Add(lanchester_priority_plot.Average());
-            //    //overall_results.Add(lanchester_resource_plot.Average());
-
-            //    //overall_results.Add(static_random_plot.Average());
-            //    //overall_results.Add(static_priority_plot.Average());
-            //    //overall_results.Add(static_resource_plot.Average());
-
-            //    //overall_results.Add(dynamic_random_plot.Average());
-            //    //overall_results.Add(dynamic_priority_plot.Average());
-            //    //overall_results.Add(dynamic_resource_plot.Average());
-            //}
-            //catch (ArgumentNullException ex)
-            //{
-            //    Console.WriteLine($@"GetMicromanagementAccuracyReport() [Jaccard] -> {ex.Message}");
-            //    throw new Exception(ex.Message);
-            //}
-
-            //return overall_results;
-
             yield return lanchester_random_plot;
             yield return lanchester_priority_plot;
             yield return lanchester_resource_plot;
@@ -141,33 +110,6 @@ namespace ModelService.Micromanagement
             yield return dynamic_random_plot;
             yield return dynamic_priority_plot;
             yield return dynamic_resource_plot;
-        }
-
-        public static List<double> GetMicromanagementAccuracyReport(List<List<double>> combat_results)
-        {
-            var accuracy_results = new List<double>();
-            var random = Services.ModelRepositoryService.ModelService.GetModelService();
-
-            try
-            {
-                //Get the results of each algorithm+policy across the multiple files
-                for (int algorithmpolicy = 0; algorithmpolicy < 9; algorithmpolicy++)
-                {
-                    var results = new List<double>();
-                    foreach (var combat_result in combat_results)
-                        results.Add(combat_result[algorithmpolicy]);
-
-                    //Get the standard deviation of results
-                    accuracy_results.Add(random.GetStandardDeviation(results));
-                }
-            }
-            catch(Exception ex)
-            {
-                Console.WriteLine($@"GetMicromanagementAccuracyReport() -> {ex.Message}");
-                accuracy_results.Clear();
-            }
-
-            return accuracy_results;
         }
                                                                        //Filename -> Algorithm -> Result
         public static List<double> GetMicromanagementAccuracyReport(string rank, List<IEnumerable<IEnumerable<double>>> combat_results)

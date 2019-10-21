@@ -84,15 +84,23 @@ namespace ModelService.Macromanagement
 
                 protected override void ExpandCurrentNode()
                 {
-                    var actions = GeneratePotentialActions().Distinct().ToList();
+                    var raw_actions = GeneratePotentialActions().ToList();
+                    var actions = raw_actions.Distinct().ToList();
                     var uniquemapping_probability = new Dictionary<string, Tuple<double, double>>();
-                    for (double probability = ((100 / ((double)actions.Count)) / 100), count = 0, start = 0; count < actions.Count; start += probability, count += 1)
-                        uniquemapping_probability.Add(actions[Convert.ToInt32(count)], new Tuple<double, double>(start, start + probability));
+                    for (double count = 0, start = 0; count < actions.Count; count += 1)
+                    {
+                        double relative_count = raw_actions.Count(action => action == actions[Convert.ToInt32(count)]);
+                        var relative_probability = (relative_count / raw_actions.Count);
+                        var probability = start + relative_probability;
+
+                        uniquemapping_probability.Add(actions[Convert.ToInt32(count)], new Tuple<double, double>(start, probability));
+                        start = probability;
+                    }
 
                     var random = Services.ModelRepositoryService.ModelService.GetModelService().RandomEngine;
 
                     
-                    for(int iterator = 0; iterator < actions.Count; iterator++)
+                    for(int iterator = 0, count = (actions.Count * 2); iterator < count; iterator++)
                     {
                         var child = new MCTSNode(this, Current_Owned_Agent.GetDeepCopy(), Current_Enemy_Agent.GetDeepCopy(), Max_Depth);
                         string owned_action = "", enemy_action = "";
@@ -164,7 +172,7 @@ namespace ModelService.Macromanagement
                                         Possible_Actions.Enqueue("BUILD_MISSILETURRET");
                                         Possible_Actions.Enqueue("BUILD_SENSORTOWER");
                                     }
-                                }                            
+                                }
                                 else if (Current_Owned_Agent.Minerals >= 150 && Current_Owned_Agent.Vespene >= 150)
                                 {
                                     Possible_Actions.Enqueue("BUILD_REFINERY");
@@ -318,6 +326,8 @@ namespace ModelService.Macromanagement
                                         Possible_Actions.Enqueue("BUILD_MISSILETURRET");
                                     }
                                 }
+
+                                Possible_Actions.Enqueue("HARVEST_RETURN");
                                 break;
                             case "TERRAN_COMMANDCENTER":
                                 if (Current_Owned_Agent.Minerals >= 150 && Current_Owned_Agent.Vespene >= 150)
@@ -699,7 +709,7 @@ namespace ModelService.Macromanagement
                         Current_Enemy_Agent.Chosen_Action = actions[1];
                         Current_Enemy_Agent.ApplyAction(actions[1]);
 
-                        if (Current_Owned_Agent.Worth >= Current_Enemy_Agent.Worth)
+                        if (Current_Owned_Agent.Worth.GetTotalWorth(0, 0.335, 0.335, 0.33) >= Current_Enemy_Agent.Worth.GetTotalWorth(0, 0.335, 0.335, 0.33))
                             WonBackpropagate();
                         else
                             Backpropagate();

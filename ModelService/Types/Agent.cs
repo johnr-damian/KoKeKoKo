@@ -381,7 +381,7 @@ namespace ModelService.Types
                     Units = new_units.ToArmy();
                     break;
                 case "BUILD_MISSILETURRET":
-                    Worth += new CostWorth(Worth.Priority + Unit.Values["TERRAN_MISSILETURRET"].Priority, Worth.Mineral + Unit.Values["TERRAN_MISSILETURRET"].Mineral, Unit.Values["TERRAN_FUSIONCORET"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_MISSILETURRET"].Supply);
+                    Worth += new CostWorth(Worth.Priority + Unit.Values["TERRAN_MISSILETURRET"].Priority, Worth.Mineral + Unit.Values["TERRAN_MISSILETURRET"].Mineral, Unit.Values["TERRAN_MISSILETURRET"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_MISSILETURRET"].Supply);
                     new_units.Add(new Unit(Convert.ToInt64(DateTime.Now.Subtract(Created_Time).TotalSeconds), Owner, new_units.Count.ToString(), "TERRAN_MISSILETURRET", 0, 0));
                     Units = new_units.ToArmy();
                     break;

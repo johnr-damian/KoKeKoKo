@@ -164,7 +164,8 @@ namespace ModelService.Macromanagement
                 random.CreateBoxPlot(rank, resultstring.ToArray());
 
                 for (int algorithm = 0; algorithm < 1; algorithm++)
-                    accuracyreport.Add(random.GetStandardDeviation(accuracyresult_peralgorithmeachfilename[algorithm]));
+                    //accuracyreport.Add(random.GetStandardDeviation(accuracyresult_peralgorithmeachfilename[algorithm]));
+                    accuracyreport.Add(accuracyresult_peralgorithmeachfilename[algorithm].Average());
             }
             catch(Exception ex)
             {

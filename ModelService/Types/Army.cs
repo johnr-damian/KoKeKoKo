@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using ModelService.ValueTypes;
 
 namespace ModelService.Types
 {
@@ -167,6 +168,8 @@ namespace ModelService.Types
         /// </summary>
         /// <returns></returns>
         public Army GetDeepCopy() => new Army(String.Copy(_raw_units));
+
+        public Army GetMacroDeepCopy() => new Army(new List<Unit>(_units.Select(unit => unit.GetDeepCopy())));
 
         /// <summary>
         /// Returns a message-ready format that can be send to agent. The message format is:

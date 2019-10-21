@@ -122,8 +122,8 @@ namespace ModelService.Services
             /// <remarks>
             /// <para>
             ///     For <see cref="Macromanagement.Macromanagement"/> this assumes that the <paramref name="origin"/> and
-            ///     the <paramref name="results"/> are the <see cref="Types.CostWorth.GetTotalWorth()"/> of a specific player's 
-            ///     perspective of a battle. It expects to receive the <see cref="Types.CostWorth.GetTotalWorth()"/> joined by
+            ///     the <paramref name="results"/> are the <see cref="ValueTypes.CostWorth.GetTotalWorth()"/> of a specific player's 
+            ///     perspective of a battle. It expects to receive the <see cref="ValueTypes.CostWorth.GetTotalWorth()"/> joined by
             ///     a comma.
             /// </para>
             /// </remarks>
@@ -186,6 +186,35 @@ namespace ModelService.Services
             /// <param name="results"></param>
             /// <returns></returns>
             public double GetStandardDeviation(IEnumerable<double> results) => Math.Sqrt(GetVariance(results));
+
+            /// <summary>
+            /// Creates a box plot using <see cref="REngine"/> and saves it to your D:// drive.
+            /// </summary>
+            /// <param name="filename"></param>
+            /// <param name="results"></param>
+            public void CreateBoxPlot(string filename, params string[] results)
+            {
+                for(int uid = 0; uid < results.Length; uid++)
+                    REngine.Evaluate($@"Algorithm{uid} <- c({results[uid]})");
+
+                //There is a data to be plot
+                if(results.Length > 0)
+                {
+                    string dataframe = "Algorithm0";
+                    for (int uid = 1; uid < results.Length; uid++)
+                        dataframe += ("," + $"Algorithm{uid}");
+
+                    REngine.Evaluate($@"boxplotdata <- data.frame({dataframe})");
+#if DEBUG
+                    REngine.Evaluate($@"png('D:\\Training{filename}.png')");
+#elif TRACE
+                    REngine.Evaluate($@"png('D:\\Testing{filename}.png')");
+#endif
+                    REngine.Evaluate($@"boxplot(boxplotdata, main=""Battle Prediction Accuracy"", xlab=""Prediction Algorithms"", ylab=""Jaccard Similarity"", col=""lightblue"", border=""blue"", notch=TRUE, range=0, horizontal=TRUE)");
+                    REngine.Evaluate($@"dev.off()");
+                }
+
+            }
         }
     }
 }

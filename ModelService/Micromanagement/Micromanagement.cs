@@ -1,6 +1,7 @@
 ﻿using ModelService.Types;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ModelService.Micromanagement
 {
@@ -18,7 +19,7 @@ namespace ModelService.Micromanagement
         public string Filename { get; set; } = default(string);
 
         /// <summary>
-        /// A csv-based micromanagement. Represents a battle from a game observation
+        /// A csv-based micromanagement. Represents a battle from a file
         /// </summary>
         /// <param name="owned_units"></param>
         /// <param name="enemy_units"></param>
@@ -38,10 +39,8 @@ namespace ModelService.Micromanagement
         public Micromanagement(Army owned_units, Army enemy_units)
             : this(owned_units, enemy_units, null) { }
 
-        public List<double> GetMicromanagementAccuracyReport(int number_of_simulations)
+        public IEnumerable<IEnumerable<double>> GetMicromanagementAccuracyReport(int number_of_simulations)
         {
-            var overall_results = new List<double>();
-
             var lanchester_random_results = new List<string>();
             var lanchester_priority_results = new List<string>();
             var lanchester_resource_results = new List<string>();
@@ -53,6 +52,8 @@ namespace ModelService.Micromanagement
             var dynamicbased_random_results = new List<string>();
             var dynamicbased_priority_results = new List<string>();
             var dynamicbased_resource_results = new List<string>();
+
+            var random = Services.ModelRepositoryService.ModelService.GetModelService();
 
             //Perform Simulations
             try
@@ -82,62 +83,75 @@ namespace ModelService.Micromanagement
             catch (ArgumentNullException ex)
             {
                 Console.WriteLine($@"GetMicromanagementAccuracyReport() [Simulation] -> {ex.Message}");
-                System.Diagnostics.Debugger.Break();
-                throw new Exception("");
+                throw new Exception(ex.Message);
             }
 
             //Perform Jaccard Operations
-            try
-            {
-                overall_results.Add(ModelRepositoryService.GetREngine().GetJaccardResult(lanchester_random_results, _postbattle.ToString()));
-                overall_results.Add(ModelRepositoryService.GetREngine().GetJaccardResult(lanchester_priority_results, _postbattle.ToString()));
-                overall_results.Add(ModelRepositoryService.GetREngine().GetJaccardResult(lanchester_resource_results, _postbattle.ToString()));
+            var lanchester_random_plot = random.GetJaccardSimilarity(_postbattle.ToString(), lanchester_random_results);
+            var lanchester_priority_plot = random.GetJaccardSimilarity(_postbattle.ToString(), lanchester_priority_results);
+            var lanchester_resource_plot = random.GetJaccardSimilarity(_postbattle.ToString(), lanchester_resource_results);
 
-                overall_results.Add(ModelRepositoryService.GetREngine().GetJaccardResult(staticbased_random_results, _postbattle.ToString()));
-                overall_results.Add(ModelRepositoryService.GetREngine().GetJaccardResult(staticbased_priority_results, _postbattle.ToString()));
-                overall_results.Add(ModelRepositoryService.GetREngine().GetJaccardResult(staticbased_resource_results, _postbattle.ToString()));
+            var static_random_plot = random.GetJaccardSimilarity(_postbattle.ToString(), staticbased_random_results);
+            var static_priority_plot = random.GetJaccardSimilarity(_postbattle.ToString(), staticbased_priority_results);
+            var static_resource_plot = random.GetJaccardSimilarity(_postbattle.ToString(), staticbased_resource_results);
 
-                overall_results.Add(ModelRepositoryService.GetREngine().GetJaccardResult(dynamicbased_random_results, _postbattle.ToString()));
-                overall_results.Add(ModelRepositoryService.GetREngine().GetJaccardResult(dynamicbased_priority_results, _postbattle.ToString()));
-                overall_results.Add(ModelRepositoryService.GetREngine().GetJaccardResult(dynamicbased_resource_results, _postbattle.ToString()));
-            }
-            catch (ArgumentNullException ex)
-            {
-                Console.WriteLine($@"GetMicromanagementAccuracyReport() [Jaccard] -> {ex.Message}");
-                System.Diagnostics.Debugger.Break();
-                throw new Exception("");
-            }
+            var dynamic_random_plot = random.GetJaccardSimilarity(_postbattle.ToString(), dynamicbased_random_results);
+            var dynamic_priority_plot = random.GetJaccardSimilarity(_postbattle.ToString(), dynamicbased_priority_results);
+            var dynamic_resource_plot = random.GetJaccardSimilarity(_postbattle.ToString(), dynamicbased_resource_results);
 
-            return overall_results;
+            yield return lanchester_random_plot;
+            yield return lanchester_priority_plot;
+            yield return lanchester_resource_plot;
+
+            yield return static_random_plot;
+            yield return static_priority_plot;
+            yield return static_resource_plot;
+
+            yield return dynamic_random_plot;
+            yield return dynamic_priority_plot;
+            yield return dynamic_resource_plot;
         }
-
-        public static List<double> GetMicromanagementAccuracyReport(List<List<double>> combat_results)
+                                                                       //Filename -> Algorithm -> Result
+        public static List<double> GetMicromanagementAccuracyReport(string rank, List<IEnumerable<IEnumerable<double>>> combat_results)
         {
-            var accuracy_results = new List<double>();
+            var random = Services.ModelRepositoryService.ModelService.GetModelService();
+
+            //For each filename, contains the average results of their algorithm policy
+            //This becomes per algorithm policy containing the average of their results each filename
+            var accuracyresult_peralgorithmeachfilename = new List<List<double>>();
+
+            //The standard deviation of each results
+            var accuracyreport = new List<double>();
 
             try
             {
-                //Get the results of each algorithm+policy across the multiple files
-                for (int algorithmpolicy = 0; algorithmpolicy < 9; algorithmpolicy++)
+                //Get the average per algorithm policy of each filename
+                for(int algorithmpolicy = 0; algorithmpolicy < 9; algorithmpolicy++)
                 {
-                    var results = new List<double>();
-                    foreach (var combat_result in combat_results)
-                        results.Add(combat_result[algorithmpolicy]);
+                    accuracyresult_peralgorithmeachfilename.Add(new List<double>());
 
-                    //Get the standard deviation of results
-                    accuracy_results.Add(REngineExtensions.GetStandardDeviation(results));
+                    foreach(var combat_result in combat_results)
+                    {
+                        var current_algorithmresult = combat_result.ToList();
+
+                        accuracyresult_peralgorithmeachfilename[algorithmpolicy].Add(current_algorithmresult[algorithmpolicy].Average());
+                    }
                 }
+
+                //Create Boxplot
+                var resultsstring = accuracyresult_peralgorithmeachfilename.Select(result => String.Join(",", result));
+                random.CreateBoxPlot(rank, resultsstring.ToArray());
+
+                for (int algorithmpolicy = 0; algorithmpolicy < 9; algorithmpolicy++)
+                    accuracyreport.Add(random.GetStandardDeviation(accuracyresult_peralgorithmeachfilename[algorithmpolicy]));
             }
             catch(Exception ex)
             {
-                Console.WriteLine($@"GetMicromanagementAccuracyReport() -> {ex.Message}");
-                accuracy_results.Clear();
+
             }
 
-            return accuracy_results;
+            return accuracyreport;
         }
-
-
     }
 
     /// <summary>

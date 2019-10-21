@@ -188,103 +188,238 @@ namespace ModelService.Types
         /// When the action is applied, update the necessary information
         /// </summary>
         /// <param name="action"></param>
+        /// 
         public void ApplyAction(string action)
         {
-            switch(action)
+            var new_units = Units.ToList(); //cannot redeclare on each case so this has been put outside of swtitch case
+            switch (action)
             {
-                //Barracks Units
                 case "TRAIN_SCV":
                     Worth += new CostWorth(Worth.Priority + Unit.Values["TERRAN_SCV"].Priority, Worth.Mineral + Unit.Values["TERRAN_SCV"].Mineral, Unit.Values["TERRAN_SCV"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_SCV"].Supply);
-                    var new_units = Units.ToList();
                     new_units.Add(new Unit(Convert.ToInt64(DateTime.Now.Subtract(Created_Time).TotalSeconds), Owner, new_units.Count.ToString(), "TERRAN_SCV", 0, 0));
                     Units = new_units.ToArmy();
                     break;
+                //Barracks Units
                 case "TRAIN_MARINE":
                     Worth += new CostWorth(Worth.Priority + Unit.Values["TERRAN_MARINE"].Priority, Worth.Mineral + Unit.Values["TERRAN_MARINE"].Mineral, Unit.Values["TERRAN_MARINE"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_MARINE"].Supply);
+                    new_units.Add(new Unit(Convert.ToInt64(DateTime.Now.Subtract(Created_Time).TotalSeconds), Owner, new_units.Count.ToString(), "TERRAN_MARINE", 0, 0));
+                    Units = new_units.ToArmy();
                     break;
                 case "TRAIN_REAPER":
                     Worth += new CostWorth(Worth.Priority + Unit.Values["TERRAN_REAPER"].Priority, Worth.Mineral + Unit.Values["TERRAN_REAPER"].Mineral, Unit.Values["TERRAN_REAPER"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_REAPER"].Supply);
+                    new_units.Add(new Unit(Convert.ToInt64(DateTime.Now.Subtract(Created_Time).TotalSeconds), Owner, new_units.Count.ToString(), "TERRAN_REAPER", 0, 0));
+                    Units = new_units.ToArmy();
                     break;
                 case "TRAIN_MARAUDER":
                     Worth += new CostWorth(Worth.Priority + Unit.Values["TERRAN_MARAUDER"].Priority, Worth.Mineral + Unit.Values["TERRAN_MARAUDER"].Mineral, Unit.Values["TERRAN_MARAUDER"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_MARAUDER"].Supply);
+                    new_units.Add(new Unit(Convert.ToInt64(DateTime.Now.Subtract(Created_Time).TotalSeconds), Owner, new_units.Count.ToString(), "MARAUDER", 0, 0));
+                    Units = new_units.ToArmy();
                     break;
                 case "TRAIN_GHOST":
                     Worth += new CostWorth(Worth.Priority + Unit.Values["TERRAN_GHOST"].Priority, Worth.Mineral + Unit.Values["TERRAN_GHOST"].Mineral, Unit.Values["TERRAN_GHOST"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_GHOST"].Supply);
+                    new_units.Add(new Unit(Convert.ToInt64(DateTime.Now.Subtract(Created_Time).TotalSeconds), Owner, new_units.Count.ToString(), "TERRAN_GHOST", 0, 0));
+                    Units = new_units.ToArmy();
                     break;
                 //Factory Units
                 case "TRAIN_SIEGETANK":
                     Worth += new CostWorth(Worth.Priority + Unit.Values["TERRAN_SIEGETANK"].Priority, Worth.Mineral + Unit.Values["TERRAN_SIEGETANK"].Mineral, Unit.Values["TERRAN_SIEGETANK"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_SIEGETANK"].Supply);
+                    new_units.Add(new Unit(Convert.ToInt64(DateTime.Now.Subtract(Created_Time).TotalSeconds), Owner, new_units.Count.ToString(), "TERRAN_SIEGETANK", 0, 0));
+                    Units = new_units.ToArmy();
                     break;
                 case "TRAIN_HELLION":
                     Worth += new CostWorth(Worth.Priority + Unit.Values["TERRAN_HELLION"].Priority, Worth.Mineral + Unit.Values["TERRAN_HELLION"].Mineral, Unit.Values["TERRAN_HELLION"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_HELLION"].Supply);
+                    new_units.Add(new Unit(Convert.ToInt64(DateTime.Now.Subtract(Created_Time).TotalSeconds), Owner, new_units.Count.ToString(), "TERRAN_HELLION", 0, 0));
+                    Units = new_units.ToArmy();
                     break;
                 case "TRAIN_HELLBAT":
                     Worth += new CostWorth(Worth.Priority + Unit.Values["TERRAN_HELLBAT"].Priority, Worth.Mineral + Unit.Values["TERRAN_HELLBAT"].Mineral, Unit.Values["TERRAN_HELLBAT"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_HELLBAT"].Supply);
+                    new_units.Add(new Unit(Convert.ToInt64(DateTime.Now.Subtract(Created_Time).TotalSeconds), Owner, new_units.Count.ToString(), "TERRAN_HELLBAT", 0, 0));
+                    Units = new_units.ToArmy();
                     break;
                 case "TRAIN_CYCLONE":
                     Worth += new CostWorth(Worth.Priority + Unit.Values["TERRAN_CYCLONE"].Priority, Worth.Mineral + Unit.Values["TERRAN_CYCLONE"].Mineral, Unit.Values["TERRAN_CYCLONE"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_CYCLONE"].Supply);
+                    new_units.Add(new Unit(Convert.ToInt64(DateTime.Now.Subtract(Created_Time).TotalSeconds), Owner, new_units.Count.ToString(), "TERRAN_CYCLONE", 0, 0));
+                    Units = new_units.ToArmy();
                     break;
                 case "TRAIN_WIDOWMINE":
                     Worth += new CostWorth(Worth.Priority + Unit.Values["TERRAN_WIDOWMINE"].Priority, Worth.Mineral + Unit.Values["TERRAN_WIDOWMINE"].Mineral, Unit.Values["TERRAN_WIDOWMINE"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_WIDOWMINE"].Supply);
+                    new_units.Add(new Unit(Convert.ToInt64(DateTime.Now.Subtract(Created_Time).TotalSeconds), Owner, new_units.Count.ToString(), "TERRAN_CYCLONE", 0, 0));
+                    Units = new_units.ToArmy();
                     break;
                 case "TRAIN_THOR":
                     Worth += new CostWorth(Worth.Priority + Unit.Values["TERRAN_THOR"].Priority, Worth.Mineral + Unit.Values["TERRAN_THOR"].Mineral, Unit.Values["TERRAN_THOR"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_THOR"].Supply);
+                    new_units.Add(new Unit(Convert.ToInt64(DateTime.Now.Subtract(Created_Time).TotalSeconds), Owner, new_units.Count.ToString(), "TERRAN_THOR", 0, 0));
+                    Units = new_units.ToArmy();
                     break;
                 //Starport Units
                 case "TRAIN_MEDIVAC":
                     Worth += new CostWorth(Worth.Priority + Unit.Values["TERRAN_MEDIVAC"].Priority, Worth.Mineral + Unit.Values["TERRAN_MEDIVAC"].Mineral, Unit.Values["TERRAN_MEDIVAC"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_MEDIVAC"].Supply);
+                    new_units.Add(new Unit(Convert.ToInt64(DateTime.Now.Subtract(Created_Time).TotalSeconds), Owner, new_units.Count.ToString(), "TERRAN_MEDIVAC", 0, 0));
+                    Units = new_units.ToArmy();
                     break;
                 case "TRAIN_BANSHEE":
                     Worth += new CostWorth(Worth.Priority + Unit.Values["TERRAN_BANSHEE"].Priority, Worth.Mineral + Unit.Values["TERRAN_BANSHEE"].Mineral, Unit.Values["TERRAN_BANSHEE"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_BANSHEE"].Supply);
+                    new_units.Add(new Unit(Convert.ToInt64(DateTime.Now.Subtract(Created_Time).TotalSeconds), Owner, new_units.Count.ToString(), "TERRAN_BANSHEE", 0, 0));
+                    Units = new_units.ToArmy();
                     break;
                 case "TRAIN_RAVEN":
                     Worth += new CostWorth(Worth.Priority + Unit.Values["TERRAN_RAVEN"].Priority, Worth.Mineral + Unit.Values["TERRAN_RAVEN"].Mineral, Unit.Values["TERRAN_RAVEN"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_RAVEN"].Supply);
+                    new_units.Add(new Unit(Convert.ToInt64(DateTime.Now.Subtract(Created_Time).TotalSeconds), Owner, new_units.Count.ToString(), "TERRAN_RAVEN", 0, 0));
+                    Units = new_units.ToArmy();
                     break;
                 case "TRAIN_VIKINGFIGHTER":
                     Worth += new CostWorth(Worth.Priority + Unit.Values["TERRAN_VIKINGFIGHTER"].Priority, Worth.Mineral + Unit.Values["TERRAN_VIKINGFIGHTER"].Mineral, Unit.Values["TERRAN_VIKINGFIGHTER"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_VIKINGFIGHTER"].Supply);
+                    new_units.Add(new Unit(Convert.ToInt64(DateTime.Now.Subtract(Created_Time).TotalSeconds), Owner, new_units.Count.ToString(), "TERRAN_VIKINGFIGHTER", 0, 0));
+                    Units = new_units.ToArmy();
                     break;
                 case "TRAIN_LIBERATOR":
                     Worth += new CostWorth(Worth.Priority + Unit.Values["TERRAN_LIBERATOR"].Priority, Worth.Mineral + Unit.Values["TERRAN_LIBERATOR"].Mineral, Unit.Values["TERRAN_LIBERATOR"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_LIBERATOR"].Supply);
+                    new_units.Add(new Unit(Convert.ToInt64(DateTime.Now.Subtract(Created_Time).TotalSeconds), Owner, new_units.Count.ToString(), "TERRAN_LIBERATOR", 0, 0));
+                    Units = new_units.ToArmy();
                     break;
                 case "TRAIN_BATTLECRUISER":
-                    Worth += new CostWorth(Worth.Priority + Unit.Values["TERRAN_LIBERATOR"].Priority, Worth.Mineral + Unit.Values["TERRAN_LIBERATOR"].Mineral, Unit.Values["TERRAN_LIBERATOR"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_LIBERATOR"].Supply);
+                    Worth += new CostWorth(Worth.Priority + Unit.Values["TERRAN_LIBERATOR"].Priority, Worth.Mineral + Unit.Values["TERRAN_BATTLECRUISER"].Mineral, Unit.Values["TERRAN_BATTLECRUISER"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_LIBERATOR"].Supply);
+                    new_units.Add(new Unit(Convert.ToInt64(DateTime.Now.Subtract(Created_Time).TotalSeconds), Owner, new_units.Count.ToString(), "TERRAN_BATTLECRUISER", 0, 0));
+                    Units = new_units.ToArmy();
                     break;
                 //Build Commands
                 case "BUILD_COMMANDCENTER":
                     Worth += new CostWorth(Worth.Priority + Unit.Values["TERRAN_COMMANDCENTER"].Priority, Worth.Mineral + Unit.Values["TERRAN_COMMANDCENTER"].Mineral, Unit.Values["TERRAN_COMMANDCENTER"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_COMMANDCENTER"].Supply);
+                    new_units.Add(new Unit(Convert.ToInt64(DateTime.Now.Subtract(Created_Time).TotalSeconds), Owner, new_units.Count.ToString(), "TERRAN_COMMANDCENTER", 0, 0));
+                    Units = new_units.ToArmy();
                     break;
                 case "BUILD_SUPPLYDEPOT":
                     Worth += new CostWorth(Worth.Priority + Unit.Values["TERRAN_SUPPLYDEPOT"].Priority, Worth.Mineral + Unit.Values["TERRAN_SUPPLYDEPOT"].Mineral, Unit.Values["TERRAN_SUPPLYDEPOT"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_SUPPLYDEPOT"].Supply);
+                    new_units.Add(new Unit(Convert.ToInt64(DateTime.Now.Subtract(Created_Time).TotalSeconds), Owner, new_units.Count.ToString(), "TERRAN_SUPPLYDEPOT", 0, 0));
+                    Units = new_units.ToArmy();
                     break;
                 case "BUILD_REFINERY":
                     Worth += new CostWorth(Worth.Priority + Unit.Values["TERRAN_REFINERY"].Priority, Worth.Mineral + Unit.Values["TERRAN_REFINERY"].Mineral, Unit.Values["TERRAN_REFINERY"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_REFINERY"].Supply);
+                    new_units.Add(new Unit(Convert.ToInt64(DateTime.Now.Subtract(Created_Time).TotalSeconds), Owner, new_units.Count.ToString(), "TERRAN_REFINERY", 0, 0));
+                    Units = new_units.ToArmy();
                     break;
                 case "BUILD_BARRACKS":
                     Worth += new CostWorth(Worth.Priority + Unit.Values["TERRAN_BARRACKS"].Priority, Worth.Mineral + Unit.Values["TERRAN_BARRACKS"].Mineral, Unit.Values["TERRAN_BARRACKS"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_BARRACKS"].Supply);
+                    new_units.Add(new Unit(Convert.ToInt64(DateTime.Now.Subtract(Created_Time).TotalSeconds), Owner, new_units.Count.ToString(), "TERRAN_BARRACKS", 0, 0));
+                    Units = new_units.ToArmy();
+                    break;
+                case "BUILD_BARRACKSTECHLAB":
+                    Worth += new CostWorth(Worth.Priority + Unit.Values["TERRAN_BARRACKSTECHLAB"].Priority, Worth.Mineral + Unit.Values["TERRAN_BARRACKSTECHLAB"].Mineral, Unit.Values["TERRAN_BARRACKSTECHLAB"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_BARRACKSTECHLAB"].Supply);
+                    new_units.Add(new Unit(Convert.ToInt64(DateTime.Now.Subtract(Created_Time).TotalSeconds), Owner, new_units.Count.ToString(), "TERRAN_BARRACKSTECHLAB", 0, 0));
+                    Units = new_units.ToArmy();
+                    break;
+                case "BUILD_BARRACKSREACTOR":
+                    Worth += new CostWorth(Worth.Priority + Unit.Values["TERRAN_BARRACKSREACTOR"].Priority, Worth.Mineral + Unit.Values["TERRAN_BARRACKSREACTOR"].Mineral, Unit.Values["TERRAN_BARRACKSREACTOR"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_BARRACKSREACTOR"].Supply);
+                    new_units.Add(new Unit(Convert.ToInt64(DateTime.Now.Subtract(Created_Time).TotalSeconds), Owner, new_units.Count.ToString(), "TERRAN_BARRACKSREACTOR", 0, 0));
+                    Units = new_units.ToArmy();
                     break;
                 case "BUILD_ENGINEERINGBAY":
                     Worth += new CostWorth(Worth.Priority + Unit.Values["TERRAN_ENGINEERINGBAY"].Priority, Worth.Mineral + Unit.Values["TERRAN_ENGINEERINGBAY"].Mineral, Unit.Values["TERRAN_ENGINEERINGBAY"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_ENGINEERINGBAY"].Supply);
+                    new_units.Add(new Unit(Convert.ToInt64(DateTime.Now.Subtract(Created_Time).TotalSeconds), Owner, new_units.Count.ToString(), "TERRAN_ENGINEERINGBAY", 0, 0));
+                    Units = new_units.ToArmy();
                     break;
                 case "BUILD_BUNKER":
                     Worth += new CostWorth(Worth.Priority + Unit.Values["TERRAN_BUNKER"].Priority, Worth.Mineral + Unit.Values["TERRAN_BUNKER"].Mineral, Unit.Values["TERRAN_BUNKER"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_BUNKER"].Supply);
+                    new_units.Add(new Unit(Convert.ToInt64(DateTime.Now.Subtract(Created_Time).TotalSeconds), Owner, new_units.Count.ToString(), "TERRAN_BUNKER", 0, 0));
+                    Units = new_units.ToArmy();
                     break;
                 case "BUILD_SENSORTOWER":
                     Worth += new CostWorth(Worth.Priority + Unit.Values["TERRAN_SENSORTOWER"].Priority, Worth.Mineral + Unit.Values["TERRAN_SENSORTOWER"].Mineral, Unit.Values["TERRAN_SENSORTOWER"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_SENSORTOWER"].Supply);
+                    new_units.Add(new Unit(Convert.ToInt64(DateTime.Now.Subtract(Created_Time).TotalSeconds), Owner, new_units.Count.ToString(), "TERRAN_SENSORTOWER", 0, 0));
+                    Units = new_units.ToArmy();
                     break;
                 case "BUILD_GHOSTACADEMY":
                     Worth += new CostWorth(Worth.Priority + Unit.Values["TERRAN_GHOSTACADEMY"].Priority, Worth.Mineral + Unit.Values["TERRAN_GHOSTACADEMY"].Mineral, Unit.Values["TERRAN_GHOSTACADEMY"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_GHOSTACADEMY"].Supply);
+                    new_units.Add(new Unit(Convert.ToInt64(DateTime.Now.Subtract(Created_Time).TotalSeconds), Owner, new_units.Count.ToString(), "TERRAN_GHOSTACADEMY", 0, 0));
+                    Units = new_units.ToArmy();
+                    break;
+                case "BUILD_FACTORY":
+                    Worth += new CostWorth(Worth.Priority + Unit.Values["TERRAN_FACTORY"].Priority, Worth.Mineral + Unit.Values["TERRAN_FACTORY"].Mineral, Unit.Values["TERRAN_FACTORY"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_FACTORY"].Supply);
+                    new_units.Add(new Unit(Convert.ToInt64(DateTime.Now.Subtract(Created_Time).TotalSeconds), Owner, new_units.Count.ToString(), "TERRAN_FACTORY", 0, 0));
+                    Units = new_units.ToArmy();
+                    break;
+                case "BUILD_FACTORYTECHLAB":
+                    Worth += new CostWorth(Worth.Priority + Unit.Values["TERRAN_FACTORYTECHLAB"].Priority, Worth.Mineral + Unit.Values["TERRAN_FACTORYTECHLAB"].Mineral, Unit.Values["TERRAN_FACTORYTECHLAB"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_FACTORYTECHLAB"].Supply);
+                    new_units.Add(new Unit(Convert.ToInt64(DateTime.Now.Subtract(Created_Time).TotalSeconds), Owner, new_units.Count.ToString(), "TERRAN_FACTORYTECHLAB", 0, 0));
+                    Units = new_units.ToArmy();
+                    break;
+                case "BUILD_FACTORYREACTOR":
+                    Worth += new CostWorth(Worth.Priority + Unit.Values["TERRAN_FACTORYREACTOR"].Priority, Worth.Mineral + Unit.Values["TERRAN_FACTORYREACTOR"].Mineral, Unit.Values["TERRAN_FACTORYREACTOR"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_FACTORYREACTOR"].Supply);
+                    new_units.Add(new Unit(Convert.ToInt64(DateTime.Now.Subtract(Created_Time).TotalSeconds), Owner, new_units.Count.ToString(), "TERRAN_FACTORYREACTOR", 0, 0));
+                    Units = new_units.ToArmy();
                     break;
                 case "BUILD_STARPORT":
                     Worth += new CostWorth(Worth.Priority + Unit.Values["TERRAN_STARPORT"].Priority, Worth.Mineral + Unit.Values["TERRAN_STARPORT"].Mineral, Unit.Values["TERRAN_STARPORT"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_STARPORT"].Supply);
+                    new_units.Add(new Unit(Convert.ToInt64(DateTime.Now.Subtract(Created_Time).TotalSeconds), Owner, new_units.Count.ToString(), "TERRAN_STARPORT", 0, 0));
+                    Units = new_units.ToArmy();
+                    break;
+                case "BUILD_STARPORTTECHLAB":
+                    Worth += new CostWorth(Worth.Priority + Unit.Values["TERRAN_STARPORTTECHLAB"].Priority, Worth.Mineral + Unit.Values["TERRAN_STARPORTTECHLAB"].Mineral, Unit.Values["TERRAN_STARPORTTECHLAB"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_STARPORTTECHLAB"].Supply);
+                    new_units.Add(new Unit(Convert.ToInt64(DateTime.Now.Subtract(Created_Time).TotalSeconds), Owner, new_units.Count.ToString(), "TERRAN_STARPORTTECHLAB", 0, 0));
+                    Units = new_units.ToArmy();
+                    break;
+                case "BUILD_STARPORTREACTOR":
+                    Worth += new CostWorth(Worth.Priority + Unit.Values["TERRAN_STARPORTREACTOR"].Priority, Worth.Mineral + Unit.Values["TERRAN_STARPORTREACTOR"].Mineral, Unit.Values["TERRAN_STARPORTREACTOR"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_STARPORTREACTOR"].Supply);
+                    new_units.Add(new Unit(Convert.ToInt64(DateTime.Now.Subtract(Created_Time).TotalSeconds), Owner, new_units.Count.ToString(), "TERRAN_STARPORTREACTOR", 0, 0));
+                    Units = new_units.ToArmy();
                     break;
                 case "BUILD_ARMORY":
                     Worth += new CostWorth(Worth.Priority + Unit.Values["TERRAN_ARMORY"].Priority, Worth.Mineral + Unit.Values["TERRAN_ARMORY"].Mineral, Unit.Values["TERRAN_ARMORY"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_ARMORY"].Supply);
+                    new_units.Add(new Unit(Convert.ToInt64(DateTime.Now.Subtract(Created_Time).TotalSeconds), Owner, new_units.Count.ToString(), "TERRAN_ARMORY", 0, 0));
+                    Units = new_units.ToArmy();
                     break;
                 case "BUILD_FUSIONCORE":
                     Worth += new CostWorth(Worth.Priority + Unit.Values["TERRAN_FUSIONCORE"].Priority, Worth.Mineral + Unit.Values["TERRAN_FUSIONCORE"].Mineral, Unit.Values["TERRAN_FUSIONCORE"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_FUSIONCORE"].Supply);
+                    new_units.Add(new Unit(Convert.ToInt64(DateTime.Now.Subtract(Created_Time).TotalSeconds), Owner, new_units.Count.ToString(), "TERRAN_FUSIONCORE", 0, 0));
+                    Units = new_units.ToArmy();
                     break;
-                case "HARVEST_RETURN": //Harvesting Minerals and Gas share the same command, Added values are based per trip
+                case "BUILD_MISSILETURRET":
+                    Worth += new CostWorth(Worth.Priority + Unit.Values["TERRAN_MISSILETURRET"].Priority, Worth.Mineral + Unit.Values["TERRAN_MISSILETURRET"].Mineral, Unit.Values["TERRAN_FUSIONCORET"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_MISSILETURRET"].Supply);
+                    new_units.Add(new Unit(Convert.ToInt64(DateTime.Now.Subtract(Created_Time).TotalSeconds), Owner, new_units.Count.ToString(), "TERRAN_MISSILETURRET", 0, 0));
+                    Units = new_units.ToArmy();
+                    break;
+                case "HARVEST_RETURN": //Harvesting Minerals and Gas share the same command, Added values are based per trip per scv
                     Worth += new CostWorth(Worth.Priority, Worth.Mineral + 5, Worth.Vespene + 8, Worth.Supply);
+                    break;
+                //Barracks Tech Lab Reasearch
+                case "RESEARCH_STIMPACK":
+                    break;
+                case "RESEARCH_COMBATSHIELD":
+                    break;
+                case "RESEARCH_CONCUSSIVESHELLS":
+                    break;
+                //Factory Tech Lab Research
+                case "RESEARCH_INFERNALPREIGNITER":
+                    break;
+                case "RESEARCH_DRILLINGCLAWS":
+                    break;
+                case "RESEARCH_MAGFIELDLAUNCHERS":
+                    break;
+                //StarportTechLabResearch
+                case "RESEARCH_BANSHEECLOAKINGFIELD":
+                    break;
+                case "RESEARCH_RAVENCORVIDREACTOR":
+                    break;
+                case "RESEARCH_BANSHEEHYPERFLIGHTROTORS":
+                    break;
+                case "RESEARCH_HIGHCAPACITYFUELTANKS":
+                    break;
+                case "RESEARCH_ADVANCEDBALLISTICS":
+                    break;
+                //Fusion Core Research
+                case "RESEARCH_BATTLECRUISERWEAPONREFIT":
+                    break;
+                //Armory Research 
+                case "RESEARCH_TERRANSHIPWEAPONS":
+                    break;
+                case "RESEARCH_TERRANVEHICLEANDSHIPPLATING":
+                    break;
+                case "RESEARCH_TERRANVEHICLEWEAPONS":
+                    break;
+                //Ghost Academy Research
+                case "RESEARCH_PERSONALCLOAKING":
+                    break;
+                case "BUILD_NUKE":
                     break;
             }
         }

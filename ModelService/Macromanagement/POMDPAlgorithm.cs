@@ -88,31 +88,32 @@ namespace ModelService.Macromanagement
                             case "TERRAN_SCV":
                                 if (Current_Owned_Agent.Minerals >= 400 && Current_Owned_Agent.Vespene >= 150)
                                 {
-                                    Possible_Actions.Enqueue("BUILD_COMMANDCENTER"); //Worth += new CostWorth(Worth.Priority + Unit.Values["TERRAN_COMMANDCENTER"].Priority, Worth.Mineral + Unit.Values["TERRAN_COMMANDCENTER"].Mineral, Unit.Values["TERRAN_COMMANDCENTER"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_COMMANDCENTER"].Supply);
-                                    Possible_Actions.Enqueue("BUILD_REFINERY"); //Worth += new CostWorth(Worth.Priority + Unit.Values["TERRAN_REFINERY"].Priority, Worth.Mineral + Unit.Values["TERRAN_REFINERY"].Mineral, Unit.Values["TERRAN_REFINERY"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_REFINERY"].Supply);
-                                    Possible_Actions.Enqueue("BUILD_SUPPLYDEPOT"); // Worth += new CostWorth(Worth.Priority + Unit.Values["TERRAN_SUPPLYDEPOT"].Priority, Worth.Mineral + Unit.Values["TERRAN_SUPPLYDEPOT"].Mineral, Unit.Values["TERRAN_SUPPLYDEPOT"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_SUPPLYDEPOT"].Supply);
-                                    if (unitList.Contains("TERRAN_SUPPLYDEPOT"))
-                                        Possible_Actions.Enqueue("BUILD_BARRACKS"); //Worth += new CostWorth(Worth.Priority + Unit.Values["TERRAN_BARRACKS"].Priority, Worth.Mineral + Unit.Values["TERRAN_BARRACKS"].Mineral, Unit.Values["TERRAN_BARRACKS"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_BARRACKS"].Supply)
-                                    if (unitList.Contains("TERRAN_BARRACKS"))
-                                    {
-                                        Possible_Actions.Enqueue("BUILD_BUNKER"); //Worth += new CostWorth(Worth.Priority + Unit.Values["TERRAN_BUNKER"].Priority, Worth.Mineral + Unit.Values["TERRAN_BUNKER"].Mineral, Unit.Values["TERRAN_BUNKER"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_BUNKER"].Supply);
-                                        Possible_Actions.Enqueue("BUILD_GHOSTACADEMY"); //Worth += new CostWorth(Worth.Priority + Unit.Values["TERRAN_GHOSTACADEMY"].Priority, Worth.Mineral + Unit.Values["TERRAN_GHOSTACADEMY"].Mineral, Unit.Values["TERRAN_GHOSTACADEMY"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_GHOSTACADEMY"].Supply);
-                                        Possible_Actions.Enqueue("BUILD_FACTORY"); // Worth += new CostWorth(Worth.Priority + Unit.Values["TERRAN_FACTORY"].Priority, Worth.Mineral + Unit.Values["TERRAN_FACTORY"].Mineral, Unit.Values["TERRAN_FACTORYY"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_FACTORY"].Supply);
-                                    }
-                                    if (unitList.Contains("TERRAN_FACTORY"))
-                                    {
-                                        Possible_Actions.Enqueue("BUILD_ARMORY"); //Worth += new CostWorth(Worth.Priority + Unit.Values["TERRAN_ARMORY"].Priority, Worth.Mineral + Unit.Values["TERRAN_ARMORY"].Mineral, Unit.Values["TERRAN_ARMORY"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_ARMORY"].Supply);
-                                        Possible_Actions.Enqueue("BUILD_STARPORT"); //
-                                    }
-                                    if (unitList.Contains("TERRAN_STARPORT"))
-                                        Possible_Actions.Enqueue("BUILD_FUSIONCORE"); //Worth += new CostWorth(Worth.Priority + Unit.Values["TERRAN_STARPORT"].Priority, Worth.Mineral + Unit.Values["TERRAN_STARPORT"].Mineral, Unit.Values["TERRAN_STARPORT"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_STARPORT"].Supply);
-                                    if (unitList.Contains("TERRAN_COMMANDCENTER"))
-                                        Possible_Actions.Enqueue("BUILD_ENGINEERINGBAY"); //Worth += new CostWorth(Worth.Priority + Unit.Values["TERRAN_ENGINEERINGBAY"].Priority, Worth.Mineral + Unit.Values["TERRAN_ENGINEERINGBAY"].Mineral, Unit.Values["TERRAN_ENGINEERINGBAY"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_ENGINEERINGBAY"].Supply);
-                                    if (unitList.Contains("TERRAN_ENGINEERINGBAY"))
-                                    {
-                                        Possible_Actions.Enqueue("BUILD_MISSILETURRET");
-                                        Possible_Actions.Enqueue("BUILD_SENSORTOWER");
-                                    }
+                                    //Possible_Actions.Enqueue("BUILD_COMMANDCENTER" + "," + (new CostWorth(Worth.Priority + Unit.Values["TERRAN_COMMANDCENTER"].Priority, Worth.Mineral + Unit.Values["TERRAN_COMMANDCENTER"].Mineral, Unit.Values["TERRAN_COMMANDCENTER"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_COMMANDCENTER"].Supply)).ToString()); //Worth += ;
+                                    //Possible_Actions.Enqueue("BUILD_REFINERY" + "," + (new CostWorth(Worth.Priority + Unit.Values["TERRAN_REFINERY"].Priority, Worth.Mineral + Unit.Values["TERRAN_REFINERY"].Mineral, Unit.Values["TERRAN_REFINERY"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_REFINERY"].Supply)).ToString()); //Worth += ;
+                                    //Possible_Actions.Enqueue("BUILD_SUPPLYDEPOT" + "," + (new CostWorth(Worth.Priority + Unit.Values["TERRAN_SUPPLYDEPOT"].Priority, Worth.Mineral + Unit.Values["TERRAN_SUPPLYDEPOT"].Mineral, Unit.Values["TERRAN_SUPPLYDEPOT"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_SUPPLYDEPOT"].Supply)).ToString()); // Worth += ;
+                                    //if (unitList.Contains("TERRAN_SUPPLYDEPOT"))
+                                    //    Possible_Actions.Enqueue("BUILD_BARRACKS" + "," + (new CostWorth(Worth.Priority + Unit.Values["TERRAN_BARRACKS"].Priority, Worth.Mineral + Unit.Values["TERRAN_BARRACKS"].Mineral, Unit.Values["TERRAN_BARRACKS"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_BARRACKS"].Supply))); //Worth += 
+                                    //if (unitList.Contains("TERRAN_BARRACKS"))
+                                    //{
+                                    //    Possible_Actions.Enqueue("BUILD_BUNKER" + "," + (new CostWorth(Worth.Priority + Unit.Values["TERRAN_BUNKER"].Priority, Worth.Mineral + Unit.Values["TERRAN_BUNKER"].Mineral, Unit.Values["TERRAN_BUNKER"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_BUNKER"].Supply)).ToString()); //Worth += ;
+                                    //    Possible_Actions.Enqueue("BUILD_GHOSTACADEMY" + "," + (new CostWorth(Worth.Priority + Unit.Values["TERRAN_GHOSTACADEMY"].Priority, Worth.Mineral + Unit.Values["TERRAN_GHOSTACADEMY"].Mineral, Unit.Values["TERRAN_GHOSTACADEMY"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_GHOSTACADEMY"].Supply)).ToString()); //Worth += ;
+                                    //    Possible_Actions.Enqueue("BUILD_FACTORY" + "," + (new CostWorth(Worth.Priority + Unit.Values["TERRAN_FACTORY"].Priority, Worth.Mineral + Unit.Values["TERRAN_FACTORY"].Mineral, Unit.Values["TERRAN_FACTORYY"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_FACTORY"].Supply)).ToString()); // Worth += ;
+                                    //}
+                                    //if (unitList.Contains("TERRAN_FACTORY"))
+                                    //{
+                                    //    Possible_Actions.Enqueue("BUILD_ARMORY" + "," + (new CostWorth(Worth.Priority + Unit.Values["TERRAN_ARMORY"].Priority, Worth.Mineral + Unit.Values["TERRAN_ARMORY"].Mineral, Unit.Values["TERRAN_ARMORY"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_ARMORY"].Supply)).ToString()); //Worth += ;
+                                    //    Possible_Actions.Enqueue("BUILD_STARPORT"); //
+                                    //}
+                                    //if (unitList.Contains("TERRAN_STARPORT"))
+                                    //    Possible_Actions.Enqueue("BUILD_FUSIONCORE" + "," + (new CostWorth(Worth.Priority + Unit.Values["TERRAN_STARPORT"].Priority, Worth.Mineral + Unit.Values["TERRAN_STARPORT"].Mineral, Unit.Values["TERRAN_STARPORT"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_STARPORT"].Supply)).ToString()); //Worth += ;
+                                    //if (unitList.Contains("TERRAN_COMMANDCENTER"))
+                                    //    Possible_Actions.Enqueue("BUILD_ENGINEERINGBAY" + "," + (new CostWorth(Worth.Priority + Unit.Values["TERRAN_ENGINEERINGBAY"].Priority, Worth.Mineral + Unit.Values["TERRAN_ENGINEERINGBAY"].Mineral, Unit.Values["TERRAN_ENGINEERINGBAY"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_ENGINEERINGBAY"].Supply)).ToString()); //Worth += ;
+                                    //if (unitList.Contains("TERRAN_ENGINEERINGBAY"))
+                                    //{
+                                    //    Possible_Actions.Enqueue("BUILD_MISSILETURRET");
+                                    //    Possible_Actions.Enqueue("BUILD_SENSORTOWER");
+                                    //}
+                                    throw new NotImplementedException();
                                 }
                                 else if (Current_Owned_Agent.Minerals >= 150 && Current_Owned_Agent.Vespene >= 150)
                                 {
@@ -272,7 +273,8 @@ namespace ModelService.Macromanagement
                                 if (Current_Owned_Agent.Minerals >= 150 && Current_Owned_Agent.Vespene >= 150)
                                 {
                                     if (Current_Owned_Agent.Supply >= 1)
-                                        Possible_Actions.Enqueue("TRAIN_SCV"); //Worth += new CostWorth(Worth.Priority + Unit.Values["TERRAN_SCV"].Priority, Worth.Mineral + Unit.Values["TERRAN_SCV"].Mineral, Unit.Values["TERRAN_SCV"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_SCV"].Supply);
+                                        //Possible_Actions.Enqueue("TRAIN_SCV" + "," + (new CostWorth(Worth.Priority + Unit.Values["TERRAN_SCV"].Priority, Worth.Mineral + Unit.Values["TERRAN_SCV"].Mineral, Unit.Values["TERRAN_SCV"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_SCV"].Supply)).ToString()); //Worth += ;
+                                        throw new NotImplementedException();
                                     if (unitList.Contains("TERRAN_BARRACKS"))
                                         Possible_Actions.Enqueue("MORPH_ORBITALCOMMAND"); //not sure about morphs yet
                                     if (unitList.Contains("TERRAN_ENGINEERINGBAY"))

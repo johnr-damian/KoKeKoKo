@@ -174,5 +174,11 @@ namespace ModelService.ValueTypes
         /// <param name="supply_weight"></param>
         /// <returns></returns>
         public double GetTotalWorth(double priority_weight, double mineral_weight, double vespene_weight, double supply_weight) => ((Priority * priority_weight) + (Mineral * mineral_weight) + (Vespene * vespene_weight) + (Supply * supply_weight));
+
+        /// <summary>
+        /// Returns the <see cref="GetTotalWorth()"/> in string format
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString() => Convert.ToString(GetTotalWorth());
     }
 }

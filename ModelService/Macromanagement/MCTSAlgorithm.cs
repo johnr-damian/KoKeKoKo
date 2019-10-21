@@ -84,15 +84,37 @@ namespace ModelService.Macromanagement
 
                 protected override void ExpandCurrentNode()
                 {
-                    var actions = GeneratePotentialActions().ToList();
+                    var actions = GeneratePotentialActions().Distinct().ToList();
+                    var uniquemapping_probability = new Dictionary<string, Tuple<double, double>>();
+                    for (double probability = ((100 / ((double)actions.Count)) / 100), count = 0, start = 0; count < actions.Count; start += probability, count += 1)
+                        uniquemapping_probability.Add(actions[Convert.ToInt32(count)], new Tuple<double, double>(start, start + probability));
+
                     var random = Services.ModelRepositoryService.ModelService.GetModelService().RandomEngine;
 
-                    var n_actions = random.Next(0, actions.Count);
-                    for(int iterator = 0; iterator < 3; iterator++)
+                    
+                    for(int iterator = 0; iterator < actions.Count; iterator++)
                     {
                         var child = new MCTSNode(this, Current_Owned_Agent.GetDeepCopy(), Current_Enemy_Agent.GetDeepCopy(), Max_Depth);
-                        var owned_action = actions[random.Next(0, actions.Count)];
-                        var enemy_action = actions[random.Next(0, actions.Count)];
+                        string owned_action = "", enemy_action = "";
+                        double owned_action_chance = random.NextDouble(), enemy_action_chance = random.NextDouble();
+
+                        foreach(var action in uniquemapping_probability)
+                        {
+                            if((action.Value.Item1 < owned_action_chance) && (owned_action_chance <= action.Value.Item2))
+                            {
+                                owned_action = action.Key;
+                                break;
+                            }
+                        }
+
+                        foreach(var action in uniquemapping_probability)
+                        {
+                            if((action.Value.Item1 < enemy_action_chance) && (enemy_action_chance <= action.Value.Item2))
+                            {
+                                enemy_action = action.Key;
+                                break;
+                            }
+                        }
 
                         child.SimulateCurrentNode($@"{owned_action},{enemy_action}");
                         Children.Add(child);
@@ -668,17 +690,25 @@ namespace ModelService.Macromanagement
 
                 protected override void SimulateCurrentNode(string potential_action)
                 {
-                    var actions = potential_action.Split(',');
+                    try
+                    {
+                        var actions = potential_action.Split(',');
 
-                    Current_Owned_Agent.Chosen_Action = actions[0];
-                    Current_Owned_Agent.ApplyAction(actions[0]);
-                    Current_Enemy_Agent.Chosen_Action = actions[1];
-                    Current_Enemy_Agent.ApplyAction(actions[1]);
+                        Current_Owned_Agent.Chosen_Action = actions[0];
+                        Current_Owned_Agent.ApplyAction(actions[0]);
+                        Current_Enemy_Agent.Chosen_Action = actions[1];
+                        Current_Enemy_Agent.ApplyAction(actions[1]);
 
-                    if (Current_Owned_Agent.Worth >= Current_Enemy_Agent.Worth)
-                        WonBackpropagate();
-                    else
-                        Backpropagate();
+                        if (Current_Owned_Agent.Worth >= Current_Enemy_Agent.Worth)
+                            WonBackpropagate();
+                        else
+                            Backpropagate();
+                    }
+                    catch (KeyNotFoundException ex)
+                    {
+                        System.Diagnostics.Debugger.Break();
+                        throw new Exception("An error occurred! Failed to simulate due to an unknown action...");
+                    }
                 }
             }
 

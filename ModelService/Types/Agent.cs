@@ -129,6 +129,9 @@ namespace ModelService.Types
                 }
 
                 Worth = Basis.First().Item3;
+                Minerals = Worth.Mineral;
+                Vespene = Worth.Vespene;
+                Workers = 12;
                 var units = new Unit[Worth.Priority];
                 for(int u = 0; u < units.Length; u++)
                 {
@@ -143,7 +146,7 @@ namespace ModelService.Types
             }
         }
 
-        public Agent(string owner, CostWorth current_worth, Army units, DateTime origin_time, DateTime end_time, int potential)
+        public Agent(string owner, CostWorth current_worth, Army units, DateTime origin_time, DateTime end_time, int potential, double mineral, double vespene, int workers)
         {
             Worth = current_worth;
             Units = units.GetMacroDeepCopy();
@@ -151,6 +154,9 @@ namespace ModelService.Types
             Created_Time = origin_time;
             EndTime = end_time;
             Potential_Depth = potential;
+            Minerals = Worth.Mineral;
+            Vespene = Worth.Vespene;
+            Workers = workers;
         }
 
         public Agent()
@@ -169,7 +175,7 @@ namespace ModelService.Types
         /// as this agent
         /// </summary>
         /// <returns></returns>
-        public Agent GetDeepCopy() => new Agent(Owner, Worth, Units, Created_Time, EndTime, Potential_Depth);
+        public Agent GetDeepCopy() => new Agent(Owner, Worth, Units, Created_Time, EndTime, Potential_Depth, Minerals, Vespene, Workers);
 
         /// <summary>
         /// Returns the <see cref="Chosen_Action"/> 
@@ -198,6 +204,7 @@ namespace ModelService.Types
                     Worth += new CostWorth(Worth.Priority + Unit.Values["TERRAN_SCV"].Priority, Worth.Mineral + Unit.Values["TERRAN_SCV"].Mineral, Unit.Values["TERRAN_SCV"].Vespene + Worth.Vespene, Worth.Supply + Unit.Values["TERRAN_SCV"].Supply);
                     new_units.Add(new Unit(Convert.ToInt64(DateTime.Now.Subtract(Created_Time).TotalSeconds), Owner, new_units.Count.ToString(), "TERRAN_SCV", 0, 0));
                     Units = new_units.ToArmy();
+                    Workers++;
                     break;
                 //Barracks Units
                 case "TRAIN_MARINE":

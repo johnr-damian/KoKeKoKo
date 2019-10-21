@@ -168,6 +168,21 @@ namespace ModelService.Types
             _raw_information = "";
         }
 
+        public Agent(string macromanagement, string micromanagement)
+        {
+            Worth = new CostWorth(12, 50, 0, 15);
+            Minerals = Worth.Mineral;
+            Vespene = Worth.Vespene;
+            Workers = 12;
+            var units = new List<Unit>();
+            for (int u = 0; u < 12; u++)
+            {
+                units.Add(new Unit(Convert.ToInt64(Basis.First().Item1), Owner, u.ToString(), "TERRAN_SCV", 0, 0));
+            }
+            units.Add(new Unit(Convert.ToInt64(Basis.First().Item1), Owner, units.Count.ToString(), "TERRAN_COMMANDCENTER", 0, 0));
+            Units = units.ToArmy();
+        }
+
         /// <summary>
         /// Returns the instance of this agent
         /// </summary>

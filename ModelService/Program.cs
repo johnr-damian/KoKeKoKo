@@ -108,6 +108,7 @@ namespace ModelService
                 }
                 else
                 {
+                    int mode = 0;
                     Console.WriteLine("ModelService has started! Creating a server for agent...");
                     if(modelrepositoryservice.CreateServerForAgent())
                     {
@@ -142,6 +143,20 @@ namespace ModelService
                                 //            Console.WriteLine($@"\t{message}");
                                 //        break;
                                 //}
+                                var player = default(Macromanagement.Macromanagement);
+                                switch(mode)
+                                {
+                                    case 0:
+                                        player = new Macromanagement.Macromanagement(partitionedmessage[0], partitionedmessage[1]);
+                                        foreach (var action in player.GetMacromanagementStuff())
+                                            modelrepositoryservice.SendMessageToAgent(action);
+                                        mode = 1;
+                                        break;
+                                    case 1:
+                                        foreach (var action in player.GetMacromanagementStuff())
+                                            modelrepositoryservice.SendMessageToAgent(action);
+                                        break;
+                                }
 
                                 Console.WriteLine(partitionedmessage.Length);
                                 if(partitionedmessage.Length > 0)

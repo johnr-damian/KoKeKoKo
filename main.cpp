@@ -380,7 +380,7 @@ namespace KoKeKoKo
 							message += std::to_string(CountOf(UNIT_TYPEID::TERRAN_SCV)); //No. of Workers
 							for (const auto& upgrade : current_observation->GetUpgrades())
 								message += ("," + upgrade.to_string()); //Upgrades
-							message += ":Macromanagement~Micromanagement(Self):";
+							message += ":";
 
 							//Self Army details
 							for (const auto& unit : current_observation->GetUnits(Unit::Alliance::Self))
@@ -388,7 +388,7 @@ namespace KoKeKoKo
 								if (unit->is_alive)
 									message += (std::to_string(current_observation->GetPlayerID()) + "," + unit->unit_type.to_string() + "," + std::to_string(unit->tag) + "," + std::to_string(unit->pos.x) + "," + std::to_string(unit->pos.y) + "\n");
 							}
-							message += ":Micromanagement(Self)~Micromanagement(Enemy):";
+							message += "~";
 
 							//Enemy Army Units
 							for (const auto& unit : current_observation->GetUnits(Unit::Alliance::Enemy))
@@ -1740,6 +1740,10 @@ namespace KoKeKoKo
 					else if (ability.find("BUILD_SENSORTOWER") != std::string::npos)
 					{
 						TryBuildSensorTower();
+					}
+					else if (ability.find("SURRENDER") != std::string::npos)
+					{
+						Debug()->DebugEndGame();
 					}
 				}
 

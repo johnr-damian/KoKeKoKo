@@ -65,6 +65,14 @@ namespace ModelService.Macromanagement
             Enemy_Agent = new Agent(enemy_agent, time);
         }
 
+        public Macromanagement(string owned_agent, string enemy_units)
+        {
+            var time = DateTime.Now;
+            var parsed_agent = owned_agent.Split(':');
+            Owned_Agent = new Agent(parsed_agent[0], parsed_agent[1]);
+            Enemy_Agent = new Agent(parsed_agent[0], parsed_agent[1]);
+        }
+
         public override string ToString()
         {
             string stuff = "";
@@ -72,6 +80,22 @@ namespace ModelService.Macromanagement
                 stuff += String.Format($@"{node.GetNodeInformation().Item1},{Convert.ToDouble(node.GetNodeInformation().Item2)}") + Environment.NewLine;
 
             return stuff;
+        }
+
+        public IEnumerable<string> GetMacromanagementStuff()
+        {
+            Current_Tree = new MCTSAlgorithm(Owned_Agent.GetDeepCopy(), Enemy_Agent.GetDeepCopy());
+
+            foreach(var result in Current_Tree.GeneratePredictedAction(Owned_Agent.Created_Time.AddSeconds(15)))
+            {
+                if(result == null)
+                {
+                    yield return "SURRENDER";
+                    break;
+                }
+
+                yield return result.Item1;
+            }
         }
 
         public IEnumerable<IEnumerable<double>> GetMacromanagementAccuracyReport(int number_of_simulations, AIAlgorithm algorithm)

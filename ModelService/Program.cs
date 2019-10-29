@@ -143,52 +143,53 @@ namespace ModelService
                                 //            Console.WriteLine($@"\t{message}");
                                 //        break;
                                 //}
-                                var player = default(Macromanagement.Macromanagement);
-                                switch(mode)
-                                {
-                                    case 0:
-                                        try
-                                        {
-                                            player = new Macromanagement.Macromanagement(partitionedmessage[0], partitionedmessage[1]);
-                                        }
-                                        catch (Exception ex)
-                                        {
-                                            Console.WriteLine($"An error occured! {ex.Message}");
-                                            modelrepositoryservice.SendMessageToAgent("BUILD_SUPPLYDEPOT");
-                                        }
+                                //var player = default(Macromanagement.Macromanagement);
+                                //switch(mode)
+                                //{
+                                //    case 0:
+                                //        try
+                                //        {
+                                //            player = new Macromanagement.Macromanagement(partitionedmessage[0], partitionedmessage[1]);
+                                //        }
+                                //        catch (Exception ex)
+                                //        {
+                                //            Console.WriteLine($"An error occured! {ex.Message}");
+                                //            modelrepositoryservice.SendMessageToAgent("BUILD_SUPPLYDEPOT");
+                                //        }
 
-                                        try
-                                        {
-                                            modelrepositoryservice.SendMessageToAgent(String.Join(",", player.GetMacromanagementStuff()));
-                                        }
-                                        catch (Exception ex)
-                                        {
-                                            Console.WriteLine($"An error occurred! {ex.Message}");
-                                            modelrepositoryservice.SendMessageToAgent("BUILD_SUPPLYDEPOT,BUILD_BARRACKS");
-                                        }
-                                        mode = 1;
-                                        break;
-                                    case 1:
-                                        try
-                                        {
-                                            modelrepositoryservice.SendMessageToAgent(String.Join(",", player.GetMacromanagementStuff()));
-                                        }
-                                        catch (Exception ex)
-                                        {
-                                            Console.WriteLine($@"An error occurred! {ex.Message}");
-                                            modelrepositoryservice.SendMessageToAgent("BUILD_SUPPLYDEPOT,BUILD_BARRACKS,TRAIN_MARINE");
-                                        }
-                                        break;
-                                }
+                                //        try
+                                //        {
+                                //            modelrepositoryservice.SendMessageToAgent(String.Join(",", player.GetMacromanagementStuff()));
+                                //        }
+                                //        catch (Exception ex)
+                                //        {
+                                //            Console.WriteLine($"An error occurred! {ex.Message}");
+                                //            modelrepositoryservice.SendMessageToAgent("BUILD_SUPPLYDEPOT,BUILD_BARRACKS");
+                                //        }
+                                //        mode = 1;
+                                //        break;
+                                //    case 1:
+                                //        try
+                                //        {
+                                //            modelrepositoryservice.SendMessageToAgent(String.Join(",", player.GetMacromanagementStuff()));
+                                //        }
+                                //        catch (Exception ex)
+                                //        {
+                                //            Console.WriteLine($@"An error occurred! {ex.Message}");
+                                //            modelrepositoryservice.SendMessageToAgent("BUILD_SUPPLYDEPOT,BUILD_BARRACKS,TRAIN_MARINE");
+                                //        }
+                                //        break;
+                                //}
 
-                                Console.WriteLine(partitionedmessage.Length);
-                                if(partitionedmessage.Length > 0)
-                                {
-                                    foreach (var s in partitionedmessage)
-                                        Console.WriteLine(s);
-                                }
+                                //Console.WriteLine(partitionedmessage.Length);
+                                //if(partitionedmessage.Length > 0)
+                                //{
+                                //    foreach (var s in partitionedmessage)
+                                //        Console.WriteLine(s);
+                                //}
 
-                                modelrepositoryservice.SendMessageToAgent("Hello World!");
+                                //modelrepositoryservice.SendMessageToAgent("Hello World!");
+                                modelrepositoryservice.SendMessageToAgent("BUILD_SUPPLYDEPOT");
                             }
 
                             Console.WriteLine("Program.cs -> Model Service is running!");

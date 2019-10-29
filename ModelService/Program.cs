@@ -147,12 +147,37 @@ namespace ModelService
                                 switch(mode)
                                 {
                                     case 0:
-                                        player = new Macromanagement.Macromanagement(partitionedmessage[0], partitionedmessage[1]);
-                                        modelrepositoryservice.SendMessageToAgent(String.Join(",", player.GetMacromanagementStuff()));
+                                        try
+                                        {
+                                            player = new Macromanagement.Macromanagement(partitionedmessage[0], partitionedmessage[1]);
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            Console.WriteLine($"An error occured! {ex.Message}");
+                                            modelrepositoryservice.SendMessageToAgent("BUILD_SUPPLYDEPOT");
+                                        }
+
+                                        try
+                                        {
+                                            modelrepositoryservice.SendMessageToAgent(String.Join(",", player.GetMacromanagementStuff()));
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            Console.WriteLine($"An error occurred! {ex.Message}");
+                                            modelrepositoryservice.SendMessageToAgent("BUILD_SUPPLYDEPOT,BUILD_BARRACKS");
+                                        }
                                         mode = 1;
                                         break;
                                     case 1:
-                                        modelrepositoryservice.SendMessageToAgent(String.Join(",", player.GetMacromanagementStuff()));
+                                        try
+                                        {
+                                            modelrepositoryservice.SendMessageToAgent(String.Join(",", player.GetMacromanagementStuff()));
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            Console.WriteLine($@"An error occurred! {ex.Message}");
+                                            modelrepositoryservice.SendMessageToAgent("BUILD_SUPPLYDEPOT,BUILD_BARRACKS,TRAIN_MARINE");
+                                        }
                                         break;
                                 }
 

@@ -148,13 +148,11 @@ namespace ModelService
                                 {
                                     case 0:
                                         player = new Macromanagement.Macromanagement(partitionedmessage[0], partitionedmessage[1]);
-                                        foreach (var action in player.GetMacromanagementStuff())
-                                            modelrepositoryservice.SendMessageToAgent(action);
+                                        modelrepositoryservice.SendMessageToAgent(String.Join(",", player.GetMacromanagementStuff()));
                                         mode = 1;
                                         break;
                                     case 1:
-                                        foreach (var action in player.GetMacromanagementStuff())
-                                            modelrepositoryservice.SendMessageToAgent(action);
+                                        modelrepositoryservice.SendMessageToAgent(String.Join(",", player.GetMacromanagementStuff()));
                                         break;
                                 }
 

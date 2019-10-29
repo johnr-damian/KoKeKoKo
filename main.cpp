@@ -339,13 +339,21 @@ namespace KoKeKoKo
 								#if _DEBUG
 									std::cout << "GetMessageFromModelService() -> Retrieving message: " << message.front() << std::endl;
 								#endif
-								_actions.push(message.front());
+								
+								std::stringstream new_actions(message.front());
 								message.pop();
+
+								std::cout << "The sent actions are:" << std::endl;
+								for (std::string current_action = ""; std::getline(new_actions, current_action, ',');)
+								{
+									std::cout << current_action << std::endl;
+									_actions.push(current_action);
+								}
 							}
 							_actionslock.unlock();
 
-							//Check if there is a message again after 5 seconds
-							std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+							//Check if there is a message again after 15 seconds
+							std::this_thread::sleep_for(std::chrono::milliseconds(15000));
 						}
 						catch (const std::exception& ex)
 						{

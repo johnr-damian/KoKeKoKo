@@ -28,6 +28,7 @@ namespace ModelService
 
             var testing = Services.Services.CreateNewService();
             testing.StartAllServices();
+            testing.StopAllServices();
 
             return 0;
             //try

@@ -1800,10 +1800,10 @@ int main(int argc, char* argv[])
 	{
 		auto coordinator = new sc2::Coordinator();
 		auto kokekokobot = new Agent::KoKeKoKoBot();
-		auto modelrepositoryservice = Model::ModelRepositoryService::StartModelRepositoryService();
+		//auto modelrepositoryservice = Model::ModelRepositoryService::StartModelRepositoryService();
 
 		//Start accepting messages
-		modelrepositoryservice->StartAcceptingMessages();
+		//modelrepositoryservice->StartAcceptingMessages();
 
 		//Start the game
 		/*coordinator->LoadSettings(argc, argv);

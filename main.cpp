@@ -1806,11 +1806,11 @@ int main(int argc, char* argv[])
 		modelrepositoryservice->StartAcceptingMessages();
 
 		//Start the game
-		coordinator->LoadSettings(argc, argv);
+		/*coordinator->LoadSettings(argc, argv);
 		coordinator->SetParticipants({ sc2::CreateParticipant(sc2::Race::Terran, kokekokobot), sc2::CreateComputer(sc2::Race::Terran, sc2::Difficulty::VeryEasy) });
 		coordinator->LaunchStarcraft();
 		coordinator->StartGame(sc2::kMapBelShirVestigeLE);
-		while (coordinator->Update());
+		while (coordinator->Update());*/
 	}
 	catch (const std::exception& ex)
 	{

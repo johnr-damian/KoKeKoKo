@@ -201,7 +201,7 @@ namespace ModelService.Services
                                             IncomingMessages.Enqueue(message);
                                     }
 
-                                    //Check if there is more message;
+                                    //Check if there is more message
                                     continue;
                                 }
 

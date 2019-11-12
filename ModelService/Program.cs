@@ -26,10 +26,10 @@ namespace ModelService
             //var modelrepositoryservice = new ModelRepositoryService();
             //var agent = new Participant();
 
-            var testing = Services.Services.CreateNewService();
-            testing.StartAllServices();
-            testing.StopAllServices();
-
+            //var testing = Services.Services.CreateNewService();
+            //testing.StartAllServices();
+            //testing.StopAllServices();
+            Console.WriteLine("Hello World!");
             return 0;
             //try
             //{

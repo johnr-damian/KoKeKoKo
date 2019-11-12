@@ -250,6 +250,21 @@ namespace ModelService.Services
                     {
                         Console.WriteLine($@"The C# Model has successfully connected to C++ Bot!");
 
+                        using(var writer = new StreamWriter(client))
+                        {
+                            for (string m = ""; m != "exit";)
+                            {
+                                Console.Write("Enter Message: ");
+                                m = Console.ReadLine();
+                                writer.WriteLine(m);
+                                writer.Flush();
+                            }
+                        };
+
+                        client.Close();
+                        return;
+
+
                         //While we keep the client up, try to check if there are
                         //new outgoing messages from C# Model. If there is, send it.
                         while (!KeepWritingMessage.Item2.IsCancellationRequested)
@@ -298,7 +313,6 @@ namespace ModelService.Services
             /// </remarks>
             public void StartAgentService()
             {
-                KeepReadingMessage.Item1.Start();
                 KeepWritingMessage.Item1.Start();
             }
 
@@ -313,17 +327,17 @@ namespace ModelService.Services
             public void StopAgentService()
             {
                 //Send the cancellation request
-                KeepReadingMessage.Item2.Cancel();
+                //KeepReadingMessage.Item2.Cancel();
                 KeepWritingMessage.Item2.Cancel();
 
                 //Then we wait for the task to be completed
-                KeepReadingMessage.Item1.Wait();
-                KeepWritingMessage.Item1.Wait();
+                //KeepReadingMessage.Item1.Wait();
+                KeepWritingMessage.Item1.Wait(Timeout.Infinite);
 
                 //Dispose everything
-                KeepReadingMessage.Item1.Dispose();
+                //KeepReadingMessage.Item1.Dispose();
                 KeepWritingMessage.Item1.Dispose();
-                KeepReadingMessage.Item2.Dispose();
+                //KeepReadingMessage.Item2.Dispose();
                 KeepWritingMessage.Item2.Dispose();
             }
             #endregion

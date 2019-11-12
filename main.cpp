@@ -7,160 +7,7 @@
 #include <thread>
 #include <Windows.h>
 
-//The counterpart of ModelService from C# Model.
-namespace AgentService
-{
-	using namespace std;
-
-	//Facilitates the communication to C# Model, and manages the
-	//outgoing messsages from C++ Agent using named pipes
-	class ModelService
-	{
-		private:
-			//Instance of this class
-			static ModelService* Instance;
-			//Since there is no lock syntax, this represents the lock for threading
-			mutex ThreadLocker;
-			//The recieved messages from C# Model.
-			queue<string> IncomingMessages;
-			//The messages to be sent to C# Model.
-			queue<string> OutgoingMessages;
-			//The thread that keeps listening and recieving messages from C# Model.
-			tuple<thread*, bool> KeepReadingMessage;
-			//The thread that keeps writing and sending messages to C# Model.
-			tuple<thread*, bool> KeepWritingMessage;
-
-			ModelService(const ModelService&);
-			ModelService& operator=(const ModelService&);
-			//Initializes the required properties to handle communication to C# Model
-			
-
-			void ReadMessagesFromModel()
-			{
-				//Check if it has been cancelled from the start
-				if (get<1>(KeepReadingMessage))
-					return;
-
-				//Initialize the settings to start the C# Model
-				STARTUPINFO startupinfo = { 0 };
-				PROCESS_INFORMATION processinformation = { 0 };
-				LPSTR model = new char[MAX_PATH];
-				LPSTR relativedirectory = new char[MAX_PATH];
-				ZeroMemory(&startupinfo, sizeof(startupinfo));
-				ZeroMemory(&processinformation, sizeof(processinformation));
-				startupinfo.cb = sizeof(startupinfo);
-				if (!(GetCurrentDirectoryA(MAX_PATH, relativedirectory) != 0))
-					throw exception("Failed to get the current directory...");
-				#if _DEBUG
-					string absolutedirectory = (((string)relativedirectory) + "\\ModelService\\bin\\Debug\\ModelService.exe");
-				#else
-					string absolutedirectory = (((string)relativedirectory) + "\\ModelService\\bin\\Release\\ModelService.exe");
-				#endif
-				model = const_cast<char *>(absolutedirectory.c_str());
-
-				//Start the C# Model
-				if (!CreateProcessA(NULL, model, NULL, NULL, FALSE, 0, NULL, NULL, &startupinfo, &processinformation))
-					throw exception("Failed to start the C# Model application...");
-
-				//Initialize the settings to start a server
-				DWORD readerpointer = 0;
-				HANDLE server = INVALID_HANDLE_VALUE;
-				LPSTR servername = TEXT("\\\\.\\pipe\\AgentServer");
-				char buffer[4096] = { 0 };
-				ZeroMemory(buffer, sizeof(buffer));
-				
-				//Create a server where the C# Model will connect to
-				server = CreateNamedPipeA(servername, PIPE_ACCESS_DUPLEX, PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_WAIT, PIPE_UNLIMITED_INSTANCES, sizeof(buffer), sizeof(buffer), 0, NULL);
-				if (server != INVALID_HANDLE_VALUE)
-				{
-					//Wait for the C# Model to connect
-					if (ConnectNamedPipe(server, NULL))
-					{
-						cout << "The C# Model has successfully connected to C++ Agent!" << endl;
-
-						//While we keep the server up, try to check if there are
-						//new incoming messages from C# Model. If there is, retrieve it.
-						while (!get<1>(KeepReadingMessage))
-						{
-							//There is a new incoming message from C# Model.
-							if (PeekNamedPipe(server, NULL, NULL, NULL, NULL, NULL))
-							{
-								//Ensure clean buffer
-								ZeroMemory(buffer, sizeof(buffer));
-
-								//Read the message from C# Model
-								while (ReadFile(server, buffer, sizeof(buffer), &readerpointer, NULL))
-									buffer[readerpointer] = '\0';
-
-								//Enqueue the recieved message
-								ThreadLocker.lock();
-								string message = string(buffer);
-								cout << "Successfully recieved '" << message << "' from C# Model..." << endl;
-
-								IncomingMessages.push(message);
-								ThreadLocker.unlock();
-
-								//Check if there is more message
-								continue;
-							}
-
-							//Since there is no message, it is probably because
-							//it is not yet the nextupdatetime, to give way to other
-							//threads, we must let this pipe sleep until the next update time
-							//But time synchronization is hard, so we will just estimate this and 
-							//hopefully C# Model could follow
-							this_thread::sleep_for(chrono::milliseconds(15000));
-						}
-
-						//Disconnect C# Model
-						DisconnectNamedPipe(server);
-					}
-
-					//Dispose the server
-					CloseHandle(server);
-
-					//Prepare to close the C# Model
-					DWORD exitcode = 0;
-
-					//Try to wait for 30s before releasing the process
-					WaitForSingleObject(processinformation.hProcess, 30000);
-					if (!GetExitCodeProcess(processinformation.hProcess, &exitcode))
-						throw exception("Failed to get exit code of C# Model application...");
-
-					//Close the C# Model
-					CloseHandle(processinformation.hProcess);
-					CloseHandle(processinformation.hThread);
-				}
-				else
-					throw exception("Failed to create a server for C# Model...");
-			}
-
-			void SendMessagesToModel()
-			{
-				//Check if it has been cancelled from the start
-				if (get<1>(KeepWritingMessage))
-					return;
-
-				//
-			}
-
-
-		public:
-			ModelService()
-			{
-				IncomingMessages = queue<string>();
-				OutgoingMessages = queue<string>();
-			}
-			void StartModelService()
-			{
-				auto server = new thread(&AgentService::ModelService::ReadMessagesFromModel, this);
-				KeepReadingMessage = make_tuple(server, false);
-			}
-	};
-}
-
-
-
+#include "ModelService.h"
 
 namespace KoKeKoKo
 {
@@ -172,7 +19,7 @@ namespace KoKeKoKo
 		class KoKeKoKoBot : public Agent
 		{
 			private:
-				AgentService::ModelService* _instance;
+				Services::ModelService* _instance;
 				std::atomic<bool> _shouldkeepupdating;
 				std::map<std::string, std::thread*> _threads;
 				std::mutex _actionslock;
@@ -1678,6 +1525,9 @@ namespace KoKeKoKo
 	}
 }
 
+
+
+Services::ModelService* Services::ModelService::Instance = nullptr;
 using namespace KoKeKoKo;
 //Model::ModelRepositoryService* Model::ModelRepositoryService::_instance = nullptr;
 
@@ -1687,9 +1537,11 @@ int main(int argc, char* argv[])
 	{
 		auto coordinator = new sc2::Coordinator();
 		auto kokekokobot = new Agent::KoKeKoKoBot();
-		auto test = new AgentService::ModelService();
-
-		test->StartModelService();
+		auto test2 = Services::ModelService::CreateNewModelService();
+		test2->StartModelService();
+		test2->StopModelService();
+		
+		//test->StartModelService();
 		//auto modelrepositoryservice = Model::ModelRepositoryService::StartModelRepositoryService();
 
 		//Start accepting messages
@@ -1711,8 +1563,14 @@ int main(int argc, char* argv[])
 		std::cout << "An Application error occurred! Stopping the program immediately...";
 	}
 
-	char c;
-	std::cout << "Press enter to continue..." << std::endl;
-	std::cin >> c;
+	/*std::string message;
+	while (true)
+	{
+		std::this_thread::sleep_for(std::chrono::milliseconds(10000));
+		std::cout << "Press enter to continue..." << std::endl;
+		std::cin >> message;
+		if (message == "exit")
+			break;
+	}*/
 	return 0;
 }

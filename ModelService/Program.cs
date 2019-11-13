@@ -26,9 +26,40 @@ namespace ModelService
             //var modelrepositoryservice = new ModelRepositoryService();
             //var agent = new Participant();
 
-            var testing = Services.Services.CreateNewService();
-            testing.StartAllServices();
-            testing.StopAllServices();
+            //var testing = Services.Services.CreateNewService();
+            //testing.StartAllServices();
+            //testing.StopAllServices();
+
+            string message = "";
+
+            while(message != "exit")
+            {
+                using (var client = new NamedPipeClientStream("AgentServer"))
+                {
+                    
+
+                    client.Connect();
+                    
+
+                    if (client.IsConnected)
+                    {
+                        Console.Write("Enter Message(C#): ");
+                        message = Console.ReadLine();
+
+                        var writer = new StreamWriter(client);
+                        writer.AutoFlush = true;
+                        writer.WriteLine(message);
+                        client.WaitForPipeDrain();
+
+                        var reader = new StreamReader(client);
+                        message = reader.ReadLine();
+
+                        Console.WriteLine($@"Recieved Message(C#): {message}");
+                        client.Close();
+                    }
+                }
+            }
+
             
             return 0;
             //try

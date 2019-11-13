@@ -1529,48 +1529,125 @@ namespace KoKeKoKo
 
 Services::ModelService* Services::ModelService::Instance = nullptr;
 using namespace KoKeKoKo;
+using namespace std;
 //Model::ModelRepositoryService* Model::ModelRepositoryService::_instance = nullptr;
 
 int main(int argc, char* argv[])
 {
-	try
-	{
-		auto coordinator = new sc2::Coordinator();
-		auto kokekokobot = new Agent::KoKeKoKoBot();
-		auto test2 = Services::ModelService::CreateNewModelService();
-		test2->StartModelService();
-		test2->StopModelService();
-		
-		//test->StartModelService();
-		//auto modelrepositoryservice = Model::ModelRepositoryService::StartModelRepositoryService();
+	std::string message = "";
 
-		//Start accepting messages
-		//modelrepositoryservice->StartAcceptingMessages();
+	//Prepare fields for starting C# Model
+	STARTUPINFO startupinfo = { 0 };
+	PROCESS_INFORMATION Model;
+	LPSTR absolutedirectory = new char[MAX_PATH];
+	LPSTR currentdirectory = new char[MAX_PATH];
+	ZeroMemory(&startupinfo, sizeof(startupinfo));
+	ZeroMemory(&Model, sizeof(Model));
+	startupinfo.cb = sizeof(startupinfo);
 
-		//Start the game
-		/*coordinator->LoadSettings(argc, argv);
-		coordinator->SetParticipants({ sc2::CreateParticipant(sc2::Race::Terran, kokekokobot), sc2::CreateComputer(sc2::Race::Terran, sc2::Difficulty::VeryEasy) });
-		coordinator->LaunchStarcraft();
-		coordinator->StartGame(sc2::kMapBelShirVestigeLE);
-		while (coordinator->Update());*/
-	}
-	catch (const std::exception& ex)
+	//Get the absolute directory of C# Model
+	if (GetCurrentDirectoryA(MAX_PATH, currentdirectory) != 0)
 	{
-		std::cout << ex.what() << std::endl;
-	}
-	catch (...)
-	{
-		std::cout << "An Application error occurred! Stopping the program immediately...";
+#if _DEBUG
+		string directory = (((string)currentdirectory) + "\\ModelService\\bin\\Debug\\ModelService.exe");
+#else
+		string directory = (((string)currentdirectory) + "\\ModelService\\bin\\Release\\ModelService.exe");
+#endif
+		absolutedirectory = const_cast<char *>(directory.c_str());
+		cout << "Successfully retrieved the current directory!" << endl;
+
+		//Start the C# Model
+		if (CreateProcessA(NULL, absolutedirectory, NULL, NULL, FALSE, 0, NULL, NULL, &startupinfo, &Model))
+			cout << "Successfully started the C# Model!" << endl;
+		else
+			throw exception("Failed to start the C# Model...");
 	}
 
-	/*std::string message;
-	while (true)
+	//Prepare fields to create the server
+	DWORD writerpointer = 0;
+	DWORD readerpointer = 0;
+	HANDLE server = INVALID_HANDLE_VALUE;
+	LPSTR servername = TEXT("\\\\.\\pipe\\AgentServer");
+	char rbuffer[4096] = { 0 };
+	char wbuffer[4096] = { 0 };
+	ZeroMemory(rbuffer, sizeof(rbuffer));
+	ZeroMemory(wbuffer, sizeof(wbuffer));
+
+	//Create the server where the C# Model will connect to
+	while (message != "exit")
 	{
-		std::this_thread::sleep_for(std::chrono::milliseconds(10000));
-		std::cout << "Press enter to continue..." << std::endl;
-		std::cin >> message;
-		if (message == "exit")
-			break;
-	}*/
+		ZeroMemory(rbuffer, sizeof(rbuffer));
+		ZeroMemory(wbuffer, sizeof(wbuffer));
+
+		server = CreateNamedPipeA(servername, PIPE_ACCESS_DUPLEX, PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_WAIT, PIPE_UNLIMITED_INSTANCES, 4096, 4096, 0, NULL);
+		if (server != INVALID_HANDLE_VALUE)
+		{
+			if (ConnectNamedPipe(server, NULL))
+			{
+				ReadFile(server, rbuffer, sizeof(rbuffer), &readerpointer, NULL);
+				rbuffer[readerpointer] = '\0';
+
+				message = std::string(rbuffer);
+				std::cout << "Recieved Message(C++): " << message << std::endl;
+				std::cout << "Enter Message(C++): ";
+				std::cin >> message;
+				//ZeroMemory(buffer, sizeof(buffer));
+				strcpy_s(wbuffer, message.c_str());
+				WriteFile(server, wbuffer, (message.size() + 1), &writerpointer, NULL);
+				FlushFileBuffers(server);
+
+				DisconnectNamedPipe(server);
+			}
+		}
+
+		CloseHandle(server);
+	}
+
+	//Close the C# Model
+	WaitForSingleObject(Model.hProcess, INFINITE);
+	CloseHandle(Model.hProcess);
+	CloseHandle(Model.hThread);
 	return 0;
+
+
+	//try
+	//{
+	//	auto coordinator = new sc2::Coordinator();
+	//	auto kokekokobot = new Agent::KoKeKoKoBot();
+	//	auto test2 = Services::ModelService::CreateNewModelService();
+	//	test2->StartModelService();
+	//	test2->StopModelService();
+	//	
+	//	//test->StartModelService();
+	//	//auto modelrepositoryservice = Model::ModelRepositoryService::StartModelRepositoryService();
+
+	//	//Start accepting messages
+	//	//modelrepositoryservice->StartAcceptingMessages();
+
+	//	//Start the game
+	//	/*coordinator->LoadSettings(argc, argv);
+	//	coordinator->SetParticipants({ sc2::CreateParticipant(sc2::Race::Terran, kokekokobot), sc2::CreateComputer(sc2::Race::Terran, sc2::Difficulty::VeryEasy) });
+	//	coordinator->LaunchStarcraft();
+	//	coordinator->StartGame(sc2::kMapBelShirVestigeLE);
+	//	while (coordinator->Update());*/
+	//}
+	//catch (const std::exception& ex)
+	//{
+	//	std::cout << ex.what() << std::endl;
+	//}
+	//catch (...)
+	//{
+	//	std::cout << "An Application error occurred! Stopping the program immediately...";
+	//}
+
+	///*std::string message;
+	//while (true)
+	//{
+	//	std::this_thread::sleep_for(std::chrono::milliseconds(10000));
+	//	std::cout << "Press enter to continue..." << std::endl;
+	//	std::cin >> message;
+	//	if (message == "exit")
+	//		break;
+	//}*/
+	//return 0;
 }

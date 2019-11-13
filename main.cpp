@@ -1593,7 +1593,7 @@ int main(int argc, char* argv[])
 				std::cin >> message;
 				//ZeroMemory(buffer, sizeof(buffer));
 				strcpy_s(wbuffer, message.c_str());
-				WriteFile(server, wbuffer, (message.size() + 1), &writerpointer, NULL);
+				WriteFile(server, wbuffer, (message.size()), &writerpointer, NULL);
 				FlushFileBuffers(server);
 
 				DisconnectNamedPipe(server);

@@ -6,6 +6,8 @@
 #include <sstream>
 #include <thread>
 #include <Windows.h>
+#include <iomanip>
+#include <ctime>
 
 #include "ModelService.h"
 
@@ -1527,7 +1529,6 @@ namespace KoKeKoKo
 
 
 
-Services::ModelService* Services::ModelService::Instance = nullptr;
 using namespace KoKeKoKo;
 using namespace std;
 //Model::ModelRepositoryService* Model::ModelRepositoryService::_instance = nullptr;
@@ -1587,8 +1588,48 @@ int main(int argc, char* argv[])
 				ReadFile(server, rbuffer, sizeof(rbuffer), &readerpointer, NULL);
 				rbuffer[readerpointer] = '\0';
 
-				message = std::string(rbuffer);
+				message = std::string(rbuffer);				
 				std::cout << "Recieved Message(C++): " << message << std::endl;
+
+				/*struct tm time;
+				istringstream ss(message);
+				ss >> get_time(&time, "%H:%M:%S");
+				time_t truetime = mktime(&time);
+				time_t nexttime = truetime;
+				stringstream sw;
+				sw << nexttime;*/
+
+				struct tm currenttime = { 0 };
+				struct tm nexttime = {0};
+				time_t ctime = { 0 };
+				time_t ntime = {0};
+				istringstream result(message);
+				string r;
+				for (int column = 0; getline(result, r, ','); column++)
+				{
+					if (column == 0)
+					{
+						istringstream ss(r);
+						ss >> get_time(&currenttime, "%m:%d:%Y:%H:%M:%S");
+						ctime = mktime(&currenttime);
+					}
+					else
+					{
+						istringstream ss(r);
+						ss >> get_time(&nexttime, "%m:%d:%Y:%H:%M:%S");
+						ntime = mktime(&nexttime);
+					}
+				}
+
+				ostringstream a, b;
+				a << ctime;
+				b << ntime;
+
+				cout << "Current Time: " << a.str() << " | Next Time: " << b.str() << endl;
+				cout << "Is Current Time < Next Time? " << (ctime < ntime) << endl;
+				//this_thread::sleep_for(chrono::milliseconds(10000));
+				this_thread::sleep_until(chrono::system_clock::from_time_t(ntime));
+
 				std::cout << "Enter Message(C++): ";
 				std::cin >> message;
 				//ZeroMemory(buffer, sizeof(buffer));

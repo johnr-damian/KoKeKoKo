@@ -48,7 +48,7 @@ namespace ModelService
 
                         var writer = new StreamWriter(client);
                         writer.AutoFlush = true;
-                        writer.WriteLine(message);
+                        writer.WriteLine($@"{DateTime.Now.ToString("MM:dd:yyyy:HH:mm:ss")},{DateTime.Now.AddSeconds(15).ToString("MM:dd:yyyy:HH:mm:ss")}");
                         client.WaitForPipeDrain();
 
                         var reader = new StreamReader(client);

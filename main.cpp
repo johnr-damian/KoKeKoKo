@@ -1621,17 +1621,25 @@ int main(int argc, char* argv[])
 					}
 				}
 
+				auto current = chrono::system_clock::now();
+				time_t ccurrent = chrono::system_clock::to_time_t(current);
+
+				ctime = ccurrent;
+
 				ostringstream a, b;
-				a << ctime;
+				a << ccurrent;
 				b << ntime;
 
+				
+
 				cout << "Current Time: " << a.str() << " | Next Time: " << b.str() << endl;
-				cout << "Is Current Time < Next Time? " << (ctime < ntime) << endl;
+				cout << "Is Current Time < Next Time? " << (ccurrent < ntime) << endl;
 				//this_thread::sleep_for(chrono::milliseconds(10000));
 				this_thread::sleep_until(chrono::system_clock::from_time_t(ntime));
 
 				std::cout << "Enter Message(C++): ";
 				std::cin >> message;
+				message = "Hello";
 				//ZeroMemory(buffer, sizeof(buffer));
 				strcpy_s(wbuffer, message.c_str());
 				WriteFile(server, wbuffer, (message.size()), &writerpointer, NULL);

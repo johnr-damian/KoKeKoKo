@@ -13,6 +13,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using ModelService.Types;
+using Services;
 
 namespace ModelService
 {
@@ -30,36 +31,62 @@ namespace ModelService
             //testing.StartAllServices();
             //testing.StopAllServices();
 
+            //string message = "";
+            //string lastmessage = "";
+
+            //while(message != "Terminate")
+            //{
+            //    using (var client = new NamedPipeClientStream("AgentServer"))
+            //    {
+
+
+            //        client.Connect();
+
+            //        if (client.IsConnected)
+            //        {                        
+
+            //            var reader = new StreamReader(client);
+            //            message = reader.ReadLine();
+            //            client.WaitForPipeDrain();
+            //            Console.WriteLine($@"Recieved Message(C#): {message}");
+
+            //            var writer = new StreamWriter(client);
+            //            writer.AutoFlush = true;
+            //            if (message == "Initialize")
+            //            {
+            //                writer.WriteLine($@"{DateTime.Now.AddSeconds(15).ToString("MM:dd:yyyy:HH:mm:ss")}");
+            //            }
+            //            else if (message == "Terminate")
+            //            {
+            //                writer.WriteLine("Terminate");
+            //            }
+            //            else
+            //            {
+            //                writer.WriteLine($@"{DateTime.Now.AddSeconds(15).ToString("MM:dd:yyyy:HH:mm:ss")};BUILD_REFINERY");
+            //            }
+
+
+            //            client.Close();                        
+            //        }
+            //    }
+            //}
+
+            var m = AgentService.CreateNewAgentService();
             string message = "";
-
-            while(message != "exit")
+            for(int c = 0; message != "Terminate"; c++)
             {
-                using (var client = new NamedPipeClientStream("AgentServer"))
+                if (c < 2)
                 {
-                    
-
-                    client.Connect();
-                    
-
-                    if (client.IsConnected)
-                    {
-                        Console.Write("Enter Message(C#): ");
-                        message = Console.ReadLine();
-
-                        var writer = new StreamWriter(client);
-                        writer.AutoFlush = true;
-                        writer.WriteLine($@"{DateTime.Now.ToString("MM:dd:yyyy:HH:mm:ss")},{DateTime.Now.AddSeconds(15).ToString("MM:dd:yyyy:HH:mm:ss")}");
-                        client.WaitForPipeDrain();
-
-                        var reader = new StreamReader(client);
-                        message = reader.ReadLine();
-
-                        Console.WriteLine($@"Recieved Message(C#): {message}");
-                        client.Close();
-                    }
+                    message = m.UpdateAgentService("BUILD_REFINERY").Dequeue();
+                    Console.WriteLine($@"(C#)Message: {message}");
                 }
+                else
+                {
+                    message = m.UpdateAgentService("Terminate").Dequeue();
+                    Console.WriteLine($@"(C#)Message: {message}");
+                }
+                    
             }
-
             
             return 0;
             //try

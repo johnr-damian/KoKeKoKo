@@ -68,7 +68,6 @@ namespace Services
 			//Checks if the current system time is less than the next update time
 			bool ShouldOperationsContinue()
 			{
-				bool shouldcontinue = false;
 				time_t current_time = chrono::system_clock::to_time_t(chrono::system_clock::now());
 
 				return (current_time < NextUpdateTime);
@@ -102,41 +101,41 @@ namespace Services
 						{
 							cout << "(C++)The C# Model has sucessfully connected to C++ Agent!" << endl;
 
-							//Read the C# Model's message
-							if (ReadFile(server, readerbuffer, sizeof(readerbuffer), &readerpointer, NULL))
+							//Send the update message to C# Model
+							update = update + "\r\n"; //Append the terminator for C# Model
+							strcpy_s(writerbuffer, update.c_str());
+							if (WriteFile(server, writerbuffer, update.size(), &writerpointer, NULL))
 							{
-								readerbuffer[readerpointer] = '\0';
-								cout << "(C++)Successfully recieved C# Model's message!" << endl;
+								FlushFileBuffers(server);
+								cout << "(C++)Successfully sent the update message to C# Model!" << endl;
 
-								//Enqueue the C# Model's message
-								string raw_message = string(readerbuffer), currentmessage = "";
-								istringstream parsed_message(raw_message);
-								while (getline(parsed_message, currentmessage, ';'))
-									messages.push(currentmessage);
-
-								//Dequeue the next update time
-								struct tm raw_time = { 0 };
-								istringstream time(messages.front());
-								time >> get_time(&raw_time, "%m:%d:%Y:%H:%M:%S");
-								NextUpdateTime = mktime(&raw_time);
-								messages.pop();
-
-								//Return a reply to C# Model
-								strcpy_s(writerbuffer, update.c_str());
-								if (WriteFile(server, writerbuffer, update.size(), &writerpointer, NULL))
+								//Read the C# Model's reply
+								if (ReadFile(server, readerbuffer, sizeof(readerbuffer), &readerpointer, NULL))
 								{
-									//Flush the message
-									FlushFileBuffers(server);
-									cout << "(C++)Successfully sent the update message to C# Model!" << endl;
+									readerbuffer[readerpointer] = '\0';
+									cout << "(C++)Successfully recieved C# Model's message!" << endl;
+
+									//Enqueue the C# Model's message
+									string raw_message = string(readerbuffer), current_message = "";
+									istringstream parsed_message(raw_message);
+									while (getline(parsed_message, current_message, ';'))
+										messages.push(current_message);
+
+									//Dequeue the NextUpdateTime
+									struct tm raw_time = { 0 };
+									istringstream time(messages.front());
+									time >> get_time(&raw_time, "%m:%d:%Y:%H:%M:%S");
+									NextUpdateTime = mktime(&raw_time);
+									messages.pop();
 
 									//Disconnect C# Model
 									DisconnectNamedPipe(server);
 								}
 								else
-									throw exception("Failed to send a reply to C# Model...");
+									throw exception("Failed to recieve C# Model's message...");
 							}
 							else
-								throw exception("Failed to retrieve C# Model's message...");
+								throw exception("Failed to send the update message to C# Model...");
 						}
 
 						//Close the server

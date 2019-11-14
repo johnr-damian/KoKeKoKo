@@ -1527,176 +1527,47 @@ namespace KoKeKoKo
 	}
 }
 
-
-
-using namespace KoKeKoKo;
-using namespace std;
-//Model::ModelRepositoryService* Model::ModelRepositoryService::_instance = nullptr;
-
+Services::ModelService* Services::ModelService::Instance = nullptr;
 int main(int argc, char* argv[])
 {
-	std::string message = "";
-
-	//Prepare fields for starting C# Model
-	STARTUPINFO startupinfo = { 0 };
-	PROCESS_INFORMATION Model;
-	LPSTR absolutedirectory = new char[MAX_PATH];
-	LPSTR currentdirectory = new char[MAX_PATH];
-	ZeroMemory(&startupinfo, sizeof(startupinfo));
-	ZeroMemory(&Model, sizeof(Model));
-	startupinfo.cb = sizeof(startupinfo);
-
-	//Get the absolute directory of C# Model
-	if (GetCurrentDirectoryA(MAX_PATH, currentdirectory) != 0)
+	try
 	{
-#if _DEBUG
-		string directory = (((string)currentdirectory) + "\\ModelService\\bin\\Debug\\ModelService.exe");
-#else
-		string directory = (((string)currentdirectory) + "\\ModelService\\bin\\Release\\ModelService.exe");
-#endif
-		absolutedirectory = const_cast<char *>(directory.c_str());
-		cout << "Successfully retrieved the current directory!" << endl;
+		sc2::Coordinator* coordinator = new sc2::Coordinator();
+		KoKeKoKo::Agent::KoKeKoKoBot* kokekokobot = new KoKeKoKo::Agent::KoKeKoKoBot();
+		Services::ModelService* modelservice = Services::ModelService::CreateNewModelService();
 
-		//Start the C# Model
-		if (CreateProcessA(NULL, absolutedirectory, NULL, NULL, FALSE, 0, NULL, NULL, &startupinfo, &Model))
-			cout << "Successfully started the C# Model!" << endl;
-		else
-			throw exception("Failed to start the C# Model...");
-	}
-
-	//Prepare fields to create the server
-	DWORD writerpointer = 0;
-	DWORD readerpointer = 0;
-	HANDLE server = INVALID_HANDLE_VALUE;
-	LPSTR servername = TEXT("\\\\.\\pipe\\AgentServer");
-	char rbuffer[4096] = { 0 };
-	char wbuffer[4096] = { 0 };
-	ZeroMemory(rbuffer, sizeof(rbuffer));
-	ZeroMemory(wbuffer, sizeof(wbuffer));
-
-	//Create the server where the C# Model will connect to
-	while (message != "exit")
-	{
-		ZeroMemory(rbuffer, sizeof(rbuffer));
-		ZeroMemory(wbuffer, sizeof(wbuffer));
-
-		server = CreateNamedPipeA(servername, PIPE_ACCESS_DUPLEX, PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_WAIT, PIPE_UNLIMITED_INSTANCES, 4096, 4096, 0, NULL);
-		if (server != INVALID_HANDLE_VALUE)
+		auto reply = modelservice->UpdateModelService("Initialize");
+		while (!reply.empty())
 		{
-			if (ConnectNamedPipe(server, NULL))
-			{
-				ReadFile(server, rbuffer, sizeof(rbuffer), &readerpointer, NULL);
-				rbuffer[readerpointer] = '\0';
-
-				message = std::string(rbuffer);				
-				std::cout << "Recieved Message(C++): " << message << std::endl;
-
-				/*struct tm time;
-				istringstream ss(message);
-				ss >> get_time(&time, "%H:%M:%S");
-				time_t truetime = mktime(&time);
-				time_t nexttime = truetime;
-				stringstream sw;
-				sw << nexttime;*/
-
-				struct tm currenttime = { 0 };
-				struct tm nexttime = {0};
-				time_t ctime = { 0 };
-				time_t ntime = {0};
-				istringstream result(message);
-				string r;
-				for (int column = 0; getline(result, r, ','); column++)
-				{
-					if (column == 0)
-					{
-						istringstream ss(r);
-						ss >> get_time(&currenttime, "%m:%d:%Y:%H:%M:%S");
-						ctime = mktime(&currenttime);
-					}
-					else
-					{
-						istringstream ss(r);
-						ss >> get_time(&nexttime, "%m:%d:%Y:%H:%M:%S");
-						ntime = mktime(&nexttime);
-					}
-				}
-
-				auto current = chrono::system_clock::now();
-				time_t ccurrent = chrono::system_clock::to_time_t(current);
-
-				ctime = ccurrent;
-
-				ostringstream a, b;
-				a << ccurrent;
-				b << ntime;
-
-				
-
-				cout << "Current Time: " << a.str() << " | Next Time: " << b.str() << endl;
-				cout << "Is Current Time < Next Time? " << (ccurrent < ntime) << endl;
-				//this_thread::sleep_for(chrono::milliseconds(10000));
-				this_thread::sleep_until(chrono::system_clock::from_time_t(ntime));
-
-				std::cout << "Enter Message(C++): ";
-				std::cin >> message;
-				message = "Hello";
-				//ZeroMemory(buffer, sizeof(buffer));
-				strcpy_s(wbuffer, message.c_str());
-				WriteFile(server, wbuffer, (message.size()), &writerpointer, NULL);
-				FlushFileBuffers(server);
-
-				DisconnectNamedPipe(server);
-			}
+			std::cout << "Message: " << reply.front() << std::endl;
+			reply.pop();
 		}
 
-		CloseHandle(server);
+		reply = modelservice->UpdateModelService("Update;Test");
+		while (!reply.empty())
+		{
+			std::cout << "Message: " << reply.front() << std::endl;
+			reply.pop();
+		}
+
+		reply = modelservice->UpdateModelService("Terminate");
+		while (!reply.empty())
+		{
+			std::cout << "Message: " << reply.front() << std::endl;
+			reply.pop();
+		}
+		modelservice->StopModelService();
+	}
+	catch (const std::exception& ex)
+	{
+		std::cout << "(C++)Error Occurred! " << ex.what() << std::endl;
+	}
+	catch (...)
+	{
+		std::cout << "(C++)An Application Error Occurred! Please debug the program." << std::endl;
 	}
 
-	//Close the C# Model
-	WaitForSingleObject(Model.hProcess, INFINITE);
-	CloseHandle(Model.hProcess);
-	CloseHandle(Model.hThread);
+	char c;
+	std::cin >> c;
 	return 0;
-
-
-	//try
-	//{
-	//	auto coordinator = new sc2::Coordinator();
-	//	auto kokekokobot = new Agent::KoKeKoKoBot();
-	//	auto test2 = Services::ModelService::CreateNewModelService();
-	//	test2->StartModelService();
-	//	test2->StopModelService();
-	//	
-	//	//test->StartModelService();
-	//	//auto modelrepositoryservice = Model::ModelRepositoryService::StartModelRepositoryService();
-
-	//	//Start accepting messages
-	//	//modelrepositoryservice->StartAcceptingMessages();
-
-	//	//Start the game
-	//	/*coordinator->LoadSettings(argc, argv);
-	//	coordinator->SetParticipants({ sc2::CreateParticipant(sc2::Race::Terran, kokekokobot), sc2::CreateComputer(sc2::Race::Terran, sc2::Difficulty::VeryEasy) });
-	//	coordinator->LaunchStarcraft();
-	//	coordinator->StartGame(sc2::kMapBelShirVestigeLE);
-	//	while (coordinator->Update());*/
-	//}
-	//catch (const std::exception& ex)
-	//{
-	//	std::cout << ex.what() << std::endl;
-	//}
-	//catch (...)
-	//{
-	//	std::cout << "An Application error occurred! Stopping the program immediately...";
-	//}
-
-	///*std::string message;
-	//while (true)
-	//{
-	//	std::this_thread::sleep_for(std::chrono::milliseconds(10000));
-	//	std::cout << "Press enter to continue..." << std::endl;
-	//	std::cin >> message;
-	//	if (message == "exit")
-	//		break;
-	//}*/
-	//return 0;
 }

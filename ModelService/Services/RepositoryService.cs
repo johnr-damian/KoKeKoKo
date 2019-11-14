@@ -1,12 +1,9 @@
 ﻿using System;
 
-namespace ModelService.Services
+namespace Services
 {
-    public partial class Services
+    public class RepositoryService
     {
-        private class RepositoryService
-        {
 
-        }
     }
 }

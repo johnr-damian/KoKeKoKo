@@ -48,8 +48,12 @@ namespace ModelService
                     {
                         //Generate new actions
                         var newactions = String.Join(",", test.GetMacromanagementStuff());
-                        var nextwhattodo = agentservice.UpdateAgentService(newactions);
-                        message = nextwhattodo.Dequeue();
+
+                        if (!agentservice.ShouldOperationsContinue())
+                        {
+                            var nextwhattodo = agentservice.UpdateAgentService(newactions);
+                            message = nextwhattodo.Dequeue();
+                        }
                     }
                 }
             }

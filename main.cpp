@@ -1554,34 +1554,27 @@ int main(int argc, char* argv[])
 		Services::ModelService* modelservice = Services::ModelService::CreateNewModelService();
 
 		/*auto reply = modelservice->UpdateModelService("UPDATE");
-		while (!reply.empty())
+		for (int counter = 0; counter < 1000; counter++)
 		{
-			std::cout << "Message: " << reply.front() << std::endl;
-			reply.pop();
+			while (!reply.empty())
+			{
+				std::cout << "Message: " << reply.front() << std::endl;
+				reply.pop();
+			}
+
+			if (!modelservice->ShouldOperationsContinue())
+				reply = modelservice->UpdateModelService("UPDATE");
 		}
 
-		reply = modelservice->UpdateModelService("UPDATE");
-		while (!reply.empty())
-		{
-			std::cout << "Message: " << reply.front() << std::endl;
-			reply.pop();
-		}
-
-		reply = modelservice->UpdateModelService("TERMINATE");
-		while (!reply.empty())
-		{
-			std::cout << "Message: " << reply.front() << std::endl;
-			reply.pop();
-		}
 		modelservice->StopModelService();
 		char c;
 		std::cin >> c;*/
 
-		coordinator->LoadSettings(argc, argv);
+		/*coordinator->LoadSettings(argc, argv);
 		coordinator->SetParticipants({ sc2::CreateParticipant(sc2::Race::Terran, kokekokobot), sc2::CreateComputer(sc2::Race::Terran, sc2::Difficulty::VeryEasy) });
 		coordinator->LaunchStarcraft();
 		coordinator->StartGame(sc2::kMapBelShirVestigeLE);
-		while (coordinator->Update());
+		while (coordinator->Update());*/
 	}
 	catch (const std::exception& ex)
 	{

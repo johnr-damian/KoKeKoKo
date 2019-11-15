@@ -99,7 +99,7 @@ namespace Services
                             using (var writer = new StreamWriter(client))
                             {
                                 writer.AutoFlush = true;
-                                writer.WriteLine($@"{NextUpdateTime};{update}");
+                                writer.WriteLine($@"{NextUpdateTime.ToString("MM:dd:yyyy:HH:mm:ss")};{update}");
                                 writer.Flush();
                                 Console.WriteLine("(C#)Successfully sent the update message to C++ Agent");
 

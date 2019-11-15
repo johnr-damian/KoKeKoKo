@@ -1102,7 +1102,7 @@ namespace KoKeKoKo
 
 				virtual void OnGameStart() final
 				{
-					auto service = Services::ModelService::GetExistingModelService();
+					auto service = Services::ModelService::CreateNewModelService();
 					_actions = service->UpdateModelService("UPDATE");
 					_currentaction = _actions.front();
 					_actions.pop();
@@ -1142,7 +1142,7 @@ namespace KoKeKoKo
 					//	_currentaction = GetAnActionFromMessage();
 					//	
 					//std::cout << _currentaction << std::endl;
-					auto service = Services::ModelService::GetExistingModelService();
+					auto service = Services::ModelService::CreateNewModelService();
 					if (_actions.empty() || !service->ShouldOperationsContinue())
 					{
 						_actions = service->UpdateModelService("UPDATE");
@@ -1156,7 +1156,7 @@ namespace KoKeKoKo
 
 				virtual void OnGameEnd() final
 				{
-					auto service = Services::ModelService::GetExistingModelService();
+					auto service = Services::ModelService::CreateNewModelService();
 					_actions = service->UpdateModelService("TERMINATE");
 					service->StopModelService();
 					

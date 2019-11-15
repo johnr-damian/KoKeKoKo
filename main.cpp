@@ -13,20 +13,6 @@
 #include <ctime>
 
 #include "ModelService.h"
-#include "sc2api/sc2_api.h"
-#include "sc2lib/sc2_lib.h"
-
-namespace KoKeKoKo
-{
-	namespace Model
-	{
-		using namespace std;
-		//The directory of the model
-		#if _DEBUG
-			const string MODELSERVICE_FILENAME = "ModelService\\bin\\Debug\\ModelService.exe";
-		#else
-			const string MODELSERVICE_FILENAME = "ModelService\\bin\\Release\\ModelService.exe";
-		#endif
 
 namespace KoKeKoKo
 {
@@ -1659,6 +1645,17 @@ namespace KoKeKoKo
 
 				virtual void OnGameStart() final
 				{
+					auto service = Services::ModelService::CreateNewModelService();
+					_actions = service->UpdateModelService("UPDATE");
+					std::istringstream raw_actions(_actions.front());
+					std::string raw_action = "";
+					while (std::getline(raw_actions, raw_action, ','))
+						_actions.push(raw_action);
+					_currentaction = _actions.front();
+					_actions.pop();
+
+					////We periodically get message and send updates to model service
+					//StartSendingUpdatesToModelService();
 					//Get possible expansion positions
 					std::vector<Point3D> expansions_;
 					expansions_ = search::CalculateExpansionLocations(Observation(), Query());
@@ -1674,17 +1671,6 @@ namespace KoKeKoKo
 
 					//We periodically get message and send updates to model service
 					StartSendingUpdatesToModelService();
-					auto service = Services::ModelService::CreateNewModelService();
-					_actions = service->UpdateModelService("UPDATE");
-					std::istringstream raw_actions(_actions.front());
-					std::string raw_action = "";
-					while (std::getline(raw_actions, raw_action, ','))
-						_actions.push(raw_action);
-					_currentaction = _actions.front();
-					_actions.pop();
-
-					////We periodically get message and send updates to model service
-					//StartSendingUpdatesToModelService();
 
 					//#if _DEBUG
 					//	std::cout << "Finished calling StartSendingUpdatesToModelService()! Proceeding to start the game... Getting the current action...";

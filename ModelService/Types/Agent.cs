@@ -170,6 +170,8 @@ namespace ModelService.Types
 
         public Agent(string macromanagement, string micromanagement)
         {
+            Owner = "Test";
+            Created_Time = DateTime.Now;
             Worth = new CostWorth(12, 50, 0, 15);
             Minerals = Worth.Mineral;
             Vespene = Worth.Vespene;
@@ -177,9 +179,9 @@ namespace ModelService.Types
             var units = new List<Unit>();
             for (int u = 0; u < 12; u++)
             {
-                units.Add(new Unit(Convert.ToInt64(Basis.First().Item1), Owner, u.ToString(), "TERRAN_SCV", 0, 0));
+                units.Add(new Unit(u, Owner, units.Count.ToString(), "TERRAN_SCV", 0, 0));
             }
-            units.Add(new Unit(Convert.ToInt64(Basis.First().Item1), Owner, units.Count.ToString(), "TERRAN_COMMANDCENTER", 0, 0));
+            units.Add(new Unit(units.Count, Owner, units.Count.ToString(), "TERRAN_COMMANDCENTER", 0, 0));
             Units = units.ToArmy();
         }
 

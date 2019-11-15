@@ -9,7 +9,10 @@
 #include <algorithm>
 #include <random>
 #include <iterator>
+#include <iomanip>
+#include <ctime>
 
+#include "ModelService.h"
 #include "sc2api/sc2_api.h"
 #include "sc2lib/sc2_lib.h"
 
@@ -25,264 +28,8 @@ namespace KoKeKoKo
 			const string MODELSERVICE_FILENAME = "ModelService\\bin\\Release\\ModelService.exe";
 		#endif
 
-		//Manages the communication between agent and model
-		class ModelRepositoryService
-		{
-			private:
-				//Instace of this class
-				static ModelRepositoryService* _instance;
-				//The execution of the model
-				PROCESS_INFORMATION _model;
-				//If the agent should accept messages from model service
-				atomic<bool> _shouldacceptmessages;
-				//The messages from the model
-				deque<string> _messages;
-				//A map of created threads where key is the method name, and value is the thread
-				map<string, thread*> _threads;
-				//Lock for message handling
-				mutex _messagelock;
-
-				ModelRepositoryService(const ModelRepositoryService&);
-				ModelRepositoryService& operator=(const ModelRepositoryService&);
-				//Initializes fields and starts the model service
-				ModelRepositoryService()
-				{
-					//Perform initializations
-					_shouldacceptmessages = false;
-					_messages = deque<string>();
-					_threads = map<string, thread*>();
-
-					//Start the model service
-					STARTUPINFO startupinfo = { 0 };
-					LPSTR executablefile = new char[MAX_PATH];
-					string executabledirectory = "";
-
-					ZeroMemory(&_model, sizeof(_model));
-					ZeroMemory(&startupinfo, sizeof(startupinfo));
-					startupinfo.cb = sizeof(startupinfo);
-					executabledirectory = GetAbsoluteDirectoryOf(MODELSERVICE_FILENAME);
-					executablefile = const_cast<char *>(executabledirectory.c_str());
-
-					if (!CreateProcessA(NULL, executablefile, NULL, NULL, FALSE, 0, NULL, NULL, &startupinfo, &_model))
-						throw exception(("Error Occurred! Failed to create process for model service with an exit code of " + to_string(GetLastError()) + "...").c_str());
-
-					#if _DEBUG
-						cout << "ModelRepositoryService() has been executed! The model should start by now..." << endl;
-					#endif
-				}
-
-				//Waits for model service to connect and accepts any messages from model service
-				void ListenForMessages()
-				{
-					DWORD readpointer = 0;
-					HANDLE server = INVALID_HANDLE_VALUE;
-					LPSTR name = TEXT("\\\\.\\pipe\\AgentServer");
-					char buffer[4096] = { 0 };
-					string message = "";
-
-					#if _DEBUG
-						cout << "ListenForMessages() has been called! Preparing to listen for messages..." << endl;
-					#endif
-
-					for (int failures = 0; _shouldacceptmessages;)
-					{
-						try
-						{
-							//Re-initialize variables
-							readpointer = 0;
-							server = INVALID_HANDLE_VALUE;
-							ZeroMemory(buffer, sizeof(buffer));
-							message = "";
-
-							//Create a named pipe
-							server = CreateNamedPipeA(name, PIPE_ACCESS_DUPLEX, PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_WAIT, PIPE_UNLIMITED_INSTANCES, sizeof(buffer), sizeof(buffer), 0, NULL);
-							if (server != INVALID_HANDLE_VALUE)
-							{
-								#if _DEBUG
-									cout << "ListenForMessages() -> Successfully created a server for model service! Waiting for a connection..." << endl;
-								#endif
-
-								//Wait for model service to connect
-								if (ConnectNamedPipe(server, NULL))
-								{
-									//Read the message from model service
-									while (ReadFile(server, buffer, sizeof(buffer), &readpointer, NULL))
-										buffer[readpointer] = '\0';
-
-									//Enqueue the message
-									_messagelock.lock();
-									message = string(buffer);
-									#if _DEBUG
-										cout << "ListenForMessages() -> Model service has connected! Your message is: \n\t" << message << endl;
-									#endif
-									_messages.push_back(message);
-									_messagelock.unlock();
-
-									//Disconnect model service
-									DisconnectNamedPipe(server);
-								}
-
-								//Close the server
-								#if _DEBUG
-									cout << "ListenForMessages() -> Model Service has been disconnected..." << endl;
-								#endif
-								CloseHandle(server);
-							}
-							else
-								throw exception(("Error Occurred! Failed to create a server for model service with an exit code of " + to_string(GetLastError()) + "...").c_str());
-						}
-						catch (const exception& ex)
-						{
-							cout << ex.what() << endl;
-							if (++failures >= 5)
-								throw exception("Error Occurred! Exceeded number of tries to create a server for model service...");
-						}
-					}
-				}
-
-			public:
-				//Disposes the instance and terminates model service
-				virtual ~ModelRepositoryService()
-				{
-					DWORD exitcode = 0;
-
-					//Try to wait for 30s before releasing the process
-					WaitForSingleObject(_model.hProcess, 30000);
-					if (!GetExitCodeProcess(_model.hProcess, &exitcode))
-						throw exception(("Error Occurred! Failed to get exit status of process with an exit code of " + to_string(GetLastError()) + "...").c_str());
-
-					cout << "Model Service is terminated with an exit code of " << exitcode << endl;
-					CloseHandle(_model.hProcess);
-					CloseHandle(_model.hThread);
-				}
-
-				//Starts model service and returns the instance of this class
-				static ModelRepositoryService* StartModelRepositoryService()
-				{
-					if (_instance == nullptr)
-						_instance = new ModelRepositoryService();
-
-					return _instance;
-				}
-
-				//Sends a message to model service and returns true if successfully sent
-				bool SendMessageToModelService(string message)
-				{
-					DWORD writepointer = 0;
-					HANDLE client = INVALID_HANDLE_VALUE;
-					LPSTR name = TEXT("\\\\.\\pipe\\ModelServer");
-					char buffer[4096] = { 0 };
-
-					try
-					{
-						#if _DEBUG
-							cout << "SendMessageToModelService() has been called! Sending a message to model service..." << endl;
-						#endif
-						strcpy_s(buffer, message.c_str());
-
-						client = CreateFileA(name, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
-						if (client != INVALID_HANDLE_VALUE)
-						{
-							if (WriteFile(client, buffer, (message.size() + 1), &writepointer, NULL))
-								FlushFileBuffers(client);
-							else
-								throw exception(("Error Occurred! Failed to send a message with an exit code of " + to_string(GetLastError()) + "...").c_str());
-
-							//Close the client
-							#if _DEBUG
-								cout << "SendMessageToModelService() -> Finished sending a message to model service..." << endl;
-							#endif
-							CloseHandle(client);
-						}
-						else if (GetLastError() == ERROR_PIPE_BUSY)
-							throw exception(("Error Occurred! The server is currently busy with an exit code of " + to_string(GetLastError())).c_str());
-						else
-							throw exception(("Error Occurred! Failed to create a client pipe with an exit code of " + to_string(GetLastError())).c_str());
-
-						return true;
-					}
-					catch (const exception& ex)
-					{
-						cout << ex.what() << endl;
-					}
-
-					return false;
-				}
-
-				//Gets the current project directory and returns the absolute directory of the file
-				string GetAbsoluteDirectoryOf(string filename)
-				{
-					LPSTR currentdirectory = new char[MAX_PATH];
-					string absolutedirectory = "";
-
-					try
-					{
-						if (GetCurrentDirectoryA(MAX_PATH, currentdirectory) != 0)
-							absolutedirectory = (((string)currentdirectory) + "\\" + filename);
-					}
-					catch (const exception& ex)
-					{
-						cout << "Error Occurred! Failed to get the absolute directory of the file..." << endl;
-					}
-
-					return absolutedirectory;
-				}
-
-				queue<string> GetMessageFromModelService()
-				{
-					queue<string> messages = queue<string>();
-
-					try
-					{
-						#if _DEBUG
-							cout << "GetMessageFromModelService() has been called!" << endl;
-						#endif
-
-						_messagelock.lock();
-						while (!_messages.empty())
-						{
-							#if _DEBUG
-								cout << "GetMessageFromModelService() -> Getting the messages..." << endl;
-							#endif
-							messages.push(_messages.front());
-							_messages.pop_front();
-						}
-						_messagelock.unlock();
-					}
-					catch (const exception& ex)
-					{
-						cout << ex.what() << endl;
-					}
-
-					return messages;
-				}
-
-				//Starts accepting messages from model service
-				void StartAcceptingMessages()
-				{
-					StopAcceptingMessages();
-
-					_shouldacceptmessages = true;
-					auto listenformessages = new thread(&Model::ModelRepositoryService::ListenForMessages, this);
-					_threads.insert(make_pair("ListenForMessages", listenformessages));
-				}
-
-				//Stops accepting messages from model service
-				void StopAcceptingMessages()
-				{
-					_shouldacceptmessages = false;
-
-					if (_threads.find("ListenForMessages") != _threads.end())
-					{
-						if (_threads["ListenForMessages"]->joinable())
-							_threads["ListenForMessages"]->join();
-
-						_threads.erase("ListenForMessages");
-					}
-				}
-		};
-	}
-
+namespace KoKeKoKo
+{
 	namespace Agent
 	{
 		using namespace sc2;
@@ -291,7 +38,7 @@ namespace KoKeKoKo
 		class KoKeKoKoBot : public Agent
 		{
 			private:
-				Model::ModelRepositoryService* _instance;
+				Services::ModelService* _instance;
 				std::atomic<bool> _shouldkeepupdating;
 				std::map<std::string, std::thread*> _threads;
 				std::mutex _actionslock;
@@ -344,7 +91,7 @@ namespace KoKeKoKo
 							#endif
 
 							_actionslock.lock();
-							for (auto message = _instance->GetMessageFromModelService(); !message.empty();)
+							/*for (auto message = _instance->GetMessageFromModelService(); !message.empty();)
 							{
 								#if _DEBUG
 									std::cout << "GetMessageFromModelService() -> Retrieving message: " << message.front() << std::endl;
@@ -359,7 +106,7 @@ namespace KoKeKoKo
 									std::cout << current_action << std::endl;
 									_actions.push(current_action);
 								}
-							}
+							}*/
 							_actionslock.unlock();
 
 							//Check if there is a message again after 15 seconds
@@ -420,7 +167,7 @@ namespace KoKeKoKo
 							#endif
 
 							//Send this message to model service
-							_instance->SendMessageToModelService(message);
+							//_instance->SendMessageToModelService(message);
 
 							//Send another update after 10 seconds
 							std::this_thread::sleep_for(std::chrono::milliseconds(10000));
@@ -1903,7 +1650,7 @@ namespace KoKeKoKo
 				KoKeKoKoBot()
 				{
 					//Perform intializations
-					_instance = Model::ModelRepositoryService::StartModelRepositoryService();
+					//_instance = Model::ModelRepositoryService::StartModelRepositoryService();
 					_shouldkeepupdating = false;
 					_threads = std::map<std::string, std::thread*>();
 					_actions = std::queue<std::string>();
@@ -1927,23 +1674,34 @@ namespace KoKeKoKo
 
 					//We periodically get message and send updates to model service
 					StartSendingUpdatesToModelService();
+					auto service = Services::ModelService::CreateNewModelService();
+					_actions = service->UpdateModelService("UPDATE");
+					std::istringstream raw_actions(_actions.front());
+					std::string raw_action = "";
+					while (std::getline(raw_actions, raw_action, ','))
+						_actions.push(raw_action);
+					_currentaction = _actions.front();
+					_actions.pop();
 
-					#if _DEBUG
-						std::cout << "Finished calling StartSendingUpdatesToModelService()! Proceeding to start the game... Getting the current action...";
-					#endif
+					////We periodically get message and send updates to model service
+					//StartSendingUpdatesToModelService();
+
+					//#if _DEBUG
+					//	std::cout << "Finished calling StartSendingUpdatesToModelService()! Proceeding to start the game... Getting the current action...";
+					//#endif
 
 
-					//while there is still no action, we wait for a message
-					/*while (_currentaction.empty())
-					{
-						#if _DEBUG
-							std::cout << "Current action is still empty! Cannot continue to the game..." << std::endl;
-						#endif
-						_currentaction = GetAnActionFromMessage();
-						if (_currentaction.empty())
-							//Wait for 5 seconds if there is still no message
-							std::this_thread::sleep_for(std::chrono::milliseconds(5000)); 
-					}*/
+					////while there is still no action, we wait for a message
+					//while (_currentaction.empty())
+					//{
+					//	#if _DEBUG
+					//		std::cout << "Current action is still empty! Cannot continue to the game..." << std::endl;
+					//	#endif
+					//	_currentaction = GetAnActionFromMessage();
+					//	if (_currentaction.empty())
+					//		//Wait for 5 seconds if there is still no message
+					//		std::this_thread::sleep_for(std::chrono::milliseconds(5000)); 
+					//}
 
 					std::cout << _currentaction << std::endl;
 				}
@@ -1953,9 +1711,20 @@ namespace KoKeKoKo
 					ManageWorkers();
 					//If there is action available
 					/*if (!_currentaction.empty())
+					////If there is action available
+					//if (!_currentaction.empty())
+					//{
+					//	ExecuteAbility(_currentaction);
+					//	_currentaction = "";
+					//}
+					//else
+					//	_currentaction = GetAnActionFromMessage();
+					//	
+					//std::cout << _currentaction << std::endl;
+					auto service = Services::ModelService::CreateNewModelService();
+					if (_actions.empty() || !service->ShouldOperationsContinue())
 					{
-						ExecuteAbility(_currentaction);
-						_currentaction = "";
+						_actions = service->UpdateModelService("UPDATE");
 					}
 					else
 						_currentaction = GetAnActionFromMessage();
@@ -2013,10 +1782,12 @@ namespace KoKeKoKo
 
 				virtual void OnGameEnd() final
 				{
-					StopSendingUpdatesToModelService();
+					auto service = Services::ModelService::CreateNewModelService();
+					_actions = service->UpdateModelService("TERMINATE");
+					service->StopModelService();
 					
 					//Dispose the modelrepositoryservice instance
-					_instance->~ModelRepositoryService();
+					//_instance->~ModelRepositoryService();
 					_instance = nullptr;
 				}
 
@@ -2404,22 +2175,35 @@ namespace KoKeKoKo
 	}
 }
 
-using namespace KoKeKoKo;
-Model::ModelRepositoryService* Model::ModelRepositoryService::_instance = nullptr;
-
+Services::ModelService* Services::ModelService::Instance = nullptr;
 int main(int argc, char* argv[])
 {
 	try
 	{
-		auto coordinator = new sc2::Coordinator();
-		auto kokekokobot = new Agent::KoKeKoKoBot();
-		auto modelrepositoryservice = Model::ModelRepositoryService::StartModelRepositoryService();
+		sc2::Coordinator* coordinator = new sc2::Coordinator();
+		KoKeKoKo::Agent::KoKeKoKoBot* kokekokobot = new KoKeKoKo::Agent::KoKeKoKoBot();
+		Services::ModelService* modelservice = Services::ModelService::CreateNewModelService();
 
-		//Start accepting messages
-		modelrepositoryservice->StartAcceptingMessages();
+		/*auto reply = modelservice->UpdateModelService("UPDATE");
+		for (int counter = 0; counter < 1000; counter++)
+		{
+			if (!reply.empty())
+			{
+				std::cout << "Current Action: " << reply.front() << std::endl;
+				reply.pop();
+			}
 
-		//Start the game
-		//coordinator->SetMultithreaded(true);
+
+			if (!modelservice->ShouldOperationsContinue())
+				reply = modelservice->UpdateModelService("UPDATE");
+			else
+				std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+		}
+
+		modelservice->StopModelService();
+		char c;
+		std::cin >> c;*/
+
 		coordinator->LoadSettings(argc, argv);
 		coordinator->SetParticipants({ sc2::CreateParticipant(sc2::Race::Terran, kokekokobot), sc2::CreateComputer(sc2::Race::Terran, sc2::Difficulty::VeryEasy) });
 		coordinator->LaunchStarcraft();
@@ -2428,14 +2212,12 @@ int main(int argc, char* argv[])
 	}
 	catch (const std::exception& ex)
 	{
-		std::cout << ex.what() << std::endl;
+		std::cout << "(C++)Error Occurred! " << ex.what() << std::endl;
 	}
 	catch (...)
 	{
-		std::cout << "An Application error occurred! Stopping the program immediately...";
+		std::cout << "(C++)An Application Error Occurred! Please debug the program." << std::endl;
 	}
 
-	std::cout << "Press enter to continue..." << std::endl;
-	system("PAUSE");
 	return 0;
 }

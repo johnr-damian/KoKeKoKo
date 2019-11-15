@@ -70,7 +70,9 @@ namespace ModelService.Macromanagement
             var time = DateTime.Now;
             var parsed_agent = owned_agent.Split(':');
             Owned_Agent = new Agent(parsed_agent[0], parsed_agent[1]);
+            Owned_Agent.Owner = "Tester";
             Enemy_Agent = new Agent(parsed_agent[0], parsed_agent[1]);
+            Enemy_Agent.Owner = "TesterB";
         }
 
         public override string ToString()
@@ -86,7 +88,7 @@ namespace ModelService.Macromanagement
         {
             Current_Tree = new MCTSAlgorithm(Owned_Agent.GetDeepCopy(), Enemy_Agent.GetDeepCopy());
 
-            foreach(var result in Current_Tree.GeneratePredictedAction(Owned_Agent.Created_Time.AddSeconds(15)))
+            foreach(var result in Current_Tree.GeneratePredictedAction(Owned_Agent.Created_Time.AddSeconds(10)))
             {
                 if(result == null)
                 {

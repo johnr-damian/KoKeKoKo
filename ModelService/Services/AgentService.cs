@@ -36,7 +36,7 @@ namespace Services
         private AgentService()
         {
             InitializeTime = DateTime.Now;
-            NextUpdateTime = DateTime.Now.AddSeconds(15);
+            NextUpdateTime = DateTime.Now.AddSeconds(10);
         }
 
         /// <summary>
@@ -51,6 +51,7 @@ namespace Services
             return Instance;
         }
 
+        #region Methods
         /// <summary>
         /// Checks if the current system time is less than the <see cref="NextUpdateTime"/>.
         /// </summary>
@@ -76,7 +77,7 @@ namespace Services
                 {
                     //Wait for the C++ Agent to start the server
                     client.Connect();
-                    if(client.IsConnected)
+                    if (client.IsConnected)
                     {
                         Console.WriteLine("(C#)The C++ Agent has been successfully contacted!");
 
@@ -92,7 +93,7 @@ namespace Services
                                 messages.Enqueue(parsed_message[iterator]);
 
                             //Update the NextUpdateTime
-                            NextUpdateTime = DateTime.Now.AddSeconds(15);
+                            NextUpdateTime = DateTime.Now.AddSeconds(10);
 
                             //Send the update message to C++ Agent
                             using (var writer = new StreamWriter(client))
@@ -115,7 +116,7 @@ namespace Services
                     }
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Console.WriteLine($@"(C#)Error Occurred! {ex.Message}");
                 messages.Clear();
@@ -127,6 +128,7 @@ namespace Services
         /// <summary>
         /// Nullifies the <see cref="Instance"/> of this current instance.
         /// </summary>
-        public void StopAgentService() => Instance = null;
+        public void StopAgentService() => Instance = null; 
+        #endregion
     }
 }

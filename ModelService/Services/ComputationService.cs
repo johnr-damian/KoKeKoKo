@@ -1,16 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace ModelService.Services
+namespace Services
 {
-    public partial class Services
+    public class ComputationService
     {
-        private class ComputationService
+        public static ComputationService CreateNewComputationService()
         {
-
+            return null;
         }
     }
 }

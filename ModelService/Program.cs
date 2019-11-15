@@ -1,30 +1,68 @@
-﻿using ModelService.Micromanagement;
-using ModelService.Macromanagement;
-using RDotNet;
-
-
+﻿using Services;
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.IO.Pipes;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using ModelService.Types;
-using Services;
 
 namespace ModelService
 {
     /// <summary>
-    /// The main thread of the model
+    /// Manages the different services. In Standalone mode, the C# Model test
+    /// the accuracy and precision of the model and returns a compiled results of these
+    /// test of Micromanagement and Macromanagement. On the other hand, in Service mode,
+    /// the C# Model generates a sequence of actions that must be executed by C++ Agent
+    /// in the environment with chosen Micromanagement and Macromangement algorithm.
     /// </summary>
-    class Program
+    public class Program
     {
-        static int Main(string[] args)
+        /// <summary>
+        /// The main process of C# Model.
+        /// </summary>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public static int Main(string[] args)
         {
+            try
+            {
+                //The C# Model has started as a standalone application
+                if(args.Length  > 1)
+                {
 
+                }
+                //The C# Model has started as a service
+                else
+                {
+                    Console.WriteLine("(C#)C# Model has started! Generating initial actions...");
+
+                    //Create the services
+                    AgentService agentservice = AgentService.CreateNewAgentService();
+                    ComputationService computationservice = ComputationService.CreateNewComputationService();
+                    RepositoryService repositoryservice = RepositoryService.CreateNewRepositoryService();
+
+                    //Generate the initial actions
+                    var test = new Macromanagement.Macromanagement("a:b", "c:d");
+                    var initialactions = String.Join(",", test.GetMacromanagementStuff());
+
+                    //Send the initial action
+                    var whattodo = agentservice.UpdateAgentService(initialactions);
+
+
+                    for (string message = whattodo.Dequeue(); message != "TERMINATE";)
+                    {
+                        //Continue generating actions
+                        if(String.Equals(message, "UPDATE", StringComparison.OrdinalIgnoreCase))
+                        {
+                            var followingactions = String.Join(",", test.GetMacromanagementStuff());
+                            var whattodoplus = agentservice.UpdateAgentService(followingactions);
+                            message = whattodo.Dequeue();
+                            //Update the macro
+                        }
+                    }
+                }
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine($@"(C#)Error Occurred! {ex.Message}");
+            }
+
+            return 0;
         }
     }
 }

@@ -1543,7 +1543,7 @@ int main(int argc, char* argv[])
 			reply.pop();
 		}
 
-		reply = modelservice->UpdateModelService("Update;Test");
+		reply = modelservice->UpdateModelService("Update");
 		while (!reply.empty())
 		{
 			std::cout << "Message: " << reply.front() << std::endl;
@@ -1567,7 +1567,5 @@ int main(int argc, char* argv[])
 		std::cout << "(C++)An Application Error Occurred! Please debug the program." << std::endl;
 	}
 
-	char c;
-	std::cin >> c;
 	return 0;
 }

@@ -1104,6 +1104,10 @@ namespace KoKeKoKo
 				{
 					auto service = Services::ModelService::CreateNewModelService();
 					_actions = service->UpdateModelService("UPDATE");
+					std::istringstream raw_actions(_actions.front());
+					std::string raw_action = "";
+					while (std::getline(raw_actions, raw_action, ','))
+						_actions.push(raw_action);
 					_currentaction = _actions.front();
 					_actions.pop();
 
@@ -1556,25 +1560,28 @@ int main(int argc, char* argv[])
 		/*auto reply = modelservice->UpdateModelService("UPDATE");
 		for (int counter = 0; counter < 1000; counter++)
 		{
-			while (!reply.empty())
+			if (!reply.empty())
 			{
-				std::cout << "Message: " << reply.front() << std::endl;
+				std::cout << "Current Action: " << reply.front() << std::endl;
 				reply.pop();
 			}
 
+
 			if (!modelservice->ShouldOperationsContinue())
 				reply = modelservice->UpdateModelService("UPDATE");
+			else
+				std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 		}
 
 		modelservice->StopModelService();
 		char c;
 		std::cin >> c;*/
 
-		/*coordinator->LoadSettings(argc, argv);
+		coordinator->LoadSettings(argc, argv);
 		coordinator->SetParticipants({ sc2::CreateParticipant(sc2::Race::Terran, kokekokobot), sc2::CreateComputer(sc2::Race::Terran, sc2::Difficulty::VeryEasy) });
 		coordinator->LaunchStarcraft();
 		coordinator->StartGame(sc2::kMapBelShirVestigeLE);
-		while (coordinator->Update());*/
+		while (coordinator->Update());
 	}
 	catch (const std::exception& ex)
 	{

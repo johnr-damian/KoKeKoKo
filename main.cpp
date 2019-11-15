@@ -2,10 +2,16 @@
 
 #include <iostream>
 #include <queue>
-#include <sc2api/sc2_api.h>
 #include <sstream>
 #include <thread>
 #include <Windows.h>
+#include <string>
+#include <algorithm>
+#include <random>
+#include <iterator>
+
+#include "sc2api/sc2_api.h"
+#include "sc2lib/sc2_lib.h"
 
 namespace KoKeKoKo
 {
@@ -291,6 +297,10 @@ namespace KoKeKoKo
 				std::mutex _actionslock;
 				std::queue<std::string> _actions;
 				std::string _currentaction;
+				std::vector<Point3D> expansions_;
+				Point3D staging_location_;
+				GameInfo game_info_;
+				Tag scouter;
 
 				//Returns a single action from a queue of actions
 				std::string GetAnActionFromMessage()
@@ -424,6 +434,147 @@ namespace KoKeKoKo
 					}
 				}
 
+				struct IsTownHall
+				{
+					bool operator()(const Unit& unit)
+					{
+						switch (unit.unit_type.ToType())
+						{
+						case UNIT_TYPEID::TERRAN_COMMANDCENTER: return true;
+						case UNIT_TYPEID::TERRAN_ORBITALCOMMAND: return true;
+						case UNIT_TYPEID::TERRAN_ORBITALCOMMANDFLYING: return true;
+						case UNIT_TYPEID::TERRAN_PLANETARYFORTRESS: return true;
+						default: return false;
+						}
+					}
+				};
+
+				struct IsStructure
+				{
+					IsStructure(const ObservationInterface* obs) : observation_(obs) {};
+
+					bool operator()(const Unit& unit) 
+					{
+						auto& attributes = observation_->GetUnitTypeData().at(unit.unit_type).attributes;
+						bool is_structure = false;
+						for (const auto& attribute : attributes) 
+						{
+							if (attribute == Attribute::Structure) 
+							{
+								is_structure = true;
+							}
+						}
+						return is_structure;
+					}
+
+					const ObservationInterface* observation_;
+				};
+
+				struct IsArmy 
+				{
+					IsArmy(const ObservationInterface* obs) : observation_(obs) {}
+
+					bool operator()(const Unit& unit) 
+					{
+						auto attributes = observation_->GetUnitTypeData().at(unit.unit_type).attributes;
+						for (const auto& attribute : attributes) 
+						{
+							if (attribute == Attribute::Structure) 
+							{
+								return false;
+							}
+						}
+						switch (unit.unit_type.ToType()) 
+						{
+							case UNIT_TYPEID::TERRAN_SCV: return false;
+							case UNIT_TYPEID::TERRAN_MULE: return false;
+							case UNIT_TYPEID::TERRAN_NUKE: return false;
+							default: return true;
+						}
+					}
+
+					const ObservationInterface* observation_;
+				};
+
+				void StoreGameInfo(GameInfo start_game_info)
+				{
+					game_info_ = start_game_info;
+				}
+
+				bool FindEnemyPosition(Point2D& target_pos) 
+				{
+					if (game_info_.enemy_start_locations.empty())
+					{
+						return false;
+					}
+					target_pos = game_info_.enemy_start_locations.front();
+					return true;
+				}
+
+				bool TryFindRandomPathableLocation(const Unit* unit, Point2D& target_pos) 
+				{
+					// First, find a random point inside the playable area of the map.
+					float playable_w = game_info_.playable_max.x - game_info_.playable_min.x;
+					float playable_h = game_info_.playable_max.y - game_info_.playable_min.y;
+
+					// The case where game_info_ does not provide a valid answer
+					if (playable_w == 0 || playable_h == 0) 
+					{
+						playable_w = 236;
+						playable_h = 228;
+					}
+
+					target_pos.x = playable_w * GetRandomFraction() + game_info_.playable_min.x;
+					target_pos.y = playable_h * GetRandomFraction() + game_info_.playable_min.y;
+
+					// Now send a pathing query from the unit to that point. Can also query from point to point,
+					// but using a unit tag wherever possible will be more accurate.
+					// Note: This query must communicate with the game to get a result which affects performance.
+					// Ideally batch up the queries (using PathingDistanceBatched) and do many at once.
+					float distance = Query()->PathingDistance(unit, target_pos);
+
+					return distance > 0.1f;
+				}
+
+				void /*ScoutWithUnit*/Scout() 
+				{
+					const ObservationInterface* observation = Observation();
+					const Unit* unit;
+					Units enemy_units = observation->GetUnits(Unit::Alliance::Enemy);
+					Units workers = observation->GetUnits(Unit::Alliance::Self, IsUnit(UNIT_TYPEID::TERRAN_SCV));
+					unit = GetRandomEntry(workers);
+					/*if (!unit->orders.empty()) 
+					{
+						return;
+					}*/
+					Point2D target_pos;
+					if (scouter == NULL)
+						scouter = unit->tag;
+					if (FindEnemyPosition(target_pos)) 
+					{
+						if (Distance2D(unit->pos, target_pos) < 20 && enemy_units.empty()) 
+						{
+							if (TryFindRandomPathableLocation(unit, target_pos)) 
+							{
+								Actions()->UnitCommand(unit, ABILITY_ID::SMART, target_pos);
+								return;
+							}
+						}
+						else if (!enemy_units.empty())
+						{
+							Actions()->UnitCommand(unit, ABILITY_ID::ATTACK, enemy_units.front());
+							return;
+						}
+						Actions()->UnitCommand(unit, ABILITY_ID::SMART, target_pos);
+					}
+					else {
+						if (TryFindRandomPathableLocation(unit, target_pos)) 
+						{
+							Actions()->UnitCommand(unit, ABILITY_ID::SMART, target_pos);
+						}
+					}
+				}
+
 				//Gets a random unit and assigns it to the action
 				bool ExecuteBuildAbility(ABILITY_ID action, UNIT_TYPEID unit = UNIT_TYPEID::TERRAN_SCV, bool redoable = false)
 				{
@@ -444,12 +595,122 @@ namespace KoKeKoKo
 						}
 					}
 
-					target = units.front();
-					if (action == ABILITY_ID::BUILD_REFINERY)
-						Actions()->UnitCommand(target, action, FindNearestOf(target->pos, UNIT_TYPEID::NEUTRAL_VESPENEGEYSER));
-					else
-						Actions()->UnitCommand(target, action, Point2D((target->pos.x + random_x_coordinate) * 15.0f, (target->pos.y + random_y_coordinate) * 15.0f));
-					return true;
+					if (!units.empty())
+					{
+						target = GetRandomEntry(units);
+						if (target->tag != scouter)
+						{
+							if (target->build_progress != 1 && target->orders.empty())
+							{
+								return false;
+							}
+							if (action == ABILITY_ID::BUILD_REFINERY)
+								Actions()->UnitCommand(target, action, FindNearestOf(target->pos, UNIT_TYPEID::NEUTRAL_VESPENEGEYSER));
+							else
+								//Actions()->UnitCommand(target, action, Point2D(target->pos.x + (random_x_coordinate * 15.0f), target->pos.y + (random_y_coordinate * 15.0f)));
+								//Actions()->UnitCommand(target, action, Point2D(target->pos + Point2D(random_x_coordinate, random_y_coordinate) * 15.0f));
+								Actions()->UnitCommand(target, action, Point2D(staging_location_ + Point2D(random_x_coordinate, random_y_coordinate) * 15.0f));
+							return true;
+						}
+					}
+					return false;
+				}
+
+				bool ExecuteBuildAddOnAbility(ABILITY_ID action, Tag base_structure, bool redoable = false)
+				{
+					float rx = GetRandomScalar();
+					float ry = GetRandomScalar();
+					const Unit* unit = Observation()->GetUnit(base_structure);
+
+					if (unit->build_progress != 1) 
+					{
+						return false;
+					}
+
+					Point2D build_location = Point2D(unit->pos.x + (rx * 15), unit->pos.y + (ry * 15));
+
+					Units units = Observation()->GetUnits(Unit::Self, IsStructure(Observation()));
+
+					if (Query()->Placement(action, unit->pos, unit)) 
+					{
+						Actions()->UnitCommand(unit, action);
+						return true;
+					}
+
+					float distance = std::numeric_limits<float>::max();
+					for (const auto& u : units) 
+					{
+						float d = Distance2D(u->pos, build_location);
+						if (d < distance) 
+						{
+							distance = d;
+						}
+					}
+					if (distance < 6) {
+						return false;
+					}
+
+					if (Query()->Placement(action, build_location, unit)) 
+					{
+						Actions()->UnitCommand(unit, action, build_location);
+						return true;
+					}
+					return false;
+				}
+
+				void StoreExpansions(std::vector<Point3D> expansion_holder)
+				{
+					expansions_ = expansion_holder;
+				}
+
+				bool TryBuildStructure(AbilityID ability_type_for_structure, Point2D location, bool isExpansion = false) {
+
+					const ObservationInterface* observation = Observation();
+					Units workers = observation->GetUnits(Unit::Alliance::Self, IsUnit(UNIT_TYPEID::TERRAN_SCV));
+
+					//if we have no workers Don't build
+					if (workers.empty()) 
+					{
+						return false;
+					}
+
+					// Check to see if there is already a worker heading out to build it
+					for (const auto& worker : workers) 
+					{
+						for (const auto& order : worker->orders) 
+						{
+							if (order.ability_id == ability_type_for_structure) 
+							{
+								return false;
+							}
+						}
+					}
+
+					// If no worker is already building one, get a random worker to build one
+					const Unit* unit = GetRandomEntry(workers);
+
+					// Check to see if unit can make it there
+					if (Query()->PathingDistance(unit, location) < 0.1f) 
+					{
+						return false;
+					}
+					if (!isExpansion) {
+						for (const auto& expansion : expansions_) 
+						{
+							if (Distance2D(location, Point2D(expansion.x, expansion.y)) < 7) 
+							{
+								return false;
+							}
+						}
+					}
+					// Check to see if unit can build there
+					if (Query()->Placement(ability_type_for_structure, location) && unit->tag != scouter) 
+					{
+						Actions()->UnitCommand(unit, ability_type_for_structure, location);
+						return true;
+					}
+					return false;
+
 				}
 
 				//Gets a random unit and assigns it to the action
@@ -471,8 +732,9 @@ namespace KoKeKoKo
 						}
 					}
 
-					target = units.front();
-					Actions()->UnitCommand(target, action);
+					target = GetRandomEntry(units);
+					if(target != nullptr)
+						Actions()->UnitCommand(target, action);
 					return true;
 				}
 
@@ -495,9 +757,163 @@ namespace KoKeKoKo
 						}
 					}
 
-					target = units.front();
-					Actions()->UnitCommand(target, action);
+					//target = units.front();
+					target = GetRandomEntry(units);
+					if (target != nullptr)
+						Actions()->UnitCommand(target, action);
 					return true;
+				}
+				void MineIdleWorkers(const Unit* worker)//, AbilityID worker_gather_command, UnitTypeID vespene_building_type) {
+				{
+					const ObservationInterface* observation = Observation();
+					Units bases = observation->GetUnits(Unit::Alliance::Self, IsTownHall());
+					Units geysers = observation->GetUnits(Unit::Alliance::Self, IsUnit(UNIT_TYPEID::TERRAN_REFINERY));
+
+					const Unit* valid_mineral_patch = nullptr;
+
+					if (bases.empty())
+					{
+						return;
+					}
+
+					for (const auto& geyser : geysers) {
+
+						if (geyser->assigned_harvesters < geyser->ideal_harvesters)
+						{
+							Actions()->UnitCommand(worker, ABILITY_ID::HARVEST_GATHER, geyser);
+							return;
+						}
+					}
+					//Search for a base that is missing workers.
+					for (const auto& base : bases)
+					{
+						//If we have already mined out here skip the base.
+						if (base->ideal_harvesters == 0 || base->build_progress != 1)
+						{
+							continue;
+						}
+						if (base->assigned_harvesters < base->ideal_harvesters)
+						{
+							valid_mineral_patch = FindNearestOf(base->pos, UNIT_TYPEID::NEUTRAL_MINERALFIELD);
+							Actions()->UnitCommand(worker, ABILITY_ID::HARVEST_GATHER, valid_mineral_patch);
+							return;
+						}
+					}
+
+					if (!worker->orders.empty()) {
+						return;
+					}
+
+					//If all workers are spots are filled just go to any base.
+					const Unit* random_base = GetRandomEntry(bases);
+					valid_mineral_patch = FindNearestOf(random_base->pos, UNIT_TYPEID::NEUTRAL_MINERALFIELD);
+					Actions()->UnitCommand(worker, ABILITY_ID::HARVEST_GATHER, valid_mineral_patch);
+				}
+
+				void ManageWorkers()//UNIT_TYPEID worker_type = UNIT_TYPEID::TERRAN_SCV , AbilityID worker_gather_command, UNIT_TYPEID vespene_building_type) 
+				{
+					const ObservationInterface* observation = Observation();
+					Units bases = observation->GetUnits(Unit::Alliance::Self, IsTownHall());
+					Units geysers = observation->GetUnits(Unit::Alliance::Self, IsUnit(UNIT_TYPEID::TERRAN_REFINERY));
+
+					if (bases.empty())
+					{
+						return;
+					}
+
+					for (const auto& base : bases) {
+						//If we have already mined out or still building here skip the base.
+						if (base->ideal_harvesters == 0 || base->build_progress != 1)
+						{
+							continue;
+						}
+						//if base is
+						if (base->assigned_harvesters > base->ideal_harvesters)
+						{
+							Units workers = observation->GetUnits(Unit::Alliance::Self, IsUnit(UNIT_TYPEID::TERRAN_SCV));
+
+							for (const auto& worker : workers)
+							{
+								if (!worker->orders.empty())
+								{
+									if (worker->orders.front().target_unit_tag == base->tag)
+									{
+										//This should allow them to be picked up by mineidleworkers()
+										MineIdleWorkers(worker);
+										return;
+									}
+								}
+							}
+						}
+					}
+					Units workers = observation->GetUnits(Unit::Alliance::Self, IsUnit(UNIT_TYPEID::TERRAN_SCV));
+					for (const auto& geyser : geysers)
+					{
+						if (geyser->ideal_harvesters == 0 || geyser->build_progress != 1)
+						{
+							continue;
+						}
+						if (geyser->assigned_harvesters > geyser->ideal_harvesters)
+						{
+							for (const auto& worker : workers)
+							{
+								if (!worker->orders.empty())
+								{
+									if (worker->orders.front().target_unit_tag == geyser->tag)
+									{
+										//This should allow them to be picked up by mineidleworkers()
+										MineIdleWorkers(worker);
+										return;
+									}
+								}
+							}
+						}
+						else if (geyser->assigned_harvesters < geyser->ideal_harvesters)
+						{
+							for (const auto& worker : workers)
+							{
+								if (!worker->orders.empty())
+								{
+									//This should move a worker that isn't mining gas to gas
+									const Unit* target = observation->GetUnit(worker->orders.front().target_unit_tag);
+									if (target == nullptr)
+									{
+										continue;
+									}
+									if (target->unit_type != UNIT_TYPEID::TERRAN_REFINERY)
+									{
+										//This should allow them to be picked up by mineidleworkers()
+										MineIdleWorkers(worker);
+										return;
+									}
+								}
+							}
+						}
+					}
+				}
+
+				void AttackWithUnit(Tag ally_tag, Tag enemy_tag) 
+				{
+					//If unit isn't doing anything make it attack.
+					const ObservationInterface* observation = Observation();
+					const Unit* ally_unit = observation->GetUnit(ally_tag);
+					const Unit* enemy_unit = observation->GetUnit(enemy_tag);
+					if (enemy_unit == nullptr) 
+					{
+						return;
+					}
+
+					if (ally_unit->orders.empty()) 
+					{
+						Actions()->UnitCommand(ally_unit, ABILITY_ID::ATTACK, enemy_unit);
+						return;
+					}
+
+					//If the unit is doing something besides attacking, make it attack.
+					if (ally_unit->orders.front().ability_id != ABILITY_ID::ATTACK) 
+					{
+						Actions()->UnitCommand(ally_unit, ABILITY_ID::ATTACK, enemy_unit);
+					}
 				}
 
 				bool TryBuildRefinery()
@@ -517,22 +933,42 @@ namespace KoKeKoKo
 					return ExecuteBuildAbility(ABILITY_ID::BUILD_REFINERY);
 				}
 
+				void StoreStagingLocation(Point3D stage_holder)
+				{
+					staging_location_ = stage_holder;
+				}
+
 				//Command Center Units
 				bool TryBuildCommandCenter()
 				{
 					const ObservationInterface* observation = Observation();
-
-					if (CountOf(UNIT_TYPEID::TERRAN_SUPPLYDEPOT, Unit::Alliance::Self) < 1 && observation->GetMinerals() < 400)
+					float minimum_distance = std::numeric_limits<float>::max();
+					Point3D closest_expansion;
+					for (const auto& expansion : expansions_) 
 					{
-						return false;
-					}
+						float current_distance = Distance2D(Observation()->GetStartLocation(), expansion);
+						if (current_distance < .01f) 
+						{
+							continue;
+						}
 
-					if (CountOf(UNIT_TYPEID::TERRAN_COMMANDCENTER, Unit::Alliance::Self) > 0 && observation->GetMinerals() < 400)
+						if (current_distance < minimum_distance) 
+						{
+							if (Query()->Placement(ABILITY_ID::BUILD_COMMANDCENTER, expansion))
+							{
+								closest_expansion = expansion;
+								minimum_distance = current_distance;
+							}
+						}
+					}
+					//only update staging location up till 3 bases.
+					if (TryBuildStructure(ABILITY_ID::BUILD_COMMANDCENTER,closest_expansion, true) && observation->GetUnits(Unit::Self, IsTownHall()).size() < 4 && observation->GetMinerals() >= 400) 
 					{
-						return false;
+						staging_location_ = Point3D(((staging_location_.x + closest_expansion.x) / 2), ((staging_location_.y + closest_expansion.y) / 2), ((staging_location_.z + closest_expansion.z) / 2));
+						return true;
 					}
+					return false;
 
-					return ExecuteBuildAbility(ABILITY_ID::BUILD_COMMANDCENTER);
 				}
 
 				bool TryCommandCenterMorphOrbitalCommand()
@@ -571,12 +1007,19 @@ namespace KoKeKoKo
 				bool TrainSCV()
 				{
 					const ObservationInterface* observation = Observation();
-
-					if (observation->GetFoodCap() - observation->GetFoodUsed() < 1 && observation->GetMinerals() < 50)
+					Units bases = observation->GetUnits(Unit::Alliance::Self, IsTownHall());
+					for (const auto& base : bases) 
 					{
-						return false;
+						//if there is a base with less than ideal workers
+						if (base->assigned_harvesters < base->ideal_harvesters && base->build_progress == 1) 
+						{
+							if (observation->GetMinerals() >= 50) 
+							{
+								return ExecuteTrainAbility(ABILITY_ID::TRAIN_SCV, base->unit_type);
+							}
+						}
 					}
-					return ExecuteTrainAbility(ABILITY_ID::TRAIN_SCV, UNIT_TYPEID::TERRAN_COMMANDCENTER);
+					return false;
 				}
 
 				bool TryBuildSupplyDepot()
@@ -655,12 +1098,20 @@ namespace KoKeKoKo
 				bool TryBuildBarracksTechLab()
 				{
 					const ObservationInterface* observation = Observation();
+					Units barracks = observation->GetUnits(Unit::Self, IsUnit(UNIT_TYPEID::TERRAN_BARRACKS));
 
-					if (CountOf(UNIT_TYPEID::TERRAN_BARRACKS) > 0 && observation->GetMinerals() < 50 && observation->GetVespene() < 25)
+					for (const auto& barrack : barracks)
 					{
-						return false;
+						if (observation->GetUnit(barrack->add_on_tag) == nullptr)
+						{
+							if (CountOf(UNIT_TYPEID::TERRAN_BARRACKS) > 0 && observation->GetMinerals() < 50 && observation->GetVespene() < 25)
+							{
+								return false;
+							}
+							return  ExecuteBuildAddOnAbility(ABILITY_ID::BUILD_TECHLAB_BARRACKS, barrack->tag);
+						}
 					}
-					return ExecuteResearchAbility(ABILITY_ID::BUILD_TECHLAB, UNIT_TYPEID::TERRAN_BARRACKS);
+					return false;
 				}
 
 				bool TryBarracksTechLabResearchCombatShield()
@@ -699,12 +1150,17 @@ namespace KoKeKoKo
 				bool TryBuildBarracksReactor()
 				{
 					const ObservationInterface* observation = Observation();
+					Units barracks = observation->GetUnits(Unit::Self, IsUnit(UNIT_TYPEID::TERRAN_BARRACKS));
 
-					if (CountOf(UNIT_TYPEID::TERRAN_BARRACKS) > 0 && observation->GetMinerals() < 50 && observation->GetVespene() < 50)
+					for (const auto& barrack : barracks)
 					{
-						return false;
+						if (CountOf(UNIT_TYPEID::TERRAN_BARRACKS) > 0 && observation->GetMinerals() < 50 && observation->GetVespene() < 50)
+						{
+							return false;
+						}
+						return  ExecuteBuildAddOnAbility(ABILITY_ID::BUILD_REACTOR_BARRACKS, barrack->tag);
 					}
-					return ExecuteResearchAbility(ABILITY_ID::BUILD_REACTOR, UNIT_TYPEID::TERRAN_BARRACKS);
+					return false;
 				}
 
 				//Factory Units
@@ -736,9 +1192,16 @@ namespace KoKeKoKo
 					return ExecuteTrainAbility(ABILITY_ID::TRAIN_HELLION, UNIT_TYPEID::TERRAN_FACTORY);
 				}
 
-				bool TryTransformHellionHellbat()
+				bool TryTransformHellionHellbat(Tag uID)
 				{
-					return ExecuteResearchAbility(ABILITY_ID::MORPH_HELLBAT, UNIT_TYPEID::TERRAN_HELLION);
+					if (uID != NULL)
+					{
+						const Unit* unit = Observation()->GetUnit(uID);
+						Actions()->UnitCommand(unit, ABILITY_ID::MORPH_HELLBAT);
+						return true;
+					}
+					else
+						return false;
 				}
 
 				bool TryTrainWidowMine()
@@ -763,14 +1226,28 @@ namespace KoKeKoKo
 					return ExecuteTrainAbility(ABILITY_ID::TRAIN_SIEGETANK, UNIT_TYPEID::TERRAN_FACTORY);
 				}
 
-				bool TryTransformSiegeMode()
+				bool TryTransformSiegeMode(Tag uID)
 				{
-					return ExecuteResearchAbility(ABILITY_ID::MORPH_SIEGEMODE, UNIT_TYPEID::TERRAN_SIEGETANK);
+					if (uID != NULL)
+					{
+						const Unit* unit = Observation()->GetUnit(uID);
+						Actions()->UnitCommand(unit, ABILITY_ID::MORPH_SIEGEMODE);
+						return true;
+					}
+					else
+						return false;
 				}
 
-				bool TryTransformUnsiege()
+				bool TryTransformUnsiege(Tag uID)
 				{
-					return ExecuteResearchAbility(ABILITY_ID::MORPH_UNSIEGE, UNIT_TYPEID::TERRAN_SIEGETANK);
+					if (uID != NULL)
+					{
+						const Unit* unit = Observation()->GetUnit(uID);
+						Actions()->UnitCommand(unit, ABILITY_ID::MORPH_UNSIEGE);
+						return true;
+					}
+					else
+						return false;
 				}
 
 				bool TryTrainCyclone()
@@ -795,9 +1272,16 @@ namespace KoKeKoKo
 					return ExecuteTrainAbility(ABILITY_ID::TRAIN_HELLBAT, UNIT_TYPEID::TERRAN_FACTORY);
 				}
 
-				bool TryTransformHellbatHellion()
+				bool TryTransformHellbatHellion(Tag uID)
 				{
-					return ExecuteResearchAbility(ABILITY_ID::MORPH_HELLION, UNIT_TYPEID::TERRAN_HELLIONTANK);
+					if (uID != NULL)
+					{
+						const Unit* unit = Observation()->GetUnit(uID);
+						Actions()->UnitCommand(unit, ABILITY_ID::MORPH_HELLION);
+						return true;
+					}
+					else
+						return false;
 				}
 
 				bool TryTrainThor()
@@ -815,12 +1299,20 @@ namespace KoKeKoKo
 				bool TryBuildFactoryTechLab()
 				{
 					const ObservationInterface* observation = Observation();
+					Units factorys = observation->GetUnits(Unit::Self, IsUnit(UNIT_TYPEID::TERRAN_FACTORY));
 
-					if (CountOf(UNIT_TYPEID::TERRAN_FACTORY) > 0 && observation->GetMinerals() < 50 && observation->GetVespene() < 25)
+					for (const auto& factory : factorys)
 					{
-						return false;
+						if (observation->GetUnit(factory->add_on_tag) == nullptr)
+						{
+							if (CountOf(UNIT_TYPEID::TERRAN_FACTORY) > 0 && observation->GetMinerals() < 50 && observation->GetVespene() < 25)
+							{
+								return false;
+							}
+							return  ExecuteBuildAddOnAbility(ABILITY_ID::BUILD_TECHLAB_FACTORY, factory->tag);
+						}
 					}
-					return ExecuteResearchAbility(ABILITY_ID::BUILD_TECHLAB, UNIT_TYPEID::TERRAN_FACTORY);
+					return false;
 				}
 
 				bool TryFactoryResearchInfernalPreIgniter()
@@ -859,12 +1351,20 @@ namespace KoKeKoKo
 				bool TryBuildFactoryReactor()
 				{
 					const ObservationInterface* observation = Observation();
+					Units factorys = observation->GetUnits(Unit::Self, IsUnit(UNIT_TYPEID::TERRAN_FACTORY));
 
-					if (CountOf(UNIT_TYPEID::TERRAN_FACTORY) > 0 && observation->GetMinerals() < 50 && observation->GetVespene() < 50)
+					for (const auto& factory : factorys)
 					{
-						return false;
+						if (observation->GetUnit(factory->add_on_tag) == nullptr)
+						{
+							if (CountOf(UNIT_TYPEID::TERRAN_FACTORY) > 0 && observation->GetMinerals() < 50 && observation->GetVespene() < 50)
+							{
+								return false;
+							}
+							return  ExecuteBuildAddOnAbility(ABILITY_ID::BUILD_REACTOR_FACTORY, factory->tag);
+						}
 					}
-					return ExecuteResearchAbility(ABILITY_ID::BUILD_REACTOR, UNIT_TYPEID::TERRAN_FACTORY);
+					return false;
 				}
 
 				//Starport Units
@@ -896,14 +1396,28 @@ namespace KoKeKoKo
 					return ExecuteTrainAbility(ABILITY_ID::TRAIN_VIKINGFIGHTER, UNIT_TYPEID::TERRAN_STARPORT);
 				}
 
-				bool TryTransformVikingAssault()
+				bool TryTransformVikingAssault(Tag uID)
 				{
-					return ExecuteResearchAbility(ABILITY_ID::MORPH_VIKINGASSAULTMODE, UNIT_TYPEID::TERRAN_VIKINGFIGHTER);
+					if (uID != NULL)
+					{
+						const Unit* unit = Observation()->GetUnit(uID);
+						Actions()->UnitCommand(unit, ABILITY_ID::MORPH_VIKINGASSAULTMODE);
+						return true;
+					}
+					else
+						return false;
 				}
 
-				bool TryTransformVikingFighter()
+				bool TryTransformVikingFighter(Tag uID)
 				{
-					return ExecuteResearchAbility(ABILITY_ID::MORPH_VIKINGFIGHTERMODE, UNIT_TYPEID::TERRAN_VIKINGASSAULT);
+					if (uID != NULL)
+					{
+						const Unit* unit = Observation()->GetUnit(uID);
+						Actions()->UnitCommand(unit, ABILITY_ID::MORPH_VIKINGFIGHTERMODE);
+						return true;
+					}
+					else
+						return false;
 				}
 
 				bool TryTrainMedivac()
@@ -928,14 +1442,28 @@ namespace KoKeKoKo
 					return ExecuteTrainAbility(ABILITY_ID::TRAIN_LIBERATOR, UNIT_TYPEID::TERRAN_STARPORT);
 				}
 
-				bool TryTransformLiberatorLiberatorAG()
+				bool TryTransformLiberatorLiberatorAG(Tag uID)
 				{
-					return ExecuteResearchAbility(ABILITY_ID::MORPH_LIBERATORAGMODE, UNIT_TYPEID::TERRAN_LIBERATOR);
+					if (uID != NULL)
+					{
+						const Unit* unit = Observation()->GetUnit(uID);
+						Actions()->UnitCommand(unit, ABILITY_ID::MORPH_LIBERATORAGMODE);
+						return true;
+					}
+					else
+						return false;
 				}
 
-				bool TryTransformLiberatorAGLiberator()
+				bool TryTransformLiberatorAGLiberator(Tag uID)
 				{
-					return ExecuteResearchAbility(ABILITY_ID::MORPH_LIBERATORAAMODE, UNIT_TYPEID::TERRAN_LIBERATORAG);
+					if (uID != NULL)
+					{
+						const Unit* unit = Observation()->GetUnit(uID);
+						Actions()->UnitCommand(unit, ABILITY_ID::MORPH_LIBERATORAAMODE);
+						return true;
+					}
+					else
+						return false;
 				}
 
 				bool TryTrainRaven()
@@ -997,12 +1525,20 @@ namespace KoKeKoKo
 				bool TryBuildStarportTechLab()
 				{
 					const ObservationInterface* observation = Observation();
+					Units starports = observation->GetUnits(Unit::Self, IsUnit(UNIT_TYPEID::TERRAN_STARPORT));
 
-					if (CountOf(UNIT_TYPEID::TERRAN_STARPORT) > 0 && observation->GetMinerals() < 50 && observation->GetVespene() < 25)
+					for (const auto& starport : starports)
 					{
-						return false;
+						if (observation->GetUnit(starport->add_on_tag) == nullptr)
+						{
+							if (CountOf(UNIT_TYPEID::TERRAN_STARPORT) > 0 && observation->GetMinerals() < 50 && observation->GetVespene() < 25)
+							{
+								return false;
+							}
+							return  ExecuteBuildAddOnAbility(ABILITY_ID::BUILD_TECHLAB_STARPORT, starport->tag);
+						}
 					}
-					return ExecuteResearchAbility(ABILITY_ID::BUILD_TECHLAB, UNIT_TYPEID::TERRAN_STARPORT);
+					return false;
 				}
 
 				bool TryStarportResearchCorvidReactor()
@@ -1063,12 +1599,20 @@ namespace KoKeKoKo
 				bool TryBuildStarportReactor()
 				{
 					const ObservationInterface* observation = Observation();
+					Units starports = observation->GetUnits(Unit::Self, IsUnit(UNIT_TYPEID::TERRAN_STARPORT));
 
-					if (CountOf(UNIT_TYPEID::TERRAN_STARPORT) > 0 && observation->GetMinerals() < 50 && observation->GetVespene() < 50)
+					for (const auto& starport : starports)
 					{
-						return false;
+						if (observation->GetUnit(starport->add_on_tag) == nullptr)
+						{
+							if (CountOf(UNIT_TYPEID::TERRAN_STARPORT) > 0 && observation->GetMinerals() < 50 && observation->GetVespene() < 50)
+							{
+								return false;
+							}
+							return  ExecuteBuildAddOnAbility(ABILITY_ID::BUILD_REACTOR_STARPORT, starport->tag);
+						}
 					}
-					return ExecuteResearchAbility(ABILITY_ID::BUILD_REACTOR, UNIT_TYPEID::TERRAN_STARPORT);
+					return false;
 				}
 
 				bool TryBuildFusionCore()
@@ -1354,6 +1898,8 @@ namespace KoKeKoKo
 				}
 
 			public:
+				bool scout = true;
+				Units known_units;
 				KoKeKoKoBot()
 				{
 					//Perform intializations
@@ -1366,6 +1912,19 @@ namespace KoKeKoKo
 
 				virtual void OnGameStart() final
 				{
+					//Get possible expansion positions
+					std::vector<Point3D> expansions_;
+					expansions_ = search::CalculateExpansionLocations(Observation(), Query());
+					StoreExpansions(expansions_);
+
+					//Get Start location
+					Point3D startLocation_ = Observation()->GetStartLocation();
+					Point3D staging_location_;
+					GameInfo game_info_ = Observation()->GetGameInfo();
+					StoreGameInfo(game_info_);
+					//startLocation_ 
+					StoreStagingLocation(startLocation_);
+
 					//We periodically get message and send updates to model service
 					StartSendingUpdatesToModelService();
 
@@ -1375,7 +1934,7 @@ namespace KoKeKoKo
 
 
 					//while there is still no action, we wait for a message
-					while (_currentaction.empty())
+					/*while (_currentaction.empty())
 					{
 						#if _DEBUG
 							std::cout << "Current action is still empty! Cannot continue to the game..." << std::endl;
@@ -1384,15 +1943,16 @@ namespace KoKeKoKo
 						if (_currentaction.empty())
 							//Wait for 5 seconds if there is still no message
 							std::this_thread::sleep_for(std::chrono::milliseconds(5000)); 
-					}
+					}*/
 
 					std::cout << _currentaction << std::endl;
 				}
 
 				virtual void OnStep() final
 				{
+					ManageWorkers();
 					//If there is action available
-					if (!_currentaction.empty())
+					/*if (!_currentaction.empty())
 					{
 						ExecuteAbility(_currentaction);
 						_currentaction = "";
@@ -1400,7 +1960,55 @@ namespace KoKeKoKo
 					else
 						_currentaction = GetAnActionFromMessage();
 						
-					std::cout << _currentaction << std::endl;
+					std::cout << _currentaction << std::endl;*/
+					if (CountOf(UNIT_TYPEID::TERRAN_COMMANDCENTER) < 2 && CountOf(UNIT_TYPEID::TERRAN_ORBITALCOMMAND) < 1)
+					{
+						TryBuildCommandCenter();
+					}
+					if (CountOf(UNIT_TYPEID::TERRAN_SCV) < 50)
+					{
+						TrainSCV();
+					}
+					if (CountOf(UNIT_TYPEID::TERRAN_SUPPLYDEPOT) < 5)
+					{
+						TryBuildSupplyDepot();
+					}
+					if (CountOf(UNIT_TYPEID::TERRAN_REFINERY) < 4)
+					{
+						TryBuildRefinery();
+					}
+					if (CountOf(UNIT_TYPEID::TERRAN_BARRACKS) < 2)
+					{
+						TryBuildBarracks();
+					}
+					if (CountOf(UNIT_TYPEID::TERRAN_BARRACKS) > 1 && CountOf(UNIT_TYPEID::TERRAN_BARRACKSTECHLAB) < 1)
+					{
+						TryBuildBarracksTechLab();
+					}
+					if (CountOf(UNIT_TYPEID::TERRAN_BARRACKS) > 1 && CountOf(UNIT_TYPEID::TERRAN_BARRACKSREACTOR) < 1)
+					{
+						TryBuildBarracksReactor();
+					}
+					if (CountOf(UNIT_TYPEID::TERRAN_COMMANDCENTER) > 1)
+					{
+						TryCommandCenterMorphOrbitalCommand();
+					}
+					if (CountOf(UNIT_TYPEID::TERRAN_BARRACKSTECHLAB) == 1)
+					{
+						TryBarracksTechLabResearchStimpack();
+					}
+					if (scout)
+					{
+						Scout();
+						scout = false;
+					}
+					if (Observation()->GetGameLoop() % 500 == 0)
+					{
+						for (const auto& unit : known_units)
+						{
+							std::cout << unit->tag << " " << unit->unit_type.to_string() << std::endl;
+						}
+					}
 				}
 
 				virtual void OnGameEnd() final
@@ -1419,27 +2027,8 @@ namespace KoKeKoKo
 
 				virtual void OnUnitIdle(const Unit* unit) final
 				{
-					try
-					{
-						switch (unit->unit_type.ToType())
-						{
-							case UNIT_TYPEID::TERRAN_SCV:
-							{
-								double probability = (((double)rand()) / RAND_MAX);
-
-								if (probability <= 0.5)
-									Actions()->UnitCommand(unit, ABILITY_ID::SMART, FindNearestOf(unit->pos, UNIT_TYPEID::NEUTRAL_MINERALFIELD));
-								else
-									Actions()->UnitCommand(unit, ABILITY_ID::SMART, FindNearestOf(unit->pos, UNIT_TYPEID::NEUTRAL_VESPENEGEYSER));
-
-								break;
-							}
-						}
-					}
-					catch (const std::exception& ex)
-					{
-						std::cout << ex.what() << std::endl;
-					}
+					if(unit->unit_type == UNIT_TYPEID::TERRAN_SCV)
+						MineIdleWorkers(unit);
 				}
 
 				virtual void OnUnitDestroyed(const Unit* unit) final
@@ -1449,7 +2038,17 @@ namespace KoKeKoKo
 
 				virtual void OnUnitEnterVision(const Unit* unit) final
 				{
-
+					bool isStructure = false;
+					auto attributes = Observation()->GetUnitTypeData().at(unit->unit_type).attributes;
+					for (const auto& attribute : attributes)
+					{
+						if (attribute == Attribute::Structure)
+						{
+							isStructure = true;
+						}
+					}
+					if(unit->alliance == Unit::Alliance::Enemy && !isStructure && unit->last_seen_game_loop != NULL)
+						known_units.insert(known_units.end(), unit);
 				}
 
 				//A helper function that finds a nearest entity from a position
@@ -1476,6 +2075,52 @@ namespace KoKeKoKo
 				size_t CountOf(UNIT_TYPEID unit_type, Unit::Alliance alliance = Unit::Alliance::Self)
 				{
 					return Observation()->GetUnits(alliance, IsUnit(unit_type)).size();
+				}
+
+				void ExecuteUnitAbility(Tag ally, Tag enemy, std::string ability)
+				{
+					const Unit* enemy_unit = Observation()->GetUnit(enemy);
+					const Unit* ally_unit = Observation()->GetUnit(ally);
+					if (ability.find("MORPH_HELLBAT") != std::string::npos)
+					{
+						TryTransformHellionHellbat(ally);
+					}
+					else if (ability.find("MORPH_HELLION") != std::string::npos)
+					{
+						TryTransformHellbatHellion(ally);
+					}
+					else if (ability.find("MORPH_SIEGEMODE") != std::string::npos)
+					{
+						if(Distance2D(ally_unit->pos, enemy_unit->pos) < 11)
+							TryTransformSiegeMode(ally);
+					}
+					else if (ability.find("MORPH_UNSIEGE") != std::string::npos)
+					{
+						if (Distance2D(ally_unit->pos, enemy_unit->pos) > 13)
+							TryTransformUnsiege(ally);
+					}
+					else if (ability.find("MORPH_VIKINGFIGHTERMODE") != std::string::npos)
+					{
+						TryTransformVikingFighter(ally);
+					}
+					else if (ability.find("MORPH_VIKINGASSAULTMODE") != std::string::npos)
+					{
+						if (enemy_unit->is_flying)
+							TryTransformVikingAssault(ally);
+					}
+					else if (ability.find("MORPH_LIBERATORAGMODE") != std::string::npos)
+					{
+						TryTransformLiberatorLiberatorAG(ally);
+					}
+					else if (ability.find("MORPH_LIBERATORAAMODE") != std::string::npos)
+					{
+						if (enemy_unit->is_flying)
+							TryTransformLiberatorAGLiberator(ally);
+					}
+					else if (ability.find("ATTACK") != std::string::npos)
+					{
+						AttackWithUnit(ally, enemy);
+					}
 				}
 
 				//Executes a valid action that is within the ability_type of the agent
@@ -1557,10 +2202,6 @@ namespace KoKeKoKo
 					{
 						TryTrainHellion();
 					}
-					else if (ability.find("MORPH_HELLBAT") != std::string::npos)
-					{
-						TryTransformHellionHellbat();
-					}
 					else if (ability.find("TRAIN_WIDOWMINE") != std::string::npos)
 					{
 						TryTrainWidowMine();
@@ -1569,14 +2210,6 @@ namespace KoKeKoKo
 					{
 						TryTrainSiegeTank();
 					}
-					else if (ability.find("MORPH_SIEGEMODE") != std::string::npos)
-					{
-						TryTransformSiegeMode();
-					}
-					else if (ability.find("MORPH_UNSIEGE") != std::string::npos)
-					{
-						TryTransformUnsiege();
-					}
 					else if (ability.find("TRAIN_CYCLONE") != std::string::npos)
 					{
 						TryTrainCyclone();
@@ -1584,10 +2217,6 @@ namespace KoKeKoKo
 					else if (ability.find("TRAIN_HELLBAT") != std::string::npos)
 					{
 						TryTrainHellbat();
-					}
-					else if (ability.find("MORPH_HELLION") != std::string::npos)
-					{
-						TryTransformHellbatHellion();
 					}
 					else if (ability.find("TRAIN_THOR") != std::string::npos)
 					{
@@ -1621,14 +2250,6 @@ namespace KoKeKoKo
 					{
 						TryTrainViking();
 					}
-					else if (ability.find("MORPH_VIKINGFIGHTERMODE") != std::string::npos)
-					{
-						TryTransformVikingFighter();
-					}
-					else if (ability.find("MORPH_VIKINGASSAULTMODE") != std::string::npos)
-					{
-						TryTransformVikingAssault();
-					}
 					else if (ability.find("TRAIN_MEDIVAC") != std::string::npos)
 					{
 						TryTrainMedivac();
@@ -1636,14 +2257,6 @@ namespace KoKeKoKo
 					else if (ability.find("TRAIN_LIBERATOR") != std::string::npos)
 					{
 						TryTrainLiberator();
-					}
-					else if (ability.find("MORPH_LIBERATORAGMODE") != std::string::npos)
-					{
-						TryTransformLiberatorLiberatorAG();
-					}
-					else if (ability.find("MORPH_LIBERATORAAMODE") != std::string::npos)
-					{
-						TryTransformLiberatorAGLiberator();
 					}
 					else if (ability.find("TRAIN_RAVEN") != std::string::npos)
 					{
@@ -1806,6 +2419,7 @@ int main(int argc, char* argv[])
 		modelrepositoryservice->StartAcceptingMessages();
 
 		//Start the game
+		//coordinator->SetMultithreaded(true);
 		coordinator->LoadSettings(argc, argv);
 		coordinator->SetParticipants({ sc2::CreateParticipant(sc2::Race::Terran, kokekokobot), sc2::CreateComputer(sc2::Race::Terran, sc2::Difficulty::VeryEasy) });
 		coordinator->LaunchStarcraft();

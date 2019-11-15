@@ -46,10 +46,10 @@ namespace Services
 					cout << "(C++)Successfully retrieved the current directory!" << endl;
 
 					//Start the C# Model
-					if (CreateProcessA(NULL, modelabsolutedirectory, NULL, NULL, FALSE, 0, NULL, NULL, &startupinfo, &Model))
+					/*if (CreateProcessA(NULL, modelabsolutedirectory, NULL, NULL, FALSE, 0, NULL, NULL, &startupinfo, &Model))
 						cout << "(C++)Successfully started the C# Model!" << endl;
 					else
-						throw exception("Failed to start the C# Model...");
+						throw exception("Failed to start the C# Model...");*/
 				}
 				else
 					throw exception("Failed to get the current directory...");
@@ -61,6 +61,14 @@ namespace Services
 			{
 				if (Instance == nullptr)
 					Instance = new ModelService();
+
+				return Instance;
+			}
+
+			static ModelService* GetExistingModelService()
+			{
+				if (Instance == nullptr)
+					return Services::ModelService::CreateNewModelService();
 
 				return Instance;
 			}

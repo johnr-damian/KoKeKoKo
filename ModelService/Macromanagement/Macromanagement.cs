@@ -70,7 +70,9 @@ namespace ModelService.Macromanagement
             var time = DateTime.Now;
             var parsed_agent = owned_agent.Split(':');
             Owned_Agent = new Agent(parsed_agent[0], parsed_agent[1]);
+            Owned_Agent.Owner = "Tester";
             Enemy_Agent = new Agent(parsed_agent[0], parsed_agent[1]);
+            Enemy_Agent.Owner = "TesterB";
         }
 
         public override string ToString()

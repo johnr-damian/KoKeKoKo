@@ -46,14 +46,10 @@ namespace ModelService
 
                     for (string message = whattodo.Dequeue(); message != "TERMINATE";)
                     {
-                        //Continue generating actions
-                        if(String.Equals(message, "UPDATE", StringComparison.OrdinalIgnoreCase))
-                        {
-                            var followingactions = String.Join(",", test.GetMacromanagementStuff());
-                            var whattodoplus = agentservice.UpdateAgentService(followingactions);
-                            message = whattodo.Dequeue();
-                            //Update the macro
-                        }
+                        //Generate new actions
+                        var newactions = String.Join(",", test.GetMacromanagementStuff());
+                        var nextwhattodo = agentservice.UpdateAgentService(newactions);
+                        message = nextwhattodo.Dequeue();
                     }
                 }
             }

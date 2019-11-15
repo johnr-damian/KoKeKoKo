@@ -1102,46 +1102,63 @@ namespace KoKeKoKo
 
 				virtual void OnGameStart() final
 				{
-					//We periodically get message and send updates to model service
-					StartSendingUpdatesToModelService();
+					auto service = Services::ModelService::GetExistingModelService();
+					_actions = service->UpdateModelService("UPDATE");
+					_currentaction = _actions.front();
+					_actions.pop();
 
-					#if _DEBUG
-						std::cout << "Finished calling StartSendingUpdatesToModelService()! Proceeding to start the game... Getting the current action...";
-					#endif
+					////We periodically get message and send updates to model service
+					//StartSendingUpdatesToModelService();
+
+					//#if _DEBUG
+					//	std::cout << "Finished calling StartSendingUpdatesToModelService()! Proceeding to start the game... Getting the current action...";
+					//#endif
 
 
-					//while there is still no action, we wait for a message
-					while (_currentaction.empty())
-					{
-						#if _DEBUG
-							std::cout << "Current action is still empty! Cannot continue to the game..." << std::endl;
-						#endif
-						_currentaction = GetAnActionFromMessage();
-						if (_currentaction.empty())
-							//Wait for 5 seconds if there is still no message
-							std::this_thread::sleep_for(std::chrono::milliseconds(5000)); 
-					}
+					////while there is still no action, we wait for a message
+					//while (_currentaction.empty())
+					//{
+					//	#if _DEBUG
+					//		std::cout << "Current action is still empty! Cannot continue to the game..." << std::endl;
+					//	#endif
+					//	_currentaction = GetAnActionFromMessage();
+					//	if (_currentaction.empty())
+					//		//Wait for 5 seconds if there is still no message
+					//		std::this_thread::sleep_for(std::chrono::milliseconds(5000)); 
+					//}
 
 					std::cout << _currentaction << std::endl;
 				}
 
 				virtual void OnStep() final
 				{
-					//If there is action available
-					if (!_currentaction.empty())
+					////If there is action available
+					//if (!_currentaction.empty())
+					//{
+					//	ExecuteAbility(_currentaction);
+					//	_currentaction = "";
+					//}
+					//else
+					//	_currentaction = GetAnActionFromMessage();
+					//	
+					//std::cout << _currentaction << std::endl;
+					auto service = Services::ModelService::GetExistingModelService();
+					if (_actions.empty() || !service->ShouldOperationsContinue())
 					{
-						ExecuteAbility(_currentaction);
-						_currentaction = "";
+						_actions = service->UpdateModelService("UPDATE");
 					}
-					else
-						_currentaction = GetAnActionFromMessage();
-						
-					std::cout << _currentaction << std::endl;
+
+					//Do the current action
+					ExecuteAbility(_currentaction);
+					_currentaction = _actions.front();
+					_actions.pop();
 				}
 
 				virtual void OnGameEnd() final
 				{
-					StopSendingUpdatesToModelService();
+					auto service = Services::ModelService::GetExistingModelService();
+					_actions = service->UpdateModelService("TERMINATE");
+					service->StopModelService();
 					
 					//Dispose the modelrepositoryservice instance
 					//_instance->~ModelRepositoryService();
@@ -1536,27 +1553,35 @@ int main(int argc, char* argv[])
 		KoKeKoKo::Agent::KoKeKoKoBot* kokekokobot = new KoKeKoKo::Agent::KoKeKoKoBot();
 		Services::ModelService* modelservice = Services::ModelService::CreateNewModelService();
 
-		auto reply = modelservice->UpdateModelService("Initialize");
+		/*auto reply = modelservice->UpdateModelService("UPDATE");
 		while (!reply.empty())
 		{
 			std::cout << "Message: " << reply.front() << std::endl;
 			reply.pop();
 		}
 
-		reply = modelservice->UpdateModelService("Update");
+		reply = modelservice->UpdateModelService("UPDATE");
 		while (!reply.empty())
 		{
 			std::cout << "Message: " << reply.front() << std::endl;
 			reply.pop();
 		}
 
-		reply = modelservice->UpdateModelService("Terminate");
+		reply = modelservice->UpdateModelService("TERMINATE");
 		while (!reply.empty())
 		{
 			std::cout << "Message: " << reply.front() << std::endl;
 			reply.pop();
 		}
 		modelservice->StopModelService();
+		char c;
+		std::cin >> c;*/
+
+		coordinator->LoadSettings(argc, argv);
+		coordinator->SetParticipants({ sc2::CreateParticipant(sc2::Race::Terran, kokekokobot), sc2::CreateComputer(sc2::Race::Terran, sc2::Difficulty::VeryEasy) });
+		coordinator->LaunchStarcraft();
+		coordinator->StartGame(sc2::kMapBelShirVestigeLE);
+		while (coordinator->Update());
 	}
 	catch (const std::exception& ex)
 	{

@@ -70,12 +70,24 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>C:\Users\Gelo\Desktop\SC2 API lib\SC2API_Binary_vs2017\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\Gelo\Desktop\SC2 API lib\SC2API_Binary_vs2017\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\Gelo\Desktop\s2client-proto-master\s2client-proto-master\include;C:\Users\Gelo\Documents\GitHub\KoKeKoKo\s2client-api;C:\Users\Gelo\Documents\GitHub\KoKeKoKo\s2client-api\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\Gelo\Documents\GitHub\KoKeKoKo\s2client-api\build\bin;$(LibraryPath)</LibraryPath>
+    <ReferencePath>$(ReferencePath)</ReferencePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\Users\Gelo\Desktop\SC2 API lib\SC2API_Binary_vs2017\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\Gelo\Desktop\SC2 API lib\SC2API_Binary_vs2017\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\Gelo\Desktop\s2client-proto-master\s2client-proto-master\include;C:\Users\Gelo\Documents\GitHub\KoKeKoKo\s2client-api;C:\Users\Gelo\Documents\GitHub\KoKeKoKo\s2client-api\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\Gelo\Documents\GitHub\KoKeKoKo\s2client-api\build\bin;$(LibraryPath)</LibraryPath>
+    <ReferencePath>$(ReferencePath)</ReferencePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IncludePath>C:\Users\Gelo\Desktop\s2client-proto-master\s2client-proto-master\include;C:\Users\Gelo\Documents\GitHub\KoKeKoKo\s2client-api;C:\Users\Gelo\Documents\GitHub\KoKeKoKo\s2client-api\include;$(IncludePath)</IncludePath>
+    <ReferencePath>$(ReferencePath)</ReferencePath>
+    <LibraryPath>C:\Users\Gelo\Documents\GitHub\KoKeKoKo\s2client-api\build\bin;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IncludePath>C:\Users\Gelo\Desktop\s2client-proto-master\s2client-proto-master\include;C:\Users\Gelo\Documents\GitHub\KoKeKoKo\s2client-api;C:\Users\Gelo\Documents\GitHub\KoKeKoKo\s2client-api\include;$(IncludePath)</IncludePath>
+    <ReferencePath>$(ReferencePath)</ReferencePath>
+    <LibraryPath>C:\Users\Gelo\Documents\GitHub\KoKeKoKo\s2client-api\build\bin;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -140,6 +152,32 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ModelService.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="s2client-api\build\contrib\civetweb\src\civetweb-c-library.vcxproj">
+      <Project>{264755e5-744b-307c-81d0-882803ed9a7e}</Project>
+    </ProjectReference>
+    <ProjectReference Include="s2client-api\build\contrib\ipv6-parse\ipv6-parse.vcxproj">
+      <Project>{a4ccda32-b020-3498-9466-5e7420d8c131}</Project>
+    </ProjectReference>
+    <ProjectReference Include="s2client-api\build\contrib\protobuf\cmake\libprotobuf.vcxproj">
+      <Project>{78368014-47fb-353b-b0f9-7e16bb7d99b6}</Project>
+    </ProjectReference>
+    <ProjectReference Include="s2client-api\build\src\sc2api.vcxproj">
+      <Project>{8627b48f-522e-3a21-8fad-1fdeed65a39c}</Project>
+    </ProjectReference>
+    <ProjectReference Include="s2client-api\build\src\sc2lib.vcxproj">
+      <Project>{fc5f0348-7840-3481-a897-bbd90f1629bc}</Project>
+    </ProjectReference>
+    <ProjectReference Include="s2client-api\build\src\sc2protocol.vcxproj">
+      <Project>{efce4c2c-33b6-312b-8b37-80978f44b40f}</Project>
+    </ProjectReference>
+    <ProjectReference Include="s2client-api\build\src\sc2utils.vcxproj">
+      <Project>{cb20caa7-d947-3530-891e-8c179c34334f}</Project>
+    </ProjectReference>
+    <ProjectReference Include="s2client-api\build\ZERO_CHECK.vcxproj">
+      <Project>{5860cea1-444b-3631-92fa-be9d5e367028}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -2297,7 +2297,8 @@ int main(int argc, char* argv[])
 {
 	try
 	{
-		/*sc2::Coordinator* coordinator = new sc2::Coordinator();
+#ifdef _DEBUG
+		sc2::Coordinator* coordinator = new sc2::Coordinator();
 		KoKeKoKo::Agent::KoKeKoKoBot* kokekokobot = new KoKeKoKo::Agent::KoKeKoKoBot();
 		Services::ModelService* modelservice = Services::ModelService::CreateNewModelService();
 
@@ -2321,11 +2322,25 @@ int main(int argc, char* argv[])
 		char c;
 		std::cin >> c;*/
 
-		/*coordinator->LoadSettings(argc, argv);
+		coordinator->LoadSettings(argc, argv);
 		coordinator->SetParticipants({ sc2::CreateParticipant(sc2::Race::Terran, kokekokobot), sc2::CreateComputer(sc2::Race::Terran, sc2::Difficulty::VeryEasy) });
 		coordinator->LaunchStarcraft();
 		coordinator->StartGame(sc2::kMapBelShirVestigeLE);
-		while (coordinator->Update());*/
+		while (coordinator->Update());
+	}
+	catch (const std::exception& ex)
+	{
+		std::cout << "(C++)Error Occurred! " << ex.what() << std::endl;
+	}
+	catch (...)
+	{
+		std::cout << "(C++)An Application Error Occurred! Please debug the program." << std::endl;
+	}
+
+	return 0;
+}
+#else
+	try{
 		KoKeKoKo::Agent::KoKeKoKoBot* kokekokobot = new KoKeKoKo::Agent::KoKeKoKoBot();
 		ConnectionOptions Options;
 		ParseArguments(argc, argv, Options);
@@ -2377,3 +2392,4 @@ int main(int argc, char* argv[])
 
 	return 0;
 }
+#endif

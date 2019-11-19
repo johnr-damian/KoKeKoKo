@@ -459,7 +459,7 @@ namespace Services
                     //Get the commands that is respective to the current resource
                     var current_commands = macromanagement_relationship.Item3.Where(command =>
                     {
-                        int time_of_completion = Convert.ToInt32(Math.Floor(Convert.ToDouble(command.Split(',')[0]) / 10) - 1);
+                        int time_of_completion = Convert.ToInt32(Math.Floor(Convert.ToDouble(command.Split(',')[0]) / 10) * 10);
 
                         return (Convert.ToInt32(resource.Split(',')[0]) == time_of_completion);
                     }).Select(command => String.Join(",", command.Split(',').Skip(2).Take(2)));
@@ -473,7 +473,7 @@ namespace Services
                     //Get the commands that is respective to the current resource
                     var current_commands = macromanagement_relationship.Item4.Where(command =>
                     {
-                        int time_of_completion = Convert.ToInt32(Math.Floor(Convert.ToDouble(command.Split(',')[0]) / 10) - 1);
+                        int time_of_completion = Convert.ToInt32(Math.Floor(Convert.ToDouble(command.Split(',')[0]) / 10) * 10);
 
                         return (Convert.ToInt32(resource.Split(',')[0]) == time_of_completion);
                     }).Select(command => String.Join(",", command.Split(',').Skip(2).Take(2)));
@@ -485,6 +485,12 @@ namespace Services
             }
         }
 
+        /// <summary>
+        /// Retrieves a parsed CommandsRepository and ResourcesRepository. Afterwards, it combines the CommandsRepository
+        /// and ResourcesRepository using the timestamp in CommandsRepository as key in ResourcesRepository. 
+        /// </summary>
+        /// <param name="rank"></param>
+        /// <returns></returns>
         public Dictionary<string, Dictionary<string, double[]>> GetMacromanagementRepository(string rank)
         {
             var macromanagement_matrix = new Dictionary<string, Dictionary<string, double[]>>();
@@ -595,6 +601,87 @@ namespace Services
             }
 
             return macromanagement_matrix;
+        }
+
+        public Tuple<string[], double[,][]> InterpretMacromanagementRepository()
+        {
+            //Get the CommandsRepository and ResourcesRepository
+            var commandsrepository = ParseCommandsRepository();
+            var resourcesrepository = ParseResourcesRepository();
+
+            //Combine the CommandsRepository and ResourcesRepository
+            var macromanagement_relationships = (from commandrepository in commandsrepository join resourcerepository
+                                                in resourcesrepository on commandrepository.Item2 equals resourcerepository.Item2
+                                                where commandrepository.Item1 == resourcerepository.Item1 select
+                                                (new Tuple<string, string, string[], string[], string[], string[]>(commandrepository.Item1, commandrepository.Item2, commandrepository.Item3, commandrepository.Item4, resourcerepository.Item3, resourcerepository.Item4))).ToArray();
+
+            //Initialize required fields for probability matrix with expected reward
+            var compiled_commands = macromanagement_relationships.Select(macromanagement_relationship =>
+            {
+                var playerone_commands = macromanagement_relationship.Item3.Select(command => command.Split(',')[2]).Distinct();
+                var playertwo_commands = macromanagement_relationship.Item4.Select(command => command.Split(',')[2]).Distinct();
+
+                return String.Join(",", playerone_commands.Union(playertwo_commands));
+            });
+            string[] distinct_commands = String.Join(",", compiled_commands).Split(',').Distinct().ToArray();
+            double[,][] commands_matrix = new double[distinct_commands.Length, distinct_commands.Length][];
+            for(int row_iterator = 0; row_iterator < distinct_commands.Length; row_iterator++)
+            {
+                for (int column_iterator = 0; column_iterator < distinct_commands.Length; column_iterator++)
+                    commands_matrix[row_iterator, column_iterator] = new double[6] { 0, 0, 0, 0, 0, 0 };
+            }
+            
+            //Create a probability matrix with expected reward
+            foreach(var macromanagement_relationship in macromanagement_relationships)
+            {
+                //Parse the player one's commands
+                for(int command_iterator = 0, length = (macromanagement_relationship.Item3.Length - 1); command_iterator < length; command_iterator++)
+                {
+                    var current_command = macromanagement_relationship.Item3[command_iterator].Split(',');
+                    var next_command = macromanagement_relationship.Item3[command_iterator + 1].Split(',');
+
+                    //Get the indexes for probability matrix
+                    var xaxis_index = Array.IndexOf(distinct_commands, current_command[2]);
+                    var yaxis_index = Array.IndexOf(distinct_commands, next_command[2]);
+
+                    //Get the expected reward, which is the current resource of the next command
+                    int time_of_completion = Convert.ToInt32(Math.Floor(Convert.ToDouble(next_command[0]) / 10) - 1);
+                    string[] expected_reward = ((time_of_completion < macromanagement_relationship.Item5.Length) ? macromanagement_relationship.Item5[time_of_completion] : macromanagement_relationship.Item5.Last()).Split(',');
+
+                    //Update the matrix with expected reward
+                    commands_matrix[xaxis_index, yaxis_index][0] += 1; //Probability
+                    commands_matrix[xaxis_index, yaxis_index][1] += Convert.ToDouble(expected_reward[2]); //Mineral
+                    commands_matrix[xaxis_index, yaxis_index][2] += Convert.ToDouble(expected_reward[3]); //Vespene
+                    commands_matrix[xaxis_index, yaxis_index][3] += Convert.ToDouble(expected_reward[4]); //Supply
+                    commands_matrix[xaxis_index, yaxis_index][4] += Convert.ToDouble(expected_reward[5]); //Workers
+                    commands_matrix[xaxis_index, yaxis_index][5] += expected_reward.Skip(6).Count(); //Upgrades
+                }
+
+                //Parse the player two's commands
+                for(int command_iterator = 0, length = (macromanagement_relationship.Item4.Length - 1); command_iterator < length; command_iterator++)
+                {
+                    var current_command = macromanagement_relationship.Item4[command_iterator].Split(',');
+                    var next_command = macromanagement_relationship.Item4[command_iterator + 1].Split(',');
+
+                    //Get the indexes for probability matrix
+                    var xaxis_index = Array.IndexOf(distinct_commands, current_command[2]);
+                    var yaxis_index = Array.IndexOf(distinct_commands, next_command[2]);
+
+                    //Get the expected reward, which is the current resource of next command
+                    int time_of_completion = Convert.ToInt32(Math.Floor(Convert.ToDouble(next_command[0]) / 10) - 1);
+                    string[] expected_reward = ((time_of_completion < macromanagement_relationship.Item6.Length) ? macromanagement_relationship.Item6[time_of_completion] : macromanagement_relationship.Item6.Last()).Split(',');
+
+                    //Update the matrix with expected reward
+                    commands_matrix[xaxis_index, yaxis_index][0] += 1; //Probability
+                    commands_matrix[xaxis_index, yaxis_index][1] += Convert.ToDouble(expected_reward[2]); //Mineral
+                    commands_matrix[xaxis_index, yaxis_index][1] += Convert.ToDouble(expected_reward[3]); //Vespene
+                    commands_matrix[xaxis_index, yaxis_index][1] += Convert.ToDouble(expected_reward[4]); //Supply
+                    commands_matrix[xaxis_index, yaxis_index][1] += Convert.ToDouble(expected_reward[5]); //Workers
+                    commands_matrix[xaxis_index, yaxis_index][1] += expected_reward.Skip(6).Count(); //Upgrades
+                }
+            }
+
+            return new Tuple<string[], double[,][]>(distinct_commands, commands_matrix);
         }
     }
 }

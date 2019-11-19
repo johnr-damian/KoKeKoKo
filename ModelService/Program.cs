@@ -1,5 +1,6 @@
 ﻿using Services;
 using System;
+using System.Linq;
 
 namespace ModelService
 {
@@ -25,20 +26,35 @@ namespace ModelService
                 if(args.Length  > 0)
                 {
                     var test = RepositoryService.CreateNewRepositoryService();
-                    var result = test.GetMicromanagementRepository();
-                    var results = test.GetMacromanagementRepository();
-                    var resultss = test.GetMacromanagementRepository("ALL");
+                    var result = test.GetMicromanagementRepository().ToArray();
+                    var results = test.GetMacromanagementRepository().ToArray();
+                    var resultss = test.InterpretMacromanagementRepository();
 
                     using(var stest = new System.IO.StreamWriter(@"Test.txt"))
                     {
                         Console.SetOut(stest);
 
                         Console.WriteLine("Probability Matrix:");
-                        foreach(var xaxis in resultss)
+                        //foreach(var xaxis in resultss)
+                        //{
+                        //    Console.Write(xaxis.Key.PadRight(5));
+                        //    foreach (var yaxis in xaxis.Value)
+                        //        Console.Write($@" {yaxis.Key}: {yaxis.Value[0]},{yaxis.Value[1]},{yaxis.Value[2]}".PadRight(5));
+                        //    Console.WriteLine();
+                        //}
+                        Console.Write(" ".PadLeft(5));
+                        foreach (var command in resultss.Item1)
+                            Console.Write(command.PadLeft(5) + ",");
+                        Console.WriteLine();
+                        for(int xaxis = 0, xlength = resultss.Item2.GetLength(0); xaxis < xlength; xaxis++)
                         {
-                            Console.Write(xaxis.Key.PadRight(5));
-                            foreach (var yaxis in xaxis.Value)
-                                Console.Write($@"{yaxis.Key}: {yaxis.Value[0]},{yaxis.Value[1]},{yaxis.Value[2]}".PadRight(5));
+                            double sum = 0;
+                            for (int yaxis = 0, ylength = resultss.Item2.GetLength(1); yaxis < ylength; yaxis++)
+                                sum += resultss.Item2[xaxis, yaxis][0];
+
+                            Console.Write(" ".PadLeft(5));
+                            for (int yaxis = 0, ylength = resultss.Item2.GetLength(1); yaxis < ylength; yaxis++)
+                                Console.Write($@"[{Math.Round(resultss.Item2[xaxis, yaxis][0] / sum, 2) * 100}% | {(resultss.Item2[xaxis, yaxis][1] / resultss.Item2[xaxis, yaxis][0])}]".PadLeft(5) + ",");
                             Console.WriteLine();
                         }
 

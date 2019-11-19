@@ -126,6 +126,19 @@ namespace Services
         }
 
         /// <summary>
+        /// Updates the <see cref="AgentService"/>, but it will not send an update
+        /// message to C++ Agent. This is used when asking for additional time, or
+        /// used when C# Model has started as a standalone mode in which the simulation time
+        /// is affected by the max timestamp of the replay.
+        /// </summary>
+        /// <param name="static_time"></param>
+        public void UpdateAgentService(DateTime static_time)
+        {
+            if (NextUpdateTime.AddSeconds(10) < static_time)
+                NextUpdateTime = NextUpdateTime.AddSeconds(10);
+        }
+
+        /// <summary>
         /// Nullifies the <see cref="Instance"/> of this current instance.
         /// </summary>
         public void StopAgentService() => Instance = null; 

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 
@@ -332,9 +331,10 @@ namespace Services
             }
             else
                 throw new Exception($@"Failed to parse {Path.Combine(CurrentDirectory, "ResourcesRepository.csv")}");
-        } 
+        }
         #endregion
 
+        #region Retrieval Methods
         /// <summary>
         /// Retrieves a parsed ArmiesRepository and ResourcesRepository. Afterwards, it combines the ArmiesRepository
         /// and ResourcesRepository using the timestamp in ArmiesRepository as key in ResourcesRepository. A micromanagement
@@ -361,9 +361,9 @@ namespace Services
                                                 in resourcesrepository on armyrepository.Item2 equals resourcerepository.Item2
                                                 where armyrepository.Item1 == resourcerepository.Item1 select
                                                 (new Tuple<string, string, string[], string[], string[], string[], string[]>(armyrepository.Item1, armyrepository.Item2, armyrepository.Item3, armyrepository.Item4, armyrepository.Item5, resourcerepository.Item3, resourcerepository.Item4)));
-            
+
             //Relate the player's researched upgrades to its own units
-            foreach(var micromanagement_relationship in micromanagement_relationships)
+            foreach (var micromanagement_relationship in micromanagement_relationships)
             {
                 //Relate the player one's units and researched upgrades
                 var playerone_parsedunits = micromanagement_relationship.Item3.Select(unit =>
@@ -402,7 +402,7 @@ namespace Services
                     //the index of ResourcesRepository corresponds to its timestamp
                     int time_of_death = Convert.ToInt32(Math.Floor(Convert.ToDouble(unit.Split(',')[0]) / 10) - 1);
 
-                    if(time_of_death < micromanagement_relationship.Item7.Length)
+                    if (time_of_death < micromanagement_relationship.Item7.Length)
                     {
                         var current_resource = micromanagement_relationship.Item7[time_of_death].Split(',');
 
@@ -446,12 +446,12 @@ namespace Services
 
             //Combine the CommandsRepository and ResourcesRepository
             var macromanagement_relationships = (from commandrepository in commandsrepository join resourcerepository
-                                                 in resourcesrepository on commandrepository.Item2 equals resourcerepository.Item2
-                                                 where commandrepository.Item1 == resourcerepository.Item1 select
-                                                 (new Tuple<string, string, string[], string[], string[], string[]>(commandrepository.Item1, commandrepository.Item2, commandrepository.Item3, commandrepository.Item4, resourcerepository.Item3, resourcerepository.Item4)));
+                                                in resourcesrepository on commandrepository.Item2 equals resourcerepository.Item2
+                                                where commandrepository.Item1 == resourcerepository.Item1 select
+                                                (new Tuple<string, string, string[], string[], string[], string[]>(commandrepository.Item1, commandrepository.Item2, commandrepository.Item3, commandrepository.Item4, resourcerepository.Item3, resourcerepository.Item4)));
 
             //Relate the player's current resources to its executed commands
-            foreach(var macromanagement_relationship in macromanagement_relationships)
+            foreach (var macromanagement_relationship in macromanagement_relationships)
             {
                 //Relate the player one's commands and resources
                 var playerone_parsedcommands = macromanagement_relationship.Item5.Select(resource =>
@@ -487,122 +487,11 @@ namespace Services
 
         /// <summary>
         /// Retrieves a parsed CommandsRepository and ResourcesRepository. Afterwards, it combines the CommandsRepository
-        /// and ResourcesRepository using the timestamp in CommandsRepository as key in ResourcesRepository. 
+        /// and ResourcesRepository using the timestamp in CommandsRepository as key in ResourcesRepository. An interpreted
+        /// macromanagement repository contains as follows: the distinct commands used in replays throughout ranks, and a
+        /// probability matrix with expected reward doing that action from previous action.
         /// </summary>
-        /// <param name="rank"></param>
         /// <returns></returns>
-        public Dictionary<string, Dictionary<string, double[]>> GetMacromanagementRepository(string rank)
-        {
-            var macromanagement_matrix = new Dictionary<string, Dictionary<string, double[]>>();
-
-            try
-            {
-                //Get the CommandsRepository and ResourceRepository
-                var commandsrepository = ParseCommandsRepository();
-                var resourcesrepository = ParseResourcesRepository();
-
-                //Combine the CommandsRepository and ResourcesRepository
-                var macromanagement_relationships = (from commandrepository in commandsrepository join resourcerepository
-                                                    in resourcesrepository on commandrepository.Item2 equals resourcerepository.Item2
-                                                    where commandrepository.Item1 == resourcerepository.Item1 select
-                                                    (new Tuple<string, string, string[], string[], string[], string[]>(commandrepository.Item1, commandrepository.Item2, commandrepository.Item3, commandrepository.Item4, resourcerepository.Item3, resourcerepository.Item4))).ToArray();
-
-                //Create a probability matrix with expected reward
-                foreach(var macromanagement_relationship in macromanagement_relationships)
-                {
-                    //Parse the player one's command
-                    for(int command_iterator = 0, command_length = (macromanagement_relationship.Item3.Length - 1); command_iterator < command_length; command_iterator++)
-                    {
-                        var current_command = macromanagement_relationship.Item3[command_iterator].Split(',');
-                        var next_command = macromanagement_relationship.Item3[command_iterator + 1].Split(',');
-
-                        //Check if the current command exists in X axis
-                        if(!macromanagement_matrix.ContainsKey(current_command[2]))
-                            //Add the current command to x axis
-                            macromanagement_matrix.Add(current_command[2], new Dictionary<string, double[]>());
-
-                        //Add the next command to y axis of the current x axis
-                        int time_of_completion = Convert.ToInt32(Math.Floor(Convert.ToDouble(next_command[0]) / 10) - 1);
-                        string[] expected_reward;
-                        if (time_of_completion < macromanagement_relationship.Item5.Length)
-                            expected_reward = macromanagement_relationship.Item5[time_of_completion].Split(',');
-                        else
-                            expected_reward = macromanagement_relationship.Item5.Last().Split(',');
-
-                        //Check if the next command exists in Y axis
-                        if (!macromanagement_matrix[current_command[2]].ContainsKey(next_command[2]))
-                        {
-                            macromanagement_matrix[current_command[2]].Add(next_command[2], new double[]
-                            {
-                                    //The initial count of current command to next command
-                                    1,
-                                    //Expected Current Mineral
-                                    Convert.ToDouble(expected_reward[2]),
-                                    //Expected Current Vespene
-                                    Convert.ToDouble(expected_reward[3]),
-                                    //Expected Supply
-                                    Convert.ToDouble(expected_reward[4]),
-                                    //Number of Workers,
-                                    Convert.ToDouble(expected_reward[5]),
-                                    //Number of Upgrades
-                                    expected_reward.Skip(6).Count()
-                            });
-                        }
-                        //The next command exists
-                        else
-                        {
-                            //Increment the counter
-                            macromanagement_matrix[current_command[2]][next_command[2]][0]++;
-                            macromanagement_matrix[current_command[2]][next_command[2]][1] += Convert.ToDouble(expected_reward[2]);
-                            macromanagement_matrix[current_command[2]][next_command[2]][2] += Convert.ToDouble(expected_reward[3]);
-                            macromanagement_matrix[current_command[2]][next_command[2]][3] += Convert.ToDouble(expected_reward[4]);
-                            macromanagement_matrix[current_command[2]][next_command[2]][4] += Convert.ToDouble(expected_reward[5]);
-                            macromanagement_matrix[current_command[2]][next_command[2]][5] += expected_reward.Skip(6).Count();
-                        }
-                    }
-
-                    //Parse the player two's command
-                    for(int command_iterator = 0, command_length = (macromanagement_relationship.Item4.Length - 1); command_iterator < command_length; command_iterator++)
-                    {
-                        var current_command = macromanagement_relationship.Item4[command_iterator].Split(',');
-                        var next_command = macromanagement_relationship.Item4[command_iterator + 1].Split(',');
-
-                        //Check if the current command exists in X axis
-                        if (!macromanagement_matrix.ContainsKey(current_command[2]))
-                            //Add the current command to x axis
-                            macromanagement_matrix.Add(current_command[2], new Dictionary<string, double[]>());
-
-                        //Add the next command to y axis of the current x axis
-                        int time_of_completion = Convert.ToInt32(Math.Floor(Convert.ToDouble(next_command[0]) / 10) - 1);
-                        string[] expected_reward;
-                        if (time_of_completion < macromanagement_relationship.Item6.Length)
-                            expected_reward = macromanagement_relationship.Item6[time_of_completion].Split(',');
-                        else
-                            expected_reward = macromanagement_relationship.Item6.Last().Split(',');
-
-                        //Check if the next command exists in Y axis
-                        if (!macromanagement_matrix[current_command[2]].ContainsKey(next_command[2]))
-                            macromanagement_matrix[current_command[2]].Add(next_command[2], new double[6]);
-
-                        //Update the Y axis of the current X axis
-                        macromanagement_matrix[current_command[2]][next_command[2]][0]++;
-                        macromanagement_matrix[current_command[2]][next_command[2]][1] += Convert.ToDouble(expected_reward[2]);
-                        macromanagement_matrix[current_command[2]][next_command[2]][2] += Convert.ToDouble(expected_reward[3]);
-                        macromanagement_matrix[current_command[2]][next_command[2]][3] += Convert.ToDouble(expected_reward[4]);
-                        macromanagement_matrix[current_command[2]][next_command[2]][4] += Convert.ToDouble(expected_reward[5]);
-                        macromanagement_matrix[current_command[2]][next_command[2]][5] += expected_reward.Skip(6).Count();
-                    }
-                }
-            }
-            catch(Exception ex)
-            {
-                Console.WriteLine($@"(C#)Error Occurred! {ex.Message}");
-                macromanagement_matrix.Clear();
-            }
-
-            return macromanagement_matrix;
-        }
-
         public Tuple<string[], double[,][]> InterpretMacromanagementRepository()
         {
             //Get the CommandsRepository and ResourcesRepository
@@ -625,17 +514,17 @@ namespace Services
             });
             string[] distinct_commands = String.Join(",", compiled_commands).Split(',').Distinct().ToArray();
             double[,][] commands_matrix = new double[distinct_commands.Length, distinct_commands.Length][];
-            for(int row_iterator = 0; row_iterator < distinct_commands.Length; row_iterator++)
+            for (int row_iterator = 0; row_iterator < distinct_commands.Length; row_iterator++)
             {
                 for (int column_iterator = 0; column_iterator < distinct_commands.Length; column_iterator++)
                     commands_matrix[row_iterator, column_iterator] = new double[6] { 0, 0, 0, 0, 0, 0 };
             }
-            
+
             //Create a probability matrix with expected reward
-            foreach(var macromanagement_relationship in macromanagement_relationships)
+            foreach (var macromanagement_relationship in macromanagement_relationships)
             {
                 //Parse the player one's commands
-                for(int command_iterator = 0, length = (macromanagement_relationship.Item3.Length - 1); command_iterator < length; command_iterator++)
+                for (int command_iterator = 0, length = (macromanagement_relationship.Item3.Length - 1); command_iterator < length; command_iterator++)
                 {
                     var current_command = macromanagement_relationship.Item3[command_iterator].Split(',');
                     var next_command = macromanagement_relationship.Item3[command_iterator + 1].Split(',');
@@ -658,7 +547,7 @@ namespace Services
                 }
 
                 //Parse the player two's commands
-                for(int command_iterator = 0, length = (macromanagement_relationship.Item4.Length - 1); command_iterator < length; command_iterator++)
+                for (int command_iterator = 0, length = (macromanagement_relationship.Item4.Length - 1); command_iterator < length; command_iterator++)
                 {
                     var current_command = macromanagement_relationship.Item4[command_iterator].Split(',');
                     var next_command = macromanagement_relationship.Item4[command_iterator + 1].Split(',');
@@ -682,6 +571,7 @@ namespace Services
             }
 
             return new Tuple<string[], double[,][]>(distinct_commands, commands_matrix);
-        }
+        } 
+        #endregion
     }
 }

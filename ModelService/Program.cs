@@ -22,64 +22,26 @@ namespace ModelService
         {
             try
             {
+                //Create the services
+                AgentService agentservice = AgentService.CreateNewAgentService();
+                ComputationService computationservice = ComputationService.CreateNewComputationService();
+                RepositoryService repositoryservice = RepositoryService.CreateNewRepositoryService();
+
                 //The C# Model has started as a standalone application
-                if(args.Length  > 0)
+                if (args.Length  > 0)
                 {
-                    var test = RepositoryService.CreateNewRepositoryService();
-                    var result = test.GetMicromanagementRepository().ToArray();
-                    var results = test.GetMacromanagementRepository().ToArray();
-                    var resultss = test.InterpretMacromanagementRepository();
+                    Console.WriteLine("(C#)C# Model has started in standalone mode! Generating accuracy reports...");
 
-                    using(var stest = new System.IO.StreamWriter(@"Test.txt"))
-                    {
-                        Console.SetOut(stest);
+                    //Retrieve the repositories
+                    var micromanagement_repository = repositoryservice.GetMicromanagementRepository();
+                    var macromanagement_repository = repositoryservice.GetMacromanagementRepository();
 
-                        Console.WriteLine("Probability Matrix:");
-                        //foreach(var xaxis in resultss)
-                        //{
-                        //    Console.Write(xaxis.Key.PadRight(5));
-                        //    foreach (var yaxis in xaxis.Value)
-                        //        Console.Write($@" {yaxis.Key}: {yaxis.Value[0]},{yaxis.Value[1]},{yaxis.Value[2]}".PadRight(5));
-                        //    Console.WriteLine();
-                        //}
-                        Console.Write(" ".PadLeft(5));
-                        foreach (var command in resultss.Item1)
-                            Console.Write(command.PadLeft(5) + ",");
-                        Console.WriteLine();
-                        for(int xaxis = 0, xlength = resultss.Item2.GetLength(0); xaxis < xlength; xaxis++)
-                        {
-                            double sum = 0;
-                            for (int yaxis = 0, ylength = resultss.Item2.GetLength(1); yaxis < ylength; yaxis++)
-                                sum += resultss.Item2[xaxis, yaxis][0];
 
-                            Console.Write(" ".PadLeft(5));
-                            for (int yaxis = 0, ylength = resultss.Item2.GetLength(1); yaxis < ylength; yaxis++)
-                                Console.Write($@"[{Math.Round(resultss.Item2[xaxis, yaxis][0] / sum, 2) * 100}% | {(resultss.Item2[xaxis, yaxis][1] / resultss.Item2[xaxis, yaxis][0])}]".PadLeft(5) + ",");
-                            Console.WriteLine();
-                        }
-
-                        Console.WriteLine();
-                        Console.WriteLine("Parsed Macromanagement Result:");
-                        foreach (var xaxis in results)
-                            Console.WriteLine($@"{xaxis.Item1},{xaxis.Item2},{xaxis.Item3.Length},{xaxis.Item4.Length}");
-
-                        Console.WriteLine();
-                        Console.WriteLine("Parsed Micromanagement Result:");
-                        foreach (var xaxis in result)
-                            Console.WriteLine($@"{xaxis.Item1},{xaxis.Item2},{xaxis.Item3.Length},{xaxis.Item4.Length},{xaxis.Item5.Length}");
-
-                        stest.Close();
-                    }
                 }
                 //The C# Model has started as a service
                 else
                 {
                     Console.WriteLine("(C#)C# Model has started! Generating initial actions...");
-
-                    //Create the services
-                    AgentService agentservice = AgentService.CreateNewAgentService();
-                    ComputationService computationservice = ComputationService.CreateNewComputationService();
-                    RepositoryService repositoryservice = RepositoryService.CreateNewRepositoryService();
 
                     //Generate the initial actions
                     var test = new Macromanagement.Macromanagement("a:b", "c:d");
@@ -87,7 +49,6 @@ namespace ModelService
 
                     //Send the initial action
                     var whattodo = agentservice.UpdateAgentService(initialactions);
-
 
                     for (string message = whattodo.Dequeue(); message != "TERMINATE";)
                     {

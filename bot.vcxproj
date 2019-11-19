@@ -70,24 +70,24 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>C:\Users\Gelo\Desktop\s2client-proto-master\s2client-proto-master\include;C:\Users\Gelo\Documents\GitHub\KoKeKoKo\s2client-api;C:\Users\Gelo\Documents\GitHub\KoKeKoKo\s2client-api\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\Gelo\Documents\GitHub\KoKeKoKo\s2client-api\build\bin;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\Gelo\Documents\GitHub\KoKeKoKo\s2client-api\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(LibraryPath)</LibraryPath>
     <ReferencePath>$(ReferencePath)</ReferencePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\Users\Gelo\Desktop\s2client-proto-master\s2client-proto-master\include;C:\Users\Gelo\Documents\GitHub\KoKeKoKo\s2client-api;C:\Users\Gelo\Documents\GitHub\KoKeKoKo\s2client-api\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\Gelo\Documents\GitHub\KoKeKoKo\s2client-api\build\bin;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\Gelo\Documents\GitHub\KoKeKoKo\s2client-api\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(LibraryPath)</LibraryPath>
     <ReferencePath>$(ReferencePath)</ReferencePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>C:\Users\Gelo\Desktop\s2client-proto-master\s2client-proto-master\include;C:\Users\Gelo\Documents\GitHub\KoKeKoKo\s2client-api;C:\Users\Gelo\Documents\GitHub\KoKeKoKo\s2client-api\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\Gelo\Documents\GitHub\KoKeKoKo\s2client-api\include;$(IncludePath)</IncludePath>
     <ReferencePath>$(ReferencePath)</ReferencePath>
-    <LibraryPath>C:\Users\Gelo\Documents\GitHub\KoKeKoKo\s2client-api\build\bin;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>C:\Users\Gelo\Desktop\s2client-proto-master\s2client-proto-master\include;C:\Users\Gelo\Documents\GitHub\KoKeKoKo\s2client-api;C:\Users\Gelo\Documents\GitHub\KoKeKoKo\s2client-api\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\Gelo\Documents\GitHub\KoKeKoKo\s2client-api\include;$(IncludePath)</IncludePath>
     <ReferencePath>$(ReferencePath)</ReferencePath>
-    <LibraryPath>C:\Users\Gelo\Documents\GitHub\KoKeKoKo\s2client-api\build\bin;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -98,7 +98,7 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>sc2api.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>../lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Users\Gelo\Documents\GitHub\KoKeKoKo\s2client-api\build\bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -111,7 +111,7 @@
       <PreprocessorDefinitions>_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>../lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Users\Gelo\Documents\GitHub\KoKeKoKo\s2client-api\build\bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>civetweb.lib;libprotobufd.lib;sc2apid.lib;sc2libd.lib;sc2protocold.lib;sc2rendererd.lib;sc2utilsd.lib;SDL2.lib;user32.lib;gdi32.lib;winmm.lib;imm32.lib;ole32.lib;oleaut32.lib;version.lib;uuid.lib;dinput8.lib;kernel32.lib;winspool.lib;shell32.lib;comdlg32.lib;advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>NotSet</SubSystem>
     </Link>
@@ -127,6 +127,7 @@
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>C:\Users\Gelo\Documents\GitHub\KoKeKoKo\s2client-api\build\bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -144,7 +145,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>civetweb.lib;libprotobuf.lib;sc2api.lib;sc2lib.lib;sc2protocol.lib;sc2renderer.lib;sc2utils.lib;SDL2.lib;user32.lib;gdi32.lib;winmm.lib;imm32.lib;ole32.lib;oleaut32.lib;version.lib;uuid.lib;dinput8.lib;kernel32.lib;winspool.lib;shell32.lib;comdlg32.lib;advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>../lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Users\Gelo\Documents\GitHub\KoKeKoKo\s2client-api\build\bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

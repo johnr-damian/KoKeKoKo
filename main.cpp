@@ -1721,6 +1721,7 @@ namespace KoKeKoKo
 						_currentaction = GetAnActionFromMessage();
 						
 					std::cout << _currentaction << std::endl;*/
+					/*
 					if (CountOf(UNIT_TYPEID::TERRAN_COMMANDCENTER) < 2 && CountOf(UNIT_TYPEID::TERRAN_ORBITALCOMMAND) < 1)
 					{
 						TryBuildCommandCenter();
@@ -1756,18 +1757,31 @@ namespace KoKeKoKo
 					if (CountOf(UNIT_TYPEID::TERRAN_BARRACKSTECHLAB) == 1)
 					{
 						TryBarracksTechLabResearchStimpack();
-					}
-					if (scout)
+					}*/
+					/*if (scout)
 					{
 						Scout();
 						scout = false;
-					}
+					}*/
 					if (Observation()->GetGameLoop() % 500 == 0)
 					{
 						for (const auto& unit : known_units)
 						{
 							std::cout << unit->tag << " " << unit->unit_type.to_string() << std::endl;
 						}
+					}
+					auto service = Services::ModelService::CreateNewModelService();
+					if (_actions.empty() || !service->ShouldOperationsContinue())
+					{
+						_actions = service->UpdateModelService("UPDATE");
+					}
+
+					//Do the current action
+					if (ExecuteAbility(_currentaction))
+					{
+						std::cout << _currentaction << std::endl;
+						_currentaction = _actions.front();
+						_actions.pop();
 					}
 				}
 
@@ -1883,6 +1897,7 @@ namespace KoKeKoKo
 					{
 						AttackWithUnit(ally, enemy);
 					}
+					else return;
 				}
 
 				//Executes a valid action that is within the ability_type of the agent

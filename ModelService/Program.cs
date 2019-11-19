@@ -22,9 +22,38 @@ namespace ModelService
             try
             {
                 //The C# Model has started as a standalone application
-                if(args.Length  > 1)
+                if(args.Length  > 0)
                 {
+                    var test = RepositoryService.CreateNewRepositoryService();
+                    var result = test.GetMicromanagementRepository();
+                    var results = test.GetMacromanagementRepository();
+                    var resultss = test.GetMacromanagementRepository("ALL");
 
+                    using(var stest = new System.IO.StreamWriter(@"Test.txt"))
+                    {
+                        Console.SetOut(stest);
+
+                        Console.WriteLine("Probability Matrix:");
+                        foreach(var xaxis in resultss)
+                        {
+                            Console.Write(xaxis.Key.PadRight(5));
+                            foreach (var yaxis in xaxis.Value)
+                                Console.Write($@"{yaxis.Key}: {yaxis.Value[0]},{yaxis.Value[1]},{yaxis.Value[2]}".PadRight(5));
+                            Console.WriteLine();
+                        }
+
+                        Console.WriteLine();
+                        Console.WriteLine("Parsed Macromanagement Result:");
+                        foreach (var xaxis in results)
+                            Console.WriteLine($@"{xaxis.Item1},{xaxis.Item2},{xaxis.Item3.Length},{xaxis.Item4.Length}");
+
+                        Console.WriteLine();
+                        Console.WriteLine("Parsed Micromanagement Result:");
+                        foreach (var xaxis in result)
+                            Console.WriteLine($@"{xaxis.Item1},{xaxis.Item2},{xaxis.Item3.Length},{xaxis.Item4.Length},{xaxis.Item5.Length}");
+
+                        stest.Close();
+                    }
                 }
                 //The C# Model has started as a service
                 else

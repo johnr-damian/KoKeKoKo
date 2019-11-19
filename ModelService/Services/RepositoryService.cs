@@ -65,8 +65,16 @@ namespace Services
         /// Parses the ArmiesRepository and returns a list of battles. A battle contains the 
         /// following contents: Rank, Replay, Prebattle Player1 Army, Prebattle Player2 Army, Postbattle Result.
         /// </summary>
+        /// <remarks>
+        /// <para>
+        ///     A Prebattle contains as follows: Death Timestamp, Owner, UID, Unit Type, X, Y
+        /// </para>
+        /// <para>
+        ///     A Postbattle contains as follows: 
+        /// </para>
+        /// </remarks>
         /// <returns></returns>
-        private IEnumerable<Tuple<string, string, string, string, string>> ParseArmiesRepository()
+        private IEnumerable<Tuple<string, string, string[], string[], string[]>> ParseArmiesRepository()
         {
             var raw_repository = File.ReadAllLines(Path.Combine(CurrentDirectory, "ArmiesRepository.csv"));
 
@@ -74,7 +82,8 @@ namespace Services
             {
                 bool prebattle_storable = false, postbattle_storable = false;
                 int current_pointer = -1, prebattle_pointer = -1, postbattle_pointer = -1;
-                string current_rank = "", current_replay = "", playerone_content = "", playertwo_content = "";
+                string current_rank = "", current_replay = "";
+                string[] playerone_content = Enumerable.Empty<string>().ToArray(), playertwo_content = Enumerable.Empty<string>().ToArray();
 
                 while (++current_pointer < raw_repository.Length)
                 {
@@ -97,8 +106,8 @@ namespace Services
                                     .GroupBy(content => content.Split(',')[1]).ToDictionary(key => key.Key, value => value.ToArray()).ToArray();
 
                                 //Store their respective armies
-                                playerone_content = String.Join("\n", armies_content[0].Value);
-                                playertwo_content = String.Join("\n", armies_content[1].Value);
+                                playerone_content = armies_content[0].Value;
+                                playertwo_content = armies_content[1].Value;
 
                                 //Update the necessary flags and pointers
                                 prebattle_storable = false;
@@ -123,7 +132,7 @@ namespace Services
                                 postbattle_storable = false;
 
                                 //Return the parsed replay
-                                yield return (new Tuple<string, string, string, string, string>(current_rank, current_replay, playerone_content, playertwo_content, String.Join("\n", postbattle_content)));
+                                yield return (new Tuple<string, string, string[], string[], string[]>(current_rank, current_replay, playerone_content, playertwo_content, postbattle_content.ToArray()));
                             }
 
                             //A new replay
@@ -152,7 +161,7 @@ namespace Services
                     postbattle_storable = false;
 
                     //Return the parsed replay
-                    yield return (new Tuple<string, string, string, string, string>(current_rank, current_replay, playerone_content, playertwo_content, String.Join("\n", postbattle_content)));
+                    yield return (new Tuple<string, string, string[], string[], string[]>(current_rank, current_replay, playerone_content, playertwo_content, postbattle_content.ToArray()));
                 }
             }
             else
@@ -163,8 +172,11 @@ namespace Services
         /// Parses the CommandsRepository and returns a list of macromanagement commands. A macromangement command contains the
         /// following contents: Rank, Replay, Commands Player1, Commands Player2.
         /// </summary>
+        /// <remarks>
+        /// A Commands contains as follows: Completion Timestamp, Owner, Command, Command Category
+        /// </remarks>
         /// <returns></returns>
-        private IEnumerable<Tuple<string, string, string, string>> ParseCommandsRepository()
+        private IEnumerable<Tuple<string, string, string[], string[]>> ParseCommandsRepository()
         {
             var raw_repository = File.ReadAllLines(Path.Combine(CurrentDirectory, "CommandsRepository.csv"));
 
@@ -202,7 +214,7 @@ namespace Services
                                 content_storable = false;
 
                                 //Return the parsed replay
-                                yield return (new Tuple<string, string, string, string>(current_rank, current_replay, String.Join("\n", content[0].Value), String.Join("\n", content[1].Value)));
+                                yield return (new Tuple<string, string, string[], string[]>(current_rank, current_replay, content[0].Value, content[1].Value));
                             }
 
                             //A new replay
@@ -232,7 +244,7 @@ namespace Services
                     content_storable = false;
 
                     //Return the parsed replay
-                    yield return (new Tuple<string, string, string, string>(current_rank, current_replay, String.Join("\n", content[0].Value), String.Join("\n", content[1].Value)));
+                    yield return (new Tuple<string, string, string[], string[]>(current_rank, current_replay, content[0].Value, content[1].Value));
                 }
             }
             else
@@ -243,8 +255,11 @@ namespace Services
         /// Parses the ResourcesRepository and returns a list of macromanagement resources. A macromanagement resources contains the
         /// following contents: Rank, Replay, Resources Player1, Resources Player2.
         /// </summary>
+        /// <remarks>
+        /// A Resources contains as follows: Interval of 10 Timestamp, Owner, Current Mineral, Current Vespene, Current Supply, Number of Workers, and Upgrades
+        /// </remarks>
         /// <returns></returns>
-        private IEnumerable<Tuple<string, string, string, string>> ParseResourcesRepository()
+        private IEnumerable<Tuple<string, string, string[], string[]>> ParseResourcesRepository()
         {
             var raw_repository = File.ReadAllLines(Path.Combine(CurrentDirectory, "ResourcesRepository.csv"));
 
@@ -282,7 +297,7 @@ namespace Services
                                 content_storable = false;
 
                                 //Return the parsed replay
-                                yield return (new Tuple<string, string, string, string>(current_rank, current_replay, String.Join("\n", content[0].Value), String.Join("\n", content[1].Value)));
+                                yield return (new Tuple<string, string, string[], string[]>(current_rank, current_replay, content[0].Value, content[1].Value));
                             }
 
                             //A new replay
@@ -312,7 +327,7 @@ namespace Services
                     content_storable = false;
 
                     //Return the parsed replay
-                    yield return (new Tuple<string, string, string, string>(current_rank, current_replay, String.Join("\n", content[0].Value), String.Join("\n", content[1].Value)));
+                    yield return (new Tuple<string, string, string[], string[]>(current_rank, current_replay, content[0].Value, content[1].Value));
                 }
             }
             else
@@ -320,10 +335,266 @@ namespace Services
         } 
         #endregion
 
-
-        public IEnumerable<Tuple<string, string, string, string, string>> GetMicromanagementRepository()
+        /// <summary>
+        /// Retrieves a parsed ArmiesRepository and ResourcesRepository. Afterwards, it combines the ArmiesRepository
+        /// and ResourcesRepository using the timestamp in ArmiesRepository as key in ResourcesRepository. A micromanagement
+        /// repository contains as follows: Rank, Replay, Parsed Prebattle Player 1 Army, Parsed Prebattle Player 2 Army, and
+        /// Parsed Postbattle Result.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        ///     A Parsed Prebattle contains as follows: Death Timestamp, Owner, UID, Unit Type, X, Y, Upgrades
+        /// </para>
+        /// <para>
+        ///     A Parsed Postbattle contains as follows: Owner, UID, Unit Type
+        /// </para>
+        /// </remarks>
+        /// <returns></returns>
+        public IEnumerable<Tuple<string, string, string[], string[], string[]>> GetMicromanagementRepository()
         {
-            yield return null;
+            //Get the ArmiesRepository and ResourcesRepository
+            var armiesrepository = ParseArmiesRepository();
+            var resourcesrepository = ParseResourcesRepository();
+
+            //Combine the ArmiesRepository and ResourcesRepository
+            var micromanagement_relationships = (from armyrepository in armiesrepository join resourcerepository
+                                                in resourcesrepository on armyrepository.Item2 equals resourcerepository.Item2
+                                                where armyrepository.Item1 == resourcerepository.Item1 select
+                                                (new Tuple<string, string, string[], string[], string[], string[], string[]>(armyrepository.Item1, armyrepository.Item2, armyrepository.Item3, armyrepository.Item4, armyrepository.Item5, resourcerepository.Item3, resourcerepository.Item4)));
+            
+            //Relate the player's researched upgrades to its own units
+            foreach(var micromanagement_relationship in micromanagement_relationships)
+            {
+                //Relate the player one's units and researched upgrades
+                var playerone_parsedunits = micromanagement_relationship.Item3.Select(unit =>
+                {
+                    //The timestamp in ArmiesRepository becomes the index for ResourcesRepository, where
+                    //the index of ResourcesRepository corresponds to its timestamp
+                    int time_of_death = Convert.ToInt32(Math.Floor(Convert.ToDouble(unit.Split(',')[0]) / 10) - 1);
+
+                    //If there is a corresponding resource in ResourcesRepository
+                    if ((time_of_death < micromanagement_relationship.Item6.Length) && (time_of_death >= 0))
+                    {
+                        var current_resource = micromanagement_relationship.Item6[time_of_death].Split(',');
+
+                        //There are researched upgrades
+                        if (current_resource.Length > 6)
+                            return String.Concat(unit, ",", String.Join(",", current_resource.Skip(6)));
+                    }
+                    //There is no corresponding resource for the timestamp
+                    else
+                    {
+                        var current_resource = micromanagement_relationship.Item6.Last().Split(',');
+
+                        //There are researched upgrades
+                        if (current_resource.Length > 6)
+                            return String.Concat(unit, ",", String.Join(",", current_resource.Skip(6)));
+                    }
+
+                    //There is no corresponding resource 
+                    return unit;
+                }).ToArray();
+
+                //Relate the player two's units and researched upgrades
+                var playertwo_parsedunits = micromanagement_relationship.Item4.Select(unit =>
+                {
+                    //The timestamp in ArmiesRepository becomes the index for ResourcesRepository, where
+                    //the index of ResourcesRepository corresponds to its timestamp
+                    int time_of_death = Convert.ToInt32(Math.Floor(Convert.ToDouble(unit.Split(',')[0]) / 10) - 1);
+
+                    if(time_of_death < micromanagement_relationship.Item7.Length)
+                    {
+                        var current_resource = micromanagement_relationship.Item7[time_of_death].Split(',');
+
+                        //There are researched upgrades
+                        if (current_resource.Length > 6)
+                            return String.Concat(unit, ",", String.Join(",", current_resource.Skip(6)));
+                    }
+                    //There is no corresponding resource for the timestamp
+                    else
+                    {
+                        var current_resource = micromanagement_relationship.Item7.Last().Split(',');
+
+                        //There are researched upgrades
+                        if (current_resource.Length > 6)
+                            return String.Concat(unit, ",", String.Join(",", current_resource.Skip(6)));
+                    }
+
+                    //There is no corresponding resource
+                    return unit;
+                }).ToArray();
+
+                //Parse the postbattle result into surviving unit's unique id
+                var parsedpostbattle = micromanagement_relationship.Item5.Select(unit => String.Join(",", unit.Split(',').Skip(1).Take(3))).ToArray();
+
+                yield return new Tuple<string, string, string[], string[], string[]>(micromanagement_relationship.Item1, micromanagement_relationship.Item2, playerone_parsedunits, playertwo_parsedunits, parsedpostbattle);
+            }
+        }
+
+        /// <summary>
+        /// Retrieves a parsed CommandsRepository and ResourcesRepository. Afterwards, it combines the CommandsRepository
+        /// and ResourcesRepository using the timestamp in CommandsRepository as key in ResourcesRepository. A macromanagement 
+        /// repository contains as follows: Rank, Replay, Current Mineral, Current Vespene, Supply, Number of Workers, Upgrades;
+        /// Commands, Category of Commands
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<Tuple<string, string, string[], string[]>> GetMacromanagementRepository()
+        {
+            //Get the CommandsRepository and ResourcesRepository
+            var commandsrepository = ParseCommandsRepository();
+            var resourcesrepository = ParseResourcesRepository();
+
+            //Combine the CommandsRepository and ResourcesRepository
+            var macromanagement_relationships = (from commandrepository in commandsrepository join resourcerepository
+                                                 in resourcesrepository on commandrepository.Item2 equals resourcerepository.Item2
+                                                 where commandrepository.Item1 == resourcerepository.Item1 select
+                                                 (new Tuple<string, string, string[], string[], string[], string[]>(commandrepository.Item1, commandrepository.Item2, commandrepository.Item3, commandrepository.Item4, resourcerepository.Item3, resourcerepository.Item4)));
+
+            //Relate the player's current resources to its executed commands
+            foreach(var macromanagement_relationship in macromanagement_relationships)
+            {
+                //Relate the player one's commands and resources
+                var playerone_parsedcommands = macromanagement_relationship.Item5.Select(resource =>
+                {
+                    //Get the commands that is respective to the current resource
+                    var current_commands = macromanagement_relationship.Item3.Where(command =>
+                    {
+                        int time_of_completion = Convert.ToInt32(Math.Floor(Convert.ToDouble(command.Split(',')[0]) / 10) - 1);
+
+                        return (Convert.ToInt32(resource.Split(',')[0]) == time_of_completion);
+                    }).Select(command => String.Join(",", command.Split(',').Skip(2).Take(2)));
+
+                    return String.Join(";", resource, String.Join(",", current_commands));
+                }).ToArray();
+
+                //Relate the player two's units and researched upgrades
+                var playertwo_parsedcommands = macromanagement_relationship.Item6.Select(resource =>
+                {
+                    //Get the commands that is respective to the current resource
+                    var current_commands = macromanagement_relationship.Item4.Where(command =>
+                    {
+                        int time_of_completion = Convert.ToInt32(Math.Floor(Convert.ToDouble(command.Split(',')[0]) / 10) - 1);
+
+                        return (Convert.ToInt32(resource.Split(',')[0]) == time_of_completion);
+                    }).Select(command => String.Join(",", command.Split(',').Skip(2).Take(2)));
+
+                    return String.Join(";", resource, String.Join(",", current_commands));
+                }).ToArray();
+
+                yield return new Tuple<string, string, string[], string[]>(macromanagement_relationship.Item1, macromanagement_relationship.Item2, playerone_parsedcommands, playertwo_parsedcommands);
+            }
+        }
+
+        public Dictionary<string, Dictionary<string, double[]>> GetMacromanagementRepository(string rank)
+        {
+            var macromanagement_matrix = new Dictionary<string, Dictionary<string, double[]>>();
+
+            try
+            {
+                //Get the CommandsRepository and ResourceRepository
+                var commandsrepository = ParseCommandsRepository();
+                var resourcesrepository = ParseResourcesRepository();
+
+                //Combine the CommandsRepository and ResourcesRepository
+                var macromanagement_relationships = (from commandrepository in commandsrepository join resourcerepository
+                                                    in resourcesrepository on commandrepository.Item2 equals resourcerepository.Item2
+                                                    where commandrepository.Item1 == resourcerepository.Item1 select
+                                                    (new Tuple<string, string, string[], string[], string[], string[]>(commandrepository.Item1, commandrepository.Item2, commandrepository.Item3, commandrepository.Item4, resourcerepository.Item3, resourcerepository.Item4))).ToArray();
+
+                //Create a probability matrix with expected reward
+                foreach(var macromanagement_relationship in macromanagement_relationships)
+                {
+                    //Parse the player one's command
+                    for(int command_iterator = 0, command_length = (macromanagement_relationship.Item3.Length - 1); command_iterator < command_length; command_iterator++)
+                    {
+                        var current_command = macromanagement_relationship.Item3[command_iterator].Split(',');
+                        var next_command = macromanagement_relationship.Item3[command_iterator + 1].Split(',');
+
+                        //Check if the current command exists in X axis
+                        if(!macromanagement_matrix.ContainsKey(current_command[2]))
+                            //Add the current command to x axis
+                            macromanagement_matrix.Add(current_command[2], new Dictionary<string, double[]>());
+
+                        //Add the next command to y axis of the current x axis
+                        int time_of_completion = Convert.ToInt32(Math.Floor(Convert.ToDouble(next_command[0]) / 10) - 1);
+                        string[] expected_reward;
+                        if (time_of_completion < macromanagement_relationship.Item5.Length)
+                            expected_reward = macromanagement_relationship.Item5[time_of_completion].Split(',');
+                        else
+                            expected_reward = macromanagement_relationship.Item5.Last().Split(',');
+
+                        //Check if the next command exists in Y axis
+                        if (!macromanagement_matrix[current_command[2]].ContainsKey(next_command[2]))
+                        {
+                            macromanagement_matrix[current_command[2]].Add(next_command[2], new double[]
+                            {
+                                    //The initial count of current command to next command
+                                    1,
+                                    //Expected Current Mineral
+                                    Convert.ToDouble(expected_reward[2]),
+                                    //Expected Current Vespene
+                                    Convert.ToDouble(expected_reward[3]),
+                                    //Expected Supply
+                                    Convert.ToDouble(expected_reward[4]),
+                                    //Number of Workers,
+                                    Convert.ToDouble(expected_reward[5]),
+                                    //Number of Upgrades
+                                    expected_reward.Skip(6).Count()
+                            });
+                        }
+                        //The next command exists
+                        else
+                        {
+                            //Increment the counter
+                            macromanagement_matrix[current_command[2]][next_command[2]][0]++;
+                            macromanagement_matrix[current_command[2]][next_command[2]][1] += Convert.ToDouble(expected_reward[2]);
+                            macromanagement_matrix[current_command[2]][next_command[2]][2] += Convert.ToDouble(expected_reward[3]);
+                            macromanagement_matrix[current_command[2]][next_command[2]][3] += Convert.ToDouble(expected_reward[4]);
+                            macromanagement_matrix[current_command[2]][next_command[2]][4] += Convert.ToDouble(expected_reward[5]);
+                            macromanagement_matrix[current_command[2]][next_command[2]][5] += expected_reward.Skip(6).Count();
+                        }
+                    }
+
+                    //Parse the player two's command
+                    for(int command_iterator = 0, command_length = (macromanagement_relationship.Item4.Length - 1); command_iterator < command_length; command_iterator++)
+                    {
+                        var current_command = macromanagement_relationship.Item4[command_iterator].Split(',');
+                        var next_command = macromanagement_relationship.Item4[command_iterator + 1].Split(',');
+
+                        //Check if the current command exists in X axis
+                        if (!macromanagement_matrix.ContainsKey(current_command[2]))
+                            //Add the current command to x axis
+                            macromanagement_matrix.Add(current_command[2], new Dictionary<string, double[]>());
+
+                        //Add the next command to y axis of the current x axis
+                        int time_of_completion = Convert.ToInt32(Math.Floor(Convert.ToDouble(next_command[0]) / 10) - 1);
+                        string[] expected_reward;
+                        if (time_of_completion < macromanagement_relationship.Item6.Length)
+                            expected_reward = macromanagement_relationship.Item6[time_of_completion].Split(',');
+                        else
+                            expected_reward = macromanagement_relationship.Item6.Last().Split(',');
+
+                        //Check if the next command exists in Y axis
+                        if (!macromanagement_matrix[current_command[2]].ContainsKey(next_command[2]))
+                            macromanagement_matrix[current_command[2]].Add(next_command[2], new double[6]);
+
+                        //Update the Y axis of the current X axis
+                        macromanagement_matrix[current_command[2]][next_command[2]][0]++;
+                        macromanagement_matrix[current_command[2]][next_command[2]][1] += Convert.ToDouble(expected_reward[2]);
+                        macromanagement_matrix[current_command[2]][next_command[2]][2] += Convert.ToDouble(expected_reward[3]);
+                        macromanagement_matrix[current_command[2]][next_command[2]][3] += Convert.ToDouble(expected_reward[4]);
+                        macromanagement_matrix[current_command[2]][next_command[2]][4] += Convert.ToDouble(expected_reward[5]);
+                        macromanagement_matrix[current_command[2]][next_command[2]][5] += expected_reward.Skip(6).Count();
+                    }
+                }
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine($@"(C#)Error Occurred! {ex.Message}");
+                macromanagement_matrix.Clear();
+            }
+
+            return macromanagement_matrix;
         }
     }
 }

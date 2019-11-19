@@ -277,9 +277,10 @@ namespace KoKeKoKo
 				void /*ScoutWithUnit*/Scout() 
 				{
 					const ObservationInterface* observation = Observation();
-					const Unit* unit;
+					const Unit* unit = nullptr;
 					Units enemy_units = observation->GetUnits(Unit::Alliance::Enemy);
 					Units workers = observation->GetUnits(Unit::Alliance::Self, IsUnit(UNIT_TYPEID::TERRAN_SCV));
+
 					unit = GetRandomEntry(workers);
 					/*if (!unit->orders.empty()) 
 					{
@@ -1758,11 +1759,11 @@ namespace KoKeKoKo
 					{
 						TryBarracksTechLabResearchStimpack();
 					}*/
-					/*if (scout)
+					if (scout)
 					{
 						Scout();
 						scout = false;
-					}*/
+					}
 					if (Observation()->GetGameLoop() % 500 == 0)
 					{
 						for (const auto& unit : known_units)
@@ -1848,9 +1849,9 @@ namespace KoKeKoKo
 				}
 
 				//A helper function that counts entity
-				size_t CountOf(UNIT_TYPEID unit_type, Unit::Alliance alliance = Unit::Alliance::Self)
+				size_t CountOf(UNIT_TYPEID unit_type_ID, Unit::Alliance alliance = Unit::Alliance::Self)
 				{
-					return Observation()->GetUnits(alliance, IsUnit(unit_type)).size();
+					return Observation()->GetUnits(alliance, IsUnit(unit_type_ID)).size();
 				}
 
 				void ExecuteUnitAbility(Tag ally, Tag enemy, std::string ability)
@@ -2310,10 +2311,10 @@ static void ParseArguments(int argc, char *argv[], ConnectionOptions &connect_op
 Services::ModelService* Services::ModelService::Instance = nullptr;
 int main(int argc, char* argv[])
 {
+#ifdef _DEBUG
 	try
 	{
-#ifdef _DEBUG
-		sc2::Coordinator* coordinator = new sc2::Coordinator();
+		sc2::Coordinator coordinator; //= new sc2::Coordinator();
 		KoKeKoKo::Agent::KoKeKoKoBot* kokekokobot = new KoKeKoKo::Agent::KoKeKoKoBot();
 		Services::ModelService* modelservice = Services::ModelService::CreateNewModelService();
 
@@ -2336,12 +2337,12 @@ int main(int argc, char* argv[])
 		modelservice->StopModelService();
 		char c;
 		std::cin >> c;*/
-
-		coordinator->LoadSettings(argc, argv);
-		coordinator->SetParticipants({ sc2::CreateParticipant(sc2::Race::Terran, kokekokobot), sc2::CreateComputer(sc2::Race::Terran, sc2::Difficulty::VeryEasy) });
-		coordinator->LaunchStarcraft();
-		coordinator->StartGame(sc2::kMapBelShirVestigeLE);
-		while (coordinator->Update());
+		coordinator.SetMultithreaded(true);
+		coordinator.LoadSettings(argc, argv);
+		coordinator.SetParticipants({ sc2::CreateParticipant(sc2::Race::Terran, kokekokobot), sc2::CreateComputer(sc2::Race::Terran, sc2::Difficulty::VeryEasy) });
+		coordinator.LaunchStarcraft();
+		coordinator.StartGame(sc2::kMapBelShirVestigeLE);
+		while (coordinator.Update());
 	}
 	catch (const std::exception& ex)
 	{

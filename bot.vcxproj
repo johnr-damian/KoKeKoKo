@@ -22,7 +22,7 @@
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{59A1A504-22E3-4655-AFE7-0F5ADE0C9FA3}</ProjectGuid>
     <RootNamespace>bot</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -70,24 +70,24 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>C:\Users\Gelo\Documents\GitHub\KoKeKoKo\s2client-api\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\Gelo\Desktop\SC2 API lib\SC2API_Binary_vs2017\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\Gelo\Desktop\SC2 API lib\SC2API_Binary_vs2017\lib;$(LibraryPath)</LibraryPath>
     <ReferencePath>$(ReferencePath)</ReferencePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\Users\Gelo\Documents\GitHub\KoKeKoKo\s2client-api\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\Gelo\Desktop\SC2 API lib\SC2API_Binary_vs2017\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\Gelo\Desktop\SC2 API lib\SC2API_Binary_vs2017\lib;$(LibraryPath)</LibraryPath>
     <ReferencePath>$(ReferencePath)</ReferencePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>C:\Users\Gelo\Documents\GitHub\KoKeKoKo\s2client-api\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\Gelo\Desktop\SC2 API lib\SC2API_Binary_vs2017\include;$(IncludePath)</IncludePath>
     <ReferencePath>$(ReferencePath)</ReferencePath>
-    <LibraryPath>$(LibraryPath)</LibraryPath>
+    <LibraryPath>C:\Users\Gelo\Desktop\SC2 API lib\SC2API_Binary_vs2017\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>C:\Users\Gelo\Documents\GitHub\KoKeKoKo\s2client-api\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\Gelo\Desktop\SC2 API lib\SC2API_Binary_vs2017\include;$(IncludePath)</IncludePath>
     <ReferencePath>$(ReferencePath)</ReferencePath>
-    <LibraryPath>$(LibraryPath)</LibraryPath>
+    <LibraryPath>C:\Users\Gelo\Desktop\SC2 API lib\SC2API_Binary_vs2017\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -98,8 +98,12 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>sc2api.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\Users\Gelo\Documents\GitHub\KoKeKoKo\s2client-api\build\bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>
+      </AdditionalLibraryDirectories>
     </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -111,10 +115,14 @@
       <PreprocessorDefinitions>_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>C:\Users\Gelo\Documents\GitHub\KoKeKoKo\s2client-api\build\bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>
+      </AdditionalLibraryDirectories>
       <AdditionalDependencies>civetweb.lib;libprotobufd.lib;sc2apid.lib;sc2libd.lib;sc2protocold.lib;sc2rendererd.lib;sc2utilsd.lib;SDL2.lib;user32.lib;gdi32.lib;winmm.lib;imm32.lib;ole32.lib;oleaut32.lib;version.lib;uuid.lib;dinput8.lib;kernel32.lib;winspool.lib;shell32.lib;comdlg32.lib;advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>NotSet</SubSystem>
     </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -127,8 +135,12 @@
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>C:\Users\Gelo\Documents\GitHub\KoKeKoKo\s2client-api\build\bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>
+      </AdditionalLibraryDirectories>
     </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -145,40 +157,18 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>civetweb.lib;libprotobuf.lib;sc2api.lib;sc2lib.lib;sc2protocol.lib;sc2renderer.lib;sc2utils.lib;SDL2.lib;user32.lib;gdi32.lib;winmm.lib;imm32.lib;ole32.lib;oleaut32.lib;version.lib;uuid.lib;dinput8.lib;kernel32.lib;winspool.lib;shell32.lib;comdlg32.lib;advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\Users\Gelo\Documents\GitHub\KoKeKoKo\s2client-api\build\bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>
+      </AdditionalLibraryDirectories>
     </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ModelService.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="s2client-api\build\contrib\civetweb\src\civetweb-c-library.vcxproj">
-      <Project>{264755e5-744b-307c-81d0-882803ed9a7e}</Project>
-    </ProjectReference>
-    <ProjectReference Include="s2client-api\build\contrib\ipv6-parse\ipv6-parse.vcxproj">
-      <Project>{a4ccda32-b020-3498-9466-5e7420d8c131}</Project>
-    </ProjectReference>
-    <ProjectReference Include="s2client-api\build\contrib\protobuf\cmake\libprotobuf.vcxproj">
-      <Project>{78368014-47fb-353b-b0f9-7e16bb7d99b6}</Project>
-    </ProjectReference>
-    <ProjectReference Include="s2client-api\build\src\sc2api.vcxproj">
-      <Project>{8627b48f-522e-3a21-8fad-1fdeed65a39c}</Project>
-    </ProjectReference>
-    <ProjectReference Include="s2client-api\build\src\sc2lib.vcxproj">
-      <Project>{fc5f0348-7840-3481-a897-bbd90f1629bc}</Project>
-    </ProjectReference>
-    <ProjectReference Include="s2client-api\build\src\sc2protocol.vcxproj">
-      <Project>{efce4c2c-33b6-312b-8b37-80978f44b40f}</Project>
-    </ProjectReference>
-    <ProjectReference Include="s2client-api\build\src\sc2utils.vcxproj">
-      <Project>{cb20caa7-d947-3530-891e-8c179c34334f}</Project>
-    </ProjectReference>
-    <ProjectReference Include="s2client-api\build\ZERO_CHECK.vcxproj">
-      <Project>{5860cea1-444b-3631-92fa-be9d5e367028}</Project>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

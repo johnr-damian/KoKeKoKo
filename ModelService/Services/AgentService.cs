@@ -59,6 +59,24 @@ namespace Services
         public bool ShouldOperationsContinue() => (DateTime.Now < NextUpdateTime);
 
         /// <summary>
+        /// Updates the <see cref="AgentService"/>, but it will not send an update
+        /// message to C++ Agent. This is used when asking for additional time, or
+        /// used when C# Model has started as a standalone mode in which the simulation time
+        /// is affected by the max timestamp of the replay.
+        /// </summary>
+        /// <param name="static_time"></param>
+        public string UpdateAgentService(DateTime static_time)
+        {
+            if(NextUpdateTime.AddSeconds(10) < static_time)
+            {
+                NextUpdateTime = NextUpdateTime.AddSeconds(10);
+                return "UPDATE";
+            }
+
+            return "TERMINATE";
+        }
+
+        /// <summary>
         /// Updates the <see cref="AgentService"/> by sending an update message about the
         /// preferable actions base on the simulations to C++ Agent. Afterwards, it returns
         /// a sequence of message to be parsed by the model and apply a corresponding action.
@@ -123,19 +141,6 @@ namespace Services
             }
 
             return messages;
-        }
-
-        /// <summary>
-        /// Updates the <see cref="AgentService"/>, but it will not send an update
-        /// message to C++ Agent. This is used when asking for additional time, or
-        /// used when C# Model has started as a standalone mode in which the simulation time
-        /// is affected by the max timestamp of the replay.
-        /// </summary>
-        /// <param name="static_time"></param>
-        public void UpdateAgentService(DateTime static_time)
-        {
-            if (NextUpdateTime.AddSeconds(10) < static_time)
-                NextUpdateTime = NextUpdateTime.AddSeconds(10);
         }
 
         /// <summary>

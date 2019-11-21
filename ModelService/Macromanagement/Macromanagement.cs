@@ -1,204 +1,95 @@
-﻿using ModelService.Types;
+﻿using ModelService.Collections;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ModelService.ValueTypes;
-using ModelService.CollectionTypes;
 
 namespace ModelService.Macromanagement
 {
-    public partial class Macromanagement
+    public class Macromanagement<T> where T : SimulationNode<T>
     {
         #region Properties
         /// <summary>
-        /// The agent that is controlled by this model
+        /// Contains the source information recieved from C++ Agent. But if C# Model
+        /// has ran as standalone mode, it contains the source information from a CSV file.
         /// </summary>
-        private Agent Owned_Agent { get; set; } = default(Agent);
+        /// <remarks>
+        /// <para>
+        /// In Model mode, it contains as follows: Difficulty of Enemy / Rank of Enemy, Game Name, 
+        /// Macromanagement details of C++ Agent, Micromanagement details of C++ Agent, Macromanagement details
+        /// of Enemy, and lastly, Micromanagement details of Enemy.
+        /// 
+        /// Game Name: Difficulty + PlayerID
+        /// 
+        /// Macromanagement details: Mineral, Vespene, Supply, Number of Workers, Number of Upgrades, Upgrades.
+        /// 
+        /// Micromanagement details: UniqueID of Unit, Unit name
+        /// </para>
+        /// 
+        /// <para>
+        /// In Standalone mode, it contains as follows: Rank of Game, Replay name, Macromanagement of Player one,
+        /// Macromanagement of Player 2.
+        /// </para>
+        /// </remarks>
+        private string[][] Source { get; set; } = default(string[][]);
 
         /// <summary>
-        /// The opposing agent in the game. The agent that must be destroyed
+        /// The initial node created after <see cref="Macromanagement"/> has been created.
+        /// It contains the initial <see cref="SimulatedAgent"/>, and its related properties.
         /// </summary>
-        private Agent Enemy_Agent { get; set; } = default(Agent);
+        public SimulationNode<T> Root { get; private set; } = default(SimulationNode);
 
         /// <summary>
-        /// The current node of the AI Algorithm tree
+        /// The current node after n-simulations. It contains the latest <see cref="SimulatedAgent"/>,
+        /// and its related properties to continue further the simulations.
         /// </summary>
-        private Tree Current_Tree { get; set; } = default(Tree);
+        public SimulationNode<T> Current { get; private set; } = default(SimulationNode);
 
         /// <summary>
-        /// The rank of this replay
+        /// The difficulty of the current gameplay.
         /// </summary>
-        public string Rank { get; private set; } = default(string);
+        public string Rank
+        {
+            get { return Source[0][0]; }
+        }
 
         /// <summary>
-        /// The filename of this replay
+        /// The name of the current gameplay.
         /// </summary>
-        public string Filename { get; private set; } = default(string); 
+        public string Name
+        {
+            get { return Source[0][1]; }
+        }
         #endregion
 
+        public Macromanagement(string difficulty, string[] macromanagement, string[] micromanagement)
+        {
+            
+        }
+
         /// <summary>
-        /// The AI algorithm to be used to generate actions for the agent
+        /// Initializes the required properties with the information from a CSV file to
+        /// start simulating the game.
         /// </summary>
-        public enum AIAlgorithm
+        /// <param name="source"></param>
+        public Macromanagement(Tuple<string, string, string[], string[]> source)
         {
-            /// <summary>
-            /// Use POMDP to generate actions. It uses <see cref="Services.ModelRepositoryService.ModelService.REngine"/> 
-            /// to create the predicted actions for agent.
-            /// </summary>
-            POMDP,
+            //Initialize the metadata of Macromanagement
+            Source = new string[3][];
+            Source[0] = new string[] { source.Item1, source.Item2 }; //
+            Source[1] = source.Item3;
+            Source[2] = source.Item4;
 
-            /// <summary>
-            /// Use MCTS to generate actions. It uses pure C# to create the 
-            /// predicted actions for the agent.
-            /// </summary>
-            MCTS
+            //Create the Root Node
+            Root = ((typeof(T) == typeof(MCTSNode)) ? new MCTSNode() : (SimulationNode)new POMDPNode());
         }
 
-        public Macromanagement(string rank, string filename, string owned_agent, string enemy_agent)
+        public IEnumerable<string> GetPredictedAction(IEnumerable<string> update_message)
         {
-            var time = DateTime.Now;
-            Rank = rank;
-            Filename = filename;
-            Owned_Agent = new Agent(owned_agent, time);
-            Enemy_Agent = new Agent(enemy_agent, time);
+            
         }
 
-        public Macromanagement(string owned_agent, string enemy_units)
+        public IEnumerable<Tuple<string, string, double[]>> GetPredictedAction()
         {
-            var time = DateTime.Now;
-            var parsed_agent = owned_agent.Split(':');
-            Owned_Agent = new Agent(parsed_agent[0], parsed_agent[1]);
-            Owned_Agent.Owner = "Tester";
-            Enemy_Agent = new Agent(parsed_agent[0], parsed_agent[1]);
-            Enemy_Agent.Owner = "TesterB";
-        }
 
-        public override string ToString()
-        {
-            string stuff = "";
-            for (var node = Current_Tree.Root_Node; node.Chosen_Child != null; node = node.Chosen_Child)
-                stuff += String.Format($@"{node.GetNodeInformation().Item1},{Convert.ToDouble(node.GetNodeInformation().Item2)}") + Environment.NewLine;
-
-            return stuff;
-        }
-
-        public IEnumerable<string> GetMacromanagementStuff()
-        {
-            Current_Tree = new MCTSAlgorithm(Owned_Agent.GetDeepCopy(), Enemy_Agent.GetDeepCopy());
-
-            foreach(var result in Current_Tree.GeneratePredictedAction(Owned_Agent.Created_Time.AddSeconds(10)))
-            {
-                if(result == null)
-                {
-                    yield return "SURRENDER";
-                    break;
-                }
-
-                yield return result.Item1;
-            }
-        }
-
-        public IEnumerable<IEnumerable<double>> GetMacromanagementAccuracyReport(int number_of_simulations, AIAlgorithm algorithm)
-        {
-            var pomdp_results = new List<List<CostWorth>>();
-            var mcts_results = new List<List<CostWorth>>();
-
-            switch (algorithm)
-            {
-                case AIAlgorithm.POMDP:
-                    Current_Tree = new POMDPAlgorithm(Owned_Agent.GetDeepCopy(), Enemy_Agent.GetDeepCopy());
-                    break;
-                case AIAlgorithm.MCTS:
-                    Current_Tree = new MCTSAlgorithm(Owned_Agent.GetDeepCopy(), Enemy_Agent.GetDeepCopy());
-                    break;
-            }
-
-            try
-            {
-                for(int simulated = 0; simulated < number_of_simulations; simulated++)
-                {
-                    mcts_results.Add(new List<CostWorth>());
-
-                    DateTime end;
-                    if (Owned_Agent.EndTime > Enemy_Agent.EndTime)
-                        end = Owned_Agent.EndTime;
-                    else
-                        end = Enemy_Agent.EndTime;
-
-                    foreach (var result in Current_Tree.GeneratePredictedAction(end))
-                    {
-                        if (result == null)
-                            break;
-                        mcts_results[0].Add(result.Item2);
-                    }
-                }
-            }
-            catch(ArgumentException ex)
-            {
-
-            }
-
-            var random = Services.ModelRepositoryService.ModelService.GetModelService();
-            //Perform Euclidean Operations
-            try
-            {
-                var enemy_basis = String.Join(",", Enemy_Agent.Basis.Select(basis => Convert.ToDouble(basis.Item3)));
-            }
-            catch(ArgumentNullException ex)
-            {
-
-            }
-
-
-
-            string owned_basis = String.Join(",", Owned_Agent.Basis.Select(basis => Convert.ToDouble(basis.Item3)).Take(5));
-            var owned_results_mcts = mcts_results.Select(result => String.Join(",", result.Select(costworth => Convert.ToDouble(costworth)))).Take(5);
-
-            yield return random.GetEuclideanMetric(owned_basis, owned_results_mcts);
-        }
-
-        public static List<double> GetMacromanagementAccuracyReport(string rank, List<IEnumerable<IEnumerable<double>>> combat_results)
-        {
-            var random = Services.ModelRepositoryService.ModelService.GetModelService();
-
-            //For each filename, contains the average results of their algorithm policy
-            //This becomes per algorithm containing average results each filename
-            var accuracyresult_peralgorithmeachfilename = new List<List<double>>();
-
-            //The euclidean of each results
-            var accuracyreport = new List<double>();
-
-            try
-            {
-                //Get the average per algorithm of each filename
-                for(int algorithm = 0; algorithm < 1; algorithm++)
-                {
-                    accuracyresult_peralgorithmeachfilename.Add(new List<double>());
-
-                    foreach(var combat_result in combat_results)
-                    {
-                        var current_algorithm = combat_result.ToList();
-
-                        accuracyresult_peralgorithmeachfilename[algorithm].Add(current_algorithm[algorithm].Average());
-                    }
-                }
-
-                //Create Boxplot
-                var resultstring = accuracyresult_peralgorithmeachfilename.Select(result => String.Join(",", result));
-                random.CreateBoxPlot(rank, resultstring.ToArray());
-
-                for (int algorithm = 0; algorithm < 1; algorithm++)
-                    //accuracyreport.Add(random.GetStandardDeviation(accuracyresult_peralgorithmeachfilename[algorithm]));
-                    accuracyreport.Add(accuracyresult_peralgorithmeachfilename[algorithm].Average());
-            }
-            catch(Exception ex)
-            {
-
-            }
-
-            return accuracyreport;
         }
     }
 }

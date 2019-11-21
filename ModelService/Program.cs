@@ -36,7 +36,15 @@ namespace ModelService
                     var micromanagement_repository = repositoryservice.GetMicromanagementRepository();
                     var macromanagement_repository = repositoryservice.GetMacromanagementRepository();
 
+                    foreach(var m in micromanagement_repository)
+                    {
+                        Console.WriteLine(m.Item1);
+                    }
 
+                    foreach(var m in macromanagement_repository)
+                    {
+                        Console.WriteLine(m.Item1);
+                    }
                 }
                 //The C# Model has started as a service
                 else

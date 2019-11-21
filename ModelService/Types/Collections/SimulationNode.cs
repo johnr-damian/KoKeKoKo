@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 
 namespace ModelService.Collections
 {
@@ -6,8 +9,7 @@ namespace ModelService.Collections
     /// Facilitates the different processes to generate a predicted action
     /// from the simulation between the actions of two <see cref="SimulatedAgent"/>.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public abstract class SimulationNode<T> where T : SimulationNode<T>
+    public abstract class SimulationNode : IFormattable
     {
         #region Properties
         /// <summary>
@@ -25,17 +27,17 @@ namespace ModelService.Collections
         /// <summary>
         /// The parent node the current node.
         /// </summary>
-        public SimulationNode<T> Parent { get; protected set; } = default(SimulationNode<T>);
+        public SimulationNode Parent { get; protected set; } = default(SimulationNode);
 
         /// <summary>
         /// The chosen child of the current node after the <see cref="SelectPhase"/> has finished.
         /// </summary>
-        public SimulationNode<T> Child { get; protected set; } = default(SimulationNode<T>);
+        public SimulationNode Child { get; protected set; } = default(SimulationNode);
 
         /// <summary>
         /// The children of the current node after the <see cref="ExpandPhase"/>.
         /// </summary>
-        protected List<SimulationNode<T>> Children { get; set; } = default(List<SimulationNode<T>>);
+        protected List<SimulationNode> Children { get; set; } = default(List<SimulationNode>);
 
         /// <summary>
         /// Checks if the current node has been expanded for simulation.
@@ -78,16 +80,18 @@ namespace ModelService.Collections
         /// constructor is used for creating instance where the source of information is
         /// from a CSV file.
         /// </summary>
-        public SimulationNode()
+        /// <param name="owned_name"></param>
+        /// <param name="enemy_name"></param>
+        public SimulationNode(string owned_name, string enemy_name)
         {
             //Initialize the players
-            Owned_Agent = new SimulatedAgent();
-            Enemy_Agent = new SimulatedAgent();
+            Owned_Agent = new SimulatedAgent(owned_name);
+            Enemy_Agent = new SimulatedAgent(enemy_name);
 
             //Initialize the nodes
             Parent = null;
             Child = null;
-            Children = new List<SimulationNode<T>>();
+            Children = new List<SimulationNode>();
 
             //Initialize other related properties
             Runs = 0;
@@ -105,12 +109,12 @@ namespace ModelService.Collections
         {
             //Initialize the players
             Owned_Agent = new SimulatedAgent(agent_name, micromanagement);
-            Enemy_Agent = new SimulatedAgent();
+            Enemy_Agent = new SimulatedAgent("enemy_agent");
 
             //Initialize the nodes
             Parent = null;
             Child = null;
-            Children = new List<SimulationNode<T>>();
+            Children = new List<SimulationNode>();
 
             //Initialize other related properties
             Runs = 0;
@@ -125,7 +129,7 @@ namespace ModelService.Collections
         /// <param name="owned_agent"></param>
         /// <param name="enemy_agent"></param>
         /// <param name="parent"></param>
-        protected SimulationNode(SimulatedAgent owned_agent, SimulatedAgent enemy_agent, SimulationNode<T> parent)
+        protected SimulationNode(SimulatedAgent owned_agent, SimulatedAgent enemy_agent, SimulationNode parent)
         {
             //Initialize the players
             Owned_Agent = owned_agent;
@@ -134,7 +138,7 @@ namespace ModelService.Collections
             //Initialize the nodes
             Parent = parent;
             Child = null;
-            Children = new List<SimulationNode<T>>();
+            Children = new List<SimulationNode>();
 
             //Initialize other related properties
             Runs = 0;
@@ -142,14 +146,14 @@ namespace ModelService.Collections
         }
         #endregion
 
-        #region Methods
+        #region Simulation Methods
         /// <summary>
         /// The Select phase is the process where the current node must select
         /// a child from its <see cref="Children"/>. The <see cref="Child"/> that was chosen
         /// after the different phase is the one that would continue further the simulation.
         /// </summary>
         /// <returns></returns>
-        public abstract T SelectPhase();
+        public abstract SimulationNode SelectPhase();
 
         /// <summary>
         /// The Expand phase is the process where the current node will be expanded to
@@ -178,6 +182,56 @@ namespace ModelService.Collections
 
             //Update the necessary properties in ancestor
             Parent?.BackpropagatePhase(simulation_result);
+        } 
+
+        /// <summary>
+        /// Updates the current node by updating both of the agents for simulation.
+        /// </summary>
+        /// <param name="source"></param>
+        public virtual void UpdateSimulationNode(IEnumerable<string> source)
+        {
+            //Update the owned agent
+            Owned_Agent.UpdateSimulatedAgent(source.Take(1).Single().Split(','), source.Skip(1).Take(1).Single().Split(','));
+
+            //If there has been a known units for the enemy agent
+            if (source.Count() == 3)
+                Enemy_Agent.UpdateSimulatedAgent(source.Skip(2).Take(1).Single().Split(','));
+        }
+        #endregion
+
+        #region ToString Methods
+        /// <summary>
+        /// Returns the <see cref="Owned_Agent"/>'s <see cref="SimulatedAgent.Action"/> that is
+        /// used in messaging C++ Agent
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString() => ToString("M", CultureInfo.CurrentCulture);
+
+        /// <summary>
+        /// Returns a specific information about <see cref="SimulatedAgent"/>.
+        /// </summary>
+        /// <param name="format"></param>
+        /// <returns></returns>
+        public string ToString(string format) => ToString(format, CultureInfo.CurrentCulture);
+
+        /// <summary>
+        /// Returns a specific information about <see cref="SimulatedAgent"/> using a 
+        /// specific format provider.
+        /// </summary>
+        /// <param name="format"></param>
+        /// <param name="formatProvider"></param>
+        /// <returns></returns>
+        public string ToString(string format, IFormatProvider formatProvider)
+        {
+            switch(format.ToUpperInvariant())
+            {
+                case "M":
+                    return Owned_Agent.ToString();
+                case "R":
+                    return String.Join("\n", Owned_Agent.ToString("R"), Enemy_Agent.ToString("R"));
+                default:
+                    throw new Exception($@"Failed to format into string...");
+            }
         } 
         #endregion
     }

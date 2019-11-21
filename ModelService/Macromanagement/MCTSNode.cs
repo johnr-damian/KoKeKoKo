@@ -7,8 +7,14 @@ using System.Threading.Tasks;
 
 namespace ModelService.Macromanagement
 {
-    public class MCTSNode : SimulationNode<MCTSNode>
+    public class MCTSNode : SimulationNode
     {
+        /// <summary>
+        /// An expansion policy matrix reference. This is used if <see cref="MCTSNode"/> is configured
+        /// to expand by following what is learned from CSV files.
+        /// </summary>
+        private static Tuple<string[], double[,][]> Reference { get; set; } = default(Tuple<string[], double[,][]>);
+
         public double UCT
         {
             get
@@ -23,8 +29,10 @@ namespace ModelService.Macromanagement
         /// the Monte Carlo Tree Search Algorithm. This constructor is used for creating
         /// instance where the source of information is from a CSV file.
         /// </summary>
-        public MCTSNode()
-            : base() { }
+        /// <param name="owned_name"></param>
+        /// <param name="enemy_name"></param>
+        public MCTSNode(string owned_name, string enemy_name)
+            : base(owned_name, enemy_name) { }
 
         /// <summary>
         /// Initializes the required properties to start simulating the game using the
@@ -48,7 +56,13 @@ namespace ModelService.Macromanagement
             : base(owned_agent, enemy_agent, parent) { }
         #endregion
 
-        public override MCTSNode SelectPhase()
+        /// <summary>
+        /// Sets the expanding policy matrix reference.
+        /// </summary>
+        /// <param name="reference"></param>
+        public static void SetMCTSReference(Tuple<string[], double[,][]> reference) => Reference = reference;
+
+        public override SimulationNode SelectPhase()
         {
             return null;
         }

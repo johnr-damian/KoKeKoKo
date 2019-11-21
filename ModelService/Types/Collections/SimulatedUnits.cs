@@ -9,6 +9,12 @@ namespace ModelService.Collections
 {
     public class SimulatedUnits : IEnumerable<SimulatedUnit>
     {
+
+        public SimulatedUnits()
+        {
+
+        }
+
         public SimulatedUnits(IEnumerable<string> units)
         {
 

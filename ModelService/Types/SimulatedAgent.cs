@@ -3,11 +3,13 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ModelService
 {
+    /// <summary>
+    /// Represents an agent that directly interacts with the environment. It contains
+    /// the related information to handle the simulations.
+    /// </summary>
     public class SimulatedAgent : IActor<SimulatedAgent>, IFormattable
     {
         #region Properties
@@ -148,10 +150,48 @@ namespace ModelService
             }
         }
 
+        #region Constructors
         /// <summary>
-        /// Initializes the required properties to simulate the agent with
-        /// values from a parent agent. This constructor is used for consequent
-        /// agents in which it is a copy from a parent agent.
+        /// Initializes the minimal properties to simulate the agent with values
+        /// coming from a CSV file. This constructor is used for starting a simulation
+        /// for a CSV file.
+        /// </summary>
+        /// <param name="agent_name"></param>
+        public SimulatedAgent(string agent_name)
+        {
+            Name = agent_name;
+            Action = String.Empty;
+
+            //Initialize the starting units
+            Units = new SimulatedUnits();
+
+            //Initialize the starting resources
+            Resources = new Worth(50, 0, 15, 12, 0);
+        }
+
+        /// <summary>
+        /// Initializes the minimal properties to simulate the agent with values
+        /// coming from a C++ Agent message. This constructor is used for starting a simulation
+        /// for a C++ Agent.
+        /// </summary>
+        /// <param name="agent_name"></param>
+        /// <param name="micromanagement"></param>
+        public SimulatedAgent(string agent_name, IEnumerable<string> micromanagement)
+        {
+            Name = agent_name;
+            Action = String.Empty;
+
+            //Initialize the starting units
+            Units = new SimulatedUnits(micromanagement);
+
+            //Initialize the starting resources
+            Resources = new Worth(50, 0, 15, 12, 0);
+        }
+
+        /// <summary>
+        /// Initializes the properties to continue simulate with values from the
+        /// parent agent. This constructor is used for continuing the simulation 
+        /// of the parent agent.
         /// </summary>
         /// <param name="name"></param>
         /// <param name="units"></param>
@@ -160,34 +200,15 @@ namespace ModelService
         {
             Name = name;
             Action = String.Empty;
+
+            //Initialize the units
             Units = units;
+
+            //Initialize the resources
             Resources = resources;
-        }
+        } 
+        #endregion
 
-        public SimulatedAgent()
-        {
-
-        }
-
-        /// <summary>
-        /// Initializes the required properties to simulate the agent.
-        /// This constructor is used for creating a starting agent in which a
-        /// starting agent only consist of starting units and resources.
-        /// </summary>
-        /// <param name="name"></param>
-        /// <param name="units"></param>
-        public SimulatedAgent(string name, IEnumerable<string> units)
-        {
-            Name = name;
-            Action = String.Empty;
-
-            //Initialize the starting units
-            Units = new SimulatedUnits(units);
-
-            //Initialize the starting resources
-            Resources = new Worth(50, 0, 15, 12, 0);
-        }
-        
         /// <summary>
         /// Updates the necessary properties of <see cref="SimulatedAgent"/> when
         /// the chosen action from <see cref="GeneratePotentialActions"/> is applied.
@@ -195,21 +216,57 @@ namespace ModelService
         /// <param name="chosen_action"></param>
         public void ApplyChosenAction(string chosen_action)
         {
-            switch(chosen_action)
-            {
-
-            }
+            throw new NotImplementedException("Guanga");
         }
 
+        /// <summary>
+        /// Returns an exact copy of the current agent excluding <see cref="Action"/>.
+        /// </summary>
+        /// <returns></returns>
         public SimulatedAgent Copy() => new SimulatedAgent(Name, Units.Copy(), Resources);
 
+        /// <summary>
+        /// Generates a list of actions that can be executed by the agent given by the current state.
+        /// </summary>
+        /// <returns></returns>
         public IEnumerable<string> GeneratePotentialActions()
         {
-            foreach(var unit in Units)
-            {
-                yield return "";
-            }
+            throw new NotImplementedException("Guanga");
         }
+
+        #region Update Methods
+        /// <summary>
+        /// Updates the micromanagement properties of the agent with values coming from
+        /// a C++ Agent message. This method is use to update an enemy agent based on
+        /// known enemy units in the message.
+        /// </summary>
+        /// <param name="micromanagement"></param>
+        public void UpdateSimulatedAgent(IEnumerable<string> micromanagement)
+        {
+            //Update the known enemy units
+            Units = new SimulatedUnits(micromanagement);
+
+            //Infer the resources based on the units
+            throw new NotImplementedException("Guanga");
+        }
+
+        /// <summary>
+        /// Updates the micromanagement and macromanagement properties of the agent with values
+        /// coming from a C++ Agent message. This method is use to update an owned agent based
+        /// on the message.
+        /// </summary>
+        /// <param name="micromanagement"></param>
+        /// <param name="macromanagement"></param>
+        public void UpdateSimulatedAgent(IEnumerable<string> micromanagement, IEnumerable<string> macromanagement)
+        {
+            //Update the controlled units
+            Units = new SimulatedUnits(micromanagement);
+
+            //Update the resources
+            var resources = macromanagement.ToArray();
+            Resources = new Worth(Convert.ToDouble(resources[0]), Convert.ToDouble(resources[1]), Convert.ToInt32(resources[2]), Convert.ToInt32(resources[3]), Convert.ToInt32(resources[4]));
+        } 
+        #endregion
 
         #region ToString Methods
         /// <summary>
@@ -236,7 +293,22 @@ namespace ModelService
             switch (format.ToUpperInvariant())
             {
                 case "M":
-                    return "";
+                    return Action;
+                case "R":
+                    var resources = String.Join(",", Convert.ToString(Value[0]), Convert.ToString(Value[1]), Convert.ToString(Value[2]), Convert.ToString(Value[3]));
+                    string category = "";
+
+                    //Get the category of action
+                    switch (Action)
+                    {
+                        case "BUILD_SUPPLYDEPOT":
+
+                            break;
+                        default:
+                            throw new NotImplementedException("Guanga");
+                    }
+
+                    return String.Join(";", resources, String.Join(",", Action, category));
                 default:
                     throw new Exception($@"Failed to format into string...");
             }

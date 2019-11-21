@@ -1,4 +1,5 @@
-﻿using Services;
+﻿using ModelService.Macromanagement;
+using Services;
 using System;
 using System.Linq;
 
@@ -23,9 +24,14 @@ namespace ModelService
             try
             {
                 //Create the services
-                AgentService agentservice = AgentService.CreateNewAgentService();
-                ComputationService computationservice = ComputationService.CreateNewComputationService();
-                RepositoryService repositoryservice = RepositoryService.CreateNewRepositoryService();
+                var agentservice = AgentService.CreateNewAgentService();
+                var computationservice = ComputationService.CreateNewComputationService();
+                var repositoryservice = RepositoryService.CreateNewRepositoryService();
+
+                //Set the reference for Macromanagement Algorithms
+                var macromanagement_reference = repositoryservice.InterpretMacromanagementRepository();
+                MCTSNode.SetMCTSReference(macromanagement_reference);
+                POMDPNode.SetPOMDPReference(macromanagement_reference);
 
                 //The C# Model has started as a standalone application
                 if (args.Length  > 0)
@@ -36,39 +42,58 @@ namespace ModelService
                     var micromanagement_repository = repositoryservice.GetMicromanagementRepository();
                     var macromanagement_repository = repositoryservice.GetMacromanagementRepository();
 
-                    foreach(var m in micromanagement_repository)
-                    {
-                        Console.WriteLine(m.Item1);
-                    }
+                    //Store the Micromanagement
 
-                    foreach(var m in macromanagement_repository)
-                    {
-                        Console.WriteLine(m.Item1);
-                    }
+                    //Store the Macromanagement
+                    var mcts_macromanagements = macromanagement_repository.Select(macromanagement => (new Macromanagement<MCTSNode>(macromanagement)));
+                    var pomdp_macromanagements = macromanagement_repository.Select(macromanagement => (new Macromanagement<POMDPNode>(macromanagement)));
+
+                    //Group the Micromanagement by Rank
+
+                    //Group the Macromanagement by Rank
+                    var mctsrank_macromanagements = mcts_macromanagements.GroupBy(macromanagement => macromanagement.Rank).ToDictionary(key => key.Key, value => value.ToArray());
+                    var pomdprank_macromanagements = pomdp_macromanagements.GroupBy(macromanagement => macromanagement.Rank).ToDictionary(key => key.Key, value => value.ToArray());
+
+                    //Perform the Accuracy Testing for Micromanagement
+
+                    //Perform the Accuracy Testing for Macromanagement
+                    var mctsresults = mctsrank_macromanagements.Select(macromanagement => macromanagement.Value.Select(accuracy => accuracy.ToString("R")));
+                    var pomdpresults = pomdprank_macromanagements.Select(macromanagement => macromanagement.Value.Select(accuracy => accuracy.ToString("R")));
+
+                    //Create a profile for Accuracy Results for Micromanagement
+
+                    //Create a profile for Accuracy Results for Macromanagement
+
+                    Console.WriteLine("(C#)C# Model is ready to terminate! Press enter to close the model...");
+                    Console.ReadLine();
                 }
-                //The C# Model has started as a service
+                //The C# Model has started as a model service application
                 else
                 {
                     Console.WriteLine("(C#)C# Model has started! Generating initial actions...");
 
-                    //Generate the initial actions
-                    var test = new Macromanagement.Macromanagement("a:b", "c:d");
-                    var initialactions = String.Join(",", test.GetMacromanagementStuff());
+                    //Send initialization request to C++ Agent
+                    var messages = agentservice.UpdateAgentService("INITIALIZING");
 
-                    //Send the initial action
-                    var whattodo = agentservice.UpdateAgentService(initialactions);
+                    //Perform initialization
+                    string message = messages.Dequeue(), actions = String.Empty;
+                    var kokekokobot = new Macromanagement<MCTSNode>(messages);
 
-                    for (string message = whattodo.Dequeue(); message != "TERMINATE";)
+                    //Continue to perform simulation and update
+                    while(message != "TERMINATE")
                     {
-                        //Generate new actions
-                        var newactions = String.Join(",", test.GetMacromanagementStuff());
+                        //Generate the actions
+                        actions = kokekokobot.ToString();
 
-                        if (!agentservice.ShouldOperationsContinue())
-                        {
-                            var nextwhattodo = agentservice.UpdateAgentService(newactions);
-                            message = nextwhattodo.Dequeue();
-                        }
+                        //Update C++ Agent
+                        messages = agentservice.UpdateAgentService(actions);
+
+                        //Update C# Model
+                        message = messages.Dequeue();
+                        kokekokobot.UpdateMacromanagement(messages);
                     }
+
+                    Console.WriteLine("(C#)C# Model is terminating...");
                 }
             }
             catch(Exception ex)

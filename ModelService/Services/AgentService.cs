@@ -67,9 +67,11 @@ namespace Services
         /// <param name="static_time"></param>
         public string UpdateAgentService(DateTime static_time)
         {
-            if(NextUpdateTime.AddSeconds(10) < static_time)
+            var current_time = DateTime.Now;
+
+            if(current_time.AddSeconds(10) < static_time)
             {
-                NextUpdateTime = NextUpdateTime.AddSeconds(10);
+                NextUpdateTime = current_time.AddSeconds(10);
                 return "UPDATE";
             }
 

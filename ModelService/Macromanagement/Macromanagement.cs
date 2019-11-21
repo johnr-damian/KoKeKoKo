@@ -1,4 +1,5 @@
 ﻿using ModelService.Collections;
+using Services;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -98,21 +99,81 @@ namespace ModelService.Macromanagement
         #endregion
 
         /// <summary>
-        /// 
+        /// Generates a sequence of predicted actions that must be executed by 
+        /// C++ Agent to win the game.
         /// </summary>
         /// <returns></returns>
         private List<string> PredictSequenceOfActions()
         {
-            var test = Current.SelectPhase();
+            var actions = new List<string>();
+            var agentservice = AgentService.CreateNewAgentService();
+
+            while(agentservice.ShouldOperationsContinue())
+            {
+                try
+                {
+                    //Get the best next move from the current node
+                    var best_node = Current.SelectPhase();
+
+                    //Store the move in the list of actions
+                    actions.Add(best_node.ToString());
+
+                    //Update the current node
+                    Current = best_node;
+                }
+                catch(Exception ex)
+                {
+                    Console.WriteLine($@"(C#)Error Occurred! {ex.Message}");
+                }
+            }
+
+            return actions;
         }
 
         /// <summary>
-        /// 
+        /// Generates a sequence of important information to test the accuracy
+        /// of macromanagement prediction given by a limited time.
         /// </summary>
         /// <returns></returns>
         private List<string> CreateAccuracyReport()
         {
+            //Get the maximum gameplay time
+            int maximum_seconds = Math.Max(Convert.ToInt32(Source[1].Last().Split(',')[0]), Convert.ToInt32(Source[2].Last().Split(',')[0]));
 
+            //Set the maximum time to simulate
+            DateTime maximum_time = DateTime.Now.AddSeconds(maximum_seconds);
+
+            //Continue to simulate until TERMINATE
+            var information = new List<string>();
+            var agentservice = AgentService.CreateNewAgentService();
+            string message = agentservice.UpdateAgentService(maximum_time);
+
+            while(message != "TERMINATE")
+            {
+                while(agentservice.ShouldOperationsContinue())
+                {
+                    try
+                    {
+                        //Get the best next move from the current node
+                        var best_node = Current.SelectPhase();
+
+                        //Update the current node
+                        Current = best_node;
+                    }
+                    catch(Exception ex)
+                    {
+                        Console.WriteLine($@"(C#)Error Occurred! {ex.Message}");
+                    }
+                }
+
+                //Add the current node's information because it is the 10-second move
+                information.Add(Current.ToString("R"));
+
+                //Update the agent service
+                message = agentservice.UpdateAgentService(maximum_time);
+            }
+
+            return information;
         }
 
         /// <summary>

@@ -425,7 +425,8 @@ namespace Services
                 }).ToArray();
 
                 //Parse the postbattle result into surviving unit's unique id
-                var parsedpostbattle = micromanagement_relationship.Item5.Select(unit => String.Join(",", unit.Split(',').Skip(1).Take(3))).ToArray();
+                //var parsedpostbattle = micromanagement_relationship.Item5.Select(unit => String.Join(",", unit.Split(',').Skip(1).Take(3))).ToArray();
+                var parsedpostbattle = micromanagement_relationship.Item5;
 
                 yield return new Tuple<string, string, string[], string[], string[]>(micromanagement_relationship.Item1, micromanagement_relationship.Item2, playerone_parsedunits, playertwo_parsedunits, parsedpostbattle);
             }

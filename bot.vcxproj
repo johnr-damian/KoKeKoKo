@@ -70,13 +70,13 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>C:\Users\Gelo\Desktop\SC2 API lib\SC2API_Binary_vs2017\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\Gelo\Desktop\SC2 API lib\SC2API_Binary_vs2017\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\Kelsey\source\repos\KoKeKoKo\SC2API_Binary_vs2017\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\Kelsey\source\repos\KoKeKoKo\SC2API_Binary_vs2017\lib;$(LibraryPath)</LibraryPath>
     <ReferencePath>$(ReferencePath)</ReferencePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\Users\Gelo\Desktop\SC2 API lib\SC2API_Binary_vs2017\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\Gelo\Desktop\SC2 API lib\SC2API_Binary_vs2017\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\Kelsey\source\repos\KoKeKoKo\SC2API_Binary_vs2017\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\Kelsey\source\repos\KoKeKoKo\SC2API_Binary_vs2017\lib;$(LibraryPath)</LibraryPath>
     <ReferencePath>$(ReferencePath)</ReferencePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

@@ -19,7 +19,15 @@ namespace ModelService.Macromanagement
         {
             get
             {
-                return 0;
+                var exploration = (Wins / Runs);
+                var exploitation = Math.Sqrt((2 * Math.Log(Parent.Runs)) / Runs);
+
+                if (Double.IsNaN(exploration))
+                    exploration = 0;
+                if (Double.IsNaN(exploitation))
+                    exploitation = 0;
+
+                return (exploration + exploitation);
             }
         }
 
@@ -64,17 +72,42 @@ namespace ModelService.Macromanagement
 
         public override SimulationNode SelectPhase()
         {
-            return null;
+            if(!IsExpanded)
+            {
+                ExpandPhase();
+
+                double bestuct = Double.MinValue;
+                SimulationNode child = default(MCTSNode);
+                foreach(MCTSNode childnode in Children)
+                {
+                    var current_uct = childnode.UCT;
+                    if(current_uct > bestuct)
+                    {
+                        bestuct = current_uct;
+                        child = childnode;
+                    }
+                }
+
+                Child = child;
+            }
+
+            return Child;
         }
 
         protected override void ExpandPhase()
         {
-            throw new NotImplementedException();
+            for(int test = 0; test < 5; test++)
+                Children.Add(new MCTSNode(Owned_Agent.Copy(), Enemy_Agent.Copy(), this));
+
+            Children.ForEach(child => ((MCTSNode)child).SimulationPhase());
         }
 
         protected override void SimulationPhase()
         {
-            throw new NotImplementedException();
+            Owned_Agent.ApplyChosenAction("TEST");
+            Enemy_Agent.ApplyChosenAction("TEST");
+
+            
         }
     }
 }

@@ -1661,7 +1661,7 @@ namespace KoKeKoKo
 					_actions.pop();
 
 					////We periodically get message and send updates to model service
-					//StartSendingUpdatesToModelService();
+					StartSendingUpdatesToModelService();
 					//Get possible expansion positions
 					std::vector<Point3D> expansions_;
 					expansions_ = search::CalculateExpansionLocations(Observation(), Query());

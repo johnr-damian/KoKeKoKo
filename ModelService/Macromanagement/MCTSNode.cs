@@ -107,7 +107,7 @@ namespace ModelService.Macromanagement
             Owned_Agent.ApplyChosenAction("TEST");
             Enemy_Agent.ApplyChosenAction("TEST");
 
-            
+            BackpropagatePhase(true);
         }
     }
 }

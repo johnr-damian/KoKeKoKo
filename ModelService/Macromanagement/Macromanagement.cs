@@ -41,7 +41,7 @@ namespace ModelService.Macromanagement
         /// </summary>
         public string Rank
         {
-            get { return Source[0][1]; }
+            get { return Source[0][0]; }
         }
         
         /// <summary>
@@ -156,6 +156,8 @@ namespace ModelService.Macromanagement
                     {
                         //Get the best next move from the current node
                         var best_node = Current.SelectPhase();
+                        if (best_node == null)
+                            break;
 
                         //Update the current node
                         Current = best_node;

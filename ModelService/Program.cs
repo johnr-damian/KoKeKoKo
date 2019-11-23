@@ -63,6 +63,8 @@ namespace ModelService
                     //Create a profile for Accuracy Results for Micromanagement
 
                     //Create a profile for Accuracy Results for Macromanagement
+                    foreach (var mcts in mctsresults)
+                        mcts.ToList().ForEach(result => Console.WriteLine(result));
 
                     Console.WriteLine("(C#)C# Model is ready to terminate! Press enter to close the model...");
                     Console.ReadLine();

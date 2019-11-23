@@ -14,12 +14,12 @@ namespace ModelService.Types
         /// <summary>
         /// The current target of this unit
         /// </summary>
-        private int Current_Target { get; set; } = default(int);
+        private int Current_Target { get; set; } = default(int); //
 
         /// <summary>
         /// The list of units that has been targeted by this unit
         /// </summary>
-        private List<Unit> Targets { get; set; } = default(List<Unit>);
+        private List<Unit> Targets { get; set; } = default(List<Unit>); //
         #endregion
 
         #region Properties From Source
@@ -36,12 +36,12 @@ namespace ModelService.Types
         /// <summary>
         /// A unique identifier for this unit
         /// </summary>
-        public string UniqueID { get; private set; } = default(string);
+        public string UniqueID { get; private set; } = default(string); //
 
         /// <summary>
         /// The unit type of this unit
         /// </summary>
-        public string Name { get; private set; } = default(string);
+        public string Name { get; private set; } = default(string); //
 
         /// <summary>
         /// The position of the unit where it is found to be in battle
@@ -51,14 +51,14 @@ namespace ModelService.Types
         /// <summary>
         /// The current buffs that affect this unit
         /// </summary>
-        public List<string> Buffs { get; private set; } = default(List<string>);
+        public List<string> Buffs { get; private set; } = default(List<string>); //
         #endregion
 
         #region Properties From Simulation
         /// <summary>
         /// The original health of this unit
         /// </summary>
-        public double Health { get; private set; } = default(double);
+        public double Health { get; private set; } = default(double); //
 
         /// <summary>
         /// The current health of this unit
@@ -68,7 +68,7 @@ namespace ModelService.Types
         /// <summary>
         /// The original energy of this unit
         /// </summary>
-        public double Energy { get; private set; } = default(double);
+        public double Energy { get; private set; } = default(double); //
 
         /// <summary>
         /// The current energy of this unit
@@ -78,7 +78,7 @@ namespace ModelService.Types
         /// <summary>
         /// The original armor of this unit
         /// </summary>
-        public double Armor { get; private set; } = default(double);
+        public double Armor { get; private set; } = default(double); //
 
         /// <summary>
         /// The current armor of this unit
@@ -88,7 +88,7 @@ namespace ModelService.Types
         /// <summary>
         /// The original ground damage of this unit
         /// </summary>
-        public double Ground_Damage { get; private set; } = default(double);
+        public double Ground_Damage { get; private set; } = default(double); //
 
         /// <summary>
         /// The current ground damage of this unit
@@ -98,7 +98,7 @@ namespace ModelService.Types
         /// <summary>
         /// The original air damage of this unit
         /// </summary>
-        public double Air_Damage { get; private set; } = default(double);
+        public double Air_Damage { get; private set; } = default(double); //
 
         /// <summary>
         /// The current air damage of this unit
@@ -108,17 +108,17 @@ namespace ModelService.Types
         /// <summary>
         /// A list of skills that was activated/used
         /// </summary>
-        public Dictionary<string, UnitSkills> Activated_Skills { get; set; } = default(Dictionary<string, UnitSkills>);
+        public Dictionary<string, UnitSkills> Activated_Skills { get; set; } = default(Dictionary<string, UnitSkills>); //
 
         /// <summary>
         /// The current opposing unit that is targeted by this unit
         /// </summary>
-        public Unit Target => ((Targets.Count == 0) ? null : Targets[Current_Target]);
+        public Unit Target => ((Targets.Count == 0) ? null : Targets[Current_Target]); //
 
         /// <summary>
         /// If this unit's <see cref="Current_Health"/> is below or equal 0
         /// </summary>
-        public bool IsDefeated => (Current_Health <= 0);
+        public bool IsDefeated => (Current_Health <= 0); //
 
         /// <summary>
         /// If this <see cref="Target"/>'s <see cref="Current_Health"/> is below or equal 0, or has no target at all

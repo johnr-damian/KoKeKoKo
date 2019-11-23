@@ -182,7 +182,7 @@ namespace ModelService
             Action = String.Empty;
 
             //Initialize the starting units
-            Units = new SimulatedUnits(micromanagement);
+            Units = new SimulatedUnits(micromanagement.ToArray());
 
             //Initialize the starting resources
             Resources = new Worth(50, 0, 15, 12, 0);
@@ -244,7 +244,7 @@ namespace ModelService
         public void UpdateSimulatedAgent(IEnumerable<string> micromanagement)
         {
             //Update the known enemy units
-            Units = new SimulatedUnits(micromanagement);
+            Units = new SimulatedUnits(micromanagement.ToArray());
 
             //Infer the resources based on the units
             throw new NotImplementedException("Guanga");
@@ -260,7 +260,7 @@ namespace ModelService
         public void UpdateSimulatedAgent(IEnumerable<string> micromanagement, IEnumerable<string> macromanagement)
         {
             //Update the controlled units
-            Units = new SimulatedUnits(micromanagement);
+            Units = new SimulatedUnits(micromanagement.ToArray());
 
             //Update the resources
             var resources = macromanagement.ToArray();

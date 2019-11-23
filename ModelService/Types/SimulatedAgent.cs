@@ -216,7 +216,10 @@ namespace ModelService
         /// <param name="chosen_action"></param>
         public void ApplyChosenAction(string chosen_action)
         {
-            throw new NotImplementedException("Guanga");
+            if (chosen_action == "TEST")
+                Action = "Test";
+
+            Resources += new Worth(12, 12, 0, 0, 0);
         }
 
         /// <summary>

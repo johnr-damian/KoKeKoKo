@@ -1,4 +1,5 @@
 ﻿using ModelService.Collections;
+using Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -104,10 +105,13 @@ namespace ModelService.Macromanagement
 
         protected override void SimulationPhase()
         {
+            var computationservide = ComputationService.CreateNewComputationService();
+            var random = computationservide.GetRandomProbability();
+
             Owned_Agent.ApplyChosenAction("TEST");
             Enemy_Agent.ApplyChosenAction("TEST");
 
-            
+            BackpropagatePhase(random <= .50);
         }
     }
 }

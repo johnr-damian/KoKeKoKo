@@ -1,4 +1,5 @@
 ﻿using ModelService.Collections;
+using Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -104,10 +105,127 @@ namespace ModelService.Macromanagement
 
         protected override void SimulationPhase()
         {
-            Owned_Agent.ApplyChosenAction("TEST");
-            Enemy_Agent.ApplyChosenAction("TEST");
+            //Get the services
+            var agentservice = AgentService.CreateNewAgentService();
+            var computationservice = ComputationService.CreateNewComputationService();
 
-            BackpropagatePhase(true);
+            //Get the list of potential actions
+            var owned_agent_actions = Owned_Agent.GeneratePotentialActions().ToArray();
+            var enemy_agent_actions = Enemy_Agent.GeneratePotentialActions().ToArray();
+
+            //Get the distinct potential actions
+            var owned_agent_distinct = owned_agent_actions.Distinct();
+            var enemy_agent_distinct = enemy_agent_actions.Distinct();
+
+            //Initialize action to probability mapping
+            var owned_agent_probability = new Dictionary<string, Tuple<double, double>>();
+            var enemy_agent_probability = new Dictionary<string, Tuple<double, double>>();
+
+            //Create the probability mapping
+            double start_probability = 0;
+            foreach(var owned_agent_action in owned_agent_distinct)
+            {
+                double count = owned_agent_actions.Count(action => action == owned_agent_action);
+                double end_probability = (start_probability + (count / owned_agent_actions.Length));
+
+                owned_agent_probability.Add(owned_agent_action, new Tuple<double, double>(start_probability, end_probability));
+                start_probability = end_probability;
+            }
+            start_probability = 0;
+            foreach(var enemy_agent_action in enemy_agent_distinct)
+            {
+                double count = enemy_agent_actions.Count(action => action == enemy_agent_action);
+                double end_probability = (start_probability + (count / enemy_agent_actions.Length));
+
+                enemy_agent_probability.Add(enemy_agent_action, new Tuple<double, double>(start_probability, end_probability));
+                start_probability = end_probability;
+            }
+
+            //Check the expansion configuration. How do we select new action
+            //1. Random
+            //2. Learned (CSV)
+            //3. Hybrid
+
+            //Choosing 1. Random. We pick a random action.
+            double owned_agent_randomaction = computationservice.GetRandomProbability(), enemy_agent_randomaction = computationservice.GetRandomProbability();
+            string owned_agent_chosenaction = "", enemy_agent_chosenaction = "";
+
+            foreach(var action in owned_agent_probability)
+            {
+                if((action.Value.Item1 < owned_agent_randomaction) && (owned_agent_randomaction < action.Value.Item2))
+                {
+                    owned_agent_chosenaction = action.Key;
+                    break;
+                }
+            }
+            foreach (var action in enemy_agent_probability)
+            {
+                if ((action.Value.Item1 < enemy_agent_randomaction) && (enemy_agent_randomaction < action.Value.Item2))
+                {
+                    enemy_agent_chosenaction = action.Key;
+                    break;
+                }
+            }
+
+            //Apply the action
+            Owned_Agent.ApplyChosenAction(owned_agent_chosenaction);
+            Enemy_Agent.ApplyChosenAction(enemy_agent_chosenaction);
+
+            //We play out until we reach a certain depth
+            //for(MCTSNode playnode = this; DateTime.Now < agentservice.NextUpdateTime.Subtract(new TimeSpan(0, 0, 5));)
+            //{
+            //    playnode = (MCTSNode)playnode.SelectPhase();
+            //}
+
+            //After the playout, we compute the values as much as possible
+            double[] owned_agent_value = Owned_Agent.Value, enemy_agent_value = Enemy_Agent.Value;
+            double avg_count = (Child != null)? 0 : 1;
+            for(var chosen_child = Child; chosen_child != null; chosen_child = chosen_child.Child, avg_count++)
+            {
+                var new_owned_agent_value = chosen_child.Owned_Agent.Value;
+                var new_enemy_agent_value = chosen_child.Enemy_Agent.Value;
+
+                owned_agent_value[0] = new_owned_agent_value[0];
+                owned_agent_value[0] = new_owned_agent_value[1];
+                owned_agent_value[0] = new_owned_agent_value[2];
+                owned_agent_value[0] = new_owned_agent_value[3];
+                owned_agent_value[0] = new_owned_agent_value[4];
+
+                enemy_agent_value[0] = new_enemy_agent_value[0];
+                enemy_agent_value[0] = new_enemy_agent_value[1];
+                enemy_agent_value[0] = new_enemy_agent_value[2];
+                enemy_agent_value[0] = new_enemy_agent_value[3];
+                enemy_agent_value[0] = new_enemy_agent_value[4];
+            }
+
+            //var mineral_worth = ((owned_agent_value[0] / avg_count) >= (enemy_agent_value[0] / avg_count));
+            //var vespene_worth = ((owned_agent_value[1] / avg_count) >= (enemy_agent_value[1] / avg_count));
+            //var supply_worth = ((owned_agent_value[2] / avg_count) >= (enemy_agent_value[2] / avg_count));
+            //var worker_worth = ((owned_agent_value[3] / avg_count) >= (enemy_agent_value[3] / avg_count));
+            //var upgrade_worth = ((owned_agent_value[4] / avg_count) >= (enemy_agent_value[4] / avg_count));
+
+            //double total_worth = 0;
+            //total_worth += (mineral_worth) ? 0.30 : 0;
+            //total_worth += (vespene_worth) ? 0.30 : 0;
+            //total_worth += (supply_worth) ? 0.15 : 0;
+            //total_worth += (worker_worth) ? 0.15 : 0;
+            //total_worth += (upgrade_worth) ? 0.10 : 0;
+
+            double total_worth = 0, etotal_worth = 0;
+            total_worth += (owned_agent_value[0] / avg_count) * 0.30;
+            total_worth += (owned_agent_value[1] / avg_count) * 0.30;
+            total_worth += (owned_agent_value[2] / avg_count) * 0.15;
+            total_worth += (owned_agent_value[3] / avg_count) * 0.15;
+            total_worth += (owned_agent_value[4] / avg_count) * 0.10;
+
+            etotal_worth += (enemy_agent_value[0] / avg_count) * 0.30;
+            etotal_worth += (enemy_agent_value[1] / avg_count) * 0.30;
+            etotal_worth += (enemy_agent_value[2] / avg_count) * 0.15;
+            etotal_worth += (enemy_agent_value[3] / avg_count) * 0.15;
+            etotal_worth += (enemy_agent_value[4] / avg_count) * 0.10;
+
+
+            BackpropagatePhase(total_worth >= etotal_worth);
         }
     }
 }

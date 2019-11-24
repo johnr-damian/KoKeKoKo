@@ -132,11 +132,13 @@ namespace ModelService.Collections
             Units = new SimulatedUnit[13]; //There are 13 initial units in the starting game
 
             //Add a TERRAN_COMMANDCENTER
-            Units[0] = new SimulatedUnit(String.Join(",", Guid.NewGuid().ToString("N"), "TERRAN_COMMANDCENTER"));
+            //Units[0] = new SimulatedUnit(String.Join(",", Guid.NewGuid().ToString("N"), "TERRAN_COMMANDCENTER"));
+            Units[0] = new SimulatedUnit("TERRAN_COMMANDCENTER", Enumerable.Empty<string>());
 
             //Add 12 TERRAN_SCV
             for (int iterator = 1; iterator < Units.Length; iterator++)
-                Units[iterator] = new SimulatedUnit(String.Join(",", Guid.NewGuid().ToString("N"), "TERRAN_SCV"));
+                //Units[iterator] = new SimulatedUnit(String.Join(",", Guid.NewGuid().ToString("N"), "TERRAN_SCV"));
+                Units[iterator] = new SimulatedUnit("TERRAN_SCV", Enumerable.Empty<string>());
         }
 
         /// <summary>
@@ -153,7 +155,7 @@ namespace ModelService.Collections
                 Units = new SimulatedUnit[units.Length];
 
                 for (int iterator = 0; iterator < units.Length; iterator++)
-                    Units[iterator] = new SimulatedUnit(units[iterator]);
+                    Units[iterator] = new SimulatedUnit(units[iterator], Enumerable.Empty<string>());
             }
             else
                 throw new Exception("Failed to create a list unit...");

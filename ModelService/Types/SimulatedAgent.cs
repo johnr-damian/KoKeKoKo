@@ -36,6 +36,11 @@ namespace ModelService
         }
 
         /// <summary>
+        /// A list of researched upgrades of the agent.
+        /// </summary>
+        public List<string> Upgrades { get; private set; } = default(List<string>);
+
+        /// <summary>
         /// The name of the current agent.
         /// </summary>
         public string Name { get; private set; } = default(string);
@@ -165,8 +170,9 @@ namespace ModelService
             //Initialize the starting units
             Units = new SimulatedUnits();
 
-            //Initialize the starting resources
+            //Initialize the starting resources and upgrades
             Resources = new Worth(50, 0, 15, 12, 0);
+            Upgrades = new List<string>();
         }
 
         /// <summary>
@@ -186,6 +192,7 @@ namespace ModelService
 
             //Initialize the starting resources
             Resources = new Worth(50, 0, 15, 12, 0);
+            Upgrades = new List<string>();
         }
 
         /// <summary>
@@ -195,8 +202,9 @@ namespace ModelService
         /// </summary>
         /// <param name="name"></param>
         /// <param name="units"></param>
+        /// <param name="upgrades"></param>
         /// <param name="resources"></param>
-        private SimulatedAgent(string name, SimulatedUnits units, Worth resources)
+        private SimulatedAgent(string name, SimulatedUnits units, List<string> upgrades, Worth resources)
         {
             Name = name;
             Action = String.Empty;
@@ -204,8 +212,9 @@ namespace ModelService
             //Initialize the units
             Units = units;
 
-            //Initialize the resources
+            //Initialize the resources and upgrades
             Resources = resources;
+            Upgrades = new List<string>(upgrades);
         } 
         #endregion
 
@@ -216,17 +225,55 @@ namespace ModelService
         /// <param name="chosen_action"></param>
         public void ApplyChosenAction(string chosen_action)
         {
-            if (chosen_action == "TEST")
-                Action = "Test";
+            SimulatedUnit new_unit = null;
+            double[] new_unit_cost = null;
 
-            Resources += new Worth(12, 12, 0, 0, 0);
+            switch(chosen_action)
+            {
+                case "TRAIN_SCV":
+                    //Create the new unit
+                    new_unit = new SimulatedUnit("TERRAN_SCV", Upgrades);
+                    new_unit_cost = (double[])new_unit;
+                    break;
+                case "TRAIN_MARINE":
+                    //Create the new unit
+                    new_unit = new SimulatedUnit("TERRAN_MARINE", Upgrades);
+                    new_unit_cost = (double[])new_unit;
+                    break;
+            }
+
+            //Update the list of units and resources
+            if(new_unit != null)
+            {
+                //Add the new unit to the existing list of units
+                Units += new_unit;
+
+                //Update the resources by subtracting the cost
+                Resources -= new Worth(new_unit_cost[0], new_unit_cost[1], Convert.ToInt32(new_unit_cost[2]), 0, 0);
+            }
+
+            //Update the resources with passive gains and other properties
+            double new_mineral = Resources.Mineral, new_vespene = Resources.Vespene;
+            var number_of_workers = Units.Count(unit => unit.Name == "TERRAN_SCV");
+            
+            if(number_of_workers > 0)
+            {
+                new_mineral += (5 * number_of_workers); //Probably wrong computation
+
+                if (Units.Count(unit => unit.Name == "TERRAN_REFINERY") > 0)
+                    new_vespene += (8 * number_of_workers);
+            }
+
+            //Update the resources and action
+            Action = chosen_action;
+            Resources = new Worth(new_mineral, new_vespene, Resources.Supply, number_of_workers, Upgrades.Count);
         }
 
         /// <summary>
         /// Returns an exact copy of the current agent excluding <see cref="Action"/>.
         /// </summary>
         /// <returns></returns>
-        public SimulatedAgent Copy() => new SimulatedAgent(Name, Units.Copy(), Resources);
+        public SimulatedAgent Copy() => new SimulatedAgent(Name, Units.Copy(), Upgrades, Resources);
 
         /// <summary>
         /// Generates a list of actions that can be executed by the agent given by the current state.
@@ -234,18 +281,11 @@ namespace ModelService
         /// <returns></returns>
         public IEnumerable<string> GeneratePotentialActions()
         {
-            var Possible_Actions = new Queue<string>();
-            //variable for existing units
-            var unitList = new List<string>();
-            //loop for adding units to a list for processing
-            foreach (var unit in Units)
+            var unit_names = Units.Select(unit => unit.Name);
+
+            foreach(var unit in unit_names)
             {
-                if (!unitList.Contains(unit.Name))
-                    unitList.Add(unit.Name);
-            }
-            foreach (var unit in Units)
-            {
-                switch (unit.Name)
+                switch(unit)
                 {
                     case "TERRAN_SCV":
                         if (Resources.Mineral >= 400 && Resources.Vespene >= 150)
@@ -253,24 +293,30 @@ namespace ModelService
                             yield return ("BUILD_COMMANDCENTER");
                             yield return ("BUILD_REFINERY");
                             yield return ("BUILD_SUPPLYDEPOT");
-                            if (unitList.Contains("TERRAN_SUPPLYDEPOT"))
+
+                            if (unit_names.Contains("TERRAN_SUPPLYDEPOT"))
                                 yield return ("BUILD_BARRACKS");
-                            if (unitList.Contains("TERRAN_BARRACKS"))
+
+                            if (unit_names.Contains("TERRAN_BARRACKS"))
                             {
                                 yield return ("BUILD_BUNKER");
                                 yield return ("BUILD_GHOSTACADEMY");
                                 yield return ("BUILD_FACTORY");
                             }
-                            if (unitList.Contains("TERRAN_FACTORY"))
+
+                            if (unit_names.Contains("TERRAN_FACTORY"))
                             {
                                 yield return ("BUILD_ARMORY");
                                 yield return ("BUILD_STARPORT");
                             }
-                            if (unitList.Contains("TERRAN_STARPORT"))
+
+                            if (unit_names.Contains("TERRAN_STARPORT"))
                                 yield return ("BUILD_FUSIONCORE");
-                            if (unitList.Contains("TERRAN_COMMANDCENTER"))
+
+                            if (unit_names.Contains("TERRAN_COMMANDCENTER"))
                                 yield return ("BUILD_ENGINEERINGBAY");
-                            if (unitList.Contains("TERRAN_ENGINEERINGBAY"))
+
+                            if (unit_names.Contains("TERRAN_ENGINEERINGBAY"))
                             {
                                 yield return ("BUILD_MISSILETURRET");
                                 yield return ("BUILD_SENSORTOWER");
@@ -280,24 +326,30 @@ namespace ModelService
                         {
                             yield return ("BUILD_REFINERY");
                             yield return ("BUILD_SUPPLYDEPOT");
-                            if (unitList.Contains("TERRAN_SUPPLYDEPOT"))
+
+                            if (unit_names.Contains("TERRAN_SUPPLYDEPOT"))
                                 yield return ("BUILD_BARRACKS");
-                            if (unitList.Contains("TERRAN_BARRACKS"))
+
+                            if (unit_names.Contains("TERRAN_BARRACKS"))
                             {
                                 yield return ("BUILD_BUNKER");
                                 yield return ("BUILD_GHOSTACADEMY");
                                 yield return ("BUILD_FACTORY");
                             }
-                            if (unitList.Contains("TERRAN_FACTORY"))
+
+                            if (unit_names.Contains("TERRAN_FACTORY"))
                             {
                                 yield return ("BUILD_ARMORY");
                                 yield return ("BUILD_STARPORT");
                             }
-                            if (unitList.Contains("TERRAN_STARPORT"))
+
+                            if (unit_names.Contains("TERRAN_STARPORT"))
                                 yield return ("BUILD_FUSIONCORE");
-                            if (unitList.Contains("TERRAN_COMMANDCENTER"))
+
+                            if (unit_names.Contains("TERRAN_COMMANDCENTER"))
                                 yield return ("BUILD_ENGINEERINGBAY");
-                            if (unitList.Contains("TERRAN_ENGINEERINGBAY"))
+
+                            if (unit_names.Contains("TERRAN_ENGINEERINGBAY"))
                             {
                                 yield return ("BUILD_MISSILETURRET");
                                 yield return ("BUILD_SENSORTOWER");
@@ -307,22 +359,27 @@ namespace ModelService
                         {
                             yield return ("BUILD_REFINERY");
                             yield return ("BUILD_SUPPLYDEPOT");
-                            if (unitList.Contains("TERRAN_SUPPLYDEPOT"))
+
+                            if (unit_names.Contains("TERRAN_SUPPLYDEPOT"))
                                 yield return ("BUILD_BARRACKS");
-                            if (unitList.Contains("TERRAN_BARRACKS"))
+
+                            if (unit_names.Contains("TERRAN_BARRACKS"))
                             {
                                 yield return ("BUILD_BUNKER");
                                 yield return ("BUILD_GHOSTACADEMY");
                                 yield return ("BUILD_FACTORY");
                             }
-                            if (unitList.Contains("TERRAN_FACTORY"))
+
+                            if (unit_names.Contains("TERRAN_FACTORY"))
                             {
                                 yield return ("BUILD_ARMORY");
                                 yield return ("BUILD_STARPORT");
                             }
-                            if (unitList.Contains("TERRAN_COMMANDCENTER"))
+
+                            if (unit_names.Contains("TERRAN_COMMANDCENTER"))
                                 yield return ("BUILD_ENGINEERINGBAY");
-                            if (unitList.Contains("TERRAN_ENGINEERINGBAY"))
+
+                            if (unit_names.Contains("TERRAN_ENGINEERINGBAY"))
                             {
                                 yield return ("BUILD_MISSILETURRET");
                                 yield return ("BUILD_SENSORTOWER");
@@ -332,11 +389,14 @@ namespace ModelService
                         {
                             yield return ("BUILD_REFINERY");
                             yield return ("BUILD_SUPPLYDEPOT");
-                            if (unitList.Contains("TERRAN_BARRACKS"))
+
+                            if (unit_names.Contains("TERRAN_BARRACKS"))
                                 yield return ("BUILD_BUNKER");
-                            if (unitList.Contains("TERRAN_COMMANDCENTER"))
+
+                            if (unit_names.Contains("TERRAN_COMMANDCENTER"))
                                 yield return ("BUILD_ENGINEERINGBAY");
-                            if (unitList.Contains("TERRAN_ENGINEERINGBAY"))
+
+                            if (unit_names.Contains("TERRAN_ENGINEERINGBAY"))
                             {
                                 yield return ("BUILD_MISSILETURRET");
                                 yield return ("BUILD_SENSORTOWER");
@@ -346,38 +406,43 @@ namespace ModelService
                         {
                             yield return ("BUILD_REFINERY");
                             yield return ("BUILD_SUPPLYDEPOT");
-                            if (unitList.Contains("TERRAN_BARRACKS"))
+
+                            if (unit_names.Contains("TERRAN_BARRACKS"))
                             {
                                 yield return ("BUILD_BUNKER");
                             }
-                            if (unitList.Contains("TERRAN_ENGINEERINGBAY"))
+
+                            if (unit_names.Contains("TERRAN_ENGINEERINGBAY"))
                             {
                                 yield return ("BUILD_MISSILETURRET");
                             }
                         }
                         else if (Resources.Mineral >= 75 && Resources.Vespene >= 75)
-                        {
                             yield return ("BUILD_REFINERY");
-                        }
                         else if (Resources.Mineral >= 400)
                         {
                             yield return ("BUILD_COMMANDCENTER");
                             yield return ("BUILD_REFINERY");
                             yield return ("BUILD_SUPPLYDEPOT");
-                            if (unitList.Contains("TERRAN_SUPPLYDEPOT"))
+
+                            if (unit_names.Contains("TERRAN_SUPPLYDEPOT"))
                                 yield return ("BUILD_BARRACKS");
-                            if (unitList.Contains("TERRAN_BARRACKS"))
+
+                            if (unit_names.Contains("TERRAN_BARRACKS"))
                             {
                                 yield return ("BUILD_BUNKER");
                             }
-                            if (unitList.Contains("TERRAN_FACTORY"))
+
+                            if (unit_names.Contains("TERRAN_FACTORY"))
                             {
                                 yield return ("BUILD_ARMORY");
                                 yield return ("BUILD_STARPORT");
                             }
-                            if (unitList.Contains("TERRAN_COMMANDCENTER"))
+
+                            if (unit_names.Contains("TERRAN_COMMANDCENTER"))
                                 yield return ("BUILD_ENGINEERINGBAY");
-                            if (unitList.Contains("TERRAN_ENGINEERINGBAY"))
+
+                            if (unit_names.Contains("TERRAN_ENGINEERINGBAY"))
                             {
                                 yield return ("BUILD_MISSILETURRET");
                             }
@@ -386,15 +451,19 @@ namespace ModelService
                         {
                             yield return ("BUILD_REFINERY");
                             yield return ("BUILD_SUPPLYDEPOT");
-                            if (unitList.Contains("TERRAN_SUPPLYDEPOT"))
+
+                            if (unit_names.Contains("TERRAN_SUPPLYDEPOT"))
                                 yield return ("BUILD_BARRACKS");
-                            if (unitList.Contains("TERRAN_BARRACKS"))
+
+                            if (unit_names.Contains("TERRAN_BARRACKS"))
                             {
                                 yield return ("BUILD_BUNKER");
                             }
-                            if (unitList.Contains("TERRAN_COMMANDCENTER"))
+
+                            if (unit_names.Contains("TERRAN_COMMANDCENTER"))
                                 yield return ("BUILD_ENGINEERINGBAY");
-                            if (unitList.Contains("TERRAN_ENGINEERINGBAY"))
+
+                            if (unit_names.Contains("TERRAN_ENGINEERINGBAY"))
                             {
                                 yield return ("BUILD_MISSILETURRET");
                             }
@@ -403,13 +472,16 @@ namespace ModelService
                         {
                             yield return ("BUILD_REFINERY");
                             yield return ("BUILD_SUPPLYDEPOT");
-                            if (unitList.Contains("TERRAN_BARRACKS"))
+
+                            if (unit_names.Contains("TERRAN_BARRACKS"))
                             {
                                 yield return ("BUILD_BUNKER");
                             }
-                            if (unitList.Contains("TERRAN_COMMANDCENTER"))
+
+                            if (unit_names.Contains("TERRAN_COMMANDCENTER"))
                                 yield return ("BUILD_ENGINEERINGBAY");
-                            if (unitList.Contains("TERRAN_ENGINEERINGBAY"))
+
+                            if (unit_names.Contains("TERRAN_ENGINEERINGBAY"))
                             {
                                 yield return ("BUILD_MISSILETURRET");
                             }
@@ -418,13 +490,16 @@ namespace ModelService
                         {
                             yield return ("BUILD_REFINERY");
                             yield return ("BUILD_SUPPLYDEPOT");
-                            if (unitList.Contains("TERRAN_BARRACKS"))
+
+                            if (unit_names.Contains("TERRAN_BARRACKS"))
                             {
                                 yield return ("BUILD_BUNKER");
                             }
-                            if (unitList.Contains("TERRAN_COMMANDCENTER"))
+
+                            if (unit_names.Contains("TERRAN_COMMANDCENTER"))
                                 yield return ("BUILD_ENGINEERINGBAY");
-                            if (unitList.Contains("TERRAN_ENGINEERINGBAY"))
+
+                            if (unit_names.Contains("TERRAN_ENGINEERINGBAY"))
                             {
                                 yield return ("BUILD_MISSILETURRET");
                             }
@@ -437,16 +512,19 @@ namespace ModelService
                         {
                             if (Resources.Supply >= 1)
                                 yield return ("TRAIN_SCV");
-                            if (unitList.Contains("TERRAN_BARRACKS"))
+
+                            if (unit_names.Contains("TERRAN_BARRACKS"))
                                 yield return ("MORPH_ORBITALCOMMAND");
-                            if (unitList.Contains("TERRAN_ENGINEERINGBAY"))
+
+                            if (unit_names.Contains("TERRAN_ENGINEERINGBAY"))
                                 yield return ("MORPH_PLANETARYFORTRESS");
                         }
                         else if (Resources.Mineral >= 150)
                         {
                             if (Resources.Supply >= 1)
                                 yield return ("TRAIN_SCV");
-                            if (unitList.Contains("TERRAN_BARRACKS"))
+
+                            if (unit_names.Contains("TERRAN_BARRACKS"))
                                 yield return ("MORPH_ORBITALCOMMAND");
                         }
                         else if (Resources.Mineral >= 50)
@@ -460,13 +538,16 @@ namespace ModelService
                         {
                             yield return ("TRAIN_MARINE");
                             yield return ("TRAIN_REAPER");
+
                             if (Resources.Supply >= 1)
                             {
-                                if (unitList.Contains("TERRAN_BARRACKSTECHLAB"))
+                                if (unit_names.Contains("TERRAN_BARRACKSTECHLAB"))
                                     yield return ("TRAIN_MARAUDER");
-                                if (unitList.Contains("TERRAN_GHOSTACADEMY"))
+
+                                if (unit_names.Contains("TERRAN_GHOSTACADEMY"))
                                     yield return ("TRAIN_GHOST");
                             }
+
                             yield return ("BUILD_BARRACKSTECHLAB");
                             yield return ("BUILD_BARRACKSREACTOR");
                         }
@@ -477,9 +558,13 @@ namespace ModelService
                                 yield return ("TRAIN_MARINE");
                                 yield return ("TRAIN_REAPER");
                             }
+
                             if (Resources.Supply >= 2)
-                                if (unitList.Contains("TERRAN_BARRACKSTECHLAB"))
+                            {
+                                if (unit_names.Contains("TERRAN_BARRACKSTECHLAB"))
                                     yield return ("TRAIN_MARAUDER");
+                            }
+
                             yield return ("BUILD_BARRACKSTECHLAB");
                             yield return ("BUILD_BARRACKSREACTOR");
                         }
@@ -490,6 +575,7 @@ namespace ModelService
                                 yield return ("TRAIN_MARINE");
                                 yield return ("TRAIN_REAPER");
                             }
+
                             yield return ("BUILD_BARRACKSTECHLAB");
                             yield return ("BUILD_BARRACKSREACTOR");
                         }
@@ -497,11 +583,14 @@ namespace ModelService
                         {
                             if (Resources.Supply >= 1)
                                 yield return ("TRAIN_MARINE");
+
                             yield return ("BUILD_BARRACKSTECHLAB");
                         }
                         else if (Resources.Mineral >= 50)
+                        {
                             if (Resources.Supply >= 1)
                                 yield return ("TRAIN_MARINE");
+                        }
                         break;
                     case "TERRAN_BARRACKSTECHLAB":
                         if (Resources.Mineral >= 100 && Resources.Vespene >= 100)
@@ -520,21 +609,24 @@ namespace ModelService
                             {
                                 yield return ("TRAIN_HELLION");
                                 yield return ("TRAIN_WIDOWMINE");
-                                if (unitList.Contains("TERRAN_ARMORY"))
+
+                                if (unit_names.Contains("TERRAN_ARMORY"))
                                 {
                                     yield return ("TRAIN_HELLBAT");
+
                                     if (Resources.Supply >= 6)
                                         yield return ("TRAIN_THOR");
                                 }
                             }
                             if (Resources.Supply >= 3)
                             {
-                                if (unitList.Contains("TERRAN_FACTORYTECHLAB"))
+                                if (unit_names.Contains("TERRAN_FACTORYTECHLAB"))
                                 {
                                     yield return ("TRAIN_SIEGETANK");
                                     yield return ("TRAIN_CYCLONE");
                                 }
                             }
+
                             yield return ("BUILD_FACTORYTECHLAB");
                             yield return ("BUILD_FACTORYREACTOR");
                         }
@@ -544,12 +636,13 @@ namespace ModelService
                             {
                                 yield return ("TRAIN_HELLION");
                                 yield return ("TRAIN_WIDOWMINE");
-                                if (unitList.Contains("TERRAN_ARMORY"))
+                                if (unit_names.Contains("TERRAN_ARMORY"))
                                     yield return ("TRAIN_HELLBAT");
                             }
+
                             if (Resources.Supply >= 3)
                             {
-                                if (unitList.Contains("TERRAN_FACTORYTECHLAB"))
+                                if (unit_names.Contains("TERRAN_FACTORYTECHLAB"))
                                 {
                                     yield return ("TRAIN_SIEGETANK");
                                     yield return ("TRAIN_CYCLONE");
@@ -564,12 +657,15 @@ namespace ModelService
                             {
                                 yield return ("TRAIN_HELLION");
                                 yield return ("TRAIN_WIDOWMINE");
-                                if (unitList.Contains("TERRAN_ARMORY"))
+                                if (unit_names.Contains("TERRAN_ARMORY"))
                                     yield return ("TRAIN_HELLBAT");
                             }
+
                             if (Resources.Supply >= 3)
-                                if (unitList.Contains("TERRAN_FACTORYTECHLAB"))
+                            {
+                                if (unit_names.Contains("TERRAN_FACTORYTECHLAB"))
                                     yield return ("TRAIN_CYCLONE");
+                            }
                             yield return ("BUILD_FACTORYTECHLAB");
                             yield return ("BUILD_FACTORYREACTOR");
                         }
@@ -579,7 +675,7 @@ namespace ModelService
                             {
                                 yield return ("TRAIN_HELLION");
                                 yield return ("TRAIN_WIDOWMINE");
-                                if (unitList.Contains("TERRAN_ARMORY"))
+                                if (unit_names.Contains("TERRAN_ARMORY"))
                                     yield return ("TRAIN_HELLBAT");
                             }
                             yield return ("BUILD_FACTORYTECHLAB");
@@ -597,7 +693,7 @@ namespace ModelService
                             if (Resources.Supply >= 2)
                             {
                                 yield return ("TRAIN_HELLION");
-                                if (unitList.Contains("TERRAN_ARMORY"))
+                                if (unit_names.Contains("TERRAN_ARMORY"))
                                     yield return ("TRAIN_HELLBAT");
                             }
                         }
@@ -630,10 +726,10 @@ namespace ModelService
                             if (Resources.Supply >= 3)
                             {
                                 yield return ("TRAIN_LIBERATOR");
-                                if (unitList.Contains("TERRAN_STARPORTTECHLAB"))
+                                if (unit_names.Contains("TERRAN_STARPORTTECHLAB"))
                                     yield return ("TRAIN_BANSHEE");
                             }
-                            if (unitList.Contains("TERRAN_FUSIONCORE"))
+                            if (unit_names.Contains("TERRAN_FUSIONCORE"))
                                 if (Resources.Supply >= 6)
                                     yield return ("TRAIN_BATTLECRUISER");
                             yield return ("BUILD_STARPORTREACTOR");
@@ -649,7 +745,7 @@ namespace ModelService
                             if (Resources.Supply >= 3)
                             {
                                 yield return ("TRAIN_LIBERATOR");
-                                if (unitList.Contains("TERRAN_STARPORTTECHLAB"))
+                                if (unit_names.Contains("TERRAN_STARPORTTECHLAB"))
                                     yield return ("TRAIN_BANSHEE");
                             }
                             yield return ("BUILD_STARPORTREACTOR");
@@ -663,7 +759,7 @@ namespace ModelService
                                 yield return ("TRAIN_MEDIVAC");
                             }
                             if (Resources.Supply >= 3)
-                                if (unitList.Contains("TERRAN_STARPORTTECHLAB"))
+                                if (unit_names.Contains("TERRAN_STARPORTTECHLAB"))
                                     yield return ("TRAIN_BANSHEE");
                             yield return ("BUILD_STARPORTREACTOR");
                             yield return ("BUILD_STARPORTTECHLAB");
@@ -690,7 +786,7 @@ namespace ModelService
                         //Mineral cost > Vespene cost case
                         if (Resources.Mineral >= 100 && Resources.Vespene >= 200)
                             if (Resources.Supply >= 2)
-                                if (unitList.Contains("TERRAN_STARPORTTECHLAB"))
+                                if (unit_names.Contains("TERRAN_STARPORTTECHLAB"))
                                     yield return ("TRAIN_RAVEN");
                         break;
                     case "TERRAN_STARPORTTECHLAB":
@@ -715,6 +811,10 @@ namespace ModelService
                     case "TERRAN_ARMORY":
                         if (Resources.Mineral >= 250 && Resources.Vespene >= 250)
                         {
+                            if (Upgrades.Contains("TERRANVEHICLEWEAPONSLEVEL2"))
+                                yield return "RESEARCH_TERRANVEHICLEWEAPONSLEVEL3";
+
+
                             //if (!Current_Owned_Agent.Upgrades.Exists(i => i == "TERRANVEHICLEWEAPONSLEVEL3"))
                             //    yield return ("RESEARCH_TERRANVEHICLEWEAPONS");
                             //if (!Current_Owned_Agent.Upgrades.Exists(i => i == "TERRANSHIPWEAPONSLEVEL3"))
@@ -725,6 +825,8 @@ namespace ModelService
                             //    yield return ("RESEARCH_TERRANINFANTRYWEAPONS");
                             //if (!Current_Owned_Agent.Upgrades.Exists(i => i == "TERRANINFANTRYARMORSLEVEL3"))
                             //    yield return ("RESEARCH_TERRANINFANTRYARMOR");
+
+
                         }
                         else if (Resources.Mineral >= 175 && Resources.Vespene >= 175)
                         {
@@ -757,14 +859,15 @@ namespace ModelService
                         if (Resources.Mineral >= 150 && Resources.Vespene >= 150)
                         {
                             yield return ("RESEARCH_PERSONALCLOAKING");
-                            if (unitList.Contains("TERRAN_FACTORY"))
+                            if (unit_names.Contains("TERRAN_FACTORY"))
                                 yield return ("BUILD_NUKE");
                         }
                         else if (Resources.Mineral >= 100 && Resources.Vespene >= 100)
-                            if (unitList.Contains("TERRAN_FACTORY"))
+                            if (unit_names.Contains("TERRAN_FACTORY"))
                                 yield return ("BUILD_NUKE");
                         break;
                     case "TERRAN_HELLION":
+                        yield return "ATTACK";
                         yield return ("MORPH_HELLBAT");
                         break;
                     case "TERRAN_HELLIONTANK":

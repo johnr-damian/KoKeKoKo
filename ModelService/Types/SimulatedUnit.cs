@@ -211,6 +211,8 @@ namespace ModelService
         public string Name { get; private set; } = default(string);
         #endregion
 
+        public static explicit operator double[](SimulatedUnit unit) => ((double[])Values[unit.Name]);
+
         #region Structures
         /// <summary>
         /// A minimal definition of a unit that is used in simulation.
@@ -390,9 +392,26 @@ namespace ModelService
         #endregion
 
 
-        public SimulatedUnit(string unit)
+
+        public SimulatedUnit(string unit_name, IEnumerable<string> upgrades)
         {
-            var parsed_unit = unit.Split(',');
+            Current_Target = -1;
+            Targets = new List<SimulatedUnit>();
+
+            Health = Definitions[unit_name].Health;
+            Energy = Definitions[unit_name].Energy;
+            Armor = Definitions[unit_name].Armor;
+            Air_Damage = Definitions[unit_name].Air_Damage;
+            Ground_Damage = Definitions[unit_name].Ground_Damage;
+            Upgrades = new List<string>(upgrades);
+            Skills = new List<Tuple<string, DateTime>>();
+            UniqueID = Guid.NewGuid().ToString("N");
+            Name = unit_name;
+        }
+
+        public SimulatedUnit(string[] unit_details)
+        {
+
         }
 
         public void ApplyChosenAction(string chosen_action)

@@ -16,13 +16,13 @@ namespace ModelService.Collections
         /// The owned agent is a participating agent in the game. It serves as the reference point of
         /// the model in which the results and other related computation is based on owned agent. 
         /// </summary>
-        protected SimulatedAgent Owned_Agent { get; set; } = default(SimulatedAgent);
+        public SimulatedAgent Owned_Agent { get; protected set; } = default(SimulatedAgent);
 
         /// <summary>
         /// The enemy agent is the other participating agent in the game. It serves as the opposing
         /// agent that must be defeated to make the node considered as won.
         /// </summary>
-        protected SimulatedAgent Enemy_Agent { get; set; } = default(SimulatedAgent);
+        public SimulatedAgent Enemy_Agent { get; protected set; } = default(SimulatedAgent);
 
         /// <summary>
         /// The parent node the current node.

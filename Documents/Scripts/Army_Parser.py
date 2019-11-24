@@ -4,13 +4,13 @@ import pandas as pd
 import sc2reader
 
 
-path_directory = r'C:\Users\Thienzaw\Documents\Thesis\Raw Data V3\Replay Files\Grandmaster\Grandmaster Training 4\*.SC2Replay'
+path_directory = r'C:\Users\Thienzaw\Documents\Thesis\Raw Data V3\Replay Files\Grandmaster\Grandmaster Testing 4\*.SC2Replay'
 files = glob.glob(path_directory)
 
-player_index = 791
-player_counter = 791
+player_index = 317
+player_counter = 317
 
-# with open('ArmiesRepository.csv', 'a', encoding='utf-8') as f:
+# with open('ArmiesRepositoryTest.csv', 'a', encoding='utf-8') as f:
 #     f.write("Grandmaster")
 #     f.write("\n")
 
@@ -32,7 +32,7 @@ for name in files:
 
     filename = os.path.basename(name)
 
-    with open('ArmiesRepository.csv', 'a', encoding='utf-8') as f:
+    with open('ArmiesRepositoryTest.csv', 'a', encoding='utf-8') as f:
         f.write(filename)
         f.write("\n")
 
@@ -63,7 +63,7 @@ for name in files:
                 final_unit_list.append(item)
 
         create_frame = pd.DataFrame(final_unit_list)
-        create_frame.to_csv('ArmiesRepository.csv', mode='a', header=None, index=None)
+        create_frame.to_csv('ArmiesRepositoryTest.csv', mode='a', header=None, index=None)
 
 
     def combat_func(player, killer_player, counter):
@@ -130,7 +130,7 @@ for name in files:
     initial_combat(2, player_counter)
     player_counter = player_counter + 1
 
-    with open('ArmiesRepository.csv', 'a', encoding='utf-8') as f:
+    with open('ArmiesRepositoryTest.csv', 'a', encoding='utf-8') as f:
         f.write("End")
         f.write("\n")
 
@@ -143,10 +143,10 @@ for name in files:
 
     if player1_count > player2_count:
         combat_frame = pd.DataFrame(player1_list)
-        combat_frame.to_csv('ArmiesRepository.csv', mode='a', header=None, index=None)
+        combat_frame.to_csv('ArmiesRepositoryTest.csv', mode='a', header=None, index=None)
     else:
         combat_frame = pd.DataFrame(player2_list)
-        combat_frame.to_csv('ArmiesRepository.csv', mode='a', header=None, index=None)
+        combat_frame.to_csv('ArmiesRepositoryTest.csv', mode='a', header=None, index=None)
 
 
 

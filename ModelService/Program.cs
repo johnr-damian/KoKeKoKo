@@ -59,7 +59,7 @@ namespace ModelService
                         var micromanagement_battleresults = new List<List<double>>();
 
                         foreach (var micromanagement_battleresult in value.Value)
-                            micromanagement_battleresults.Add(micromanagement_battleresult.GetMicromanagementAccuracyReport(1));
+                            micromanagement_battleresults.Add(micromanagement_battleresult.GetMicromanagementAccuracyReport(10));
 
                         return micromanagement_battleresults;
                     });

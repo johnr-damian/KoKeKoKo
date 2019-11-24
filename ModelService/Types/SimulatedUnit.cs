@@ -12,7 +12,7 @@ namespace ModelService
         /// <summary>
         /// Contains the minimal definitions for a unit to participate in battle
         /// </summary>
-        private static Dictionary<string, Definition> Definitions = new Dictionary<string, Definition>()
+        public static Dictionary<string, Definition> Definitions = new Dictionary<string, Definition>()
         {
             //Ground Units
             ["TERRAN_WIDOWMINE"] = new Definition(90, 0, 0, 0, 0, false),
@@ -73,7 +73,7 @@ namespace ModelService
         /// <summary>
         /// Contains the minimal values for a unit to know the cost and worth in simulation.
         /// </summary>
-        private static Dictionary<string, Cost> Values = new Dictionary<string, Cost>()
+        public static Dictionary<string, Cost> Values = new Dictionary<string, Cost>()
         {
             //Ground Units
             ["TERRAN_WIDOWMINE"] = new Cost(19, 75, 25, 2),
@@ -217,7 +217,7 @@ namespace ModelService
         /// <summary>
         /// A minimal definition of a unit that is used in simulation.
         /// </summary>
-        private struct Definition
+        public struct Definition
         {
             #region Properties
             /// <summary>
@@ -275,28 +275,28 @@ namespace ModelService
         /// A struct that contains the worth of destroying this unit, or the
         /// cost in order to create this unit during simulation.
         /// </summary>
-        private struct Cost
+        public struct Cost
         {
             #region Properties
             /// <summary>
             /// The mineral cost to create this unit.
             /// </summary>
-            private double Mineral { get; set; }
+            public double Mineral { get; set; }
 
             /// <summary>
             /// The vespene cost to create this unit.
             /// </summary>
-            private double Vespene { get; set; }
+            public double Vespene { get; set; }
 
             /// <summary>
             /// The supply that will be consumed when this unit is created.
             /// </summary>
-            private int Supply { get; set; }
+            public int Supply { get; set; }
 
             /// <summary>
             /// The StarCraft II priority to kill this unit during a battle.
             /// </summary>
-            private int Priority { get; set; }
+            public int Priority { get; set; }
             #endregion
 
             #region Operators

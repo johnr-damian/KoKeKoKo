@@ -898,6 +898,7 @@ namespace ModelService
                         yield return ("EFFECT_CALLDOWNMULE");
                         break;
                     default:
+                        var total_consumedsupply = Units.Sum(iterator => SimulatedUnit.Values[iterator.Name].Supply);
                         break;
                 }
             }

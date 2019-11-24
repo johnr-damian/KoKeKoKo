@@ -97,6 +97,8 @@ namespace ModelService.Macromanagement
 
         protected override void ExpandPhase()
         {
+            Console.WriteLine($@"Currently Expanding... Your current depth is {Depth}");
+
             for(int test = 0; test < 5; test++)
                 Children.Add(new MCTSNode(Owned_Agent.Copy(), Enemy_Agent.Copy(), this));
 
@@ -105,6 +107,8 @@ namespace ModelService.Macromanagement
 
         protected override void SimulationPhase()
         {
+            Console.WriteLine($@"Currently Simulating... Your current depth is {Depth}");
+
             //Get the services
             var agentservice = AgentService.CreateNewAgentService();
             var computationservice = ComputationService.CreateNewComputationService();

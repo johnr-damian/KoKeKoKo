@@ -88,7 +88,7 @@ namespace ModelService
                     //Perform the Accuracy Testing for Micromanagement
 
                     //Perform the Accuracy Testing for Macromanagement
-                    var mctsresults = mctsrank_macromanagements.Select(macromanagement => macromanagement.Value.Select(accuracy => accuracy.ToString("R")));
+                    var mctsresults = mctsrank_macromanagements.Select(macromanagement => macromanagement.Value.Select(accuracy => accuracy.ToString("R"))).ToList();
                     //var pomdpresults = pomdprank_macromanagements.Select(macromanagement => macromanagement.Value.Select(accuracy => accuracy.ToString("R")));
 
                     //Create a profile for Accuracy Results for Micromanagement

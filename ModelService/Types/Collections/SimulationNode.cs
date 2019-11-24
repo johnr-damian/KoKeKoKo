@@ -176,6 +176,8 @@ namespace ModelService.Collections
         /// <param name="simulation_result"></param>
         public virtual void BackpropagatePhase(bool simulation_result)
         {
+            Console.WriteLine($@"Currently Backpropagating... Your current depth is {Depth}");
+
             //Update the necesseray properties
             Runs += 1;
             Wins += ((simulation_result) ? 1 : 0); //If the current node is considered as won

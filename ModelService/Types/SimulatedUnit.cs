@@ -397,12 +397,12 @@ namespace ModelService
 
         public void ApplyChosenAction(string chosen_action)
         {
-            throw new NotImplementedException();
+            
         }
 
         public SimulatedUnit Copy()
         {
-            throw new NotImplementedException();
+            return this;
         }
 
         public IEnumerable<string> GeneratePotentialActions()

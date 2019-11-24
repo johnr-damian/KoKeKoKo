@@ -216,7 +216,7 @@ namespace ModelService
         /// <param name="chosen_action"></param>
         public void ApplyChosenAction(string chosen_action)
         {
-            throw new NotImplementedException("Guanga");
+            Resources += new Worth(10, 10, 0, 0, 0);
         }
 
         /// <summary>
@@ -231,7 +231,7 @@ namespace ModelService
         /// <returns></returns>
         public IEnumerable<string> GeneratePotentialActions()
         {
-            throw new NotImplementedException("Guanga");
+            yield return "";
         }
 
         #region Update Methods
@@ -303,6 +303,9 @@ namespace ModelService
                     {
                         case "BUILD_SUPPLYDEPOT":
 
+                            break;
+                        case "":
+                            category = "TESTING";
                             break;
                         default:
                             throw new NotImplementedException("Guanga");

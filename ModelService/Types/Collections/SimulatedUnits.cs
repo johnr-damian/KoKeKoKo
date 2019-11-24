@@ -136,7 +136,7 @@ namespace ModelService.Collections
 
             //Add 12 TERRAN_SCV
             for (int iterator = 1; iterator < Units.Length; iterator++)
-                Units[1] = new SimulatedUnit(String.Join(",", Guid.NewGuid().ToString("N"), "TERRAN_SCV"));
+                Units[iterator] = new SimulatedUnit(String.Join(",", Guid.NewGuid().ToString("N"), "TERRAN_SCV"));
         }
 
         /// <summary>

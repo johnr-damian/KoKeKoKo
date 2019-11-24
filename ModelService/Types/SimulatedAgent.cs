@@ -241,131 +241,131 @@ namespace ModelService
                     new_unit_cost = (double[])new_unit;
                     break;
                 case "TRAIN_MARAUDER":
-                    new_unit = new SimulatedUnit("TRAIN_MARAUDER", Upgrades);
+                    new_unit = new SimulatedUnit("TERRAN_MARAUDER", Upgrades);
                     new_unit_cost = (double[])new_unit;
                     break;
                 case "TRAIN_REAPER":
-                    new_unit = new SimulatedUnit("TRAIN_REAPER", Upgrades);
+                    new_unit = new SimulatedUnit("TERRAN_REAPER", Upgrades);
                     new_unit_cost = (double[])new_unit;
                     break;
                 case "TRAIN_GHOST":
-                    new_unit = new SimulatedUnit("TRAIN_GHOST", Upgrades);
+                    new_unit = new SimulatedUnit("TERRAN_GHOST", Upgrades);
                     new_unit_cost = (double[])new_unit;
                     break;
                 case "TRAIN_HELLION":
-                    new_unit = new SimulatedUnit("TRAIN_HELLION", Upgrades);
+                    new_unit = new SimulatedUnit("TERRAN_HELLION", Upgrades);
                     new_unit_cost = (double[])new_unit;
                     break;
                 case "TRAIN_HELLBAT":
-                    new_unit = new SimulatedUnit("TRAIN_HELLBAT", Upgrades);
+                    new_unit = new SimulatedUnit("TERRAN_HELLBAT", Upgrades);
                     new_unit_cost = (double[])new_unit;
                     break;
                 case "TRAIN_SEIGETANK":
-                    new_unit = new SimulatedUnit("TRAIN_SEIGETANK", Upgrades);
+                    new_unit = new SimulatedUnit("TERRAN_SEIGETANK", Upgrades);
                     new_unit_cost = (double[])new_unit;
                     break;
                 case "TRAIN_CYCLONE":
-                    new_unit = new SimulatedUnit("TRAIN_CYCLONE", Upgrades);
+                    new_unit = new SimulatedUnit("TERRAN_CYCLONE", Upgrades);
                     new_unit_cost = (double[])new_unit;
                     break;
                 case "TRAIN_WIDOWMINE":
-                    new_unit = new SimulatedUnit("TRAIN_WIDOWMINE", Upgrades);
+                    new_unit = new SimulatedUnit("TERRAN_WIDOWMINE", Upgrades);
                     new_unit_cost = (double[])new_unit;
                     break;
                 case "TRAIN_THOR":
-                    new_unit = new SimulatedUnit("TRAIN_THOR", Upgrades);
+                    new_unit = new SimulatedUnit("TERRAN_THOR", Upgrades);
                     new_unit_cost = (double[])new_unit;
                     break;
                 case "TRAIN_VIKINGFIGHTER":
-                    new_unit = new SimulatedUnit("TRAIN_VIKINGFIGHTER", Upgrades);
+                    new_unit = new SimulatedUnit("TERRAN_VIKINGFIGHTER", Upgrades);
                     new_unit_cost = (double[])new_unit;
                     break;
                 case "TRAIN_MEDIVAC":
-                    new_unit = new SimulatedUnit("TRAIN_MEDIVAC", Upgrades);
+                    new_unit = new SimulatedUnit("TERRAN_MEDIVAC", Upgrades);
                     new_unit_cost = (double[])new_unit;
                     break;
                 case "TRAIN_LIBERATOR":
-                    new_unit = new SimulatedUnit("TRAIN_LIBERATOR", Upgrades);
+                    new_unit = new SimulatedUnit("TERRAN_LIBERATOR", Upgrades);
                     new_unit_cost = (double[])new_unit;
                     break;
                 case "TRAIN_BANSHEE":
-                    new_unit = new SimulatedUnit("TRAIN_BANSHEE", Upgrades);
+                    new_unit = new SimulatedUnit("TERRAN_BANSHEE", Upgrades);
                     new_unit_cost = (double[])new_unit;
                     break;
                 case "TRAIN_BATTLECRUISER":
-                    new_unit = new SimulatedUnit("TRAIN_BATTLECRUISER", Upgrades);
+                    new_unit = new SimulatedUnit("TERRAN_BATTLECRUISER", Upgrades);
                     new_unit_cost = (double[])new_unit;
                     break;
                 case "BUILD_BARRACKS":
-                    new_unit = new SimulatedUnit("BUILD_BARRACKS", Upgrades);
+                    new_unit = new SimulatedUnit("TERRAN_BARRACKS", Upgrades);
                     new_unit_cost = (double[])new_unit;
                     break;
                 case "BUILD_FACTORY":
-                    new_unit = new SimulatedUnit("BUILD_FACTORY", Upgrades);
+                    new_unit = new SimulatedUnit("TERRAN_FACTORY", Upgrades);
                     new_unit_cost = (double[])new_unit;
                     break;
                 case "BUILD_STARPORT":
-                    new_unit = new SimulatedUnit("BUILD_STARPORT", Upgrades);
+                    new_unit = new SimulatedUnit("TERRAN_STARPORT", Upgrades);
                     new_unit_cost = (double[])new_unit;
                     break;
                 case "BUILD_MISSILETURRET":
-                    new_unit = new SimulatedUnit("BUILD_MISSILETURRET", Upgrades);
+                    new_unit = new SimulatedUnit("TERRAN_MISSILETURRET", Upgrades);
                     new_unit_cost = (double[])new_unit;
                     break;
                 case "BUILD_BUNKER":
-                    new_unit = new SimulatedUnit("BUILD_BUNKER", Upgrades);
+                    new_unit = new SimulatedUnit("TERRAN_BUNKER", Upgrades);
                     new_unit_cost = (double[])new_unit;
                     break;
                 case "BUILD_SUPPLYDEPOT":
-                    new_unit = new SimulatedUnit("BUILD_SUPPLYDEPOT", Upgrades);
+                    new_unit = new SimulatedUnit("TERRAN_SUPPLYDEPOT", Upgrades);
                     new_unit_cost = (double[])new_unit;
                     break;
                 case "BUILD_REFINERY":
-                    new_unit = new SimulatedUnit("BUILD_REFINERY", Upgrades);
+                    new_unit = new SimulatedUnit("TERRAN_REFINERY", Upgrades);
                     new_unit_cost = (double[])new_unit;
                     break;
                 case "BUILD_TECHLAB_BARRACKS":
-                    new_unit = new SimulatedUnit("BUILD_TECHLAB_BARRACKS", Upgrades);
+                    new_unit = new SimulatedUnit("TERRAN_TECHLAB_BARRACKS", Upgrades);
                     new_unit_cost = (double[])new_unit;
                     break;
                 case "BUILD_REACTOR_BARRACKS":
-                    new_unit = new SimulatedUnit("BUILD_REACTOR_BARRACKS", Upgrades);
+                    new_unit = new SimulatedUnit("TERRAN_REACTOR_BARRACKS", Upgrades);
                     new_unit_cost = (double[])new_unit;
                     break;
                 case "BUILD_TECHLAB_FACTORY":
-                    new_unit = new SimulatedUnit("BUILD_TECHLAB_FACTORY", Upgrades);
+                    new_unit = new SimulatedUnit("TERRAN_TECHLAB_FACTORY", Upgrades);
                     new_unit_cost = (double[])new_unit;
                     break;
                 case "BUILD_REACTOR_FACTORY":
-                    new_unit = new SimulatedUnit("BUILD_REACTOR_FACTORY", Upgrades);
+                    new_unit = new SimulatedUnit("TERRAN_REACTOR_FACTORY", Upgrades);
                     new_unit_cost = (double[])new_unit;
                     break;
                 case "BUILD_TECHLAB_STARPORT":
-                    new_unit = new SimulatedUnit("BUILD_TECHLAB_STARPORT", Upgrades);
+                    new_unit = new SimulatedUnit("TERRAN_TECHLAB_STARPORT", Upgrades);
                     new_unit_cost = (double[])new_unit;
                     break;
                 case "BUILD_REACTOR_STARPORT":
-                    new_unit = new SimulatedUnit("BUILD_REACTOR_STARPORT", Upgrades);
+                    new_unit = new SimulatedUnit("TERRAN_REACTOR_STARPORT", Upgrades);
                     new_unit_cost = (double[])new_unit;
                     break;
                 case "BUILD_ENGINEERINGBAY":
-                    new_unit = new SimulatedUnit("BUILD_ENGINEERINGBAY", Upgrades);
+                    new_unit = new SimulatedUnit("TERRAN_ENGINEERINGBAY", Upgrades);
                     new_unit_cost = (double[])new_unit;
                     break;
                 case "BUILD_ARMORY":
-                    new_unit = new SimulatedUnit("BUILD_ARMORY", Upgrades);
+                    new_unit = new SimulatedUnit("TERRAN_ARMORY", Upgrades);
                     new_unit_cost = (double[])new_unit;
                     break;
                 case "BUILD_SENSORTOWER":
-                    new_unit = new SimulatedUnit("BUILD_SENSORTOWER", Upgrades);
+                    new_unit = new SimulatedUnit("TERRAN_SENSORTOWER", Upgrades);
                     new_unit_cost = (double[])new_unit;
                     break;
                 case "BUILD_FUSIONCORE":
-                    new_unit = new SimulatedUnit("BUILD_FUSIONCORE", Upgrades);
+                    new_unit = new SimulatedUnit("TERRAN_FUSIONCORE", Upgrades);
                     new_unit_cost = (double[])new_unit;
                     break;
                 case "BUILD_GHOSTACADEMY":
-                    new_unit = new SimulatedUnit("BUILD_GHOSTACADEMY", Upgrades);
+                    new_unit = new SimulatedUnit("TERRAN_GHOSTACADEMY", Upgrades);
                     new_unit_cost = (double[])new_unit;
                     break;
                 default:

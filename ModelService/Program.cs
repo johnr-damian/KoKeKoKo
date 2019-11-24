@@ -49,14 +49,16 @@ namespace ModelService
                         });
                     var macromanagement_battles = new List<Macromanagement.Macromanagement>();
                     var relationedmacromacro = ModelRepositoryService.RelateMacroToMacro(macromanagement_resources, macromanagement_commands);
-
+                    var relationedmicromacromacro = ModelRepositoryService.RelateMicroToMacroMacro(relationedmicromacro, relationedmacromacro);
+                    foreach (var macromanagement_battle in relationedmicromacromacro)
+                        macromanagement_battles.Add(new Macromanagement.Macromanagement(macromanagement_battle.Item1, macromanagement_battle.Item2, macromanagement_battle.Item3, macromanagement_battle.Item4));
 
                     //Group the micromanagement battles by their rank
                     var perrank_micromanagement = micromanagement_battles.GroupBy(rank => rank.Rank).ToDictionary(key => key.Key, value => value.ToList());
                     //For every micromanagement battle per rank, do the prediction and store it
                     var perrankresult_micromanagement = perrank_micromanagement.ToDictionary(key => key.Key, value =>
                     {
-                        var micromanagement_battleresults = new List<List<double>>();
+                        var micromanagement_battleresults = new List<IEnumerable<IEnumerable<double>>>();
 
                         foreach (var micromanagement_battleresult in value.Value)
                             micromanagement_battleresults.Add(micromanagement_battleresult.GetMicromanagementAccuracyReport(10));
@@ -64,9 +66,9 @@ namespace ModelService
                         return micromanagement_battleresults;
                     });
                     //Get the final result per algorithm+policy per rank
-                    var micromanagement_accuracyreports = perrankresult_micromanagement.ToDictionary(key => key.Key, value => Micromanagement.Micromanagement.GetMicromanagementAccuracyReport(value.Value));
+                    var micromanagement_accuracyreports = perrankresult_micromanagement.ToDictionary(key => key.Key, value => Micromanagement.Micromanagement.GetMicromanagementAccuracyReport(value.Key, value.Value));
                     //Print the results per rank
-                    foreach(var accuracy_report in micromanagement_accuracyreports)
+                    foreach (var accuracy_report in micromanagement_accuracyreports)
                     {
                         Console.WriteLine($@"Lanchester-Random: {accuracy_report.Value[0] * 100}%");
                         Console.WriteLine($@"Lanchester-Priority: {accuracy_report.Value[1] * 100}%");
@@ -77,13 +79,36 @@ namespace ModelService
                         Console.WriteLine($@"Dynamic-Random: {accuracy_report.Value[6] * 100}%");
                         Console.WriteLine($@"Dynamic-Priority: {accuracy_report.Value[7] * 100}%");
                         Console.WriteLine($@"Dynamic-Resource: {accuracy_report.Value[8] * 100}%");
+                        Console.WriteLine();
                     }
+                    //Group the macromanagement battles by their rank
+                    var perrank_macromanagement = macromanagement_battles.GroupBy(rank => rank.Rank).ToDictionary(key => key.Key, value => value.ToList());
+                    //For every macromanagement battle per rank, do the prediction and store it
+                    var perrankresult_macromanagement = perrank_macromanagement.ToDictionary(key => key.Key, value =>
+                    {
+                        var macromanagement_battleresults = new List<IEnumerable<IEnumerable<double>>>();
+
+                        foreach (var macromanagement_battleresult in value.Value)
+                            macromanagement_battleresults.Add(macromanagement_battleresult.GetMacromanagementAccuracyReport(1, Macromanagement.Macromanagement.AIAlgorithm.MCTS));
+
+                        return macromanagement_battleresults;
+                    });
+                    //Get the final result per algorithm
+                    var macromanagement_accuracyreports = perrankresult_macromanagement.ToDictionary(key => key.Key, value => Macromanagement.Macromanagement.GetMacromanagementAccuracyReport(value.Key, value.Value));
+                    //Print the results per rank
+                    foreach(var accuracy_report in macromanagement_accuracyreports)
+                    {
+                        Console.WriteLine($@"Rank: {accuracy_report.Key}");
+                        Console.WriteLine($@"MCTS Euclidean Mean: {accuracy_report.Value[0]}");
+                    }
+
 
                     Console.WriteLine("Finished performing accuracy reports! Please enter to continue...");
                     Console.ReadLine();
                 }
                 else
                 {
+                    int mode = 0;
                     Console.WriteLine("ModelService has started! Creating a server for agent...");
                     if(modelrepositoryservice.CreateServerForAgent())
                     {
@@ -118,6 +143,18 @@ namespace ModelService
                                 //            Console.WriteLine($@"\t{message}");
                                 //        break;
                                 //}
+                                var player = default(Macromanagement.Macromanagement);
+                                switch(mode)
+                                {
+                                    case 0:
+                                        player = new Macromanagement.Macromanagement(partitionedmessage[0], partitionedmessage[1]);
+                                        modelrepositoryservice.SendMessageToAgent(String.Join(",", player.GetMacromanagementStuff()));
+                                        mode = 1;
+                                        break;
+                                    case 1:
+                                        modelrepositoryservice.SendMessageToAgent(String.Join(",", player.GetMacromanagementStuff()));
+                                        break;
+                                }
 
                                 Console.WriteLine(partitionedmessage.Length);
                                 if(partitionedmessage.Length > 0)

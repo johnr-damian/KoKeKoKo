@@ -715,42 +715,42 @@ namespace ModelService
                     case "TERRAN_ARMORY":
                         if (Resources.Mineral >= 250 && Resources.Vespene >= 250)
                         {
-                            if (!Current_Owned_Agent.Upgrades.Exists(i => i == "TERRANVEHICLEWEAPONSLEVEL3"))
-                                yield return ("RESEARCH_TERRANVEHICLEWEAPONS");
-                            if (!Current_Owned_Agent.Upgrades.Exists(i => i == "TERRANSHIPWEAPONSLEVEL3"))
-                                yield return ("RESEARCH_TERRANSHIPWEAPONS");
-                            if (!Current_Owned_Agent.Upgrades.Exists(i => i == "TERRANVEHICLEANDSHIPARMORSLEVEL3"))
-                                yield return ("RESEARCH_TERRANVEHICLEANDSHIPPLATING");
-                            if (!Current_Owned_Agent.Upgrades.Exists(i => i == "TERRANINFANTRYWEAPONSLEVEL3"))
-                                yield return ("RESEARCH_TERRANINFANTRYWEAPONS");
-                            if (!Current_Owned_Agent.Upgrades.Exists(i => i == "TERRANINFANTRYARMORSLEVEL3"))
-                                yield return ("RESEARCH_TERRANINFANTRYARMOR");
+                            //if (!Current_Owned_Agent.Upgrades.Exists(i => i == "TERRANVEHICLEWEAPONSLEVEL3"))
+                            //    yield return ("RESEARCH_TERRANVEHICLEWEAPONS");
+                            //if (!Current_Owned_Agent.Upgrades.Exists(i => i == "TERRANSHIPWEAPONSLEVEL3"))
+                            //    yield return ("RESEARCH_TERRANSHIPWEAPONS");
+                            //if (!Current_Owned_Agent.Upgrades.Exists(i => i == "TERRANVEHICLEANDSHIPARMORSLEVEL3"))
+                            //    yield return ("RESEARCH_TERRANVEHICLEANDSHIPPLATING");
+                            //if (!Current_Owned_Agent.Upgrades.Exists(i => i == "TERRANINFANTRYWEAPONSLEVEL3"))
+                            //    yield return ("RESEARCH_TERRANINFANTRYWEAPONS");
+                            //if (!Current_Owned_Agent.Upgrades.Exists(i => i == "TERRANINFANTRYARMORSLEVEL3"))
+                            //    yield return ("RESEARCH_TERRANINFANTRYARMOR");
                         }
                         else if (Resources.Mineral >= 175 && Resources.Vespene >= 175)
                         {
-                            if (!Current_Owned_Agent.Upgrades.Exists(i => i == "TERRANVEHICLEWEAPONSLEVEL2"))
-                                yield return ("RESEARCH_TERRANVEHICLEWEAPONS");
-                            if (!Current_Owned_Agent.Upgrades.Exists(i => i == "TERRANSHIPWEAPONSLEVEL2"))
-                                yield return ("RESEARCH_TERRANSHIPWEAPONS");
-                            if (!Current_Owned_Agent.Upgrades.Exists(i => i == "TERRANVEHICLEANDSHIPARMORSLEVEL2"))
-                                yield return ("RESEARCH_TERRANVEHICLEANDSHIPPLATING");
-                            if (!Current_Owned_Agent.Upgrades.Exists(i => i == "TERRANINFANTRYWEAPONSLEVEL2"))
-                                yield return ("RESEARCH_TERRANINFANTRYWEAPONS");
-                            if (!Current_Owned_Agent.Upgrades.Exists(i => i == "TERRANINFANTRYARMORSLEVEL2"))
-                                yield return ("RESEARCH_TERRANINFANTRYARMOR");
+                            //if (!Current_Owned_Agent.Upgrades.Exists(i => i == "TERRANVEHICLEWEAPONSLEVEL2"))
+                            //    yield return ("RESEARCH_TERRANVEHICLEWEAPONS");
+                            //if (!Current_Owned_Agent.Upgrades.Exists(i => i == "TERRANSHIPWEAPONSLEVEL2"))
+                            //    yield return ("RESEARCH_TERRANSHIPWEAPONS");
+                            //if (!Current_Owned_Agent.Upgrades.Exists(i => i == "TERRANVEHICLEANDSHIPARMORSLEVEL2"))
+                            //    yield return ("RESEARCH_TERRANVEHICLEANDSHIPPLATING");
+                            //if (!Current_Owned_Agent.Upgrades.Exists(i => i == "TERRANINFANTRYWEAPONSLEVEL2"))
+                            //    yield return ("RESEARCH_TERRANINFANTRYWEAPONS");
+                            //if (!Current_Owned_Agent.Upgrades.Exists(i => i == "TERRANINFANTRYARMORSLEVEL2"))
+                            //    yield return ("RESEARCH_TERRANINFANTRYARMOR");
                         }
                         else if (Resources.Mineral >= 100 && Resources.Vespene >= 100)
                         {
-                            if (!Current_Owned_Agent.Upgrades.Exists(i => i == "TERRANVEHICLEWEAPONSLEVEL1"))
-                                yield return ("RESEARCH_TERRANVEHICLEWEAPONS");
-                            if (!Current_Owned_Agent.Upgrades.Exists(i => i == "TERRANSHIPWEAPONSLEVEL1"))
-                                yield return ("RESEARCH_TERRANSHIPWEAPONS");
-                            if (!Current_Owned_Agent.Upgrades.Exists(i => i == "TERRANVEHICLEANDSHIPARMORSLEVEL1"))
-                                yield return ("RESEARCH_TERRANVEHICLEANDSHIPPLATING");
-                            if (!Current_Owned_Agent.Upgrades.Exists(i => i == "TERRANINFANTRYWEAPONSLEVEL1"))
-                                yield return ("RESEARCH_TERRANINFANTRYWEAPONS");
-                            if (!Current_Owned_Agent.Upgrades.Exists(i => i == "TERRANINFANTRYARMORSLEVEL1"))
-                                yield return ("RESEARCH_TERRANINFANTRYARMOR");
+                            //if (!Current_Owned_Agent.Upgrades.Exists(i => i == "TERRANVEHICLEWEAPONSLEVEL1"))
+                            //    yield return ("RESEARCH_TERRANVEHICLEWEAPONS");
+                            //if (!Current_Owned_Agent.Upgrades.Exists(i => i == "TERRANSHIPWEAPONSLEVEL1"))
+                            //    yield return ("RESEARCH_TERRANSHIPWEAPONS");
+                            //if (!Current_Owned_Agent.Upgrades.Exists(i => i == "TERRANVEHICLEANDSHIPARMORSLEVEL1"))
+                            //    yield return ("RESEARCH_TERRANVEHICLEANDSHIPPLATING");
+                            //if (!Current_Owned_Agent.Upgrades.Exists(i => i == "TERRANINFANTRYWEAPONSLEVEL1"))
+                            //    yield return ("RESEARCH_TERRANINFANTRYWEAPONS");
+                            //if (!Current_Owned_Agent.Upgrades.Exists(i => i == "TERRANINFANTRYARMORSLEVEL1"))
+                            //    yield return ("RESEARCH_TERRANINFANTRYARMOR");
                         }
                         break;
                     case "TERRAN_GHOSTACADEMY":

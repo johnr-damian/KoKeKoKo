@@ -1,4 +1,5 @@
 ﻿using ModelService.Collections;
+using Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -68,17 +69,58 @@ namespace ModelService.Macromanagement
 
         public override SimulationNode SelectPhase()
         {
-            throw new NotImplementedException();
+            if(!IsExpanded)
+            {
+                ExpandPhase();
+
+                double bestvalue = Double.MinValue;
+                SimulationNode child = default(POMDPNode);
+                foreach(POMDPNode childnode in Children)
+                {
+                    var current_value = childnode.Value;
+                    if(current_value > bestvalue)
+                    {
+                        bestvalue = current_value;
+                        child = childnode;
+                    }
+                }
+
+                Child = child;
+            }
+
+            return Child;
         }
 
         protected override void ExpandPhase()
         {
-            throw new NotImplementedException();
+            Console.WriteLine($@"Currently Expanding... Your current depth is {Depth}");
+
+            for (int test = 0; test < 1; test++)
+                Children.Add(new POMDPNode(Owned_Agent.Copy(), Enemy_Agent.Copy(), this));
+
+            Children.ForEach(child => ((POMDPNode)child).SimulationPhase());
         }
 
         protected override void SimulationPhase()
         {
-            throw new NotImplementedException();
+            Console.WriteLine($@"Currently Simulating... Your current depth is {Depth}");
+
+            //Get the service
+            var agentservice = AgentService.CreateNewAgentService();
+            var computationservice = ComputationService.CreateNewComputationService();
+
+            //Get the list of potential actions
+            var owned_agent_actions = Owned_Agent.GeneratePotentialActions().ToArray();
+            var enemy_agent_actions = Enemy_Agent.GeneratePotentialActions().ToArray();
+
+            //Get the distinct potential actions
+            var owned_agent_distinct = owned_agent_actions.Distinct();
+            var enemy_agent_distinct = enemy_agent_actions.Distinct();
+
+            //Initialize action to probability mapping
+            //Do we have to?
+
+            
         }
     }
 }

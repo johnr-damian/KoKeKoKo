@@ -34,7 +34,7 @@ namespace ModelService
                 POMDPNode.SetPOMDPReference(macromanagement_reference);*/
 
                 //The C# Model has started as a standalone application
-                if (args.Length  > 1)
+                if (args.Length  > 0)
                 {
                     Console.WriteLine("(C#)C# Model has started in standalone mode! Generating accuracy reports...");
 

@@ -345,15 +345,10 @@ namespace KoKeKoKo
 								return false;
 							}
 							if (action == ABILITY_ID::BUILD_REFINERY)
-							{
 								Actions()->UnitCommand(target, action, FindNearestOf(target->pos, UNIT_TYPEID::NEUTRAL_VESPENEGEYSER));
-								return true;
-							}
-							else if (Query()->Placement(action, build_location, target))
-							{
+							else if(Query()->Placement(action, build_location, target))
 								Actions()->UnitCommand(target, action, build_location);
-								return true;
-							}
+							return true;
 						}
 					}
 					return false;

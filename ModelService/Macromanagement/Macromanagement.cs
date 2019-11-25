@@ -135,7 +135,7 @@ namespace ModelService.Macromanagement
         /// of macromanagement prediction given by a limited time.
         /// </summary>
         /// <returns></returns>
-        private List<string> CreateAccuracyReport()
+        private List<string> CreateAccuracyReport(string format)
         {
             //Get the maximum gameplay time
             int maximum_seconds = Math.Max(Convert.ToInt32(Source[1].Last().Split(',')[0]), Convert.ToInt32(Source[2].Last().Split(',')[0]));
@@ -169,7 +169,7 @@ namespace ModelService.Macromanagement
                 }
 
                 //Add the current node's information because it is the 10-second move
-                information.Add(Current.ToString("R"));
+                information.Add(Current.ToString(format));
 
                 //Update the agent service
                 message = agentservice.UpdateAgentService(maximum_time);
@@ -215,12 +215,19 @@ namespace ModelService.Macromanagement
                 //The requested string is for accuracy report for R
                 case "R":
                     //Sequence of basis
-                    var basis = String.Join(",", String.Join("\n", Source[1]), String.Join("\n", Source[2]));
+                    //var basis = String.Join(",", String.Join("\n", Source[1]), String.Join("\n", Source[2]));
+                    string basis = String.Join("\n", Source[1]);
 
                     //Sequence of simulation
-                    var simulation = String.Join("\n", CreateAccuracyReport());
+                    var simulation = String.Join("\n", CreateAccuracyReport("R"));
 
                     return String.Join(";", basis, simulation);
+                case "IR":
+                    string ebasis = String.Join("\n", Source[2]);
+
+                    string esimulation = String.Join("\n", CreateAccuracyReport("IR"));
+
+                    return String.Join(";", ebasis, esimulation);
                 default:
                     throw new Exception($@"Failed to format into string...");
             }

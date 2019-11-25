@@ -52,8 +52,8 @@ namespace ModelService
                     //    });
 
                     //Store the Macromanagement
-                    var mcts_macromanagements = macromanagement_repository.Select(macromanagement => (new Macromanagement<MCTSNode>(macromanagement)));
-                    //var pomdp_macromanagements = macromanagement_repository.Select(macromanagement => (new Macromanagement<POMDPNode>(macromanagement)));
+                    //var mcts_macromanagements = macromanagement_repository.Select(macromanagement => (new Macromanagement<MCTSNode>(macromanagement)));
+                    var pomdp_macromanagements = macromanagement_repository.Select(macromanagement => (new Macromanagement<POMDPNode>(macromanagement)));
 
                     ////Group the Micromanagement by Rank (TEMPORARY)
                     //var perrank_micromanagement = micromanagements.GroupBy(rank => rank.Rank).ToDictionary(key => key.Key, value => value.ToList());
@@ -82,20 +82,22 @@ namespace ModelService
                     //}
 
                     //Group the Macromanagement by Rank
-                    var mctsrank_macromanagements = mcts_macromanagements.GroupBy(macromanagement => macromanagement.Rank).ToDictionary(key => key.Key, value => value.ToArray());
-                    //var pomdprank_macromanagements = pomdp_macromanagements.GroupBy(macromanagement => macromanagement.Rank).ToDictionary(key => key.Key, value => value.ToArray());
+                    //var mctsrank_macromanagements = mcts_macromanagements.GroupBy(macromanagement => macromanagement.Rank).ToDictionary(key => key.Key, value => value.ToArray());
+                    var pomdprank_macromanagements = pomdp_macromanagements.GroupBy(macromanagement => macromanagement.Rank).ToDictionary(key => key.Key, value => value.ToArray());
 
                     //Perform the Accuracy Testing for Micromanagement
 
                     //Perform the Accuracy Testing for Macromanagement
-                    var mctsresults = mctsrank_macromanagements.Select(macromanagement => macromanagement.Value.Select(accuracy => accuracy.ToString("R"))).ToList();
-                    //var pomdpresults = pomdprank_macromanagements.Select(macromanagement => macromanagement.Value.Select(accuracy => accuracy.ToString("R")));
+                    //var mctsresults = mctsrank_macromanagements.Select(macromanagement => macromanagement.Value.Select(accuracy => accuracy.ToString("R"))).ToList();
+                    var pomdpresults = pomdprank_macromanagements.Select(macromanagement => macromanagement.Value.Select(accuracy => accuracy.ToString("R")));
 
                     //Create a profile for Accuracy Results for Micromanagement
 
                     //Create a profile for Accuracy Results for Macromanagement
-                    foreach (var mcts in mctsresults)
-                        mcts.ToList().ForEach(result => Console.WriteLine(result));
+                    //foreach (var mcts in mctsresults)
+                    //    mcts.ToList().ForEach(result => Console.WriteLine(result));
+                    foreach (var pomdp in pomdpresults)
+                        pomdp.ToList().ForEach(result => Console.WriteLine(result));
 
                     Console.WriteLine("(C#)C# Model is ready to terminate! Press enter to close the model...");
                     Console.ReadLine();

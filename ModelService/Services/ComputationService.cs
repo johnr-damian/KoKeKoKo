@@ -30,7 +30,7 @@ namespace Services
         /// Instance of the current <see cref="REngine"/>. This provices access to built-in methods
         /// for communicating with R Software and methods for computations and visualizations.
         /// </summary>
-        private REngine RService { get; set; } = default(REngine); 
+        public REngine RService { get; private set; } = default(REngine); 
         #endregion
 
         /// <summary>

@@ -74,23 +74,48 @@ namespace ModelService.Macromanagement
         public override SimulationNode SelectPhase()
         {
             if(!IsExpanded)
-            {
                 ExpandPhase();
 
-                double bestuct = Double.MinValue;
-                SimulationNode child = default(MCTSNode);
-                foreach(MCTSNode childnode in Children)
+            double bestuct = Double.MinValue;
+            SimulationNode child = default(MCTSNode);
+            foreach (MCTSNode childnode in Children)
+            {
+                var current_uct = childnode.UCT;
+                if (current_uct > bestuct)
                 {
-                    var current_uct = childnode.UCT;
-                    if(current_uct > bestuct)
-                    {
-                        bestuct = current_uct;
-                        child = childnode;
-                    }
+                    bestuct = current_uct;
+                    child = childnode;
                 }
-
-                Child = child;
             }
+
+            Child = child;
+
+            return Child;
+        }
+
+        /// <summary>
+        /// A playout select
+        /// </summary>
+        /// <param name="max_depth"></param>
+        /// <returns></returns>
+        private SimulationNode SelectPhase(int max_depth)
+        {
+            if(!IsExpanded)
+                ExpandPhase(max_depth);
+
+            double bestuct = Double.MinValue;
+            SimulationNode child = default(MCTSNode);
+            foreach (MCTSNode childnode in Children)
+            {
+                var current_uct = childnode.UCT;
+                if (current_uct > bestuct)
+                {
+                    bestuct = current_uct;
+                    child = childnode;
+                }
+            }
+
+            Child = child;
 
             return Child;
         }
@@ -103,6 +128,16 @@ namespace ModelService.Macromanagement
                 Children.Add(new MCTSNode(Owned_Agent.Copy(), Enemy_Agent.Copy(), this));
 
             Children.ForEach(child => ((MCTSNode)child).SimulationPhase());
+        }
+
+        private void ExpandPhase(int max_depth)
+        {
+            Console.WriteLine($@"Currently Playing out... Your current depth is {Depth}");
+
+            for (int test = 0; test < 5; test++)
+                Children.Add(new MCTSNode(Owned_Agent.Copy(), Enemy_Agent.Copy(), this));
+
+            Children.ForEach(child => ((MCTSNode)child).SimulationPhase(max_depth));
         }
 
         protected override void SimulationPhase()
@@ -121,29 +156,29 @@ namespace ModelService.Macromanagement
             var owned_agent_distinct = owned_agent_actions.Distinct();
             var enemy_agent_distinct = enemy_agent_actions.Distinct();
 
-            //Initialize action to probability mapping
-            var owned_agent_probability = new Dictionary<string, Tuple<double, double>>();
-            var enemy_agent_probability = new Dictionary<string, Tuple<double, double>>();
+            ////Initialize action to probability mapping
+            //var owned_agent_probability = new Dictionary<string, Tuple<double, double>>();
+            //var enemy_agent_probability = new Dictionary<string, Tuple<double, double>>();
 
-            //Create the probability mapping
-            double start_probability = 0;
-            foreach(var owned_agent_action in owned_agent_distinct)
-            {
-                double count = owned_agent_actions.Count(action => action == owned_agent_action);
-                double end_probability = (start_probability + (count / owned_agent_actions.Length));
+            ////Create the probability mapping
+            //double start_probability = 0;
+            //foreach(var owned_agent_action in owned_agent_distinct)
+            //{
+            //    double count = owned_agent_actions.Count(action => action == owned_agent_action);
+            //    double end_probability = (start_probability + (count / owned_agent_actions.Length));
 
-                owned_agent_probability.Add(owned_agent_action, new Tuple<double, double>(start_probability, end_probability));
-                start_probability = end_probability;
-            }
-            start_probability = 0;
-            foreach(var enemy_agent_action in enemy_agent_distinct)
-            {
-                double count = enemy_agent_actions.Count(action => action == enemy_agent_action);
-                double end_probability = (start_probability + (count / enemy_agent_actions.Length));
+            //    owned_agent_probability.Add(owned_agent_action, new Tuple<double, double>(start_probability, end_probability));
+            //    start_probability = end_probability;
+            //}
+            //start_probability = 0;
+            //foreach(var enemy_agent_action in enemy_agent_distinct)
+            //{
+            //    double count = enemy_agent_actions.Count(action => action == enemy_agent_action);
+            //    double end_probability = (start_probability + (count / enemy_agent_actions.Length));
 
-                enemy_agent_probability.Add(enemy_agent_action, new Tuple<double, double>(start_probability, end_probability));
-                start_probability = end_probability;
-            }
+            //    enemy_agent_probability.Add(enemy_agent_action, new Tuple<double, double>(start_probability, end_probability));
+            //    start_probability = end_probability;
+            //}
 
             //Check the expansion configuration. How do we select new action
             //1. Random
@@ -154,32 +189,35 @@ namespace ModelService.Macromanagement
             double owned_agent_randomaction = computationservice.GetRandomProbability(), enemy_agent_randomaction = computationservice.GetRandomProbability();
             string owned_agent_chosenaction = "", enemy_agent_chosenaction = "";
 
-            foreach(var action in owned_agent_probability)
-            {
-                if((action.Value.Item1 < owned_agent_randomaction) && (owned_agent_randomaction < action.Value.Item2))
-                {
-                    owned_agent_chosenaction = action.Key;
-                    break;
-                }
-            }
-            foreach (var action in enemy_agent_probability)
-            {
-                if ((action.Value.Item1 < enemy_agent_randomaction) && (enemy_agent_randomaction < action.Value.Item2))
-                {
-                    enemy_agent_chosenaction = action.Key;
-                    break;
-                }
-            }
+            //foreach(var action in owned_agent_probability)
+            //{
+            //    if((action.Value.Item1 < owned_agent_randomaction) && (owned_agent_randomaction < action.Value.Item2))
+            //    {
+            //        owned_agent_chosenaction = action.Key;
+            //        break;
+            //    }
+            //}
+            //foreach (var action in enemy_agent_probability)
+            //{
+            //    if ((action.Value.Item1 < enemy_agent_randomaction) && (enemy_agent_randomaction < action.Value.Item2))
+            //    {
+            //        enemy_agent_chosenaction = action.Key;
+            //        break;
+            //    }
+            //}
+
+            //True Random
+            owned_agent_chosenaction = computationservice.GetRandomElement(owned_agent_actions).First();
+            enemy_agent_chosenaction = computationservice.GetRandomElement(enemy_agent_actions).First();
 
             //Apply the action
             Owned_Agent.ApplyChosenAction(owned_agent_chosenaction);
             Enemy_Agent.ApplyChosenAction(enemy_agent_chosenaction);
 
             //We play out until we reach a certain depth
-            //for(MCTSNode playnode = this; DateTime.Now < agentservice.NextUpdateTime.Subtract(new TimeSpan(0, 0, 5));)
-            //{
-            //    playnode = (MCTSNode)playnode.SelectPhase();
-            //}
+            int play_depth = 0;
+            for (MCTSNode playnode = this; play_depth < 5; play_depth++)
+                playnode = (MCTSNode)playnode.SelectPhase(5);
 
             //After the playout, we compute the values as much as possible
             double[] owned_agent_value = Owned_Agent.Value, enemy_agent_value = Enemy_Agent.Value;
@@ -230,6 +268,108 @@ namespace ModelService.Macromanagement
 
 
             BackpropagatePhase(total_worth >= etotal_worth);
+        }
+
+        private void SimulationPhase(int max_depth)
+        {
+            Console.WriteLine($@"Currently Simulating... Your current depth is {Depth}");
+
+            //Get the services
+            var agentservice = AgentService.CreateNewAgentService();
+            var computationservice = ComputationService.CreateNewComputationService();
+
+            //Get the list of potential actions
+            var owned_agent_actions = Owned_Agent.GeneratePotentialActions().ToArray();
+            var enemy_agent_actions = Enemy_Agent.GeneratePotentialActions().ToArray();
+
+            //Get the distinct potential actions
+            var owned_agent_distinct = owned_agent_actions.Distinct();
+            var enemy_agent_distinct = enemy_agent_actions.Distinct();
+
+            double owned_agent_randomaction = computationservice.GetRandomProbability(), enemy_agent_randomaction = computationservice.GetRandomProbability();
+            string owned_agent_chosenaction = "", enemy_agent_chosenaction = "";
+
+            //True Random
+            owned_agent_chosenaction = computationservice.GetRandomElement(owned_agent_actions).First();
+            enemy_agent_chosenaction = computationservice.GetRandomElement(enemy_agent_actions).First();
+
+            //Apply the action
+            Owned_Agent.ApplyChosenAction(owned_agent_chosenaction);
+            Enemy_Agent.ApplyChosenAction(enemy_agent_chosenaction);
+
+            //We play out until we reach a certain depth
+            int play_depth = max_depth;
+            for (MCTSNode playnode = this; play_depth < (max_depth - 1); play_depth++)
+                playnode = (MCTSNode)playnode.SelectPhase(max_depth - 1);
+
+
+            double[] owned_agent_value = Owned_Agent.Value, enemy_agent_value = Enemy_Agent.Value;
+            double[] owned_agent_unitvalue = new double[3], enemy_agent_unitvalue = new double[3];
+            owned_agent_unitvalue[0] = Owned_Agent.Units.Sum(unit => SimulatedUnit.Values[unit.Name].Mineral);
+            owned_agent_unitvalue[1] = Owned_Agent.Units.Sum(unit => SimulatedUnit.Values[unit.Name].Vespene);
+            owned_agent_unitvalue[2] = Owned_Agent.Units.Sum(unit => SimulatedUnit.Values[unit.Name].Supply);
+            enemy_agent_unitvalue[0] = Enemy_Agent.Units.Sum(unit => SimulatedUnit.Values[unit.Name].Mineral);
+            enemy_agent_unitvalue[1] = Enemy_Agent.Units.Sum(unit => SimulatedUnit.Values[unit.Name].Vespene);
+            enemy_agent_unitvalue[2] = Enemy_Agent.Units.Sum(unit => SimulatedUnit.Values[unit.Name].Supply);
+
+
+            double avg_count = (Child != null) ? 0 : 1;
+            for (var chosen_child = Child; chosen_child != null; chosen_child = chosen_child.Child, avg_count++)
+            {
+                var new_owned_agent_value = chosen_child.Owned_Agent.Value;
+                var new_enemy_agent_value = chosen_child.Enemy_Agent.Value;
+
+                owned_agent_value[0] = new_owned_agent_value[0];
+                owned_agent_value[0] = new_owned_agent_value[1];
+                owned_agent_value[0] = new_owned_agent_value[2];
+                owned_agent_value[0] = new_owned_agent_value[3];
+                owned_agent_value[0] = new_owned_agent_value[4];
+
+                enemy_agent_value[0] = new_enemy_agent_value[0];
+                enemy_agent_value[0] = new_enemy_agent_value[1];
+                enemy_agent_value[0] = new_enemy_agent_value[2];
+                enemy_agent_value[0] = new_enemy_agent_value[3];
+                enemy_agent_value[0] = new_enemy_agent_value[4];
+
+                owned_agent_unitvalue[0] = chosen_child.Owned_Agent.Units.Sum(unit => SimulatedUnit.Values[unit.Name].Mineral);
+                owned_agent_unitvalue[1] = chosen_child.Owned_Agent.Units.Sum(unit => SimulatedUnit.Values[unit.Name].Vespene);
+                owned_agent_unitvalue[2] = chosen_child.Owned_Agent.Units.Sum(unit => SimulatedUnit.Values[unit.Name].Supply);
+                enemy_agent_unitvalue[0] = chosen_child.Enemy_Agent.Units.Sum(unit => SimulatedUnit.Values[unit.Name].Mineral);
+                enemy_agent_unitvalue[1] = chosen_child.Enemy_Agent.Units.Sum(unit => SimulatedUnit.Values[unit.Name].Vespene);
+                enemy_agent_unitvalue[2] = chosen_child.Enemy_Agent.Units.Sum(unit => SimulatedUnit.Values[unit.Name].Supply);
+            }
+
+            double[] owned_true_worth = new double[5], enemy_true_worth = new double[5];
+
+            owned_true_worth[0] = (owned_agent_value[0] - enemy_agent_unitvalue[0]) / avg_count;  //Mineral
+            owned_true_worth[1] = (owned_agent_value[1] - enemy_agent_unitvalue[1]) / avg_count;  //Vespene
+            owned_true_worth[2] = (owned_agent_value[2] - enemy_agent_unitvalue[2]) / avg_count;  //Supply
+            owned_true_worth[3] = owned_agent_value[3] / avg_count;
+            owned_true_worth[4] = owned_agent_value[4] / avg_count;
+
+
+            enemy_true_worth[0] = (enemy_agent_value[0] - owned_agent_unitvalue[0]) / avg_count;  //Mineral
+            enemy_true_worth[1] = (enemy_agent_value[1] - owned_agent_unitvalue[1]) / avg_count;  //Vespene
+            enemy_true_worth[2] = (enemy_agent_value[2] - owned_agent_unitvalue[2]) / avg_count;  //Supply]
+            enemy_true_worth[3] = enemy_agent_value[3] / avg_count;
+            enemy_true_worth[4] = enemy_agent_value[4] / avg_count;
+
+
+            double total_worth = 0, etotal_worth = 0;
+            total_worth += (owned_true_worth[0]) * 0.30;
+            total_worth += (owned_true_worth[1]) * 0.30;
+            total_worth += (owned_true_worth[2]) * 0.15;
+            total_worth += (owned_true_worth[3]) * 0.15;
+            total_worth += (owned_true_worth[4]) * 0.10;
+
+            etotal_worth += (enemy_true_worth[0]) * 0.30;
+            etotal_worth += (enemy_true_worth[1]) * 0.30;
+            etotal_worth += (enemy_true_worth[2]) * 0.15;
+            etotal_worth += (enemy_true_worth[3]) * 0.15;
+            etotal_worth += (enemy_true_worth[4]) * 0.10;
+
+
+            BackpropagatePhase(total_worth > etotal_worth);
         }
     }
 }

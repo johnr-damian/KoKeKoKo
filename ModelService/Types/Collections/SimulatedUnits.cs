@@ -155,7 +155,7 @@ namespace ModelService.Collections
                 Units = new SimulatedUnit[units.Length];
 
                 for (int iterator = 0; iterator < units.Length; iterator++)
-                    Units[iterator] = new SimulatedUnit(units[iterator], Enumerable.Empty<string>());
+                    Units[iterator] = new SimulatedUnit(units[iterator].Split(','), Enumerable.Empty<string>());
             }
             else
                 throw new Exception("Failed to create a list unit...");

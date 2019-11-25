@@ -1180,12 +1180,12 @@ namespace ModelService
         /// known enemy units in the message.
         /// </summary>
         /// <param name="micromanagement"></param>
-        public void UpdateSimulatedAgent(IEnumerable<string> micromanagement)
+        public void UpdateSimulatedAgent(string game_time, IEnumerable<string> micromanagement)
         {
             //Update the known enemy units
             Units = new SimulatedUnits(micromanagement.ToArray());
 
-            //Infer the resources based on the units
+            //Infer the resources based on the units and time
             throw new NotImplementedException("Guanga");
         }
 
@@ -1198,12 +1198,14 @@ namespace ModelService
         /// <param name="macromanagement"></param>
         public void UpdateSimulatedAgent(IEnumerable<string> micromanagement, IEnumerable<string> macromanagement)
         {
+            //Connect the upgrade from macromanagement to micromanagement!
+
             //Update the controlled units
             Units = new SimulatedUnits(micromanagement.ToArray());
 
             //Update the resources
-            var resources = macromanagement.ToArray();
-            Resources = new Worth(Convert.ToDouble(resources[0]), Convert.ToDouble(resources[1]), Convert.ToInt32(resources[2]), Convert.ToInt32(resources[3]), Convert.ToInt32(resources[4]));
+            var resources = macromanagement.Single().Split(',');
+            Resources = new Worth(Convert.ToDouble(resources[0]), Convert.ToDouble(resources[1]), Convert.ToInt32(resources[2]), Convert.ToInt32(resources[3]), resources.Skip(4).Count());
         } 
         #endregion
 

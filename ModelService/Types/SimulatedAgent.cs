@@ -296,6 +296,10 @@ namespace ModelService
                     new_unit = new SimulatedUnit("TERRAN_BATTLECRUISER", Upgrades);
                     new_unit_cost = (double[])new_unit;
                     break;
+                case "BUILD_COMMANDCENTER":
+                    new_unit = new SimulatedUnit("TERRAN_COMMANDCENTER", Upgrades);
+                    new_unit_cost = (double[])new_unit;
+                    break;
                 case "BUILD_BARRACKS":
                     new_unit = new SimulatedUnit("TERRAN_BARRACKS", Upgrades);
                     new_unit_cost = (double[])new_unit;

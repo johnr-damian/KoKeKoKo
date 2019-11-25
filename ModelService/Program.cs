@@ -29,9 +29,9 @@ namespace ModelService
                 var repositoryservice = RepositoryService.CreateNewRepositoryService();
 
                 //Set the reference for Macromanagement Algorithms
-                var macromanagement_reference = repositoryservice.InterpretMacromanagementRepository();
+                /*var macromanagement_reference = repositoryservice.InterpretMacromanagementRepository();
                 MCTSNode.SetMCTSReference(macromanagement_reference);
-                POMDPNode.SetPOMDPReference(macromanagement_reference);
+                POMDPNode.SetPOMDPReference(macromanagement_reference);*/
 
                 //The C# Model has started as a standalone application
                 if (args.Length  > 0)

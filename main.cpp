@@ -320,6 +320,7 @@ namespace KoKeKoKo
 					Units units = Observation()->GetUnits(Unit::Alliance::Self, IsUnit(unit));
 					const Unit* target = nullptr;
 					float random_x_coordinate = GetRandomScalar(), random_y_coordinate = GetRandomScalar();
+					Point2D build_location = Point2D(staging_location_ + Point2D(random_x_coordinate, random_y_coordinate) * 15.0f);
 
 					//If there should not be 2 or more unit working on the same action
 					if (!redoable)
@@ -345,10 +346,8 @@ namespace KoKeKoKo
 							}
 							if (action == ABILITY_ID::BUILD_REFINERY)
 								Actions()->UnitCommand(target, action, FindNearestOf(target->pos, UNIT_TYPEID::NEUTRAL_VESPENEGEYSER));
-							else
-								//Actions()->UnitCommand(target, action, Point2D(target->pos.x + (random_x_coordinate * 15.0f), target->pos.y + (random_y_coordinate * 15.0f)));
-								//Actions()->UnitCommand(target, action, Point2D(target->pos + Point2D(random_x_coordinate, random_y_coordinate) * 15.0f));
-								Actions()->UnitCommand(target, action, Point2D(staging_location_ + Point2D(random_x_coordinate, random_y_coordinate) * 15.0f));
+							else if(Query()->Placement(action, build_location, target))
+								Actions()->UnitCommand(target, action, build_location);
 							return true;
 						}
 					}
@@ -1639,6 +1638,57 @@ namespace KoKeKoKo
 			public:
 				bool scout = true;
 				Units known_units;
+				std::string GenerateInitializeString()
+				{
+					std::string test = "INITIALIZE;BRONZE;";
+					uint32_t playerID = Observation()->GetPlayerID();
+					test = test + std::to_string(playerID) + ";";
+					Units units = Observation()->GetUnits(Unit::Alliance::Self);
+					for (const auto& unit : units)
+					{
+						test = test + std::to_string(unit->tag) + "," + UnitTypeToName(unit->unit_type) + "," + std::to_string(unit->pos.x) +  "," + std::to_string(unit->pos.y) + "$";
+					}
+					test.pop_back();
+					std::cout << test << std::endl;
+					return test;
+				}
+				std::string GenerateUpdateString()
+				{
+					std::string test = "UPDATE;" + std::to_string(Observation()->GetGameLoop() / 22.4) + ";";
+					Units units = Observation()->GetUnits(Unit::Alliance::Self);
+					for (const auto& unit : units)
+					{
+						test = test + std::to_string(unit->tag) + "," + UnitTypeToName(unit->unit_type) + "," + std::to_string(unit->pos.x) + "," + std::to_string(unit->pos.y) + "$";
+					}
+					test.pop_back();
+					test = test + ";" + std::to_string(Observation()->GetMinerals()) + "," + std::to_string(Observation()->GetVespene()) + "," + std::to_string(Observation()->GetFoodCap()) + "," + std::to_string(CountOf(UNIT_TYPEID::TERRAN_SCV));
+					auto upgrades = Observation()->GetUpgrades();
+					if (upgrades.empty())
+						test = test; //+ ";";
+					else
+					{
+						test = test + ",";
+						for (const auto& upgrade : upgrades)
+						{
+							test = test + UpgradeIDToName(upgrade) + ",";
+						}
+					}
+					if (known_units.empty())
+					{
+						std::cout << test << std::endl;
+						return test;
+					}
+					else
+					{
+						for (const auto& unit : known_units)
+						{
+							test = test + std::to_string(unit->tag) + "," + UnitTypeToName(unit->unit_type) + "," + std::to_string(unit->pos.x) + "," + std::to_string(unit->pos.x) + "$";
+						}
+						std::cout << test << std::endl;
+						return test;
+					}
+
+				}
 				KoKeKoKoBot()
 				{
 					//Perform intializations
@@ -1652,7 +1702,8 @@ namespace KoKeKoKo
 				virtual void OnGameStart() final
 				{
 					auto service = Services::ModelService::CreateNewModelService();
-					_actions = service->UpdateModelService("UPDATE");
+					auto trash = service->UpdateModelService(GenerateInitializeString());
+					_actions = service->UpdateModelService(GenerateUpdateString());
 					std::istringstream raw_actions(_actions.front());
 					std::string raw_action = "";
 					while (std::getline(raw_actions, raw_action, ','))
@@ -1661,7 +1712,7 @@ namespace KoKeKoKo
 					_actions.pop();
 
 					////We periodically get message and send updates to model service
-					StartSendingUpdatesToModelService();
+					//StartSendingUpdatesToModelService();
 					//Get possible expansion positions
 					std::vector<Point3D> expansions_;
 					expansions_ = search::CalculateExpansionLocations(Observation(), Query());
@@ -1676,7 +1727,7 @@ namespace KoKeKoKo
 					StoreStagingLocation(startLocation_);
 
 					//We periodically get message and send updates to model service
-					StartSendingUpdatesToModelService();
+					//StartSendingUpdatesToModelService();
 
 					//#if _DEBUG
 					//	std::cout << "Finished calling StartSendingUpdatesToModelService()! Proceeding to start the game... Getting the current action...";
@@ -1774,7 +1825,7 @@ namespace KoKeKoKo
 					auto service = Services::ModelService::CreateNewModelService();
 					if (_actions.empty() || !service->ShouldOperationsContinue())
 					{
-						_actions = service->UpdateModelService("UPDATE");
+						_actions = service->UpdateModelService(GenerateUpdateString());
 					}
 
 					//Do the current action
@@ -2337,7 +2388,7 @@ int main(int argc, char* argv[])
 		modelservice->StopModelService();
 		char c;
 		std::cin >> c;*/
-		coordinator.SetMultithreaded(true);
+		//coordinator.SetMultithreaded(true);
 		coordinator.LoadSettings(argc, argv);
 		coordinator.SetParticipants({ sc2::CreateParticipant(sc2::Race::Terran, kokekokobot), sc2::CreateComputer(sc2::Race::Terran, sc2::Difficulty::VeryEasy) });
 		coordinator.LaunchStarcraft();

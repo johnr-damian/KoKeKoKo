@@ -9,9 +9,9 @@ files = glob.glob(path_directory)
 
 player_index = 317
 
-# with open('CommandRepository-Testing.csv', 'a', encoding='utf-8') as f:
-#     f.write("Grandmaster")
-#     f.write("\n")
+with open('CommandRepository-Test.csv', 'a', encoding='utf-8') as f:
+    f.write("Grandmaster")
+    f.write("\n")
 
 
 for name in files:
@@ -31,7 +31,7 @@ for name in files:
     unit_died_event = events_of_type["UnitDiedEvent"]
 
     filename = os.path.basename(name)
-    with open('CommandRepository-Testing.csv', 'a', encoding='utf-8') as f:
+    with open('CommandRepository-Test.csv', 'a', encoding='utf-8') as f:
         f.write(filename)
         f.write("\n")
 
@@ -74,7 +74,7 @@ for name in files:
 
         sorted_main_list = sorted(command_list, key=itemgetter(0))
         df = pd.DataFrame(sorted_main_list)
-        df.to_csv('CommandRepository-Testing.csv', mode='a', header=None, index=None)
+        df.to_csv('CommandRepository-Test.csv', mode='a', header=None, index=None)
 
 
     command_function(1, player_index)

@@ -1844,9 +1844,9 @@ namespace KoKeKoKo
 					//Do the current action
 					if (ExecuteAbility(_currentaction))
 					{
-						std::cout << _currentaction << std::endl;
 						_currentaction = _actions.front();
 						_actions.pop();
+						std::cout << _currentaction << std::endl;
 					}
 
 					/*while (!ExecuteAbility(_currentaction))

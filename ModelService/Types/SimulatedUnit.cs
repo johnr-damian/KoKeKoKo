@@ -52,6 +52,7 @@ namespace ModelService
             ["TERRAN_COMMANDCENTER"] = new Definition(1500, 0, 0, 0, 1, false),
             ["TERRAN_ORBITALCOMMAND"] = new Definition(1500, 200, 0, 0, 1, false), //50/200
             ["TERRAN_SUPPLYDEPOT"] = new Definition(400, 0, 0, 0, 1, false),
+            ["TERRAN_SUPPLYDEPOTLOWERED"] = new Definition(400, 0, 0, 0, 1, false),
             ["TERRAN_REFINERY"] = new Definition(500, 0, 0, 0, 1, false),
             ["TERRAN_BARRACKS"] = new Definition(1000, 0, 0, 0, 1, false),
             ["TERRAN_BARRACKSREACTOR"] = new Definition(400, 0, 0, 0, 1, false),
@@ -113,6 +114,7 @@ namespace ModelService
             ["TERRAN_COMMANDCENTER"] = new Cost(11, 400, 0, 0),
             ["TERRAN_ORBITALCOMMAND"] = new Cost(11, 550, 0, 0),
             ["TERRAN_SUPPLYDEPOT"] = new Cost(11, 100, 0, 0),
+            ["TERRAN_SUPPLYDEPOTLOWERED"] = new Cost(11, 100, 0, 0),
             ["TERRAN_REFINERY"] = new Cost(11, 75, 0, 0),
             ["TERRAN_BARRACKS"] = new Cost(11, 150, 0, 0),
             ["TERRAN_BARRACKSREACTOR"] = new Cost(11, 50, 50, 0),
@@ -409,9 +411,25 @@ namespace ModelService
             Name = unit_name;
         }
 
-        public SimulatedUnit(string[] unit_details)
+        public SimulatedUnit(string[] unit_details, IEnumerable<string> upgrades)
         {
+            Current_Target = -1;
+            Targets = new List<SimulatedUnit>();
 
+            if (unit_details.Length > 0)
+            {
+                Health = Definitions[unit_details[1]].Health;
+                Energy = Definitions[unit_details[1]].Energy;
+                Armor = Definitions[unit_details[1]].Armor;
+                Air_Damage = Definitions[unit_details[1]].Air_Damage;
+                Ground_Damage = Definitions[unit_details[1]].Ground_Damage;
+                Upgrades = new List<string>(upgrades);
+                Skills = new List<Tuple<string, DateTime>>();
+                UniqueID = unit_details[0];
+                Name = unit_details[1];
+            }
+            else
+                throw new Exception("Failed to parse unit...");
         }
 
         public void ApplyChosenAction(string chosen_action)

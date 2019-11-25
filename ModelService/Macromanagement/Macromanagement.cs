@@ -85,7 +85,7 @@ namespace ModelService.Macromanagement
             //Initialize the information about the current Macromanagement
             Source = new string[4][];
             Source[0] = source.Take(2).ToArray();
-            Source[1] = source.Skip(2).Single().Split(',');
+            Source[1] = source.Skip(2).Single().Split('$');
             Source[2] = Enumerable.Empty<string>().ToArray();
             Source[3] = Enumerable.Empty<string>().ToArray();
 

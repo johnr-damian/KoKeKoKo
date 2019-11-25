@@ -193,11 +193,11 @@ namespace ModelService.Collections
         public virtual void UpdateSimulationNode(IEnumerable<string> source)
         {
             //Update the owned agent
-            Owned_Agent.UpdateSimulatedAgent(source.Take(1).Single().Split(','), source.Skip(1).Take(1).Single().Split(','));
+            Owned_Agent.UpdateSimulatedAgent(source.Skip(1).Take(1).Single().Split('$'), source.Skip(2).Take(1));
 
             //If there has been a known units for the enemy agent
-            if (source.Count() == 3)
-                Enemy_Agent.UpdateSimulatedAgent(source.Skip(2).Take(1).Single().Split(','));
+            if (source.Count() == 4)
+                Enemy_Agent.UpdateSimulatedAgent(source.First(), source.Skip(3).Take(1).Single().Split('$'));
         }
         #endregion
 

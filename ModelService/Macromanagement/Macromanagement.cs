@@ -114,6 +114,8 @@ namespace ModelService.Macromanagement
                 {
                     //Get the best next move from the current node
                     var best_node = Current.SelectPhase();
+                    if (best_node == null)
+                        System.Diagnostics.Debugger.Break();
 
                     //Store the move in the list of actions
                     actions.Add(best_node.ToString());

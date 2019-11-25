@@ -1662,7 +1662,7 @@ namespace KoKeKoKo
 					Units units = Observation()->GetUnits(Unit::Alliance::Self);
 					for (const auto& unit : units)
 					{
-						test = test + std::to_string(unit->tag) + "," + std::string(UnitTypeToName(unit->unit_type)) + "," + std::to_string(unit->pos.x) +  "," + std::to_string(unit->pos.y) + "$";
+						test = test + std::to_string(unit->tag) + "," + UnitTypeToName(unit->unit_type) + "," + std::to_string(unit->pos.x) +  "," + std::to_string(unit->pos.y) + "$";
 					}
 					test.pop_back();
 					std::cout << test << std::endl;
@@ -1672,24 +1672,43 @@ namespace KoKeKoKo
 				{
 					std::string test = "UPDATE;" + std::to_string(Observation()->GetGameLoop() / 22.4) + ";";
 					Units units = Observation()->GetUnits(Unit::Alliance::Self);
+					int terminate = -1, terminated = units.size();
 					for (const auto& unit : units)
 					{
-						test = test + std::to_string(unit->tag) + "," + std::string(UnitTypeToName(unit->unit_type)) + "," + std::to_string(unit->pos.x) + "," + std::to_string(unit->pos.y) + "$";
+						//test = test + std::to_string(unit->tag) + "," + UnitTypeToName(unit->unit_type) + "," + std::to_string(unit->pos.x) + "," + std::to_string(unit->pos.y) + "$";
+						test += (std::to_string(unit->tag) + "," + UnitTypeToName(unit->unit_type) + "," + std::to_string(unit->pos.x) + "," + std::to_string(unit->pos.y) + ((++terminate < terminated) ? "$" : ""));
 					}
-					test.pop_back();
+					//test.pop_back();
 					test = test + ";" + std::to_string(Observation()->GetMinerals()) + "," + std::to_string(Observation()->GetVespene()) + "," + std::to_string(Observation()->GetFoodCap()) + "," + std::to_string(CountOf(UNIT_TYPEID::TERRAN_SCV));
 					auto upgrades = Observation()->GetUpgrades();
-					if (upgrades.empty())
-						test = test; //+ ";";
-					else
+					//if (upgrades.empty())
+					//	test = test; //+ ";";
+					//else
+					//{
+					//	test = test + ",";
+					//	for (const auto& upgrade : upgrades)
+					//	{
+					//		test = test + UpgradeIDToName(upgrade) + ",";
+					//	}
+					//}
+					if (!upgrades.empty())
 					{
-						test = test + ",";
 						for (const auto& upgrade : upgrades)
+							test = test + "," + UpgradeIDToName(upgrade);
+					}
+
+					if (!known_units.empty())
+					{
+						test += ";";
+						terminate = -1, terminated = known_units.size();
+						for (const auto& unit : known_units)
 						{
-							test = test + UpgradeIDToName(upgrade) + ",";
+							test += (std::to_string(unit->tag) + "," + UnitTypeToName(unit->unit_type) + "," + std::to_string(unit->pos.x) + "," + std::to_string(unit->pos.y) + ((++terminate < terminated) ? "$" : ""));
 						}
 					}
-					if (known_units.empty())
+					
+
+					/*if (known_units.empty())
 					{
 						std::cout << test << std::endl;
 						return test;
@@ -1698,12 +1717,12 @@ namespace KoKeKoKo
 					{
 						for (const auto& unit : known_units)
 						{
-							test = test + std::to_string(unit->tag) + "," + std::string(UnitTypeToName(unit->unit_type)) + "," + std::to_string(unit->pos.x) + "," + std::to_string(unit->pos.y) + "$";
+							test = test + std::to_string(unit->tag) + "," + UnitTypeToName(unit->unit_type) + "," + std::to_string(unit->pos.x) + "," + std::to_string(unit->pos.y) + "$";
 						}
 						test.pop_back();
 						std::cout << test << std::endl;
 						return test;
-					}
+					}*/
 
 				}
 				KoKeKoKoBot()
@@ -1769,6 +1788,27 @@ namespace KoKeKoKo
 				virtual void OnStep() final
 				{
 					ManageWorkers();
+					//If there is action available
+					/*if (!_currentaction.empty())
+					////If there is action available
+					//if (!_currentaction.empty())
+					//{
+					//	ExecuteAbility(_currentaction);
+					//	_currentaction = "";
+					//}
+					//else
+					//	_currentaction = GetAnActionFromMessage();
+					//	
+					//std::cout << _currentaction << std::endl;
+					auto service = Services::ModelService::CreateNewModelService();
+					if (_actions.empty() || !service->ShouldOperationsContinue())
+					{
+						_actions = service->UpdateModelService("UPDATE");
+					}
+					else
+						_currentaction = GetAnActionFromMessage();
+						
+					std::cout << _currentaction << std::endl;*/
 					/*
 					if (CountOf(UNIT_TYPEID::TERRAN_COMMANDCENTER) < 2 && CountOf(UNIT_TYPEID::TERRAN_ORBITALCOMMAND) < 1)
 					{
@@ -1811,15 +1851,14 @@ namespace KoKeKoKo
 						Scout();
 						scout = false;
 					}
-					if (Observation()->GetGameLoop() % 224 == 0)
+					/*if (Observation()->GetGameLoop() % 500 == 0)
 					{
 						for (const auto& unit : known_units)
 						{
-							std::cout << unit->tag << " " << UnitTypeToName(unit->unit_type) << std::endl;
+							std::cout << unit->tag << " " << unit->unit_type.to_string() << std::endl;
 						}
-						std::cout << std::endl;
-					}
-					/*auto service = Services::ModelService::CreateNewModelService();
+					}*/
+					auto service = Services::ModelService::CreateNewModelService();
 					if (_actions.empty() || !service->ShouldOperationsContinue())
 					{
 						_actions = service->UpdateModelService(GenerateUpdateString());
@@ -1838,7 +1877,7 @@ namespace KoKeKoKo
 						_currentaction = _actions.front();
 						_actions.pop();
 						std::cout << _currentaction << std::endl;
-					}*/
+					}
 
 					/*while (!ExecuteAbility(_currentaction))
 					Coordinator().SetStepSize(0);*/
@@ -1886,12 +1925,12 @@ namespace KoKeKoKo
 					if(unit->alliance == Unit::Alliance::Enemy && !isStructure && unit->last_seen_game_loop != NULL)
 						known_units.insert(known_units.end(), unit);*/
 					Units enemy_units = Observation()->GetUnits(Unit::Alliance::Enemy);
-					for (const auto& unit : enemy_units)
+					/*for (const auto& unit : enemy_units)
 					{
 						if(unit->last_seen_game_loop != NULL)
 							known_units.insert(known_units.end(), unit);
-					}
-					//known_units = 
+					}*/
+					known_units = enemy_units;
 				}
 
 				//A helper function that finds a nearest entity from a position
@@ -2351,30 +2390,37 @@ int main(int argc, char* argv[])
 		KoKeKoKo::Agent::KoKeKoKoBot* kokekokobot = new KoKeKoKo::Agent::KoKeKoKoBot();
 		Services::ModelService* modelservice = Services::ModelService::CreateNewModelService();
 
-		/*auto trash = modelservice->UpdateModelService("INITIALIZE;BRONZE;1;4330881025,TERRAN_COMMANDCENTER,114.500000,25.500000$4333502465,TERRAN_SCV,117.500000,27.500000$4331929601,TERRAN_SCV,117.500000,24.500000$4331143169,TERRAN_SCV,117.500000,22.500000$4332191745,TERRAN_SCV,115.500000,22.500000$4331405313,TERRAN_SCV,117.500000,23.500000$4331667457,TERRAN_SCV,116.500000,22.500000$4333764609,TERRAN_SCV,112.500000,22.500000$4334026753,TERRAN_SCV,117.500000,28.500000$4333240321,TERRAN_SCV,113.500000,22.500000$4332978177,TERRAN_SCV,117.500000,26.500000$4332716033,TERRAN_SCV,114.500000,22.500000$4332453889,TERRAN_SCV,117.500000,25.500000");
-		auto reply = modelservice->UpdateModelService("UPDATE;0.000000;4330881025,TERRAN_COMMANDCENTER,114.500000,25.500000$4333502465,TERRAN_SCV,117.500000,27.500000$4331929601,TERRAN_SCV,117.500000,24.500000$4331143169,TERRAN_SCV,117.500000,22.500000$4332191745,TERRAN_SCV,115.500000,22.500000$4331405313,TERRAN_SCV,117.500000,23.500000$4331667457,TERRAN_SCV,116.500000,22.500000$4333764609,TERRAN_SCV,112.500000,22.500000$4334026753,TERRAN_SCV,117.500000,28.500000$4333240321,TERRAN_SCV,113.500000,22.500000$4332978177,TERRAN_SCV,117.500000,26.500000$4332716033,TERRAN_SCV,114.500000,22.500000$4332453889,TERRAN_SCV,117.500000,25.500000;50,0,15,12");
-		for (int counter = 0; counter < 1000; counter++)
-		{
-			if (!reply.empty())
-			{
-				std::cout << "Current Action: " << reply.front() << std::endl;
-				reply.pop();
-			}
+		//auto trash = modelservice->UpdateModelService("INITIALIZE;BRONZE;1;4333502465,TERRAN_SCV,117.500000,27.500000$4331929601,TERRAN_SCV,117.500000,24.500000$4331667457,TERRAN_SCV,116.500000,22.500000$4332191745,TERRAN_SCV,115.500000,22.500000$4330881025,TERRAN_COMMANDCENTER,114.500000,25.500000$4331143169,TERRAN_SCV,117.500000,22.500000$4331405313,TERRAN_SCV,117.500000,23.500000$4332716033,TERRAN_SCV,114.500000,22.500000$4334026753,TERRAN_SCV,117.500000,28.500000$4333764609,TERRAN_SCV,112.500000,22.500000$4333240321,TERRAN_SCV,113.500000,22.500000$4332978177,TERRAN_SCV,117.500000,26.500000$4332453889,TERRAN_SCV,117.500000,25.500000");
+		//auto reply = modelservice->UpdateModelService("UPDATE;0.000000;4333502465,TERRAN_SCV,117.500000,27.500000$4331929601,TERRAN_SCV,117.500000,24.500000$4331667457,TERRAN_SCV,116.500000,22.500000$4332191745, TERRAN_SCV, 115.500000, 22.500000$4330881025, TERRAN_COMMANDCENTER, 114.500000, 25.500000$4331143169, TERRAN_SCV, 117.500000, 22.500000$4331405313, TERRAN_SCV, 117.500000, 23.500000$4332716033, TERRAN_SCV, 114.500000, 22.500000$4334026753, TERRAN_SCV, 117.500000, 28.500000$4333764609, TERRAN_SCV, 112.500000, 22.500000$4333240321, TERRAN_SCV, 113.500000, 22.500000$4332978177, TERRAN_SCV, 117.500000, 26.500000$4332453889, TERRAN_SCV, 117.500000, 25.500000; 50, 0, 15, 12");
+		////auto reply2 = modelservice->UpdateModelService("UPDATE;0.178571;4333502465,TERRAN_SCV,117.529297,27.407227$4331929601,TERRAN_SCV,117.548828,24.417969$4331667457,TERRAN_SCV,116.583008,22.452881$4332191745,TERRAN_SCV,115.587891,22.460938$4331405313,TERRAN_SCV,117.561035,23.426758$4332716033,TERRAN_SCV,114.590332,22.467529$4332978177,TERRAN_SCV,117.534180,26.409668$4333240321,TERRAN_SCV,113.592285,22.472168$4331143169,TERRAN_SCV,117.574707,22.440674$4334026753,TERRAN_SCV,117.525635,28.407227$4330881025,TERRAN_COMMANDCENTER,114.500000,25.500000$4332453889,TERRAN_SCV,117.540039,25.413330$4333764609,TERRAN_SCV,112.433594,22.538086;50,0,15,12");
+		//auto reply2 = modelservice->UpdateModelService("UPDATE;0.000000;4333502465,TERRAN_SCV,26.500000,132.500000$4331667457,TERRAN_SCV,27.500000,137.500000$4331929601,TERRAN_SCV,26.500000,135.500000$4332191745,TERRAN_SCV,28.500000,137.500000$4330881025,TERRAN_COMMANDCENTER,29.500000,134.500000$4332453889,TERRAN_SCV,26.500000,134.500000$4332716033,TERRAN_SCV,29.500000,137.500000$4334026753,TERRAN_SCV,26.500000,131.500000$4333764609,TERRAN_SCV,31.500000,137.500000$4333240321,TERRAN_SCV,30.500000,137.500000$4332978177,TERRAN_SCV,26.500000,133.500000$4331405313,TERRAN_SCV,26.500000,136.500000$4331143169,TERRAN_SCV,26.500000,137.500000;50,0,15,12;");
+		////auto reply3 = modelservice->UpdateModelService("UPDATE;0.357143;4333502465,TERRAN_SCV,117.606201,27.168457$4331929601,TERRAN_SCV,117.675781,24.204102$4331667457,TERRAN_SCV,116.798828,22.330078$4332191745,TERRAN_SCV,115.816406,22.359375$4332978177,TERRAN_SCV,117.623047,26.176270$4332716033,TERRAN_SCV,114.824463,22.383545$4334026753,TERRAN_SCV,117.593506,28.166016$4332453889,TERRAN_SCV,117.645264,25.187500$4333764609,TERRAN_SCV,112.214355,22.655518$4331143169,TERRAN_SCV,117.769287,22.285156$4331405313,TERRAN_SCV,117.719727,23.236328$4333240321,TERRAN_SCV,113.832031,22.398926$4330881025,TERRAN_COMMANDCENTER,114.500000,25.500000;50,0,15,12");
+		//auto reply3 = modelservice->UpdateModelService("UPDATE;12.276786;4333502465,TERRAN_SCV,24.850830,137.475830$4331667457,TERRAN_SCV,24.991455,137.302246$4331929601,TERRAN_SCV,62.431152,118.181396$4332191745,TERRAN_SCV,27.337158,139.648193$4331143169,TERRAN_SCV,24.959961,138.628174$4332978177,TERRAN_SCV,29.632813,137.344238$4331405313,TERRAN_SCV,24.374512,136.118164$4332453889,TERRAN_SCV,23.692627,135.552246$4330881025,TERRAN_COMMANDCENTER,29.500000,134.500000$4337696769,TERRAN_SCV,27.334473,136.447266$4333764609,TERRAN_SCV,27.287598,136.567871$4332716033,TERRAN_SCV,28.985352,137.447510$4334026753,TERRAN_SCV,24.963623,136.077148$4333240321,TERRAN_SCV,26.071777,134.062256;25,0,15,13;");
+		////auto reply4 = modelservice->UpdateModelService("UPDATE;24.687500;4333502465,TERRAN_SCV,119.745605,22.269531$4331929601,TERRAN_SCV,119.650879,23.916016$4331667457,TERRAN_SCV,116.367188,21.016602$4332191745,TERRAN_SCV,115.566162,19.329346$4332453889,TERRAN_SCV,117.425049,25.103027$4337696769,TERRAN_SCV,117.026611,23.959229$4338483201,TERRAN_SCV,117.390381,24.464844$4331405313,TERRAN_SCV,119.754395,22.265869$4333240321,TERRAN_SCV,119.642822,26.289551$4332716033,TERRAN_SCV,114.079102,20.420898$4334026753,TERRAN_SCV,116.650879,20.335693$4331143169,TERRAN_SCV,119.042969,21.370117$4330881025,TERRAN_COMMANDCENTER,114.500000,25.500000$4332978177,TERRAN_SCV,117.816650,22.483643$4333764609,TERRAN_SCV,52.738770,86.368408;125,0,15,14");
+		////auto reply5 = modelservice->UpdateModelService("UPDATE;48.616071;4333502465,TERRAN_SCV,119.232422,22.610596$4331929601,TERRAN_SCV,119.629150,24.948975$4332191745,TERRAN_SCV,115.712646,20.219238$4332716033,TERRAN_SCV,114.154297,21.368408$4333764609,TERRAN_SCV,49.269775,127.868652$4330881025,TERRAN_COMMANDCENTER,114.500000,25.500000$4334026753,TERRAN_SCV,116.650879,20.335693$4337696769,TERRAN_SCV,118.069580,23.303223$4339269633,TERRAN_SCV,116.658203,23.551514$4339007489,TERRAN_REFINERY,121.500000,29.500000$4332453889,TERRAN_SCV,120.630615,24.685303$4332978177,TERRAN_SCV,119.044189,21.369385$4331667457,TERRAN_SCV,116.600586,20.340088$4331405313,TERRAN_SCV,119.752441,22.268066$4331143169,TERRAN_SCV,119.043457,21.370117$4333240321,TERRAN_SCV,119.642822,26.289551;240,0,15,148797356056,TERRAN_REFINERY,22.500000,130.500000$4335861761,TERRAN_SCV,29.809082,138.215332$4335337473,TERRAN_SCV,35.995361,135.128662$4338221057,TERRAN_SUPPLYDEPOTLOWERED,28.000000,130.000000$4334288897,TERRAN_COMMANDCENTER,29.500000,134.500000$4339793921,TERRAN_BARRACKS,37.500000,134.500000");
+		////auto reply6 = modelservice->UpdateModelService("UPDATE;48.794643;4333502465,TERRAN_SCV,118.682129,22.237305$4331929601,TERRAN_SCV,119.628662,25.593506$4332191745,TERRAN_SCV,116.001709,20.740723$4332453889,TERRAN_SCV,120.630615,24.685303$4333240321,TERRAN_SCV,119.642822,26.289551$4331667457,TERRAN_SCV,116.386719,20.341064$4339007489,TERRAN_REFINERY,121.500000,29.500000$4332978177,TERRAN_SCV,119.044189,21.369385$4333764609,TERRAN_SCV,49.935059,127.644287$4334026753,TERRAN_SCV,116.650879,20.335693$4330881025,TERRAN_COMMANDCENTER,114.500000,25.500000$4332716033,TERRAN_SCV,114.201416,21.942383$4337696769,TERRAN_SCV,117.587402,23.599609$4339269633,TERRAN_SCV,116.658691,23.550537$4331143169,TERRAN_SCV,119.043457,21.370117$4331405313,TERRAN_SCV,119.752441,22.268066;245,0,15,148797356056,TERRAN_REFINERY,22.500000,130.500000$4335861761,TERRAN_SCV,29.809082,138.215332$4335337473,TERRAN_SCV,35.995361,135.128662$4338221057,TERRAN_SUPPLYDEPOTLOWERED,28.000000,130.000000$4334288897,TERRAN_COMMANDCENTER,29.500000,134.500000$4339793921,TERRAN_BARRACKS,37.500000,134.500000");
+		//for (int counter = 0; counter < 1000; counter++)
+		//{
+		//	if (!reply.empty())
+		//	{
+		//		std::cout << "Current Action: " << reply.front() << std::endl;
+		//		reply.pop();
+		//	}
 
 
-			if (!modelservice->ShouldOperationsContinue())
-				reply = modelservice->UpdateModelService("UPDATE;0.000000;4330881025,TERRAN_COMMANDCENTER,114.500000,25.500000$4333502465,TERRAN_SCV,117.500000,27.500000$4331929601,TERRAN_SCV,117.500000,24.500000$4331143169,TERRAN_SCV,117.500000,22.500000$4332191745,TERRAN_SCV,115.500000,22.500000$4331405313,TERRAN_SCV,117.500000,23.500000$4331667457,TERRAN_SCV,116.500000,22.500000$4333764609,TERRAN_SCV,112.500000,22.500000$4334026753,TERRAN_SCV,117.500000,28.500000$4333240321,TERRAN_SCV,113.500000,22.500000$4332978177,TERRAN_SCV,117.500000,26.500000$4332716033,TERRAN_SCV,114.500000,22.500000$4332453889,TERRAN_SCV,117.500000,25.500000;50,0,15,12");
-			else
-				std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-		}
+		//	if (!modelservice->ShouldOperationsContinue())
+		//		reply = modelservice->UpdateModelService("UPDATE;0.000000;4330881025,TERRAN_COMMANDCENTER,114.500000,25.500000$4333502465,TERRAN_SCV,117.500000,27.500000$4331929601,TERRAN_SCV,117.500000,24.500000$4331143169,TERRAN_SCV,117.500000,22.500000$4332191745,TERRAN_SCV,115.500000,22.500000$4331405313,TERRAN_SCV,117.500000,23.500000$4331667457,TERRAN_SCV,116.500000,22.500000$4333764609,TERRAN_SCV,112.500000,22.500000$4334026753,TERRAN_SCV,117.500000,28.500000$4333240321,TERRAN_SCV,113.500000,22.500000$4332978177,TERRAN_SCV,117.500000,26.500000$4332716033,TERRAN_SCV,114.500000,22.500000$4332453889,TERRAN_SCV,117.500000,25.500000;50,0,15,12");
+		//	else
+		//		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+		//}
 
-		modelservice->StopModelService();
-		char c;
-		std::cin >> c;*/
-		//coordinator.SetMultithreaded(true);
-		coordinator.SetStepSize(1);
+		//modelservice->StopModelService();
+		//char c;
+		//std::cin >> c;
+		coordinator.SetMultithreaded(true);
 		coordinator.LoadSettings(argc, argv);
 		coordinator.SetParticipants({ sc2::CreateParticipant(sc2::Race::Terran, kokekokobot), sc2::CreateComputer(sc2::Race::Terran, sc2::Difficulty::VeryEasy) });
+		//coordinator.SetStepSize(22);
 		coordinator.LaunchStarcraft();
 		coordinator.StartGame(sc2::kMapBelShirVestigeLE);
 		while (coordinator.Update());

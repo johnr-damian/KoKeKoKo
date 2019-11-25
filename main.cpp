@@ -1662,7 +1662,7 @@ namespace KoKeKoKo
 					Units units = Observation()->GetUnits(Unit::Alliance::Self);
 					for (const auto& unit : units)
 					{
-						test = test + std::to_string(unit->tag) + "," + UnitTypeToName(unit->unit_type) + "," + std::to_string(unit->pos.x) +  "," + std::to_string(unit->pos.y) + "$";
+						test = test + std::to_string(unit->tag) + "," + std::string(UnitTypeToName(unit->unit_type)) + "," + std::to_string(unit->pos.x) +  "," + std::to_string(unit->pos.y) + "$";
 					}
 					test.pop_back();
 					std::cout << test << std::endl;
@@ -1674,7 +1674,7 @@ namespace KoKeKoKo
 					Units units = Observation()->GetUnits(Unit::Alliance::Self);
 					for (const auto& unit : units)
 					{
-						test = test + std::to_string(unit->tag) + "," + UnitTypeToName(unit->unit_type) + "," + std::to_string(unit->pos.x) + "," + std::to_string(unit->pos.y) + "$";
+						test = test + std::to_string(unit->tag) + "," + std::string(UnitTypeToName(unit->unit_type)) + "," + std::to_string(unit->pos.x) + "," + std::to_string(unit->pos.y) + "$";
 					}
 					test.pop_back();
 					test = test + ";" + std::to_string(Observation()->GetMinerals()) + "," + std::to_string(Observation()->GetVespene()) + "," + std::to_string(Observation()->GetFoodCap()) + "," + std::to_string(CountOf(UNIT_TYPEID::TERRAN_SCV));
@@ -1698,7 +1698,7 @@ namespace KoKeKoKo
 					{
 						for (const auto& unit : known_units)
 						{
-							test = test + std::to_string(unit->tag) + "," + UnitTypeToName(unit->unit_type) + "," + std::to_string(unit->pos.x) + "," + std::to_string(unit->pos.y) + "$";
+							test = test + std::to_string(unit->tag) + "," + std::string(UnitTypeToName(unit->unit_type)) + "," + std::to_string(unit->pos.x) + "," + std::to_string(unit->pos.y) + "$";
 						}
 						test.pop_back();
 						std::cout << test << std::endl;
@@ -1769,27 +1769,6 @@ namespace KoKeKoKo
 				virtual void OnStep() final
 				{
 					ManageWorkers();
-					//If there is action available
-					/*if (!_currentaction.empty())
-					////If there is action available
-					//if (!_currentaction.empty())
-					//{
-					//	ExecuteAbility(_currentaction);
-					//	_currentaction = "";
-					//}
-					//else
-					//	_currentaction = GetAnActionFromMessage();
-					//	
-					//std::cout << _currentaction << std::endl;
-					auto service = Services::ModelService::CreateNewModelService();
-					if (_actions.empty() || !service->ShouldOperationsContinue())
-					{
-						_actions = service->UpdateModelService("UPDATE");
-					}
-					else
-						_currentaction = GetAnActionFromMessage();
-						
-					std::cout << _currentaction << std::endl;*/
 					/*
 					if (CountOf(UNIT_TYPEID::TERRAN_COMMANDCENTER) < 2 && CountOf(UNIT_TYPEID::TERRAN_ORBITALCOMMAND) < 1)
 					{
@@ -1832,14 +1811,15 @@ namespace KoKeKoKo
 						Scout();
 						scout = false;
 					}
-					/*if (Observation()->GetGameLoop() % 500 == 0)
+					if (Observation()->GetGameLoop() % 224 == 0)
 					{
 						for (const auto& unit : known_units)
 						{
-							std::cout << unit->tag << " " << unit->unit_type.to_string() << std::endl;
+							std::cout << unit->tag << " " << UnitTypeToName(unit->unit_type) << std::endl;
 						}
-					}*/
-					auto service = Services::ModelService::CreateNewModelService();
+						std::cout << std::endl;
+					}
+					/*auto service = Services::ModelService::CreateNewModelService();
 					if (_actions.empty() || !service->ShouldOperationsContinue())
 					{
 						_actions = service->UpdateModelService(GenerateUpdateString());
@@ -1858,7 +1838,7 @@ namespace KoKeKoKo
 						_currentaction = _actions.front();
 						_actions.pop();
 						std::cout << _currentaction << std::endl;
-					}
+					}*/
 
 					/*while (!ExecuteAbility(_currentaction))
 					Coordinator().SetStepSize(0);*/
@@ -1906,12 +1886,12 @@ namespace KoKeKoKo
 					if(unit->alliance == Unit::Alliance::Enemy && !isStructure && unit->last_seen_game_loop != NULL)
 						known_units.insert(known_units.end(), unit);*/
 					Units enemy_units = Observation()->GetUnits(Unit::Alliance::Enemy);
-					/*for (const auto& unit : enemy_units)
+					for (const auto& unit : enemy_units)
 					{
 						if(unit->last_seen_game_loop != NULL)
 							known_units.insert(known_units.end(), unit);
-					}*/
-					known_units = enemy_units;
+					}
+					//known_units = 
 				}
 
 				//A helper function that finds a nearest entity from a position
@@ -2392,9 +2372,9 @@ int main(int argc, char* argv[])
 		char c;
 		std::cin >> c;*/
 		//coordinator.SetMultithreaded(true);
+		coordinator.SetStepSize(1);
 		coordinator.LoadSettings(argc, argv);
 		coordinator.SetParticipants({ sc2::CreateParticipant(sc2::Race::Terran, kokekokobot), sc2::CreateComputer(sc2::Race::Terran, sc2::Difficulty::VeryEasy) });
-		//coordinator.SetStepSize(22);
 		coordinator.LaunchStarcraft();
 		coordinator.StartGame(sc2::kMapBelShirVestigeLE);
 		while (coordinator.Update());

@@ -409,9 +409,25 @@ namespace ModelService
             Name = unit_name;
         }
 
-        public SimulatedUnit(string[] unit_details)
+        public SimulatedUnit(string[] unit_details, IEnumerable<string> upgrades)
         {
+            Current_Target = -1;
+            Targets = new List<SimulatedUnit>();
 
+            if (unit_details.Length > 0)
+            {
+                Health = Definitions[unit_details[1]].Health;
+                Energy = Definitions[unit_details[1]].Energy;
+                Armor = Definitions[unit_details[1]].Armor;
+                Air_Damage = Definitions[unit_details[1]].Air_Damage;
+                Ground_Damage = Definitions[unit_details[1]].Ground_Damage;
+                Upgrades = new List<string>(upgrades);
+                Skills = new List<Tuple<string, DateTime>>();
+                UniqueID = unit_details[0];
+                Name = unit_details[1];
+            }
+            else
+                throw new Exception("Failed to parse unit...");
         }
 
         public void ApplyChosenAction(string chosen_action)

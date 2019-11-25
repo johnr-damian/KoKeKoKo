@@ -2197,39 +2197,6 @@ namespace KoKeKoKo
 					}
 					else
 						return true;
-				}
-
-				//Starts to check if there is a message and sends updates to model service
-				void StartSendingUpdatesToModelService()
-				{
-					StopSendingUpdatesToModelService();
-
-					_shouldkeepupdating = true;
-					auto getmessagefrommodelservice = new std::thread(&KoKeKoKo::Agent::KoKeKoKoBot::GetMessageFromModelService, this);
-					_threads.insert(std::make_pair("GetMessageFromModelService", getmessagefrommodelservice));
-					auto sendupdatestomodelservice = new std::thread(&KoKeKoKo::Agent::KoKeKoKoBot::SendUpdatesToModelService, this);
-					_threads.insert(std::make_pair("SendUpdatesToModelService", sendupdatestomodelservice));
-				}
-
-				//Stops checking messages and sending updates to model service
-				void StopSendingUpdatesToModelService()
-				{
-					_shouldkeepupdating = false;
-
-					if (_threads.find("GetMessageFromModelService") != _threads.end())
-					{
-						if (_threads["GetMessageFromModelService"]->joinable())
-							_threads["GetMessageFromModelService"]->join();
-
-						_threads.erase("GetMessageFromModelService");
-					}
-					if (_threads.find("SendUpdatesToModelService") != _threads.end())
-					{
-						if (_threads["SendUpdatesToModelService"]->joinable())
-							_threads["SendUpdatesToModelService"]->join();
-
-						_threads.erase("SendUpdatesToModelService");
-					}
 				}				
 		};
 	}
@@ -2369,7 +2336,8 @@ int main(int argc, char* argv[])
 		KoKeKoKo::Agent::KoKeKoKoBot* kokekokobot = new KoKeKoKo::Agent::KoKeKoKoBot();
 		Services::ModelService* modelservice = Services::ModelService::CreateNewModelService();
 
-		/*auto reply = modelservice->UpdateModelService("UPDATE");
+		/*auto trash = modelservice->UpdateModelService("INITIALIZE;BRONZE;1;4330881025,TERRAN_COMMANDCENTER,114.500000,25.500000$4333502465,TERRAN_SCV,117.500000,27.500000$4331929601,TERRAN_SCV,117.500000,24.500000$4331143169,TERRAN_SCV,117.500000,22.500000$4332191745,TERRAN_SCV,115.500000,22.500000$4331405313,TERRAN_SCV,117.500000,23.500000$4331667457,TERRAN_SCV,116.500000,22.500000$4333764609,TERRAN_SCV,112.500000,22.500000$4334026753,TERRAN_SCV,117.500000,28.500000$4333240321,TERRAN_SCV,113.500000,22.500000$4332978177,TERRAN_SCV,117.500000,26.500000$4332716033,TERRAN_SCV,114.500000,22.500000$4332453889,TERRAN_SCV,117.500000,25.500000");
+		auto reply = modelservice->UpdateModelService("UPDATE;0.000000;4330881025,TERRAN_COMMANDCENTER,114.500000,25.500000$4333502465,TERRAN_SCV,117.500000,27.500000$4331929601,TERRAN_SCV,117.500000,24.500000$4331143169,TERRAN_SCV,117.500000,22.500000$4332191745,TERRAN_SCV,115.500000,22.500000$4331405313,TERRAN_SCV,117.500000,23.500000$4331667457,TERRAN_SCV,116.500000,22.500000$4333764609,TERRAN_SCV,112.500000,22.500000$4334026753,TERRAN_SCV,117.500000,28.500000$4333240321,TERRAN_SCV,113.500000,22.500000$4332978177,TERRAN_SCV,117.500000,26.500000$4332716033,TERRAN_SCV,114.500000,22.500000$4332453889,TERRAN_SCV,117.500000,25.500000;50,0,15,12");
 		for (int counter = 0; counter < 1000; counter++)
 		{
 			if (!reply.empty())
@@ -2380,7 +2348,7 @@ int main(int argc, char* argv[])
 
 
 			if (!modelservice->ShouldOperationsContinue())
-				reply = modelservice->UpdateModelService("UPDATE");
+				reply = modelservice->UpdateModelService("UPDATE;0.000000;4330881025,TERRAN_COMMANDCENTER,114.500000,25.500000$4333502465,TERRAN_SCV,117.500000,27.500000$4331929601,TERRAN_SCV,117.500000,24.500000$4331143169,TERRAN_SCV,117.500000,22.500000$4332191745,TERRAN_SCV,115.500000,22.500000$4331405313,TERRAN_SCV,117.500000,23.500000$4331667457,TERRAN_SCV,116.500000,22.500000$4333764609,TERRAN_SCV,112.500000,22.500000$4334026753,TERRAN_SCV,117.500000,28.500000$4333240321,TERRAN_SCV,113.500000,22.500000$4332978177,TERRAN_SCV,117.500000,26.500000$4332716033,TERRAN_SCV,114.500000,22.500000$4332453889,TERRAN_SCV,117.500000,25.500000;50,0,15,12");
 			else
 				std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 		}

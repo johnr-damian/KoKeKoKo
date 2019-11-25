@@ -119,6 +119,27 @@ namespace Services
             foreach (var triangular_random in triangular_randoms)
                 yield return triangular_random;
         } 
+
+        /// <summary>
+        /// Shuffles the list of elements using Fished yacht something algorithm
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="elements"></param>
+        /// <returns></returns>
+        public IEnumerable<T> GetRandomElement<T>(IEnumerable<T> elements)
+        {
+            var shuffled_elements = elements.ToArray();
+            for(int shuffler = 0; shuffler < shuffled_elements.Length; shuffler++)
+            {
+                int chosen_index = RandomService.Next(0, (shuffled_elements.Length - shuffler));
+                var shuffled_element = shuffled_elements[chosen_index];
+
+                shuffled_elements[chosen_index] = shuffled_elements[shuffler];
+                shuffled_elements[shuffler] = shuffled_element;
+            }
+
+            return shuffled_elements;
+        }
         #endregion
 
         /// <summary>

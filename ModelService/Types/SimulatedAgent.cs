@@ -369,6 +369,9 @@ namespace ModelService
                     new_unit_cost = (double[])new_unit;
                     break;
                 default:
+
+                    //Sets the default action
+                    chosen_action = "HARVEST_RETURN";
                     break;
             }
 

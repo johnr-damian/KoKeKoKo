@@ -1723,6 +1723,8 @@ namespace KoKeKoKo
 						std::cout << test << std::endl;
 						return test;
 					}*/
+					std::cout << test << std::endl;
+					return test;
 
 				}
 				KoKeKoKoBot()
@@ -1857,7 +1859,8 @@ namespace KoKeKoKo
 						{
 							std::cout << unit->tag << " " << unit->unit_type.to_string() << std::endl;
 						}
-					}*/
+						std::cout << std::endl;
+					}/**/
 					auto service = Services::ModelService::CreateNewModelService();
 					if (_actions.empty() || !service->ShouldOperationsContinue())
 					{
@@ -1925,12 +1928,11 @@ namespace KoKeKoKo
 					if(unit->alliance == Unit::Alliance::Enemy && !isStructure && unit->last_seen_game_loop != NULL)
 						known_units.insert(known_units.end(), unit);*/
 					Units enemy_units = Observation()->GetUnits(Unit::Alliance::Enemy);
-					/*for (const auto& unit : enemy_units)
+					for (const auto& unit : enemy_units)
 					{
-						if(unit->last_seen_game_loop != NULL)
+						if(std::count(known_units.begin(), known_units.end(), unit) < 1)
 							known_units.insert(known_units.end(), unit);
-					}*/
-					known_units = enemy_units;
+					}
 				}
 
 				//A helper function that finds a nearest entity from a position

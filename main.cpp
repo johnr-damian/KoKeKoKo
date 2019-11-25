@@ -474,12 +474,14 @@ namespace KoKeKoKo
 							}
 						}
 					}
-
-					target = GetRandomEntry(units);
-					if (target != nullptr)
+					if (!units.empty())
 					{
-						Actions()->UnitCommand(target, action);
-						return true;
+						target = GetRandomEntry(units);
+						if (target != nullptr)
+						{
+							Actions()->UnitCommand(target, action);
+							return true;
+						}
 					}
 					return false;
 				}
@@ -503,12 +505,14 @@ namespace KoKeKoKo
 						}
 					}
 
-					//target = units.front();
-					target = GetRandomEntry(units);
-					if (target != nullptr)
+					if (!units.empty())
 					{
-						Actions()->UnitCommand(target, action);
-						return true;
+						target = GetRandomEntry(units);
+						if (target != nullptr)
+						{
+							Actions()->UnitCommand(target, action);
+							return true;
+						}
 					}
 					return false;
 
@@ -1839,6 +1843,13 @@ namespace KoKeKoKo
 					if (_actions.empty() || !service->ShouldOperationsContinue())
 					{
 						_actions = service->UpdateModelService(GenerateUpdateString());
+						std::istringstream raw_actions(_actions.front());
+						std::string raw_action = "";
+						while (std::getline(raw_actions, raw_action, ','))
+							_actions.push(raw_action);
+						_currentaction = _actions.front();
+						_actions.pop();
+						//while(Coordinator().Update());
 					}
 
 					//Do the current action

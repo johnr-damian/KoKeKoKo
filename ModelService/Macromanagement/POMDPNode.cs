@@ -182,6 +182,8 @@ namespace ModelService.Macromanagement
             var test = computationservice.RService.Evaluate($@"solution(POMDPPROBLEMSOLUTION)").AsCharacter();
             foreach (var t in test)
                 Console.WriteLine(t);
+
+            Console.ReadLine();
         }
     }
 }

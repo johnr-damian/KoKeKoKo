@@ -161,5 +161,7 @@ namespace Services
         /// <param name="results"></param>
         /// <returns></returns>
         public double ComputeStandardDeviation(IEnumerable<double> results) => Math.Sqrt(ComputeVariance(results));
+
+        public IEnumerable<double> ComputeEuclideanMetric(string origin)
     }
 }

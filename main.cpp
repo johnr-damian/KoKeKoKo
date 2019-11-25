@@ -1707,7 +1707,8 @@ namespace KoKeKoKo
 						}
 					}
 					
-
+					std::cout << "From GenerateUpdateString: " << test << std::endl;
+					return test;
 					/*if (known_units.empty())
 					{
 						std::cout << test << std::endl;

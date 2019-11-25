@@ -1216,7 +1216,15 @@ namespace ModelService
 
             //Update the resources
             var resources = macromanagement.Single().Split(',');
-            Resources = new Worth(Convert.ToDouble(resources[0]), Convert.ToDouble(resources[1]), Convert.ToInt32(resources[2]), Convert.ToInt32(resources[3]), resources.Skip(4).Count());
+            try
+            {
+                Resources = new Worth(Convert.ToDouble(resources[0]), Convert.ToDouble(resources[1]), Convert.ToInt32(resources[2]), Convert.ToInt32(resources[3]), resources.Skip(4).Count());
+            }
+            catch (OverflowException ex)
+            {
+                System.Diagnostics.Debugger.Break();
+                Console.WriteLine($@"(C#)Error Occurred! {ex.Message}");
+            }
         } 
         #endregion
 

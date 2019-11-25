@@ -418,15 +418,24 @@ namespace ModelService
 
             if (unit_details.Length > 0)
             {
-                Health = Definitions[unit_details[1]].Health;
-                Energy = Definitions[unit_details[1]].Energy;
-                Armor = Definitions[unit_details[1]].Armor;
-                Air_Damage = Definitions[unit_details[1]].Air_Damage;
-                Ground_Damage = Definitions[unit_details[1]].Ground_Damage;
-                Upgrades = new List<string>(upgrades);
-                Skills = new List<Tuple<string, DateTime>>();
-                UniqueID = unit_details[0];
-                Name = unit_details[1];
+                try
+                {
+                    UniqueID = unit_details[0].Trim();
+                    Name = unit_details[1].Trim();
+                    Health = Definitions[Name].Health;
+                    Energy = Definitions[Name].Energy;
+                    Armor = Definitions[Name].Armor;
+                    Air_Damage = Definitions[Name].Air_Damage;
+                    Ground_Damage = Definitions[Name].Ground_Damage;
+                    Upgrades = new List<string>(upgrades);
+                    Skills = new List<Tuple<string, DateTime>>();                   
+                    
+                }
+                catch (KeyNotFoundException ex)
+                {
+                    System.Diagnostics.Debugger.Break();
+                    Console.WriteLine($@"(C#)Error Occurred! {ex.Message}");
+                }
             }
             else
                 throw new Exception("Failed to parse unit...");

@@ -206,9 +206,9 @@ namespace ModelService.Services
 
                     REngine.Evaluate($@"boxplotdata <- data.frame({dataframe})");
 #if DEBUG
-                    REngine.Evaluate($@"png('D:\\Training{filename}.png')");
+                    REngine.Evaluate($@"png('MicromanagementTraining{filename}.png')");
 #elif TRACE
-                    REngine.Evaluate($@"png('D:\\Testing{filename}.png')");
+                    REngine.Evaluate($@"png('MicromanagementTesting{filename}.png')");
 #endif
                     REngine.Evaluate($@"boxplot(boxplotdata, main=""Battle Prediction Accuracy"", xlab=""Prediction Algorithms"", ylab=""Jaccard Similarity"", col=""lightblue"", border=""blue"", notch=TRUE, range=0, horizontal=TRUE)");
                     REngine.Evaluate($@"dev.off()");

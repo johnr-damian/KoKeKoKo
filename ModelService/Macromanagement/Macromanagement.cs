@@ -149,8 +149,9 @@ namespace ModelService.Macromanagement
             var information = new List<string>();
             var agentservice = AgentService.CreateNewAgentService();
             string message = agentservice.UpdateAgentService(maximum_time);
+            int necessary_count = (format == "R")? Source[1].Length : Source[2].Length;
 
-            while(message != "TERMINATE")
+            while((message != "TERMINATE") || (information.Count < necessary_count))
             {
                 while(agentservice.ShouldOperationsContinue())
                 {

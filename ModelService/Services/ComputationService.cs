@@ -169,22 +169,22 @@ namespace Services
             var count = new List<int>();
             for (int uid = 0; uid < macromanagement_arr.Length; uid++)
             {
-                var simulation = macromanagement_arr[0].Split('$')[1].Split('\n').Select(time => new Tuple<string[], string[]>(time.Split(';')[0].Split(','), time.Split(';')[1].Split(','))).ToArray();
+                var simulation = macromanagement_arr[uid].Split('$')[1].Split('\n').Select(time => new Tuple<string[], string[]>(time.Split(';')[0].Split(','), time.Split(';')[1].Split(','))).ToArray();
                 var result_simulation = String.Join(",", simulation.Select(time => time.Item1.Last()));
                 RService.Evaluate($@"Result{uid} <- c({result_simulation})");
                 m_plot.Add($@"Result{uid}");
                 count.Add(result_simulation.Length);
             }
 #if DEBUG
-            RService.Evaluate($@"png('Training{rank}.png')");
+            RService.Evaluate($@"png('MacromanagementTraining{rank}.png')");
 #else
-            RService.Evaluate($@"png('Testing{rank}.png')");
+            RService.Evaluate($@"png('MacromanagementTesting{rank}.png')");
 #endif
-            RService.Evaluate($@"plot({macromanagement_arr[0]}, type=""o"", col=""blue"")");
+            RService.Evaluate($@"plot({m_plot[0]}, type=""o"", col=""blue"")");
             RService.Evaluate($@"title(main=""Constructed Workers"")");
             RService.Evaluate($@"axis(side=1, at=seq(0, {count.Max()}, by=10))");
             for (int it = 1; it < macromanagement_arr.Length; it++)
-                RService.Evaluate($@"lines({macromanagement_arr[it]}, type=""o"", col=""blue"")");
+                RService.Evaluate($@"lines({m_plot[it]}, type=""o"", col=""blue"")");
 
             RService.Evaluate("box()");
             RService.Evaluate("dev.off()");

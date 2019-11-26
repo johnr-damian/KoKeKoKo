@@ -34,13 +34,13 @@ namespace ModelService
                 POMDPNode.SetPOMDPReference(macromanagement_reference);*/
 
                 //The C# Model has started as a standalone application
-                if (args.Length  > 1)
+                if (args.Length  > 0)
                 {
                     Console.WriteLine("(C#)C# Model has started in standalone mode! Generating accuracy reports...");
 
                     //Retrieve the repositories
-                    var micromanagement_repository = repositoryservice.GetMicromanagementRepository().Take(1);
-                    var macromanagement_repository = repositoryservice.GetMacromanagementRepository().Take(1);
+                    var micromanagement_repository = repositoryservice.GetMicromanagementRepository();
+                    var macromanagement_repository = repositoryservice.GetMacromanagementRepository();
 
                     //Store the Micromanagement (TEMPORARY)
                     //var micromanagements = new System.Collections.Generic.List<Micromanagement.Micromanagement>();
@@ -82,22 +82,26 @@ namespace ModelService
                     //}
 
                     //Group the Macromanagement by Rank
-                    var mctsrank_macromanagements = mcts_macromanagements.GroupBy(macromanagement => macromanagement.Rank).ToDictionary(key => key.Key, value => value.ToArray());
-                    var pomdprank_macromanagements = pomdp_macromanagements.GroupBy(macromanagement => macromanagement.Rank).ToDictionary(key => key.Key, value => value.ToArray());
+                    var mctsrank_macromanagements = mcts_macromanagements.GroupBy(macromanagement => macromanagement.Rank).ToDictionary(key => key.Key, value => value.ToArray().Take(1));
+                    var pomdprank_macromanagements = pomdp_macromanagements.GroupBy(macromanagement => macromanagement.Rank).ToDictionary(key => key.Key, value => value.ToArray().Take(1));
 
                     //Perform the Accuracy Testing for Micromanagement
 
                     //Perform the Accuracy Testing for Macromanagement
-                    var mctsresults = mctsrank_macromanagements.Select(macromanagement => macromanagement.Value.Select(accuracy => accuracy.ToString("R"))).ToList();
+                    //var mctsresults = mctsrank_macromanagements.Select(macromanagement => macromanagement.Value.Select(accuracy => accuracy.ToString("R")));
+                    var mctsresults = mctsrank_macromanagements.ToDictionary(key => key.Key, value => value.Value.Select(accuracy => accuracy.ToString("R")));
                     //var pomdpresults = pomdprank_macromanagements.Select(macromanagement => macromanagement.Value.Select(accuracy => accuracy.ToString("R")));
 
                     //Create a profile for Accuracy Results for Micromanagement
 
                     //Create a profile for Accuracy Results for Macromanagement
-                    foreach (var mcts in mctsresults)
-                        mcts.ToList().ForEach(result => Console.WriteLine(result));
+                    //foreach (var mcts in mctsresults)
+                    //    mcts.ToList().ForEach(result => Console.WriteLine(result));
                     //foreach (var pomdp in pomdpresults)
                     //    pomdp.ToList().ForEach(result => Console.WriteLine(result));
+                    var parsed_mctsresults = computationservice.ComputeEuclideanMetric(mctsresults);
+                    foreach (var parsed_mctsresult in parsed_mctsresults)
+                        Console.WriteLine(parsed_mctsresult);
 
                     Console.WriteLine("(C#)C# Model is ready to terminate! Press enter to close the model...");
                     Console.ReadLine();

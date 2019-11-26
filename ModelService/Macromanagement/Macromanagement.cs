@@ -223,7 +223,7 @@ namespace ModelService.Macromanagement
                     //Sequence of simulation
                     var simulation = String.Join("\n", CreateAccuracyReport("R"));
 
-                    return String.Join(";", basis, simulation);
+                    return String.Join("$", basis, simulation);
                 case "IR":
                     string ebasis = String.Join("\n", Source[2]);
 

@@ -112,7 +112,7 @@ namespace ModelService.Micromanagement
             yield return dynamic_resource_plot;
         }
                                                                        //Filename -> Algorithm -> Result
-        public static List<double> GetMicromanagementAccuracyReport(string rank, List<IEnumerable<IEnumerable<double>>> combat_results)
+        public static List<string> GetMicromanagementAccuracyReport(string rank, List<IEnumerable<IEnumerable<double>>> combat_results)
         {
             var random = Services.ModelRepositoryService.ModelService.GetModelService();
 
@@ -121,7 +121,7 @@ namespace ModelService.Micromanagement
             var accuracyresult_peralgorithmeachfilename = new List<List<double>>();
 
             //The standard deviation of each results
-            var accuracyreport = new List<double>();
+            var accuracyreport = new List<string>();
 
             try
             {
@@ -143,7 +143,7 @@ namespace ModelService.Micromanagement
                 random.CreateBoxPlot(rank, resultsstring.ToArray());
 
                 for (int algorithmpolicy = 0; algorithmpolicy < 9; algorithmpolicy++)
-                    accuracyreport.Add(random.GetStandardDeviation(accuracyresult_peralgorithmeachfilename[algorithmpolicy]));
+                    accuracyreport.Add($@"{accuracyresult_peralgorithmeachfilename[algorithmpolicy].Average()}\u00B1{random.GetStandardDeviation(accuracyresult_peralgorithmeachfilename[algorithmpolicy])}");
             }
             catch(Exception ex)
             {
@@ -152,6 +152,32 @@ namespace ModelService.Micromanagement
 
             return accuracyreport;
         }
+
+        //public static List<string> GetMicromanagementAccuracyReport(Dictionary<string, IEnumerable<IEnumerable<double>>> micromanagement_results)
+        //{
+        //    //For each filename, contains the average results of their algorithm policy
+        //    //This becomes per algorithm policy containing the average of their results each filename
+        //    var accuracyresult_peralgorithmeachfilename = new List<List<double>>();
+            
+
+        //    //The standard deviation of each results
+        //    var accuracyreport = new List<double>();
+        //    var report = new List<string>();
+
+        //    for(int algorithmpolicy = 0; algorithmpolicy < 9; algorithmpolicy++)
+        //    {
+        //        accuracyresult_peralgorithmeachfilename.Add(new List<double>());
+
+        //        foreach(var rank in micromanagement_results)
+        //        {
+        //            var combat_results = rank.Value.ToList();
+
+        //            accuracyresult_peralgorithmeachfilename[algorithmpolicy].Add(combat_results[algorithmpolicy].Average());
+        //        }
+        //    }
+
+
+        //}
     }
 
     /// <summary>

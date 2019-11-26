@@ -230,7 +230,9 @@ namespace ModelService.Collections
                 case "M":
                     return Owned_Agent.ToString();
                 case "R":
-                    return String.Join("\n", Owned_Agent.ToString("R"), Enemy_Agent.ToString("R"));
+                    return Owned_Agent.ToString("R");
+                case "IR":
+                    return Enemy_Agent.ToString("R");
                 default:
                     throw new Exception($@"Failed to format into string...");
             }

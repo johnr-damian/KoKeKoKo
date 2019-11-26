@@ -134,7 +134,7 @@ namespace ModelService.Micromanagement
                     {
                         var current_algorithmresult = combat_result.ToList();
 
-                        accuracyresult_peralgorithmeachfilename[algorithmpolicy].Add(current_algorithmresult[algorithmpolicy].Average());
+                        accuracyresult_peralgorithmeachfilename[algorithmpolicy].Add(current_algorithmresult[algorithmpolicy].Average() * 100);
                     }
                 }
 

@@ -402,10 +402,10 @@ namespace ModelService
 
             if (number_of_workers > 0)
             {
-                new_mineral += (5 * number_of_workers * Units.Count(unit => unit.Name == "TERRAN_COMMANDCENTER")); //Probably wrong computation
+                new_mineral += (5 * number_of_workers * Units.Count(unit => unit.Name == "TERRAN_COMMANDCENTER")) / 44.576; //Probably wrong computation
 
                 if (Units.Count(unit => unit.Name == "TERRAN_REFINERY") > 0)
-                    new_vespene += (4 * number_of_vespene_workers);
+                    new_vespene += (4 * number_of_vespene_workers) /31.696;
             }
 
             //Update the resources and action
@@ -447,114 +447,137 @@ namespace ModelService
                     case "TERRAN_SCV":
                         if (Resources.Mineral >= 400 && Resources.Vespene >= 150)
                         {
-                            yield return ("BUILD_COMMANDCENTER");
-                            if (should_build_refinery)
-                                yield return ("BUILD_REFINERY");
-                            if (total_supply - total_consumedsupply <= 4)
+                            if (total_consumedsupply != total_supply)
+                            {
+                                yield return ("BUILD_COMMANDCENTER");
+                                if (should_build_refinery)
+                                    yield return ("BUILD_REFINERY");
+                                if (total_supply - total_consumedsupply <= 4)
+                                    yield return ("BUILD_SUPPLYDEPOT");
+
+                                if (unit_names.Contains("TERRAN_SUPPLYDEPOT") && Units.Count(unitholder => unitholder.Name == "TERRAN_BARRACKS") <= Units.Count(unitholder => unitholder.Name == "TERRAN_COMMANDCENTER") * 2)
+                                    yield return ("BUILD_BARRACKS");
+
+                                if (unit_names.Contains("TERRAN_BARRACKS"))
+                                {
+                                    yield return ("BUILD_BUNKER");
+                                    yield return ("BUILD_GHOSTACADEMY");
+                                    if(Units.Count(unitholder => unitholder.Name == "TERRAN_FACTORY") <= Units.Count(unitholder => unitholder.Name == "TERRAN_COMMANDCENTER") * 2)
+                                        yield return ("BUILD_FACTORY");
+                                }
+
+                                if (unit_names.Contains("TERRAN_FACTORY"))
+                                {
+                                    if (!unit_names.Contains("TERRAN_ARMORY"))
+                                        yield return ("BUILD_ARMORY");
+                                    if (Units.Count(unitholder => unitholder.Name == "TERRAN_STARPORT") <= Units.Count(unitholder => unitholder.Name == "TERRAN_COMMANDCENTER") * 2)
+                                        yield return ("BUILD_STARPORT");
+                                }
+
+                                if (unit_names.Contains("TERRAN_STARPORT"))
+                                    yield return ("BUILD_FUSIONCORE");
+
+                                if (unit_names.Contains("TERRAN_COMMANDCENTER") && !unit_names.Contains("TERRAN_ENGINEERINGBAY"))
+                                    yield return ("BUILD_ENGINEERINGBAY");
+
+                                if (unit_names.Contains("TERRAN_ENGINEERINGBAY"))
+                                {
+                                    yield return ("BUILD_MISSILETURRET");
+                                    yield return ("BUILD_SENSORTOWER");
+                                }
+                            }
+                            else
                                 yield return ("BUILD_SUPPLYDEPOT");
-
-                            if (unit_names.Contains("TERRAN_SUPPLYDEPOT"))
-                                yield return ("BUILD_BARRACKS");
-
-                            if (unit_names.Contains("TERRAN_BARRACKS"))
-                            {
-                                yield return ("BUILD_BUNKER");
-                                yield return ("BUILD_GHOSTACADEMY");
-                                yield return ("BUILD_FACTORY");
-                            }
-
-                            if (unit_names.Contains("TERRAN_FACTORY"))
-                            {
-                                if (!unit_names.Contains("TERRAN_ARMORY"))
-                                    yield return ("BUILD_ARMORY");
-                                yield return ("BUILD_STARPORT");
-                            }
-
-                            if (unit_names.Contains("TERRAN_STARPORT"))
-                                yield return ("BUILD_FUSIONCORE");
-
-                            if (unit_names.Contains("TERRAN_COMMANDCENTER") && !unit_names.Contains("TERRAN_ENGINEERINGBAY"))
-                                yield return ("BUILD_ENGINEERINGBAY");
-
-                            if (unit_names.Contains("TERRAN_ENGINEERINGBAY"))
-                            {
-                                yield return ("BUILD_MISSILETURRET");
-                                yield return ("BUILD_SENSORTOWER");
-                            }
                         }
                         else if (Resources.Mineral >= 150 && Resources.Vespene >= 150)
                         {
-                            if (should_build_refinery)
-                                yield return ("BUILD_REFINERY");
-                            if (total_supply - total_consumedsupply <= 4)
+                            if (total_consumedsupply != total_supply)
+                            {
+                                if (should_build_refinery)
+                                    yield return ("BUILD_REFINERY");
+                                if (total_supply - total_consumedsupply <= 4)
+                                    yield return ("BUILD_SUPPLYDEPOT");
+
+                                if (unit_names.Contains("TERRAN_SUPPLYDEPOT") && Units.Count(unitholder => unitholder.Name == "TERRAN_BARRACKS") <= Units.Count(unitholder => unitholder.Name == "TERRAN_COMMANDCENTER") * 2)
+                                    yield return ("BUILD_BARRACKS");
+
+                                if (unit_names.Contains("TERRAN_BARRACKS"))
+                                {
+                                    yield return ("BUILD_BUNKER");
+                                    yield return ("BUILD_GHOSTACADEMY");
+                                    if (Units.Count(unitholder => unitholder.Name == "TERRAN_FACTORY") <= Units.Count(unitholder => unitholder.Name == "TERRAN_COMMANDCENTER") * 2)
+                                        yield return ("BUILD_FACTORY");
+                                }
+
+                                if (unit_names.Contains("TERRAN_FACTORY"))
+                                {
+                                    if (!unit_names.Contains("TERRAN_ARMORY"))
+                                        yield return ("BUILD_ARMORY");
+                                    if (Units.Count(unitholder => unitholder.Name == "TERRAN_STARPORT") <= Units.Count(unitholder => unitholder.Name == "TERRAN_COMMANDCENTER") * 2)
+                                        yield return ("BUILD_STARPORT");
+                                }
+
+                                if (unit_names.Contains("TERRAN_STARPORT"))
+                                    yield return ("BUILD_FUSIONCORE");
+
+                                if (unit_names.Contains("TERRAN_COMMANDCENTER") && !unit_names.Contains("TERRAN_ENGINEERINGBAY"))
+                                    yield return ("BUILD_ENGINEERINGBAY");
+
+                                if (unit_names.Contains("TERRAN_ENGINEERINGBAY"))
+                                {
+                                    yield return ("BUILD_MISSILETURRET");
+                                    yield return ("BUILD_SENSORTOWER");
+                                }
+                            }
+                            else
                                 yield return ("BUILD_SUPPLYDEPOT");
-
-                            if (unit_names.Contains("TERRAN_SUPPLYDEPOT"))
-                                yield return ("BUILD_BARRACKS");
-
-                            if (unit_names.Contains("TERRAN_BARRACKS"))
-                            {
-                                yield return ("BUILD_BUNKER");
-                                yield return ("BUILD_GHOSTACADEMY");
-                                yield return ("BUILD_FACTORY");
-                            }
-
-                            if (unit_names.Contains("TERRAN_FACTORY"))
-                            {
-                                if (!unit_names.Contains("TERRAN_ARMORY"))
-                                    yield return ("BUILD_ARMORY");
-                                yield return ("BUILD_STARPORT");
-                            }
-
-                            if (unit_names.Contains("TERRAN_STARPORT"))
-                                yield return ("BUILD_FUSIONCORE");
-
-                            if (unit_names.Contains("TERRAN_COMMANDCENTER") && !unit_names.Contains("TERRAN_ENGINEERINGBAY"))
-                                yield return ("BUILD_ENGINEERINGBAY");
-
-                            if (unit_names.Contains("TERRAN_ENGINEERINGBAY"))
-                            {
-                                yield return ("BUILD_MISSILETURRET");
-                                yield return ("BUILD_SENSORTOWER");
-                            }
                         }
                         else if (Resources.Mineral >= 150 && Resources.Vespene >= 125)
                         {
-                            if (should_build_refinery)
-                                yield return ("BUILD_REFINERY"); ;
-                            if (total_supply - total_consumedsupply <= 4)
+                            if (total_consumedsupply != total_supply)
+                            {
+                                if (should_build_refinery)
+                                    yield return ("BUILD_REFINERY"); ;
+                                if (total_supply - total_consumedsupply <= 4)
+                                    yield return ("BUILD_SUPPLYDEPOT");
+
+                                if (unit_names.Contains("TERRAN_SUPPLYDEPOT") && Units.Count(unitholder => unitholder.Name == "TERRAN_BARRACKS") <= Units.Count(unitholder => unitholder.Name == "TERRAN_COMMANDCENTER") * 2)
+                                    yield return ("BUILD_BARRACKS");
+
+                                if (unit_names.Contains("TERRAN_BARRACKS"))
+                                {
+                                    yield return ("BUILD_BUNKER");
+                                    yield return ("BUILD_GHOSTACADEMY");
+                                    if (Units.Count(unitholder => unitholder.Name == "TERRAN_FACTORY") <= Units.Count(unitholder => unitholder.Name == "TERRAN_COMMANDCENTER") * 2)
+                                        yield return ("BUILD_FACTORY");
+                                }
+
+                                if (unit_names.Contains("TERRAN_FACTORY"))
+                                {
+                                    if (!unit_names.Contains("TERRAN_ARMORY"))
+                                        yield return ("BUILD_ARMORY");
+                                    if (Units.Count(unitholder => unitholder.Name == "TERRAN_STARPORT") <= Units.Count(unitholder => unitholder.Name == "TERRAN_COMMANDCENTER") * 2)
+                                        yield return ("BUILD_STARPORT");
+                                }
+
+                                if (unit_names.Contains("TERRAN_COMMANDCENTER") && !unit_names.Contains("TERRAN_ENGINEERINGBAY"))
+                                    yield return ("BUILD_ENGINEERINGBAY");
+
+                                if (unit_names.Contains("TERRAN_ENGINEERINGBAY"))
+                                {
+                                    yield return ("BUILD_MISSILETURRET");
+                                    yield return ("BUILD_SENSORTOWER");
+                                }
+                            }
+                            else
                                 yield return ("BUILD_SUPPLYDEPOT");
-
-                            if (unit_names.Contains("TERRAN_SUPPLYDEPOT"))
-                                yield return ("BUILD_BARRACKS");
-
-                            if (unit_names.Contains("TERRAN_BARRACKS"))
-                            {
-                                yield return ("BUILD_BUNKER");
-                                yield return ("BUILD_GHOSTACADEMY");
-                                yield return ("BUILD_FACTORY");
-                            }
-
-                            if (unit_names.Contains("TERRAN_FACTORY"))
-                            {
-                                if (!unit_names.Contains("TERRAN_ARMORY"))
-                                    yield return ("BUILD_ARMORY");
-                                yield return ("BUILD_STARPORT");
-                            }
-
-                            if (unit_names.Contains("TERRAN_COMMANDCENTER") && !unit_names.Contains("TERRAN_ENGINEERINGBAY"))
-                                yield return ("BUILD_ENGINEERINGBAY");
-
-                            if (unit_names.Contains("TERRAN_ENGINEERINGBAY"))
-                            {
-                                yield return ("BUILD_MISSILETURRET");
-                                yield return ("BUILD_SENSORTOWER");
-                            }
                         }
                         else if (Resources.Mineral >= 125 && Resources.Vespene >= 100)
                         {
+                            if (total_consumedsupply != total_supply)
+                            { }
                             if (should_build_refinery)
-                                yield return ("BUILD_REFINERY");
+                            yield return ("BUILD_REFINERY");
                             if (total_supply - total_consumedsupply <= 4)
                                 yield return ("BUILD_SUPPLYDEPOT");
 
@@ -572,20 +595,25 @@ namespace ModelService
                         }
                         else if (Resources.Mineral >= 100 && Resources.Vespene >= 100)
                         {
-                            if (should_build_refinery)
-                                yield return ("BUILD_REFINERY");
-                            if (total_supply - total_consumedsupply <= 4)
+                            if (total_consumedsupply != total_supply)
+                            {
+                                if (should_build_refinery)
+                                    yield return ("BUILD_REFINERY");
+                                if (total_supply - total_consumedsupply <= 4)
+                                    yield return ("BUILD_SUPPLYDEPOT");
+
+                                if (unit_names.Contains("TERRAN_BARRACKS"))
+                                {
+                                    yield return ("BUILD_BUNKER");
+                                }
+
+                                if (unit_names.Contains("TERRAN_ENGINEERINGBAY"))
+                                {
+                                    yield return ("BUILD_MISSILETURRET");
+                                }
+                            }
+                            else
                                 yield return ("BUILD_SUPPLYDEPOT");
-
-                            if (unit_names.Contains("TERRAN_BARRACKS"))
-                            {
-                                yield return ("BUILD_BUNKER");
-                            }
-
-                            if (unit_names.Contains("TERRAN_ENGINEERINGBAY"))
-                            {
-                                yield return ("BUILD_MISSILETURRET");
-                            }
                         }
                         else if (Resources.Mineral >= 75 && Resources.Vespene >= 75)
                         {
@@ -594,111 +622,184 @@ namespace ModelService
                         }
                         else if (Resources.Mineral >= 400)
                         {
-                            yield return ("BUILD_COMMANDCENTER");
-                            if (should_build_refinery)
-                                yield return ("BUILD_REFINERY");
-                            if (total_supply - total_consumedsupply <= 4)
+                            if (total_consumedsupply != total_supply)
+                            {
+                                yield return ("BUILD_COMMANDCENTER");
+                                if (should_build_refinery)
+                                    yield return ("BUILD_REFINERY");
+                                if (total_supply - total_consumedsupply <= 4)
+                                    yield return ("BUILD_SUPPLYDEPOT");
+
+                                if (unit_names.Contains("TERRAN_SUPPLYDEPOT") && Units.Count(unitholder => unitholder.Name == "TERRAN_BARRACKS") <= Units.Count(unitholder => unitholder.Name == "TERRAN_COMMANDCENTER") * 2)
+                                    yield return ("BUILD_BARRACKS");
+
+                                if (unit_names.Contains("TERRAN_BARRACKS"))
+                                {
+                                    yield return ("BUILD_BUNKER");
+                                }
+
+                                if (unit_names.Contains("TERRAN_FACTORY"))
+                                {
+                                    if (!unit_names.Contains("TERRAN_ARMORY"))
+                                        yield return ("BUILD_ARMORY");
+                                    if (Units.Count(unitholder => unitholder.Name == "TERRAN_STARPORT") <= Units.Count(unitholder => unitholder.Name == "TERRAN_COMMANDCENTER") * 2)
+                                        yield return ("BUILD_STARPORT");
+                                }
+
+                                if (unit_names.Contains("TERRAN_COMMANDCENTER") && !unit_names.Contains("TERRAN_ENGINEERINGBAY"))
+                                    yield return ("BUILD_ENGINEERINGBAY");
+
+                                if (unit_names.Contains("TERRAN_ENGINEERINGBAY"))
+                                {
+                                    yield return ("BUILD_MISSILETURRET");
+                                }
+                            }
+                            else
                                 yield return ("BUILD_SUPPLYDEPOT");
-
-                            if (unit_names.Contains("TERRAN_SUPPLYDEPOT"))
-                                yield return ("BUILD_BARRACKS");
-
-                            if (unit_names.Contains("TERRAN_BARRACKS"))
-                            {
-                                yield return ("BUILD_BUNKER");
-                            }
-
-                            if (unit_names.Contains("TERRAN_FACTORY"))
-                            {
-                                if (!unit_names.Contains("TERRAN_ARMORY"))
-                                    yield return ("BUILD_ARMORY");
-                                yield return ("BUILD_STARPORT");
-                            }
-
-                            if (unit_names.Contains("TERRAN_COMMANDCENTER") && !unit_names.Contains("TERRAN_ENGINEERINGBAY"))
-                                yield return ("BUILD_ENGINEERINGBAY");
-
-                            if (unit_names.Contains("TERRAN_ENGINEERINGBAY"))
-                            {
-                                yield return ("BUILD_MISSILETURRET");
-                            }
                         }
                         else if (Resources.Mineral >= 150)
                         {
-                            if (should_build_refinery)
-                                yield return ("BUILD_REFINERY");
-                            if (total_supply - total_consumedsupply <= 4)
+                            if (total_consumedsupply != total_supply)
+                            {
+                                if (should_build_refinery)
+                                    yield return ("BUILD_REFINERY");
+                                if (total_supply - total_consumedsupply <= 4)
+                                    yield return ("BUILD_SUPPLYDEPOT");
+
+                                if (unit_names.Contains("TERRAN_SUPPLYDEPOT") && Units.Count(unitholder => unitholder.Name == "TERRAN_BARRACKS") <= Units.Count(unitholder => unitholder.Name == "TERRAN_COMMANDCENTER") * 2)
+                                    yield return ("BUILD_BARRACKS");
+
+                                if (unit_names.Contains("TERRAN_BARRACKS"))
+                                {
+                                    yield return ("BUILD_BUNKER");
+                                }
+
+                                if (unit_names.Contains("TERRAN_COMMANDCENTER") && !unit_names.Contains("TERRAN_ENGINEERINGBAY"))
+                                    yield return ("BUILD_ENGINEERINGBAY");
+
+                                if (unit_names.Contains("TERRAN_ENGINEERINGBAY"))
+                                {
+                                    yield return ("BUILD_MISSILETURRET");
+                                }
+                            }
+                            else
                                 yield return ("BUILD_SUPPLYDEPOT");
-
-                            if (unit_names.Contains("TERRAN_SUPPLYDEPOT"))
-                                yield return ("BUILD_BARRACKS");
-
-                            if (unit_names.Contains("TERRAN_BARRACKS"))
-                            {
-                                yield return ("BUILD_BUNKER");
-                            }
-
-                            if (unit_names.Contains("TERRAN_COMMANDCENTER") && !unit_names.Contains("TERRAN_ENGINEERINGBAY"))
-                                yield return ("BUILD_ENGINEERINGBAY");
-
-                            if (unit_names.Contains("TERRAN_ENGINEERINGBAY"))
-                            {
-                                yield return ("BUILD_MISSILETURRET");
-                            }
                         }
                         else if (Resources.Mineral >= 125)
                         {
-                            if (should_build_refinery)
-                                yield return ("BUILD_REFINERY");
-                            if (total_supply - total_consumedsupply <= 4)
+                            if (total_consumedsupply != total_supply)
+                            {
+                                if (should_build_refinery)
+                                    yield return ("BUILD_REFINERY");
+                                if (total_supply - total_consumedsupply <= 4)
+                                    yield return ("BUILD_SUPPLYDEPOT");
+
+                                if (unit_names.Contains("TERRAN_BARRACKS"))
+                                {
+                                    yield return ("BUILD_BUNKER");
+                                }
+
+                                if (unit_names.Contains("TERRAN_COMMANDCENTER") && !unit_names.Contains("TERRAN_ENGINEERINGBAY"))
+                                    yield return ("BUILD_ENGINEERINGBAY");
+
+                                if (unit_names.Contains("TERRAN_ENGINEERINGBAY"))
+                                {
+                                    yield return ("BUILD_MISSILETURRET");
+                                }
+                            }
+                            else
                                 yield return ("BUILD_SUPPLYDEPOT");
-
-                            if (unit_names.Contains("TERRAN_BARRACKS"))
-                            {
-                                yield return ("BUILD_BUNKER");
-                            }
-
-                            if (unit_names.Contains("TERRAN_COMMANDCENTER") && !unit_names.Contains("TERRAN_ENGINEERINGBAY"))
-                                yield return ("BUILD_ENGINEERINGBAY");
-
-                            if (unit_names.Contains("TERRAN_ENGINEERINGBAY"))
-                            {
-                                yield return ("BUILD_MISSILETURRET");
-                            }
                         }
                         else if (Resources.Mineral >= 100)
                         {
-                            if (should_build_refinery)
-                                yield return ("BUILD_REFINERY");
-                            if (total_supply - total_consumedsupply <= 4)
+                            if (total_consumedsupply != total_supply)
+                            {
+                                if (should_build_refinery)
+                                    yield return ("BUILD_REFINERY");
+                                if (total_supply - total_consumedsupply <= 4)
+                                    yield return ("BUILD_SUPPLYDEPOT");
+
+                                if (unit_names.Contains("TERRAN_BARRACKS"))
+                                {
+                                    yield return ("BUILD_BUNKER");
+                                }
+
+                                if (unit_names.Contains("TERRAN_ENGINEERINGBAY"))
+                                {
+                                    yield return ("BUILD_MISSILETURRET");
+                                }
+                            }
+                            else
                                 yield return ("BUILD_SUPPLYDEPOT");
-
-                            if (unit_names.Contains("TERRAN_BARRACKS"))
-                            {
-                                yield return ("BUILD_BUNKER");
-                            }
-
-                            if (unit_names.Contains("TERRAN_ENGINEERINGBAY"))
-                            {
-                                yield return ("BUILD_MISSILETURRET");
-                            }
                         }
-
                         yield return ("HARVEST_RETURN");
                         break;
+                        /*if (total_consumedsupply != total_supply)
+                        {
+                            if (Resources.Mineral >= 400)
+                                yield return ("BUILD_COMMANDCENTER");
+                            if (Resources.Mineral >= 150)
+                            {
+                                if (unit_names.Contains("TERRAN_SUPPLYDEPOT") && Units.Count(unitholder => unitholder.Name == "TERRAN_BARRACKS") <= Units.Count(unitholder => unitholder.Name == "TERRAN_COMMANDCENTER") * 2)
+                                    yield return ("BUILD_BARRACKS");
+                            }
+                            if (Resources.Mineral >= 125)
+                            {
+                                if (unit_names.Contains("TERRAN_COMMANDCENTER") && !unit_names.Contains("TERRAN_ENGINEERINGBAY"))
+                                    yield return ("BUILD_ENGINEERINGBAY");
+                            }
+                            if (Resources.Mineral >= 100)
+                            {
+                                if (total_supply - total_consumedsupply <= 4)
+                                    yield return ("BUILD_SUPPLYDEPOT");
+                                if (unit_names.Contains("TERRAN_BARRACKS") && Units.Count(unitholder => unitholder.Name == "TERRAN_BUNKER") <= 3)
+                                    yield return ("BUILD_BUNKER");
+                                if (unit_names.Contains("TERRAN_ENGINEERINGBAY") && Units.Count(unitholder => unitholder.Name == "TERRAN_MISSILETURRET") <= 3)
+                                    yield return ("BUILD_MISSILETURRET");
+                            }
+                            if (Resources.Mineral >= 75 && should_build_refinery)
+                                yield return ("BUILD_REFINERY");
+                            if (Resources.Mineral > 150 && Resources.Vespene > 150)
+                                if (unit_names.Contains("TERRAN_STARPORT"))
+                                    yield return ("BUILD_FUSIONCORE");
+                            if (Resources.Mineral > 150 && Resources.Vespene > 100)
+                            {
+                                if (Units.Count(unitholder => unitholder.Name == "TERRAN_FACTORY") <= Units.Count(unitholder => unitholder.Name == "TERRAN_COMMANDCENTER") * 2)
+                                    yield return ("BUILD_FACTORY");
+                                if (!unit_names.Contains("TERRAN_ARMORY"))
+                                    yield return ("BUILD_ARMORY");
+                                if (Units.Count(unitholder => unitholder.Name == "TERRAN_STARPORT") <= Units.Count(unitholder => unitholder.Name == "TERRAN_COMMANDCENTER") * 2)
+                                    yield return ("BUILD_STARPORT");
+                            }
+                            if (Resources.Mineral > 125 && Resources.Vespene > 100)
+                            {
+                                if (unit_names.Contains("TERRAN_ENGINEERINGBAY") && Units.Count(unitholder => unitholder.Name == "TERRAN_MISSILETURRET") <= 2)
+                                    yield return ("BUILD_SENSORTOWER");
+                            }
+                            if (Resources.Mineral > 150 && Resources.Vespene > 50)
+                            {
+                                if (unit_names.Contains("TERRAN_BARRACKS"))
+                                    yield return ("BUILD_GHOSTACADEMY");
+                            }
+                        }
+                        else
+                            yield return ("BUILD_SUPPLYDEPOT");
+
+                        yield return ("HARVEST_RETURN");
+                        break;*/
                     case "TERRAN_COMMANDCENTER":
                         if (Resources.Mineral >= 150 && Resources.Vespene >= 150)
                         {
                             if (total_consumedsupply + SimulatedUnit.Values["TERRAN_SCV"].Supply < total_supply)
                                 yield return ("TRAIN_SCV");
 
-                            if (unit_names.Contains("TERRAN_BARRACKS"))
+                            if (unit_names.Contains("TERRAN_BARRACKS") )
                                 yield return ("MORPH_ORBITALCOMMAND");
 
                             if (unit_names.Contains("TERRAN_ENGINEERINGBAY"))
                                 yield return ("MORPH_PLANETARYFORTRESS");
                         }
-                        else if (Resources.Mineral >= 150)
+                        if (Resources.Mineral >= 150)
                         {
                             if (total_consumedsupply + SimulatedUnit.Values["TERRAN_SCV"].Supply < total_supply)
                                 yield return ("TRAIN_SCV");
@@ -706,7 +807,7 @@ namespace ModelService
                             if (unit_names.Contains("TERRAN_BARRACKS"))
                                 yield return ("MORPH_ORBITALCOMMAND");
                         }
-                        else if (Resources.Mineral >= 50)
+                        if (Resources.Mineral >= 50)
                         {
                             if (total_consumedsupply + SimulatedUnit.Values["TERRAN_SCV"].Supply < total_supply)
                                 yield return ("TRAIN_SCV");
@@ -727,7 +828,7 @@ namespace ModelService
                             yield return ("BUILD_TECHLAB_BARRACKS");
                             yield return ("BUILD_REACTOR_BARRACKS");
                         }
-                        else if (Resources.Mineral >= 100 && Resources.Vespene >= 100)
+                        if (Resources.Mineral >= 100 && Resources.Vespene >= 100)
                         {
                             if (total_consumedsupply + SimulatedUnit.Values["TERRAN_MARINE"].Supply < total_supply)
                                 yield return ("TRAIN_MARINE");
@@ -738,7 +839,7 @@ namespace ModelService
                             yield return ("BUILD_TECHLAB_BARRACKS");
                             yield return ("BUILD_REACTOR_BARRACKS");
                         }
-                        else if (Resources.Mineral >= 50 && Resources.Vespene >= 50)
+                        if (Resources.Mineral >= 50 && Resources.Vespene >= 50)
                         {
                             if (total_consumedsupply + SimulatedUnit.Values["TERRAN_MARINE"].Supply < total_supply)
                                 yield return ("TRAIN_MARINE");
@@ -748,14 +849,14 @@ namespace ModelService
                             yield return ("BUILD_TECHLAB_BARRACKS");
                             yield return ("BUILD_REACTOR_BARRACKS");
                         }
-                        else if (Resources.Mineral >= 50 && Resources.Vespene >= 25)
+                        if (Resources.Mineral >= 50 && Resources.Vespene >= 25)
                         {
                             if (total_consumedsupply + SimulatedUnit.Values["TERRAN_MARINE"].Supply < total_supply)
                                 yield return ("TRAIN_MARINE");
 
                             yield return ("BUILD_TECHLAB_BARRACKS");
                         }
-                        else if (Resources.Mineral >= 50)
+                        if (Resources.Mineral >= 50)
                         {
                             if (total_consumedsupply + SimulatedUnit.Values["TERRAN_MARINE"].Supply < total_supply)
                                 yield return ("TRAIN_MARINE");
@@ -1265,7 +1366,6 @@ namespace ModelService
                         case "TRAIN_SCV":
                         case "BUILD_REFINERY":
                         case "BUILD_COMMANDCENTER":
-                        case "HARVEST_RETURN":
                             category = "Economy";
                             break;
                         case "BUILD_TECHLAB_BARRACKS":

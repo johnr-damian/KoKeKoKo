@@ -44,46 +44,46 @@ namespace ModelService
 
                     //Store the Micromanagement (TEMPORARY)
                     var micromanagements = new System.Collections.Generic.List<Micromanagement.Micromanagement>();
-                    foreach (var micromanagmeent in micromanagement_repository)
-                        micromanagements.Add(new Micromanagement.Micromanagement(new Types.Army(String.Join("\n", micromanagmeent.Item3)), new Types.Army(String.Join("\n", micromanagmeent.Item4)), new Types.Army(String.Join("\n", micromanagmeent.Item5)))
-                        {
-                            Rank = micromanagmeent.Item1,
-                            Filename = micromanagmeent.Item2
-                        });
+                    //foreach (var micromanagmeent in micromanagement_repository)
+                    //    micromanagements.Add(new Micromanagement.Micromanagement(new Types.Army(String.Join("\n", micromanagmeent.Item3)), new Types.Army(String.Join("\n", micromanagmeent.Item4)), new Types.Army(String.Join("\n", micromanagmeent.Item5)))
+                    //    {
+                    //        Rank = micromanagmeent.Item1,
+                    //        Filename = micromanagmeent.Item2
+                    //    });
 
                     //Store the Macromanagement
                     var mcts_macromanagements = macromanagement_repository.Select(macromanagement => (new Macromanagement<MCTSNode>(macromanagement)));
                     var pomdp_macromanagements = macromanagement_repository.Select(macromanagement => (new Macromanagement<POMDPNode>(macromanagement)));
 
                     ////Group the Micromanagement by Rank (TEMPORARY)
-                    var perrank_micromanagement = micromanagements.GroupBy(rank => rank.Rank).ToDictionary(key => key.Key, value => value.ToList());
-                    var perrankresult_micromanagement = perrank_micromanagement.ToDictionary(key => key.Key, value =>
-                    {
-                        var micromanagement_battleresults = new System.Collections.Generic.List<System.Collections.Generic.IEnumerable<System.Collections.Generic.IEnumerable<double>>>();
+                    //var perrank_micromanagement = micromanagements.GroupBy(rank => rank.Rank).ToDictionary(key => key.Key, value => value.ToList());
+                    //var perrankresult_micromanagement = perrank_micromanagement.ToDictionary(key => key.Key, value =>
+                    //{
+                    //    var micromanagement_battleresults = new System.Collections.Generic.List<System.Collections.Generic.IEnumerable<System.Collections.Generic.IEnumerable<double>>>();
 
-                        foreach (var micromanagement_battleresult in value.Value)
-                            micromanagement_battleresults.Add(micromanagement_battleresult.GetMicromanagementAccuracyReport(1));
+                    //    foreach (var micromanagement_battleresult in value.Value)
+                    //        micromanagement_battleresults.Add(micromanagement_battleresult.GetMicromanagementAccuracyReport(1));
 
-                        return micromanagement_battleresults;
-                    });
-                    var micromanagement_accuracyreports = perrankresult_micromanagement.ToDictionary(key => key.Key, value => Micromanagement.Micromanagement.GetMicromanagementAccuracyReport(value.Key, value.Value));
-                    foreach (var accuracy_report in micromanagement_accuracyreports)
-                    {
-                        Console.WriteLine($@"Lanchester-Random: {accuracy_report.Value[0]}%");
-                        Console.WriteLine($@"Lanchester-Priority: {accuracy_report.Value[1]}%");
-                        Console.WriteLine($@"Lanchester-Resource: {accuracy_report.Value[2]}%");
-                        Console.WriteLine($@"Static-Random: {accuracy_report.Value[3]}%");
-                        Console.WriteLine($@"Static-Priority: {accuracy_report.Value[4]}%");
-                        Console.WriteLine($@"Static-Resource: {accuracy_report.Value[5]}%");
-                        Console.WriteLine($@"Dynamic-Random: {accuracy_report.Value[6]}%");
-                        Console.WriteLine($@"Dynamic-Priority: {accuracy_report.Value[7]}%");
-                        Console.WriteLine($@"Dynamic-Resource: {accuracy_report.Value[8]}%");
-                        Console.WriteLine();
-                    }
+                    //    return micromanagement_battleresults;
+                    //});
+                    //var micromanagement_accuracyreports = perrankresult_micromanagement.ToDictionary(key => key.Key, value => Micromanagement.Micromanagement.GetMicromanagementAccuracyReport(value.Key, value.Value));
+                    //foreach (var accuracy_report in micromanagement_accuracyreports)
+                    //{
+                    //    Console.WriteLine($@"Lanchester-Random: {accuracy_report.Value[0]}%");
+                    //    Console.WriteLine($@"Lanchester-Priority: {accuracy_report.Value[1]}%");
+                    //    Console.WriteLine($@"Lanchester-Resource: {accuracy_report.Value[2]}%");
+                    //    Console.WriteLine($@"Static-Random: {accuracy_report.Value[3]}%");
+                    //    Console.WriteLine($@"Static-Priority: {accuracy_report.Value[4]}%");
+                    //    Console.WriteLine($@"Static-Resource: {accuracy_report.Value[5]}%");
+                    //    Console.WriteLine($@"Dynamic-Random: {accuracy_report.Value[6]}%");
+                    //    Console.WriteLine($@"Dynamic-Priority: {accuracy_report.Value[7]}%");
+                    //    Console.WriteLine($@"Dynamic-Resource: {accuracy_report.Value[8]}%");
+                    //    Console.WriteLine();
+                    //}
 
                     //Group the Macromanagement by Rank
-                    var mctsrank_macromanagements = mcts_macromanagements.GroupBy(macromanagement => macromanagement.Rank).ToDictionary(key => key.Key, value => value.ToArray().Take(1));
-                    var pomdprank_macromanagements = pomdp_macromanagements.GroupBy(macromanagement => macromanagement.Rank).ToDictionary(key => key.Key, value => value.ToArray().Take(1));
+                    var mctsrank_macromanagements = mcts_macromanagements.GroupBy(macromanagement => macromanagement.Rank).ToDictionary(key => key.Key, value => value.ToArray().Take(5));
+                    var pomdprank_macromanagements = pomdp_macromanagements.GroupBy(macromanagement => macromanagement.Rank).ToDictionary(key => key.Key, value => value.ToArray().Take(5));
 
                     //Perform the Accuracy Testing for Micromanagement
 

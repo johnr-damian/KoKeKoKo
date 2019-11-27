@@ -34,16 +34,16 @@ namespace ModelService
                 POMDPNode.SetPOMDPReference(macromanagement_reference);*/
 
                 //The C# Model has started as a standalone application
-                if (args.Length  > 1)
+                if (args.Length  > 0)
                 {
                     Console.WriteLine("(C#)C# Model has started in standalone mode! Generating accuracy reports...");
 
                     //Retrieve the repositories
-                    var micromanagement_repository = repositoryservice.GetMicromanagementRepository().Take(1);
-                    var macromanagement_repository = repositoryservice.GetMacromanagementRepository().Take(1);
+                    var micromanagement_repository = repositoryservice.GetMicromanagementRepository();
+                    var macromanagement_repository = repositoryservice.GetMacromanagementRepository();
 
                     //Store the Micromanagement (TEMPORARY)
-                    //var micromanagements = new System.Collections.Generic.List<Micromanagement.Micromanagement>();
+                    var micromanagements = new System.Collections.Generic.List<Micromanagement.Micromanagement>();
                     //foreach (var micromanagmeent in micromanagement_repository)
                     //    micromanagements.Add(new Micromanagement.Micromanagement(new Types.Army(String.Join("\n", micromanagmeent.Item3)), new Types.Army(String.Join("\n", micromanagmeent.Item4)), new Types.Army(String.Join("\n", micromanagmeent.Item5)))
                     //    {
@@ -69,35 +69,43 @@ namespace ModelService
                     //var micromanagement_accuracyreports = perrankresult_micromanagement.ToDictionary(key => key.Key, value => Micromanagement.Micromanagement.GetMicromanagementAccuracyReport(value.Key, value.Value));
                     //foreach (var accuracy_report in micromanagement_accuracyreports)
                     //{
-                    //    Console.WriteLine($@"Lanchester-Random: {accuracy_report.Value[0] * 100}%");
-                    //    Console.WriteLine($@"Lanchester-Priority: {accuracy_report.Value[1] * 100}%");
-                    //    Console.WriteLine($@"Lanchester-Resource: {accuracy_report.Value[2] * 100}%");
-                    //    Console.WriteLine($@"Static-Random: {accuracy_report.Value[3] * 100}%");
-                    //    Console.WriteLine($@"Static-Priority: {accuracy_report.Value[4] * 100}%");
-                    //    Console.WriteLine($@"Static-Resource: {accuracy_report.Value[5] * 100}%");
-                    //    Console.WriteLine($@"Dynamic-Random: {accuracy_report.Value[6] * 100}%");
-                    //    Console.WriteLine($@"Dynamic-Priority: {accuracy_report.Value[7] * 100}%");
-                    //    Console.WriteLine($@"Dynamic-Resource: {accuracy_report.Value[8] * 100}%");
+                    //    Console.WriteLine($@"Lanchester-Random: {accuracy_report.Value[0]}%");
+                    //    Console.WriteLine($@"Lanchester-Priority: {accuracy_report.Value[1]}%");
+                    //    Console.WriteLine($@"Lanchester-Resource: {accuracy_report.Value[2]}%");
+                    //    Console.WriteLine($@"Static-Random: {accuracy_report.Value[3]}%");
+                    //    Console.WriteLine($@"Static-Priority: {accuracy_report.Value[4]}%");
+                    //    Console.WriteLine($@"Static-Resource: {accuracy_report.Value[5]}%");
+                    //    Console.WriteLine($@"Dynamic-Random: {accuracy_report.Value[6]}%");
+                    //    Console.WriteLine($@"Dynamic-Priority: {accuracy_report.Value[7]}%");
+                    //    Console.WriteLine($@"Dynamic-Resource: {accuracy_report.Value[8]}%");
                     //    Console.WriteLine();
                     //}
 
                     //Group the Macromanagement by Rank
-                    var mctsrank_macromanagements = mcts_macromanagements.GroupBy(macromanagement => macromanagement.Rank).ToDictionary(key => key.Key, value => value.ToArray());
-                    var pomdprank_macromanagements = pomdp_macromanagements.GroupBy(macromanagement => macromanagement.Rank).ToDictionary(key => key.Key, value => value.ToArray());
+                    var mctsrank_macromanagements = mcts_macromanagements.GroupBy(macromanagement => macromanagement.Rank).ToDictionary(key => key.Key, value => value.ToArray().Take(5));
+                    var pomdprank_macromanagements = pomdp_macromanagements.GroupBy(macromanagement => macromanagement.Rank).ToDictionary(key => key.Key, value => value.ToArray().Take(5));
 
                     //Perform the Accuracy Testing for Micromanagement
 
                     //Perform the Accuracy Testing for Macromanagement
-                    var mctsresults = mctsrank_macromanagements.Select(macromanagement => macromanagement.Value.Select(accuracy => accuracy.ToString("R"))).ToList();
+                    //var mctsresults = mctsrank_macromanagements.Select(macromanagement => macromanagement.Value.Select(accuracy => accuracy.ToString("R")));
+                    var mctsresults = mctsrank_macromanagements.ToDictionary(key => key.Key, value => value.Value.Select(accuracy => accuracy.ToString("R")));
                     //var pomdpresults = pomdprank_macromanagements.Select(macromanagement => macromanagement.Value.Select(accuracy => accuracy.ToString("R")));
+                    var pomdpresults = pomdprank_macromanagements.ToDictionary(key => key.Key, value => value.Value.Select(accuracy => accuracy.ToString("R")));
 
                     //Create a profile for Accuracy Results for Micromanagement
 
                     //Create a profile for Accuracy Results for Macromanagement
-                    foreach (var mcts in mctsresults)
-                        mcts.ToList().ForEach(result => Console.WriteLine(result));
+                    //foreach (var mcts in mctsresults)
+                    //    mcts.ToList().ForEach(result => Console.WriteLine(result));
                     //foreach (var pomdp in pomdpresults)
                     //    pomdp.ToList().ForEach(result => Console.WriteLine(result));
+                    var parsed_mctsresults = computationservice.ComputeEuclideanMetric(mctsresults);
+                    var parsed_pomdpresults = computationservice.ComputeEuclideanMetric(pomdpresults);
+                    foreach (var parsed_pomdpresult in parsed_pomdpresults)
+                        Console.WriteLine(parsed_pomdpresult);
+                    foreach (var parsed_mctsresult in parsed_mctsresults)
+                        Console.WriteLine(parsed_mctsresult);
 
                     Console.WriteLine("(C#)C# Model is ready to terminate! Press enter to close the model...");
                     Console.ReadLine();

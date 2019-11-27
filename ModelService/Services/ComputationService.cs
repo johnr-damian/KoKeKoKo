@@ -161,5 +161,96 @@ namespace Services
         /// <param name="results"></param>
         /// <returns></returns>
         public double ComputeStandardDeviation(IEnumerable<double> results) => Math.Sqrt(ComputeVariance(results));
+
+        private IEnumerable<string> CreateLinePlot(string rank, IEnumerable<string> macromanagement)
+        {
+            var macromanagement_arr = macromanagement.ToArray();
+            var m_plot = new List<string>();
+            var count = new List<int>();
+            for (int uid = 0; uid < macromanagement_arr.Length; uid++)
+            {
+                var simulation = macromanagement_arr[uid].Split('$')[1].Split('\n').Select(time => new Tuple<string[], string[]>(time.Split(';')[0].Split(','), time.Split(';')[1].Split(','))).ToArray();
+                var result_simulation = String.Join(",", simulation.Select(time => time.Item1.Last()));
+                RService.Evaluate($@"Result{uid} <- c({result_simulation})");
+                m_plot.Add($@"Result{uid}");
+                count.Add(result_simulation.Length);
+            }
+#if DEBUG
+            RService.Evaluate($@"png('MacromanagementTraining{rank}.png')");
+#else
+            RService.Evaluate($@"png('MacromanagementTesting{rank}.png')");
+#endif
+            RService.Evaluate($@"plot({m_plot[0]}, type=""o"", col=""blue"")");
+            RService.Evaluate($@"title(main=""Constructed Workers"")");
+            RService.Evaluate($@"axis(side=1, at=seq(0, {count.Max()}, by=10))");
+            for (int it = 1; it < macromanagement_arr.Length; it++)
+                RService.Evaluate($@"lines({m_plot[it]}, type=""o"", col=""blue"")");
+
+            RService.Evaluate("box()");
+            RService.Evaluate("dev.off()");
+
+            return macromanagement_arr;
+        }
+
+        private IEnumerable<double> ComputeEuclideanMetric(string rank, IEnumerable<string> macromanagement_results)
+        {
+            foreach(var macromanagement_result in macromanagement_results)
+            {
+                double eucilidean_metric = -1, mineral = 0, vespene = 0, supply = 0, workers = 0;
+
+                try
+                {
+                    //Get the Euclidean Result
+                    var basis = macromanagement_result.Split('$')[0].Split('\n').Select(time => new Tuple<string[], string[]>(time.Split(';')[0].Split(','), time.Split(';')[1].Split(','))).ToArray();
+                    var simulation = macromanagement_result.Split('$')[1].Split('\n').Select(time => new Tuple<string[], string[]>(time.Split(';')[0].Split(','), time.Split(';')[1].Split(','))).ToArray();
+
+                    RService.Evaluate($@"mineral_basis <- c({String.Join(",", basis.Select(time => time.Item1[0]))})");
+                    RService.Evaluate($@"mineral_simulation <- c({String.Join(",", simulation.Select(time => time.Item1[0]))})");
+                    mineral = RService.Evaluate($@"dist(rbind(mineral_basis, vespene_basis))").AsNumeric().SingleOrDefault();
+
+                    RService.Evaluate($@"vespene_basis <- c({String.Join(",", basis.Select(time => time.Item1[1]))})");
+                    RService.Evaluate($@"vespene_simulation <- c({String.Join(",", simulation.Select(time => time.Item1[1]))})");
+                    vespene = RService.Evaluate($@"dist(rbind(vespene_basis, vespene_simulation))").AsNumeric().SingleOrDefault();
+
+                    RService.Evaluate($@"supply_basis <- c({String.Join(",", basis.Select(time => time.Item1[2]))})");
+                    RService.Evaluate($@"supply_simulation <- c({String.Join(",", simulation.Select(time => time.Item1[2]))})");
+                    supply = RService.Evaluate($@"dist(rbind(supply_basis, supply_simulation))").AsNumeric().SingleOrDefault();
+
+                    RService.Evaluate($@"workers_basis <- c({String.Join(",", basis.Select(time => time.Item1.Last()))})");
+                    RService.Evaluate($@"workers_simulation <- c({String.Join(",", simulation.Select(time => time.Item1.Last()))})");
+                    workers = RService.Evaluate($@"dist(rbind(workers_basis, workers_simulation))").AsNumeric().SingleOrDefault();
+                }
+                catch(EvaluationException ex)
+                {
+                    System.Diagnostics.Debugger.Break();
+                    Console.WriteLine($@"(C#)Error Occurred! {ex.Message}");
+                }
+
+                yield return ((mineral + vespene + supply + workers) / 4);
+            }
+        }
+
+        public IEnumerable<string> ComputeEuclideanMetric(Dictionary<string, IEnumerable<string>> macromanagement_compiledresults)
+        {
+            var perrank_plot = new Dictionary<string, IEnumerable<string>>();
+            var perrank_results = new Dictionary<string, IEnumerable<double>>();
+
+            foreach(var rank in macromanagement_compiledresults)
+            {
+                //Get the results per rank
+                var value_result = rank.Value.ToArray();
+                perrank_results.Add(rank.Key, ComputeEuclideanMetric(rank.Key, value_result));
+                perrank_plot.Add(rank.Key, CreateLinePlot(rank.Key, value_result));
+            }
+
+            //Return the average with standard deviation
+            foreach(var rank in perrank_results)
+            {
+                double average = rank.Value.Average();
+                double standarddeviation = ComputeStandardDeviation(rank.Value);
+
+                yield return $@"{average}\u00B1{standarddeviation}";
+            }
+        }
     }
 }

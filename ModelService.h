@@ -81,8 +81,8 @@ namespace Services
 				queue<string> messages = queue<string>();
 
 				//Prepare fields for starting the server
-				char readerbuffer[4096] = { 0 };
-				char writerbuffer[4096] = { 0 };
+				char readerbuffer[12000] = { 0 };
+				char writerbuffer[12000] = { 0 };
 				DWORD readerpointer = 0;
 				DWORD writerpointer = 0;
 				HANDLE server = INVALID_HANDLE_VALUE;

@@ -120,7 +120,7 @@ namespace ModelService
 
                     //Perform initialization
                     string message = messages.Dequeue(), actions = String.Empty;
-                    var kokekokobot = new Macromanagement<MCTSNode>(messages);
+                    var kokekokobot = new Macromanagement<POMDPNode>(messages);
 
                     //Continue to perform simulation and update
                     while(message != "TERMINATE")

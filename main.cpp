@@ -208,7 +208,7 @@ namespace KoKeKoKo
 					const ObservationInterface* observation_;
 				};
 
-				struct IsArmy 
+				/*struct IsArmy 
 				{
 					IsArmy(const ObservationInterface* obs) : observation_(obs) {}
 
@@ -232,7 +232,7 @@ namespace KoKeKoKo
 					}
 
 					const ObservationInterface* observation_;
-				};
+				};*/
 
 				void StoreGameInfo(GameInfo start_game_info)
 				{
@@ -463,7 +463,7 @@ namespace KoKeKoKo
 					const Unit* target = nullptr;
 
 					//If there should not be 2 or more unit doing the same action
-					if (!redoable)
+					/*if (!redoable)
 					{
 						for (const auto& unit : units)
 						{
@@ -473,10 +473,12 @@ namespace KoKeKoKo
 									return false;
 							}
 						}
-					}
+					}*/
 					if (!units.empty())
 					{
 						target = GetRandomEntry(units);
+						if (!target->orders.empty() || target->build_progress != 1)
+							return false;
 						if (target != nullptr)
 						{
 							Actions()->UnitCommand(target, action);
@@ -646,27 +648,49 @@ namespace KoKeKoKo
 					}
 				}
 
+				const Unit* FindClosestTarget(Point2D ally, Units enemies)
+				{
+					const Unit* target = nullptr;
+					float distance = std::numeric_limits<float>::max(), temporary_distance = 0;
+
+					for (const auto& unit : enemies)
+					{
+						temporary_distance = DistanceSquared2D(unit->pos, ally);
+						if (temporary_distance < distance)
+						{
+							distance = temporary_distance;
+							target = unit;
+						}
+					}
+					return target;
+				}
+
 				void AttackWithUnit(Tag ally_tag, Tag enemy_tag) 
 				{
 					//If unit isn't doing anything make it attack.
 					const ObservationInterface* observation = Observation();
 					const Unit* ally_unit = observation->GetUnit(ally_tag);
 					const Unit* enemy_unit = observation->GetUnit(enemy_tag);
-					if (enemy_unit == nullptr) 
+					Point2D target;
+					if (FindEnemyPosition(target))
 					{
-						return;
-					}
+						if (enemy_unit == nullptr && ally_unit->orders.empty())
+						{
+							//if (TryFindRandomPathableLocation(ally_unit, target))
+								Actions()->UnitCommand(ally_unit, ABILITY_ID::SMART, target);
+						}
 
-					if (ally_unit->orders.empty()) 
-					{
-						Actions()->UnitCommand(ally_unit, ABILITY_ID::ATTACK, enemy_unit);
-						return;
-					}
+						else if (ally_unit->orders.empty())
+						{
+							Actions()->UnitCommand(ally_unit, ABILITY_ID::SMART, enemy_unit);
+							return;
+						}
 
-					//If the unit is doing something besides attacking, make it attack.
-					if (ally_unit->orders.front().ability_id != ABILITY_ID::ATTACK) 
-					{
-						Actions()->UnitCommand(ally_unit, ABILITY_ID::ATTACK, enemy_unit);
+						//If the unit is doing something besides attacking, make it attack.
+						if (enemy_unit != nullptr)//ally_unit->orders.front().ability_id != ABILITY_ID::ATTACK && enemy_unit != nullptr)
+						{
+							Actions()->UnitCommand(ally_unit, ABILITY_ID::ATTACK, enemy_unit);
+						}
 					}
 				}
 
@@ -765,7 +789,7 @@ namespace KoKeKoKo
 					for (const auto& base : bases) 
 					{
 						//if there is a base with less than ideal workers
-						if (base->assigned_harvesters < base->ideal_harvesters && base->build_progress == 1) 
+						if (/*base->assigned_harvesters < base->ideal_harvesters &&*/ base->build_progress == 1) 
 						{
 							if (observation->GetMinerals() >= 50 && observation->GetFoodCap() - observation->GetFoodUsed() >= 1) 
 							{
@@ -792,11 +816,6 @@ namespace KoKeKoKo
 					const ObservationInterface* observation = Observation();
 
 					if (CountOf(UNIT_TYPEID::TERRAN_SUPPLYDEPOT) < 1 && observation->GetMinerals() < 150)
-					{
-						return false;
-					}
-
-					if (CountOf(UNIT_TYPEID::TERRAN_BARRACKS) > 0 && observation->GetMinerals() < 150)
 					{
 						return false;
 					}
@@ -1651,6 +1670,52 @@ namespace KoKeKoKo
 					return ExecuteBuildAbility(ABILITY_ID::BUILD_SENSORTOWER);
 				}
 
+				void ManageArmy(int army_count)
+				{
+					Units units = Observation()->GetUnits(Unit::Self, IsArmy(Observation()));
+					Units enemy_units = Observation()->GetUnits(Unit::Enemy);
+					Units enemy_army = Observation()->GetUnits(Unit::Enemy, IsArmy(Observation()));
+					Units enemy_workers = Observation()->GetUnits(Unit::Enemy, IsWorker(Observation()));
+					Units enemy_structures = Observation()->GetUnits(Unit::Enemy, IsStructure(Observation()));
+					for (const auto& unit : units)
+					{
+						if (Distance2D(unit->pos, FindClosestTarget(unit->pos, enemy_units)->pos) <= 8 && enemy_units.empty())
+						{
+							AttackWithUnit(unit->tag, FindClosestTarget(unit->pos, enemy_units)->tag);
+						}
+						if (!enemy_army.empty() && !units.empty() && Distance2D(FindClosestTarget(staging_location_, enemy_army)->pos, staging_location_) <= 20)
+						{
+							//for (const auto& unit : units)
+							//{
+							AttackWithUnit(unit->tag, FindClosestTarget(unit->pos, enemy_army)->tag);
+							//}
+						}
+						if (units.size() >= army_count && enemy_army.empty() && enemy_workers.empty())
+						{
+							//for (const auto& unit : units)
+							//{
+							if (unit->orders.empty())
+								AttackWithUnit(unit->tag, FindClosestTarget(unit->pos, enemy_structures)->tag);
+							//}
+						}
+						else if (units.size() >= army_count && enemy_army.empty())
+						{
+							//for (const auto& unit : units)
+							//{
+							if (unit->orders.empty())
+								AttackWithUnit(unit->tag, FindClosestTarget(unit->pos, enemy_workers)->tag);
+							//}
+						}
+						else if (units.size() >= army_count) //Distance2D(FindClosestTarget(units.front()->pos, enemy_army)->pos, units.front) >= 8)
+						{
+							//for (const auto& unit : units)
+							//{
+							AttackWithUnit(unit->tag, FindClosestTarget(unit->pos, enemy_army)->tag);
+							//}
+						}
+					}
+				}
+
 			public:
 				bool scout = true;
 				Units known_units;
@@ -1658,17 +1723,17 @@ namespace KoKeKoKo
 				{
 					std::string test = "INITIALIZE;GOLD;";
 					uint32_t playerID = Observation()->GetPlayerID();
-					test = test + std::to_string(playerID) + ";";
+					test += std::to_string(playerID) + ";";
 					Units units = Observation()->GetUnits(Unit::Alliance::Self);
 					for (const auto& unit : units)
 					{
-						test = test + std::to_string(unit->tag) + "," + std::string(UnitTypeToName(unit->unit_type)) + "," + std::to_string(unit->pos.x) +  "," + std::to_string(unit->pos.y) + "$";
+						test += std::to_string(unit->tag) + "," + UnitTypeToName(unit->unit_type) + "," + std::to_string(unit->pos.x) +  "," + std::to_string(unit->pos.y) + "$";
 					}
 					test.pop_back();
 					std::cout << test << std::endl;
 					return test;
 				}
-				std::string GenerateUpdateString()
+				std::string GenerateUpdateStringSelf()
 				{
 					std::string test = "UPDATE;" + std::to_string(Observation()->GetGameLoop() / 22.4) + ";";
 					Units units = Observation()->GetUnits(Unit::Alliance::Self);
@@ -1676,27 +1741,35 @@ namespace KoKeKoKo
 					for (const auto& unit : units)
 					{
 						//test = test + std::to_string(unit->tag) + "," + UnitTypeToName(unit->unit_type) + "," + std::to_string(unit->pos.x) + "," + std::to_string(unit->pos.y) + "$";
-						test += (std::to_string(unit->tag) + "," + std::string(UnitTypeToName(unit->unit_type)) + "," + std::to_string(unit->pos.x) + "," + std::to_string(unit->pos.y) + ((++terminate < terminated) ? "$" : ""));
+						test += (std::to_string(unit->tag) + "," + UnitTypeToName(unit->unit_type) + "," + std::to_string(unit->pos.x) + "," + std::to_string(unit->pos.y) + ((++terminate < terminated) ? "$" : ""));
 					}
 					//test.pop_back();
-					test = test + ";" + std::to_string(Observation()->GetMinerals()) + "," + std::to_string(Observation()->GetVespene()) + "," + std::to_string(Observation()->GetFoodCap()) + "," + std::to_string(CountOf(UNIT_TYPEID::TERRAN_SCV));
+					test += ";" + std::to_string(Observation()->GetMinerals()) + "," + std::to_string(Observation()->GetVespene()) + "," + std::to_string(Observation()->GetFoodCap()) + "," + std::to_string(CountOf(UNIT_TYPEID::TERRAN_SCV));
 					auto upgrades = Observation()->GetUpgrades();
-					//if (upgrades.empty())
-					//	test = test; //+ ";";
-					//else
-					//{
-					//	test = test + ",";
-					//	for (const auto& upgrade : upgrades)
-					//	{
-					//		test = test + UpgradeIDToName(upgrade) + ",";
-					//	}
-					//}
 					if (!upgrades.empty())
 					{
 						for (const auto& upgrade : upgrades)
-							test = test + "," + std::string(UpgradeIDToName(upgrade));
+							test += "," + std::string(UpgradeIDToName(upgrade));
 					}
 
+					/*if (!known_units.empty())
+					{
+						test += ";";
+						terminate = 0, terminated = known_units.size();
+						for (const auto& unit : known_units)
+						{
+							test += (std::to_string(unit->tag) + "," + UnitTypeToName(unit->unit_type) + "," + std::to_string(unit->pos.x) + "," + std::to_string(unit->pos.y) + ((++terminate < terminated) ? "$" : ""));
+						}
+					}
+					
+					std::cout << "From GenerateUpdateString: " << test << std::endl;*/
+					return test;
+				}
+
+				std::string GenerateUpdateStringEnemy()
+				{
+					std::string test;
+					int terminate = 0, terminated = known_units.size();
 					if (!known_units.empty())
 					{
 						test += ";";
@@ -1706,28 +1779,62 @@ namespace KoKeKoKo
 							test += (std::to_string(unit->tag) + "," + std::string(UnitTypeToName(unit->unit_type)) + "," + std::to_string(unit->pos.x) + "," + std::to_string(unit->pos.y) + ((++terminate < terminated) ? "$" : ""));
 						}
 					}
-					
+
 					std::cout << "From GenerateUpdateString: " << test << std::endl;
 					return test;
-					/*if (known_units.empty())
-					{
-						std::cout << test << std::endl;
-						return test;
-					}
-					else
-					{
-						for (const auto& unit : known_units)
-						{
-							test = test + std::to_string(unit->tag) + "," + UnitTypeToName(unit->unit_type) + "," + std::to_string(unit->pos.x) + "," + std::to_string(unit->pos.y) + "$";
-						}
-						test.pop_back();
-						std::cout << test << std::endl;
-						return test;
-					}*/
-					std::cout << test << std::endl;
-					return test;
-
 				}
+
+				struct IsArmy
+				{
+					IsArmy(const ObservationInterface* obs) : observation_(obs) {}
+
+					bool operator()(const Unit& unit)
+					{
+						auto attributes = observation_->GetUnitTypeData().at(unit.unit_type).attributes;
+						for (const auto& attribute : attributes)
+						{
+							if (attribute == Attribute::Structure)
+							{
+								return false;
+							}
+						}
+						switch (unit.unit_type.ToType())
+						{
+							case UNIT_TYPEID::TERRAN_SCV: return false;
+							case UNIT_TYPEID::TERRAN_MULE: return false;
+							case UNIT_TYPEID::TERRAN_NUKE: return false;
+							default: return true;
+						}
+					}
+
+					const ObservationInterface* observation_;
+				};
+
+				struct IsWorker
+				{
+					IsWorker(const ObservationInterface* obs) : observation_(obs) {}
+
+					bool operator()(const Unit& unit)
+					{
+						auto attributes = observation_->GetUnitTypeData().at(unit.unit_type).attributes;
+						for (const auto& attribute : attributes)
+						{
+							if (attribute == Attribute::Structure)
+							{
+								return false;
+							}
+						}
+						switch (unit.unit_type.ToType())
+						{
+						case UNIT_TYPEID::TERRAN_SCV: return true;
+						case UNIT_TYPEID::TERRAN_MULE: return true;
+						default: return false;
+						}
+					}
+
+					const ObservationInterface* observation_;
+				};
+
 				KoKeKoKoBot()
 				{
 					//Perform intializations
@@ -1740,6 +1847,9 @@ namespace KoKeKoKo
 
 				virtual void OnGameStart() final
 				{
+					//Debug()->DebugGiveAllUpgrades();
+					Debug()->DebugShowMap();
+					Debug()->SendDebug();
 					auto service = Services::ModelService::CreateNewModelService();
 					auto trash = service->UpdateModelService(GenerateInitializeString());
 					/*_actions = service->UpdateModelService(GenerateUpdateString());
@@ -1785,12 +1895,12 @@ namespace KoKeKoKo
 					//		std::this_thread::sleep_for(std::chrono::milliseconds(5000)); 
 					//}
 
-					std::cout << _currentaction << std::endl;
 				}
 
 				virtual void OnStep() final
 				{
 					ManageWorkers();
+					ManageArmy(10);
 					//If there is action available
 					/*if (!_currentaction.empty())
 					////If there is action available
@@ -1812,20 +1922,16 @@ namespace KoKeKoKo
 						_currentaction = GetAnActionFromMessage();
 						
 					std::cout << _currentaction << std::endl;*/
-					/*
-					if (CountOf(UNIT_TYPEID::TERRAN_COMMANDCENTER) < 2 && CountOf(UNIT_TYPEID::TERRAN_ORBITALCOMMAND) < 1)
+					
+					/*if (CountOf(UNIT_TYPEID::TERRAN_COMMANDCENTER) < 2 && CountOf(UNIT_TYPEID::TERRAN_ORBITALCOMMAND) < 1)
 					{
 						TryBuildCommandCenter();
 					}
-					if (CountOf(UNIT_TYPEID::TERRAN_SCV) < 50)
+					if (CountOf(UNIT_TYPEID::TERRAN_SCV) < CountOf(UNIT_TYPEID::TERRAN_COMMANDCENTER) * 16 + CountOf(UNIT_TYPEID::TERRAN_REFINERY) * 3)
 					{
 						TrainSCV();
 					}
-					if (CountOf(UNIT_TYPEID::TERRAN_SUPPLYDEPOT) < 5)
-					{
-						TryBuildSupplyDepot();
-					}
-					if (CountOf(UNIT_TYPEID::TERRAN_REFINERY) < 4)
+					if (CountOf(UNIT_TYPEID::TERRAN_REFINERY) < CountOf(UNIT_TYPEID::TERRAN_COMMANDCENTER) * 2)
 					{
 						TryBuildRefinery();
 					}
@@ -1841,6 +1947,10 @@ namespace KoKeKoKo
 					{
 						TryBuildBarracksReactor();
 					}
+					if (CountOf(UNIT_TYPEID::TERRAN_BARRACKS) >= 1)
+					{
+						TrainMarine();
+					}
 					if (CountOf(UNIT_TYPEID::TERRAN_COMMANDCENTER) > 1)
 					{
 						TryCommandCenterMorphOrbitalCommand();
@@ -1849,11 +1959,13 @@ namespace KoKeKoKo
 					{
 						TryBarracksTechLabResearchStimpack();
 					}*/
-					if (scout)
+					/*if (scout)
 					{
 						Scout();
 						scout = false;
 					}
+					/*if (Observation()->GetGameLoop() % 224*2 == 0)
+						scout = true;*/
 					/*if (Observation()->GetGameLoop() % 500 == 0)
 					{
 						for (const auto& unit : known_units)
@@ -1861,11 +1973,15 @@ namespace KoKeKoKo
 							std::cout << unit->tag << " " << unit->unit_type.to_string() << std::endl;
 						}
 						std::cout << std::endl;
-					}/**/
-					auto service = Services::ModelService::CreateNewModelService();
-					if (_actions.empty())// || _currentaction.empty()) //&& !service->ShouldOperationsContinue())
+					}*/
+					if (Observation()->GetFoodUsed() + 2 > Observation()->GetFoodCap())
 					{
-						_actions = service->UpdateModelService(GenerateUpdateString());
+						TryBuildSupplyDepot();
+					}
+					if (_currentaction.empty())// || _currentaction.empty()) //&& !service->ShouldOperationsContinue())
+					{
+						auto service = Services::ModelService::CreateNewModelService();
+						_actions = service->UpdateModelService(GenerateUpdateStringSelf() + GenerateUpdateStringEnemy());
 						std::istringstream raw_actions(_actions.front());
 						std::string raw_action = "";
 						while (std::getline(raw_actions, raw_action, ','))
@@ -1874,11 +1990,21 @@ namespace KoKeKoKo
 						_actions.pop();
 					}
 					//Do the current action
+					bool test = false;
 					if (ExecuteAbility(_currentaction))
 					{
-						_currentaction = _actions.front();
-						_actions.pop();
 						std::cout << _currentaction << std::endl;
+						if (_currentaction != "HARVEST_RETURN")
+							test = true;
+						else
+							test = false;
+						if (!_actions.empty())
+						{
+							_currentaction = _actions.front();
+							_actions.pop();
+						}
+						else
+							_currentaction = "";
 					}
 
 					/*while (!ExecuteAbility(_currentaction))
@@ -1888,6 +2014,7 @@ namespace KoKeKoKo
 
 				virtual void OnGameEnd() final
 				{
+					Coordinator().SaveReplayList("C:/Users/Gelo/Desktop/file");
 					auto service = Services::ModelService::CreateNewModelService();
 					_actions = service->UpdateModelService("TERMINATE");
 					service->StopModelService();
@@ -1897,9 +2024,8 @@ namespace KoKeKoKo
 					_instance = nullptr;
 				}
 
-				virtual void OnUnitCreated() final
+				virtual void OnUnitCreated(const Unit* unit) final
 				{
-
 				}
 
 				virtual void OnUnitIdle(const Unit* unit) final
@@ -2425,6 +2551,7 @@ int main(int argc, char* argv[])
 		coordinator.SetParticipants({ sc2::CreateParticipant(sc2::Race::Terran, kokekokobot), sc2::CreateComputer(sc2::Race::Terran, sc2::Difficulty::VeryEasy) });
 		coordinator.LaunchStarcraft();
 		coordinator.StartGame(sc2::kMapBelShirVestigeLE);
+		coordinator.SetReplayRecovery(true);
 		while (coordinator.Update());
 	}
 	catch (const std::exception& ex)

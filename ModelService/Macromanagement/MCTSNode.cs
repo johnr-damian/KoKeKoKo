@@ -207,8 +207,11 @@ namespace ModelService.Macromanagement
             //}
 
             //True Random
-            owned_agent_chosenaction = computationservice.GetRandomElement(owned_agent_actions).First();
-            enemy_agent_chosenaction = computationservice.GetRandomElement(enemy_agent_actions).First();
+            owned_agent_chosenaction = computationservice.GetRandomElement(owned_agent_actions).Last();
+            enemy_agent_chosenaction = computationservice.GetRandomElement(enemy_agent_actions).Last();
+            /*Random own_ran = new Random(), enemy_ran = new Random();
+            owned_agent_chosenaction = owned_agent_actions[own_ran.Next(0, owned_agent_actions.Length)];
+            enemy_agent_chosenaction = enemy_agent_actions[enemy_ran.Next(0, enemy_agent_actions.Length)];*/
 
             //Apply the action
             Owned_Agent.ApplyChosenAction(owned_agent_chosenaction);
@@ -228,16 +231,16 @@ namespace ModelService.Macromanagement
                 var new_enemy_agent_value = chosen_child.Enemy_Agent.Value;
 
                 owned_agent_value[0] = new_owned_agent_value[0];
-                owned_agent_value[0] = new_owned_agent_value[1];
-                owned_agent_value[0] = new_owned_agent_value[2];
-                owned_agent_value[0] = new_owned_agent_value[3];
-                owned_agent_value[0] = new_owned_agent_value[4];
+                owned_agent_value[1] = new_owned_agent_value[1];
+                owned_agent_value[2] = new_owned_agent_value[2];
+                owned_agent_value[3] = new_owned_agent_value[3];
+                owned_agent_value[4] = new_owned_agent_value[4];
 
                 enemy_agent_value[0] = new_enemy_agent_value[0];
-                enemy_agent_value[0] = new_enemy_agent_value[1];
-                enemy_agent_value[0] = new_enemy_agent_value[2];
-                enemy_agent_value[0] = new_enemy_agent_value[3];
-                enemy_agent_value[0] = new_enemy_agent_value[4];
+                enemy_agent_value[1] = new_enemy_agent_value[1];
+                enemy_agent_value[2] = new_enemy_agent_value[2];
+                enemy_agent_value[3] = new_enemy_agent_value[3];
+                enemy_agent_value[4] = new_enemy_agent_value[4];
             }
 
             //var mineral_worth = ((owned_agent_value[0] / avg_count) >= (enemy_agent_value[0] / avg_count));
@@ -320,16 +323,16 @@ namespace ModelService.Macromanagement
                 var new_enemy_agent_value = chosen_child.Enemy_Agent.Value;
 
                 owned_agent_value[0] = new_owned_agent_value[0];
-                owned_agent_value[0] = new_owned_agent_value[1];
-                owned_agent_value[0] = new_owned_agent_value[2];
-                owned_agent_value[0] = new_owned_agent_value[3];
-                owned_agent_value[0] = new_owned_agent_value[4];
+                owned_agent_value[1] = new_owned_agent_value[1];
+                owned_agent_value[2] = new_owned_agent_value[2];
+                owned_agent_value[3] = new_owned_agent_value[3];
+                owned_agent_value[4] = new_owned_agent_value[4];
 
                 enemy_agent_value[0] = new_enemy_agent_value[0];
-                enemy_agent_value[0] = new_enemy_agent_value[1];
-                enemy_agent_value[0] = new_enemy_agent_value[2];
-                enemy_agent_value[0] = new_enemy_agent_value[3];
-                enemy_agent_value[0] = new_enemy_agent_value[4];
+                enemy_agent_value[1] = new_enemy_agent_value[1];
+                enemy_agent_value[2] = new_enemy_agent_value[2];
+                enemy_agent_value[3] = new_enemy_agent_value[3];
+                enemy_agent_value[4] = new_enemy_agent_value[4];
 
                 owned_agent_unitvalue[0] = chosen_child.Owned_Agent.Units.Sum(unit => SimulatedUnit.Values[unit.Name].Mineral);
                 owned_agent_unitvalue[1] = chosen_child.Owned_Agent.Units.Sum(unit => SimulatedUnit.Values[unit.Name].Vespene);

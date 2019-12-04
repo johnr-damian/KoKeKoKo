@@ -243,6 +243,7 @@ namespace ModelService.Macromanagement
                     case "BUILD_SUPPLYDEPOT":
                     case "TRAIN_SCV":
                     case "BUILD_REFINERY":
+                    case "HARVEST_RETURN":
                         category = "Economy";
                         break;
                     case "BUILD_TECHLAB_BARRACKS":
@@ -320,6 +321,7 @@ namespace ModelService.Macromanagement
                     case "BUILD_SUPPLYDEPOT":
                     case "TRAIN_SCV":
                     case "BUILD_REFINERY":
+                    case "HARVEST_RETURN":
                         category = "Economy";
                         break;
                     case "BUILD_TECHLAB_BARRACKS":

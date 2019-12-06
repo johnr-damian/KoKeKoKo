@@ -16,13 +16,13 @@ namespace ModelService.Collections
         /// The owned agent is a participating agent in the game. It serves as the reference point of
         /// the model in which the results and other related computation is based on owned agent. 
         /// </summary>
-        protected SimulatedAgent Owned_Agent { get; set; } = default(SimulatedAgent);
+        public SimulatedAgent Owned_Agent { get; protected set; } = default(SimulatedAgent);
 
         /// <summary>
         /// The enemy agent is the other participating agent in the game. It serves as the opposing
         /// agent that must be defeated to make the node considered as won.
         /// </summary>
-        protected SimulatedAgent Enemy_Agent { get; set; } = default(SimulatedAgent);
+        public SimulatedAgent Enemy_Agent { get; protected set; } = default(SimulatedAgent);
 
         /// <summary>
         /// The parent node the current node.
@@ -176,6 +176,8 @@ namespace ModelService.Collections
         /// <param name="simulation_result"></param>
         public virtual void BackpropagatePhase(bool simulation_result)
         {
+            Console.WriteLine($@"Currently Backpropagating... Your current depth is {Depth}");
+
             //Update the necesseray properties
             Runs += 1;
             Wins += ((simulation_result) ? 1 : 0); //If the current node is considered as won
@@ -191,11 +193,11 @@ namespace ModelService.Collections
         public virtual void UpdateSimulationNode(IEnumerable<string> source)
         {
             //Update the owned agent
-            Owned_Agent.UpdateSimulatedAgent(source.Take(1).Single().Split(','), source.Skip(1).Take(1).Single().Split(','));
+            Owned_Agent.UpdateSimulatedAgent(source.Skip(1).Take(1).Single().Split('$'), source.Skip(2).Take(1));
 
             //If there has been a known units for the enemy agent
-            if (source.Count() == 3)
-                Enemy_Agent.UpdateSimulatedAgent(source.Skip(2).Take(1).Single().Split(','));
+            if (source.Count() == 4)
+                Enemy_Agent.UpdateSimulatedAgent(source.First(), source.Skip(3).Take(1).Single().Split('$'));
         }
         #endregion
 
@@ -228,7 +230,9 @@ namespace ModelService.Collections
                 case "M":
                     return Owned_Agent.ToString();
                 case "R":
-                    return String.Join("\n", Owned_Agent.ToString("R"), Enemy_Agent.ToString("R"));
+                    return Owned_Agent.ToString("R");
+                case "IR":
+                    return Enemy_Agent.ToString("R");
                 default:
                     throw new Exception($@"Failed to format into string...");
             }

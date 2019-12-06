@@ -448,7 +448,7 @@ namespace ModelService.Types
 
                     double newmineral = 0, newvespene = 0;
                     if (new_units.Count(unit => unit.Name == "TERRAN_REFINERY") > 0)
-                        newvespene = (Worth.Vespene + (8 * Workers));
+                        newvespene = (Worth.Vespene + (4 * Workers));
                     if (new_units.Count(unit => (unit.Name == "TERRAN_COMMANDCENTER" || unit.Name == "TERRAN_ORBITALCOMMAND" || unit.Name == "TERRAN_PLANETARYFORTRESS")) > 0)
                         newmineral = (Worth.Mineral + (5 * Workers));
 

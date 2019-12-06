@@ -85,7 +85,7 @@ namespace ModelService.Macromanagement
             //Initialize the information about the current Macromanagement
             Source = new string[4][];
             Source[0] = source.Take(2).ToArray();
-            Source[1] = source.Skip(2).Single().Split(',');
+            Source[1] = source.Skip(2).Single().Split('$');
             Source[2] = Enumerable.Empty<string>().ToArray();
             Source[3] = Enumerable.Empty<string>().ToArray();
 
@@ -114,6 +114,8 @@ namespace ModelService.Macromanagement
                 {
                     //Get the best next move from the current node
                     var best_node = Current.SelectPhase();
+                    if (best_node == null)
+                        System.Diagnostics.Debugger.Break();
 
                     //Store the move in the list of actions
                     actions.Add(best_node.ToString());
@@ -135,7 +137,7 @@ namespace ModelService.Macromanagement
         /// of macromanagement prediction given by a limited time.
         /// </summary>
         /// <returns></returns>
-        private List<string> CreateAccuracyReport()
+        private List<string> CreateAccuracyReport(string format)
         {
             //Get the maximum gameplay time
             int maximum_seconds = Math.Max(Convert.ToInt32(Source[1].Last().Split(',')[0]), Convert.ToInt32(Source[2].Last().Split(',')[0]));
@@ -147,8 +149,9 @@ namespace ModelService.Macromanagement
             var information = new List<string>();
             var agentservice = AgentService.CreateNewAgentService();
             string message = agentservice.UpdateAgentService(maximum_time);
+            int necessary_count = (format == "R")? Source[1].Length : Source[2].Length;
 
-            while(message != "TERMINATE")
+            while((message != "TERMINATE") || (information.Count < necessary_count))
             {
                 while(agentservice.ShouldOperationsContinue())
                 {
@@ -169,7 +172,7 @@ namespace ModelService.Macromanagement
                 }
 
                 //Add the current node's information because it is the 10-second move
-                information.Add(Current.ToString("R"));
+                information.Add(Current.ToString(format));
 
                 //Update the agent service
                 message = agentservice.UpdateAgentService(maximum_time);
@@ -215,12 +218,19 @@ namespace ModelService.Macromanagement
                 //The requested string is for accuracy report for R
                 case "R":
                     //Sequence of basis
-                    var basis = String.Join(",", String.Join("\n", Source[1]), String.Join("\n", Source[2]));
+                    //var basis = String.Join(",", String.Join("\n", Source[1]), String.Join("\n", Source[2]));
+                    string basis = String.Join("\n", Source[1]);
 
                     //Sequence of simulation
-                    var simulation = String.Join("\n", CreateAccuracyReport());
+                    var simulation = String.Join("\n", CreateAccuracyReport("R"));
 
-                    return String.Join(";", basis, simulation);
+                    return String.Join("$", basis, simulation);
+                case "IR":
+                    string ebasis = String.Join("\n", Source[2]);
+
+                    string esimulation = String.Join("\n", CreateAccuracyReport("IR"));
+
+                    return String.Join(";", ebasis, esimulation);
                 default:
                     throw new Exception($@"Failed to format into string...");
             }

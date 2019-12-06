@@ -12,7 +12,7 @@ namespace ModelService
         /// <summary>
         /// Contains the minimal definitions for a unit to participate in battle
         /// </summary>
-        private static Dictionary<string, Definition> Definitions = new Dictionary<string, Definition>()
+        public static Dictionary<string, Definition> Definitions = new Dictionary<string, Definition>()
         {
             //Ground Units
             ["TERRAN_WIDOWMINE"] = new Definition(90, 0, 0, 0, 0, false),
@@ -52,6 +52,7 @@ namespace ModelService
             ["TERRAN_COMMANDCENTER"] = new Definition(1500, 0, 0, 0, 1, false),
             ["TERRAN_ORBITALCOMMAND"] = new Definition(1500, 200, 0, 0, 1, false), //50/200
             ["TERRAN_SUPPLYDEPOT"] = new Definition(400, 0, 0, 0, 1, false),
+            ["TERRAN_SUPPLYDEPOTLOWERED"] = new Definition(400, 0, 0, 0, 1, false),
             ["TERRAN_REFINERY"] = new Definition(500, 0, 0, 0, 1, false),
             ["TERRAN_BARRACKS"] = new Definition(1000, 0, 0, 0, 1, false),
             ["TERRAN_BARRACKSREACTOR"] = new Definition(400, 0, 0, 0, 1, false),
@@ -73,7 +74,7 @@ namespace ModelService
         /// <summary>
         /// Contains the minimal values for a unit to know the cost and worth in simulation.
         /// </summary>
-        private static Dictionary<string, Cost> Values = new Dictionary<string, Cost>()
+        public static Dictionary<string, Cost> Values = new Dictionary<string, Cost>()
         {
             //Ground Units
             ["TERRAN_WIDOWMINE"] = new Cost(19, 75, 25, 2),
@@ -113,6 +114,7 @@ namespace ModelService
             ["TERRAN_COMMANDCENTER"] = new Cost(11, 400, 0, 0),
             ["TERRAN_ORBITALCOMMAND"] = new Cost(11, 550, 0, 0),
             ["TERRAN_SUPPLYDEPOT"] = new Cost(11, 100, 0, 0),
+            ["TERRAN_SUPPLYDEPOTLOWERED"] = new Cost(11, 100, 0, 0),
             ["TERRAN_REFINERY"] = new Cost(11, 75, 0, 0),
             ["TERRAN_BARRACKS"] = new Cost(11, 150, 0, 0),
             ["TERRAN_BARRACKSREACTOR"] = new Cost(11, 50, 50, 0),
@@ -211,11 +213,13 @@ namespace ModelService
         public string Name { get; private set; } = default(string);
         #endregion
 
+        public static explicit operator double[](SimulatedUnit unit) => ((double[])Values[unit.Name]);
+
         #region Structures
         /// <summary>
         /// A minimal definition of a unit that is used in simulation.
         /// </summary>
-        private struct Definition
+        public struct Definition
         {
             #region Properties
             /// <summary>
@@ -273,28 +277,28 @@ namespace ModelService
         /// A struct that contains the worth of destroying this unit, or the
         /// cost in order to create this unit during simulation.
         /// </summary>
-        private struct Cost
+        public struct Cost
         {
             #region Properties
             /// <summary>
             /// The mineral cost to create this unit.
             /// </summary>
-            private double Mineral { get; set; }
+            public double Mineral { get; set; }
 
             /// <summary>
             /// The vespene cost to create this unit.
             /// </summary>
-            private double Vespene { get; set; }
+            public double Vespene { get; set; }
 
             /// <summary>
             /// The supply that will be consumed when this unit is created.
             /// </summary>
-            private int Supply { get; set; }
+            public int Supply { get; set; }
 
             /// <summary>
             /// The StarCraft II priority to kill this unit during a battle.
             /// </summary>
-            private int Priority { get; set; }
+            public int Priority { get; set; }
             #endregion
 
             #region Operators
@@ -390,9 +394,51 @@ namespace ModelService
         #endregion
 
 
-        public SimulatedUnit(string unit)
+
+        public SimulatedUnit(string unit_name, IEnumerable<string> upgrades)
         {
-            var parsed_unit = unit.Split(',');
+            Current_Target = -1;
+            Targets = new List<SimulatedUnit>();
+
+            Health = Definitions[unit_name].Health;
+            Energy = Definitions[unit_name].Energy;
+            Armor = Definitions[unit_name].Armor;
+            Air_Damage = Definitions[unit_name].Air_Damage;
+            Ground_Damage = Definitions[unit_name].Ground_Damage;
+            Upgrades = new List<string>(upgrades);
+            Skills = new List<Tuple<string, DateTime>>();
+            UniqueID = Guid.NewGuid().ToString("N");
+            Name = unit_name;
+        }
+
+        public SimulatedUnit(string[] unit_details, IEnumerable<string> upgrades)
+        {
+            Current_Target = -1;
+            Targets = new List<SimulatedUnit>();
+
+            if (unit_details.Length > 0)
+            {
+                try
+                {
+                    UniqueID = unit_details[0].Trim();
+                    Name = unit_details[1].Trim();
+                    Health = Definitions[Name].Health;
+                    Energy = Definitions[Name].Energy;
+                    Armor = Definitions[Name].Armor;
+                    Air_Damage = Definitions[Name].Air_Damage;
+                    Ground_Damage = Definitions[Name].Ground_Damage;
+                    Upgrades = new List<string>(upgrades);
+                    Skills = new List<Tuple<string, DateTime>>();                   
+                    
+                }
+                catch (KeyNotFoundException ex)
+                {
+                    System.Diagnostics.Debugger.Break();
+                    Console.WriteLine($@"(C#)Error Occurred! {ex.Message}");
+                }
+            }
+            else
+                throw new Exception("Failed to parse unit...");
         }
 
         public void ApplyChosenAction(string chosen_action)
